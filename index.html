@@ -233,9 +233,6 @@ option{background:#070b12;color:#d7e6ef}
     <div style="{{ mBody }}">
     <div style="{{ mHeadRow }}">
       <span data-pop onClick="{{ mUnit }}" style="display:flex;align-items:center;gap:.3rem;min-width:0;height:100%;cursor:pointer;white-space:nowrap"><span>{{ measureLabel }}</span><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ unitOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ unitOpts }}" as="u" hint-placeholder-count="4"><button onClick="{{ u.onClick }}" style="{{ u.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ u.label }}</span><span style="{{ u.gStyle }}">{{ u.grams }}</span></button></sc-for><span style="{{ mPopNote }}">Sets the portion every food is measured at. Once added, a food's size can be typed directly in the summary table.</span></span></span></sc-if></span>
-      <span data-pop onClick="{{ mTipP }}" style="{{ mHead }}"><span>P</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ mTip.s1 }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></button></sc-for><span style="{{ mPopLabel }}">PROTEIN</span><span style="{{ mPopNote }}">Builds and repairs tissue. 4 kcal per gram; the most satiating macro per calorie.</span></span></span></sc-if></span>
-      <span data-pop onClick="{{ mTipC }}" style="{{ mHead }}"><span>C</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ mTip.s2 }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></button></sc-for><span style="{{ mPopLabel }}">CARB</span><span style="{{ mPopNote }}">The body's most accessible fuel. 4 kcal per gram; includes sugars, starches and fibre.</span></span></span></sc-if></span>
-      <span data-pop onClick="{{ mTipF }}" style="{{ mHead }}"><span>F</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ mTip.s3 }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></button></sc-for><span style="{{ mPopLabel }}">FAT</span><span style="{{ mPopNote }}">Most energy-dense at 9 kcal per gram; needed to absorb vitamins A, D, E and K.</span></span></span></sc-if></span>
       <span data-pop onClick="{{ mColToggle }}" style="{{ mHead }}"><span>{{ mColLabel }}</span><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ mColOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ mColOpts }}" as="o" hint-placeholder-count="5"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ o.label }}</span><span style="{{ o.unitStyle }}">{{ o.unit }}</span></button></sc-for><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(34,211,238,.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="{{ mPopNote }}">Digestion costs 25% of protein calories, 8% of carbohydrate, 2% of fat. Always applied to KCAL; applied to the macro columns only when they show kcal contribution.</span></span></span></sc-if></span>
     </div>
     <div data-scroll style="{{ mListStyle }}">
@@ -245,9 +242,6 @@ option{background:#070b12;color:#d7e6ef}
             <span data-finger><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span>
           </sc-if>
           <span style="{{ mName }}">{{ r.name }}</span>
-          <span style="{{ mNum }}">{{ r.v1 }}</span>
-          <span style="{{ mNum }}">{{ r.v2 }}</span>
-          <span style="{{ mNum }}">{{ r.v3 }}</span>
           <span style="{{ mColCell }}">{{ r.mVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
         </div>
       </sc-for>
@@ -605,7 +599,12 @@ class Component extends DCLogic {
     ];
     const extra = EXTRAS.find(x => x.k === (s.extra || "score")) || EXTRAS[0];
     // Mobile's last column does double duty: kcal by default, or one chosen nutrient.
-    const MCOLS = [{ k: "kcal", label: "KCAL", unit: "kcal", get: fo => kcalOf(fo) }].concat(EXTRAS.map(x => ({ k: x.k, label: x.k === "score" ? "FULLNESS" : x.k === "fb" ? "FIBRE" : x.k === "sf" ? "SAT FAT" : x.k === "sg" ? "SUGAR" : "DENSITY", unit: x.unit, get: x.get })));
+    const MCOLS = [
+      { k: "kcal", label: "KCAL", unit: "kcal", get: fo => kcalOf(fo) },
+      { k: "p", label: "PROT", unit: "g", get: fo => fo.p },
+      { k: "c", label: "CARB", unit: "g", get: fo => fo.c },
+      { k: "f", label: "FAT", unit: "g", get: fo => fo.f }
+    ].concat(EXTRAS.map(x => ({ k: x.k, label: x.k === "score" ? "FULLNESS" : x.k === "fb" ? "FIBRE" : x.k === "sf" ? "SAT FAT" : x.k === "sg" ? "SUGAR" : "DENSITY", unit: x.unit, get: x.get })));
     const mCol = MCOLS.find(x => x.k === (s.mCol || "kcal")) || MCOLS[0];
     const units = [
       { k: "TSP", label: "TSP", grams: "5", g: 5, foot: "PER TSP \u00b7 5 G/ML" },
@@ -725,7 +724,7 @@ class Component extends DCLogic {
       display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300,
       fontSize: "1.04rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
     };
-    const mCols = bare ? "minmax(0,1fr)" : "minmax(0,1fr) 2.8rem 2.8rem 2.8rem 4.2rem";
+    const mCols = bare ? "minmax(0,1fr)" : "minmax(0,1fr) 7rem";
     // One-way: once you have typed, the page never returns to the landing state.
     const landing = !!s.narrow && !s.typed;
     const vh = s.vvh || (typeof window !== "undefined" ? window.innerHeight : 800);
