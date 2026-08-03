@@ -241,7 +241,7 @@ option{background:#070b12;color:#d7e6ef}
       <span data-pop onClick="{{ mTipF }}" style="{{ mHead }}"><span>F</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ mTip.s3 }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></button></sc-for><span style="{{ mPopLabel }}">FAT</span><span style="{{ mPopNote }}">Most energy-dense at 9 kcal per gram; needed to absorb vitamins A, D, E and K.</span></span></span></sc-if></span>
       <span data-pop onClick="{{ mColToggle }}" style="{{ mHead }}"><span>{{ mColLabel }}</span><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ mColOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ mColOpts }}" as="o" hint-placeholder-count="5"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ o.label }}</span><span style="{{ o.unitStyle }}">{{ o.unit }}</span></button></sc-for><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(34,211,238,.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="{{ mPopNote }}">Digestion costs 25% of protein calories, 8% of carbohydrate, 2% of fat. Always applied to KCAL; applied to the macro columns only when they show kcal contribution.</span></span></span></sc-if></span>
     </div>
-    <div data-scroll style="flex:1;min-height:0;overflow-y:auto">
+    <div data-scroll style="{{ mListStyle }}">
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
         <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ r.mRow }}">
           <sc-if value="{{ r.finger }}" hint-placeholder-val="{{ false }}">
@@ -268,8 +268,7 @@ option{background:#070b12;color:#d7e6ef}
         </sc-for>
       </div>
       <div style="flex:none;display:flex;align-items:center;gap:.7rem;min-height:2.2rem;padding:.5rem 0 calc(1.35rem + env(safe-area-inset-bottom, 0px));border-top:1px solid rgba(34,211,238,.55)">
-        <span style="flex:none;white-space:nowrap;font-family:var(--font-2);font-size:.92rem;letter-spacing:.1em;color:#7b91a3">TOT <span style="color:#22d3ee">{{ sumCount }}</span></span>
-        <span style="flex:1;min-width:0;display:flex;gap:.45rem;justify-content:flex-end;align-items:baseline;font-weight:300;font-size:1.08rem;color:#d7e6ef;font-variant-numeric:tabular-nums;white-space:nowrap">
+        <span style="flex:1;min-width:0;display:flex;justify-content:space-between;align-items:baseline;font-weight:300;font-size:1.08rem;color:#d7e6ef;font-variant-numeric:tabular-nums;white-space:nowrap">
           <span><span style="{{ mMacroTag }}">PROT</span> {{ tot.v1 }}<span style="{{ unitSuffix }}">{{ tot.u3 }}</span></span>
           <span><span style="{{ mMacroTag }}">CARB</span> {{ tot.v2 }}<span style="{{ unitSuffix }}">{{ tot.u3 }}</span></span>
           <span><span style="{{ mMacroTag }}">FAT</span> {{ tot.v3 }}<span style="{{ unitSuffix }}">{{ tot.u3 }}</span></span>
@@ -403,6 +402,7 @@ class Component extends DCLogic {
     document.addEventListener("focusout", this._focusOut);
     document.addEventListener("click", this._dismiss);
     document.addEventListener("touchstart", this._dismiss, { passive: true });
+    this.startTypewriter();
     this._onResize = () => {
       const n = window.innerWidth < 700;
       if (n !== this.state.narrow) this.setState({ narrow: n });
@@ -464,6 +464,8 @@ class Component extends DCLogic {
       })
       .catch(() => { delete cache[k]; this.setState({ loadErr: k }); });
   }
+  // The landing screen asks; it does not report. The count belongs on the docked bar.
+  landingPrompt() { return "SEARCH FOODS"; }
   placeholderText() {
     const s = this.state, libs = this.libraries(), lib = s.lib || "CORE";
     const n = this.foods().filter(fo => s.cat === "ALL" || fo.cat === s.cat).length;
@@ -476,7 +478,7 @@ class Component extends DCLogic {
   startTypewriter() {
     if (this._tw || !this.state.narrow || this.state.typed) return;
     this._tw = setInterval(() => {
-      const full = this.placeholderText();
+      const full = this.landingPrompt();
       const n = (this.state.tw || 0) + 1;
       if (n >= full.length) { clearInterval(this._tw); this._tw = null; }
       this.setState({ tw: n });
@@ -727,7 +729,7 @@ class Component extends DCLogic {
     const selStyle = {
       display: "inline-flex", alignItems: "center", height: "2.1rem", padding: 0, border: 0, borderRadius: 0,
       background: "transparent", cursor: "pointer", whiteSpace: "nowrap",
-      fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em", textTransform: "uppercase",
+      fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", textTransform: "uppercase",
       color: "#94a3b8"
     };
     const libs = this.libraries();
@@ -761,7 +763,7 @@ class Component extends DCLogic {
         display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", width: "100%", boxSizing: "border-box",
         height: "2.1rem", padding: "0 .7rem", border: 0, borderBottom: "1px solid rgba(34,211,238,.28)", borderRadius: 0,
         cursor: "pointer", textAlign: "left",
-        fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em",
+        fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em",
         transition: "background 140ms ease, color 140ms ease",
         background: basis === b.k ? "rgba(34,211,238,.10)" : "transparent",
         color: basis === b.k ? "#22d3ee" : "#d7e6ef"
@@ -782,14 +784,14 @@ class Component extends DCLogic {
     const unitOpts = units.map((u, ui) => ({
       label: u.label, grams: u.grams,
       onClick: () => this.setState({ unit: u.k, unitOpen: false }),
-      gStyle: { fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em", fontVariantNumeric: "tabular-nums", color: unit.k === u.k ? "#22d3ee" : "#94a3b8", flex: "none" },
+      gStyle: { fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", fontVariantNumeric: "tabular-nums", color: unit.k === u.k ? "#22d3ee" : "#94a3b8", flex: "none" },
       style: {
         display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem",
         width: "100%", boxSizing: "border-box", height: "1.95rem", padding: "0 .7rem",
         border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left",
         borderBottom: ui < 2 ? "1px solid rgba(34,211,238,.28)" : "0",
         borderRight: ui % 2 === 0 ? "1px solid rgba(34,211,238,.28)" : "0",
-        fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em", whiteSpace: "nowrap",
+        fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", whiteSpace: "nowrap",
         transition: "background 140ms ease, color 140ms ease",
         background: unit.k === u.k ? "rgba(34,211,238,.10)" : "transparent",
         color: unit.k === u.k ? "#22d3ee" : "#d7e6ef"
@@ -800,12 +802,12 @@ class Component extends DCLogic {
     const catOpts = cats.map(c => ({
       label: c,
       count: String(catCount(c)),
-      countStyle: { fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em", fontVariantNumeric: "tabular-nums", textAlign: "right", color: c === s.cat ? "#22d3ee" : "#7b91a3" },
+      countStyle: { fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", fontVariantNumeric: "tabular-nums", textAlign: "right", color: c === s.cat ? "#22d3ee" : "#7b91a3" },
       onClick: () => this.setState({ cat: c, catOpen: false }),
       style: {
         display: "grid", gridTemplateColumns: "minmax(0,1fr) 3.2rem", columnGap: ".55rem", alignItems: "center", height: "1.95rem", padding: "0 .7rem", border: 0, borderBottom: cats.indexOf(c) === cats.length - 1 ? 0 : "1px solid rgba(34,211,238,.28)", borderRadius: 0,
         background: c === s.cat ? "rgba(34,211,238,.10)" : "transparent", cursor: "pointer",
-        fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em", textAlign: "left",
+        fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", textAlign: "left",
         transition: "background 140ms ease, color 140ms ease",
         color: c === s.cat ? "#22d3ee" : "#d7e6ef"
       }
@@ -952,7 +954,7 @@ class Component extends DCLogic {
           display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem",
           height: "2.4rem", padding: "0 .7rem", border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left",
           borderBottom: xi === MCOLS.length - 1 ? 0 : "1px solid rgba(34,211,238,.28)",
-          fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em", whiteSpace: "nowrap",
+          fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", whiteSpace: "nowrap",
           transition: "background 140ms ease, color 140ms ease",
           background: mCol.k === x.k ? "rgba(34,211,238,.10)" : "transparent",
           color: mCol.k === x.k ? "#22d3ee" : "#d7e6ef"
@@ -990,7 +992,7 @@ class Component extends DCLogic {
         padding: bare ? ".35rem 0" : 0
       },
       mHeadRow: {
-        flex: "none", position: "relative", display: "grid", gridTemplateColumns: mCols,
+        flex: "none", position: "relative", display: s.kbQty ? "none" : "grid", gridTemplateColumns: mCols,
         columnGap: ".4rem", alignItems: "center", height: "2.4rem",
         borderTop: "1px solid rgba(34,211,238,.28)", borderBottom: "1px solid rgba(34,211,238,.55)",
         fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".08em",
@@ -999,11 +1001,11 @@ class Component extends DCLogic {
       mHead: { display: bare ? "none" : "flex", alignItems: "center", justifyContent: "flex-end", gap: ".15rem", height: "100%", cursor: "pointer", whiteSpace: "nowrap" },
       mPop: { position: "absolute", top: "100%", left: 0, right: 0, zIndex: 40, display: "flex", flexDirection: "column", paddingTop: ".3rem", textTransform: "none", letterSpacing: 0 },
       mPopInner: { display: "flex", flexDirection: "column", background: "#070b12", border: "1px solid rgba(34,211,238,.55)", boxShadow: "0 0 28px rgba(34,211,238,.12)" },
-      mPopLabel: { padding: ".55rem .7rem 0", fontFamily: "var(--font-2)", fontSize: ".78rem", letterSpacing: ".12em", color: "#7b91a3" },
-      mPopNote: { padding: ".35rem .7rem .7rem", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".94rem", lineHeight: 1.55, color: "#94a3b8", textWrap: "pretty", whiteSpace: "normal" },
+      mPopLabel: { padding: ".55rem .7rem 0", fontFamily: "var(--font-2)", fontSize: ".86rem", letterSpacing: ".12em", color: "#7b91a3" },
+      mPopNote: { padding: ".35rem .7rem .7rem", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.02rem", lineHeight: 1.55, color: "#94a3b8", textWrap: "pretty", whiteSpace: "normal" },
       mNum: { display: bare ? "none" : "block", textAlign: "right", fontWeight: 300, fontSize: "1rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
       mColCell: { display: bare ? "none" : "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300, fontSize: "1.04rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
-      mMacroTag: { fontFamily: "var(--font-2)", fontSize: ".78rem", letterSpacing: ".02em", color: "#7b91a3" },
+      mMacroTag: { fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".06em", color: "#7b91a3" },
       isResults: s.view === "results", isSettings: s.view === "settings", isSignin: s.view === "signin",
       aboutOpen: !!s.aboutOpen,
       openAbout: () => this.setState({ aboutOpen: true }),
@@ -1053,13 +1055,18 @@ class Component extends DCLogic {
         width: "1.9rem", height: "100%", flex: "none", cursor: "pointer", color: "#7b91a3"
       },
       mSumPanel: {
-        flex: "none",
         // Editing a serving size makes the summary the subject; the results list can wait.
-        maxHeight: s.kbQty ? "72%" : "40%",
+        flex: s.kbQty ? "1 1 auto" : "none",
+        maxHeight: s.kbQty ? "none" : "40%",
         display: "flex", flexDirection: "column", background: "#090f18",
         borderTop: "1px solid rgba(34,211,238,.55)",
         transition: "max-height 220ms cubic-bezier(.22,1,.36,1)"
       },
+      // The results list steps aside entirely while a serving size is being typed.
+      mListStyle: s.kbQty
+        ? { display: "none" }
+        : { flex: 1, minHeight: 0, overflowY: "auto" },
+      mHeadRowHidden: s.kbQty,
       mLibBtn: {
         display: "flex", alignItems: "center", justifyContent: "center",
         width: "2rem", height: "100%", cursor: "pointer", color: "#c3d6e2",
@@ -1102,7 +1109,7 @@ class Component extends DCLogic {
       },
       // Mobile drops the library name — at the larger type it would push the count off the edge.
       searchPlaceholder: landing
-        ? this.placeholderText().slice(0, s.tw || 0) + ((s.tw || 0) < this.placeholderText().length ? "\u258f" : "")
+        ? this.landingPrompt().slice(0, s.tw || 0) + ((s.tw || 0) < this.landingPrompt().length ? "\u258f" : "")
         : this.placeholderText(),
       rows, cats, selStyle, catOpts, libOpts, unitOpts, unitFoot: unit.foot,
       libLabel: (libs.find(d => d.k === lib) || libs[0]).label,
@@ -1165,7 +1172,7 @@ class Component extends DCLogic {
           display: "flex", flexDirection: "column", alignItems: "flex-start", gap: ".2rem",
           padding: ".5rem .7rem .6rem", border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left", width: "100%",
           borderBottom: x.k === "dens" ? 0 : "1px solid rgba(34,211,238,.28)",
-          fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em",
+          fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em",
           transition: "background 140ms ease, color 140ms ease",
           background: extra.k === x.k ? "rgba(34,211,238,.10)" : "transparent",
           color: extra.k === x.k ? "#22d3ee" : "#d7e6ef"
