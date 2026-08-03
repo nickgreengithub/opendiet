@@ -81,7 +81,7 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
 [data-finger="qty"]{left:auto;right:20px;animation-name:od-point-l}
 [data-finger]{
   position:absolute;left:38%;top:50%;margin-top:-5px;
-  color:#22d3ee;pointer-events:none;z-index:3;
+  color:#22d3ee;pointer-events:none;z-index:1;
   filter:drop-shadow(0 0 7px rgba(34,211,238,.55));
   animation:od-point 2500ms cubic-bezier(.22,1,.36,1) both;
 }
@@ -217,11 +217,11 @@ option{background:#070b12;color:#d7e6ef}
     <div data-hint="{{ searchHint }}" style="{{ mSearchRow }}">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="flex:none"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
       <input data-search placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ mSearchInput }}">
-      <span data-pop onClick="{{ mLib }}" style="{{ mLibBtn }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg></span>
+      <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ mClearBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if><span data-pop onClick="{{ mLib }}" style="{{ mLibBtn }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></span>
       <sc-if value="{{ libOpen }}" hint-placeholder-val="{{ false }}">
-        <span data-pop style="position:absolute;top:100%;left:0;z-index:40;display:flex;flex-direction:column;min-width:16rem;max-height:70vh;overflow-y:auto;padding-top:.35rem">
+        <span data-pop style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:18rem;max-height:70vh;overflow-y:auto;padding-top:.35rem">
           <span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)">
-            <span style="display:grid;grid-template-columns:minmax(0,1fr) 4.6rem;column-gap:.55rem;padding:.35rem .7rem;border-bottom:1px solid rgba(34,211,238,.55);font-family:var(--font-2);font-size:.68rem;letter-spacing:.12em;color:#7b91a3"><span>LIBRARY</span><span style="text-align:right">FOODS</span></span>
+            <span style="display:grid;grid-template-columns:minmax(0,1fr) 5.2rem;column-gap:.55rem;padding:.45rem .85rem;border-bottom:1px solid rgba(34,211,238,.55);font-family:var(--font-2);font-size:.78rem;letter-spacing:.12em;color:#7b91a3"><span>LIBRARY</span><span style="text-align:right">FOODS</span></span>
             <sc-for list="{{ libOpts }}" as="o" hint-placeholder-count="4">
               <button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ o.label }}</span><span style="{{ o.countStyle }}">{{ o.sub }}</span></button>
             </sc-for>
@@ -713,13 +713,14 @@ class Component extends DCLogic {
     const lib = s.lib || "CORE";
     const libOpts = libs.map((d, di) => ({
       label: d.label.replace("USDA ", ""), sub: d.sub,
-      countStyle: { fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em", fontVariantNumeric: "tabular-nums", textAlign: "right", color: lib === d.k ? "#22d3ee" : "#7b91a3" },
+      countStyle: { fontFamily: "var(--font-2)", fontSize: s.narrow ? ".86rem" : ".75rem", letterSpacing: ".12em", fontVariantNumeric: "tabular-nums", textAlign: "right", color: lib === d.k ? "#22d3ee" : "#7b91a3" },
       onClick: () => { this.loadLib(d.k); this.setState({ lib: d.k, cat: "ALL", libOpen: false }); },
       style: {
         display: "grid", gridTemplateColumns: "minmax(0,1fr) 4.6rem", columnGap: ".55rem", alignItems: "center",
-        height: "1.95rem", padding: "0 .7rem", border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left",
+        height: s.narrow ? "2.4rem" : "1.95rem", padding: s.narrow ? "0 .85rem" : "0 .7rem",
+        border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left",
         borderBottom: "1px solid rgba(34,211,238,.28)",
-        fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em", whiteSpace: "nowrap",
+        fontFamily: "var(--font-2)", fontSize: s.narrow ? ".86rem" : ".75rem", letterSpacing: ".12em", whiteSpace: "nowrap",
         transition: "background 140ms ease, color 140ms ease",
         background: lib === d.k ? "rgba(34,211,238,.10)" : "transparent",
         color: lib === d.k ? "#22d3ee" : "#d7e6ef"
@@ -990,7 +991,7 @@ class Component extends DCLogic {
         gap: landing ? ".9rem" : ".6rem",
         height: landing ? "3.6rem" : "2.9rem",
         padding: landing ? "0 1.9rem" : "0 .55rem 0 .6rem",
-        fontFamily: "var(--font-2)", zIndex: 2,
+        fontFamily: "var(--font-2)", zIndex: 20,
         transform: landing ? "translateY(" + landingDrop + "px)" : "none",
         // It travels at one speed and settles into the compact bar at a slower one, so the
         // shape keeps resolving after the move has landed.
@@ -1006,6 +1007,12 @@ class Component extends DCLogic {
         fontSize: landing ? "1.24rem" : "1rem",
         letterSpacing: landing ? ".07em" : ".05em",
         transition: "font-size 760ms cubic-bezier(.22,1,.36,1), height 760ms cubic-bezier(.22,1,.36,1), letter-spacing 760ms ease, padding 760ms ease"
+      },
+      hasQuery: !!q && !landing,
+      clearQ: () => this.setState({ q: "" }),
+      mClearBtn: {
+        display: "flex", alignItems: "center", justifyContent: "center",
+        width: "1.9rem", height: "100%", flex: "none", cursor: "pointer", color: "#7b91a3"
       },
       mLibBtn: {
         display: "flex", alignItems: "center", justifyContent: "center",
@@ -1081,10 +1088,11 @@ class Component extends DCLogic {
       head1: headCell(HUE[0], true), head2: headCell(HUE[1]), head3: headCell(HUE[2]),
       headTotal: Object.assign({}, headIsland, { borderLeft: INNER }),
       aboutRowStyle: {
-        display: "flex", alignItems: "center", gap: ".3rem", height: "1.95rem", padding: "0 .7rem",
+        display: "flex", alignItems: "center", gap: ".3rem",
+        height: s.narrow ? "2.4rem" : "1.95rem", padding: s.narrow ? "0 .85rem" : "0 .7rem",
         border: 0, borderTop: "1px solid rgba(34,211,238,.55)", borderRadius: 0, cursor: "pointer",
         background: "transparent", textAlign: "left", whiteSpace: "nowrap",
-        fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em", color: "#94a3b8",
+        fontFamily: "var(--font-2)", fontSize: s.narrow ? ".86rem" : ".75rem", letterSpacing: ".12em", color: "#94a3b8",
         transition: "background 140ms ease"
       },
       extraLabel: extra.label, extraUnit: extra.unit,
