@@ -37,6 +37,9 @@
 html,body{margin:0;background:radial-gradient(900px 500px at 50% -20%, rgba(34,211,238,.07), transparent 60%), #05080d;color:#d7e6ef;font-family:var(--font-1),sans-serif}
 a{color:#22d3ee;text-decoration:none;transition:color 140ms ease}a:hover{color:#a5f3fc}
 input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:inset 0 0 0 1px rgba(34,211,238,.5);caret-color:#22d3ee}
+/* The mobile search field says enough with a caret and the text being typed. The wash and
+   ring were carrying the "start here" job that the landing screen now does. */
+[data-search="m"]:focus{background:transparent!important;box-shadow:none}
 /* Ambient onboarding: a light sweeps through whatever the user should touch next.
    Purely decorative — it never blocks a tap, and it stops the moment the step is done. */
 @keyframes od-sweep{0%{background-position:190% 0}70%{background-position:-90% 0}100%{background-position:-90% 0}}
@@ -216,7 +219,7 @@ option{background:#070b12;color:#d7e6ef}
   <div style="display:flex;flex-direction:column;flex:1;min-height:0">
     <div data-hint="{{ searchHint }}" style="{{ mSearchRow }}">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="flex:none"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
-      <input data-search placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ mSearchInput }}">
+      <input data-search="m" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ mSearchInput }}">
       <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ mClearBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if><span data-pop onClick="{{ mLib }}" style="{{ mLibBtn }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></span>
       <sc-if value="{{ libOpen }}" hint-placeholder-val="{{ false }}">
         <span data-pop style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:18rem;max-height:70vh;overflow-y:auto;padding-top:.35rem">
