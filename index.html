@@ -220,7 +220,7 @@ option{background:#070b12;color:#d7e6ef}
         <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
           <div data-row onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(0,1fr) 4.2rem 4.2rem;column-gap:.4rem;align-items:center;min-height:2.5rem;border-left:2px solid transparent;border-bottom:1px solid rgba(34,211,238,.14);cursor:pointer;transition:background 140ms ease">
             <span style="{{ mName }}">{{ r.name }}</span>
-            <span data-hint="{{ r.qtyHint }}" style="display:flex;align-items:stretch;justify-content:flex-end"><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
+            <span data-hint="{{ r.qtyHint }}" style="display:flex;align-items:center;justify-content:flex-end"><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
             <span style="{{ mColCell }}">{{ r.mSumVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
           </div>
         </sc-for>
