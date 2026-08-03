@@ -258,7 +258,7 @@ option{background:#070b12;color:#d7e6ef}
           <div data-row style="{{ mSumRow }}">
             <span style="{{ mName }}">{{ r.name }}</span>
             <button onClick="{{ r.remove }}" style="{{ rowBinBtn }}" style-hover="color:#f08c7a"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 7h16"></path><path d="M10 11.5v5.5M14 11.5v5.5"></path><path d="M6.5 7l.9 12.1a1.4 1.4 0 0 0 1.4 1.3h6.4a1.4 1.4 0 0 0 1.4-1.3L17.5 7"></path><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"></path></svg></button>
-            <span style="{{ qtyCell }}"><button data-step="l" data-pulse="{{ r.stepPulse }}" onClick="{{ r.stepDown }}" style="{{ stepBtnL }}" style-hover="color:#22d3ee">−</button><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ r.qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span><button data-step="r" data-pulse="{{ r.stepPulse }}" onClick="{{ r.stepUp }}" style="{{ stepBtnR }}" style-hover="color:#22d3ee">+</button></span>
+            <span style="{{ qtyCell }}"><button data-step="l" data-pulse="{{ r.stepPulse }}" onClick="{{ r.stepDown }}" style="{{ stepBtnL }}" style-hover="color:#22d3ee">−</button><span style="{{ r.qtyStyle }}">{{ r.qty }}</span><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span><button data-step="r" data-pulse="{{ r.stepPulse }}" onClick="{{ r.stepUp }}" style="{{ stepBtnR }}" style-hover="color:#22d3ee">+</button></span>
             <span style="{{ mSumKcal }}">{{ r.mSumVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
           </div>
         </sc-for>
@@ -375,20 +375,6 @@ class Component extends DCLogic {
       if (t.matches("[data-search]")) {
         clearTimeout(this._kbT);
         this.setState({ kb: true });
-      } else if (t.tagName === "INPUT") {
-        clearTimeout(this._qT);
-        this.setState({ kbQty: true });
-        // Only move the row if it is genuinely out of sight. Scrolling while the keyboard is
-        // settling makes iOS dismiss and re-present it, and moving between two fields that are
-        // both already visible was scrolling for no reason — hence the sink and spring back.
-        clearTimeout(this._scrollT);
-        this._scrollT = setTimeout(() => {
-          try {
-            const r = t.getBoundingClientRect();
-            const h = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
-            if (r.top < 0 || r.bottom > h) t.scrollIntoView({ block: "nearest" });
-          } catch (err) {}
-        }, 340);
       }
     };
     // The keyboard takes about a third of a second to leave. Holding kb for that long stops
@@ -399,13 +385,6 @@ class Component extends DCLogic {
       if (t.matches("[data-search]")) {
         clearTimeout(this._kbT);
         this._kbT = setTimeout(() => this.setState({ kb: false }), 380);
-      } else if (t.tagName === "INPUT") {
-        // Moving from one serving size to the next fires focusout then focusin. Dropping the
-        // layout in between collapsed the summary and let the keyboard start closing, so it
-        // sank and sprang back. Hold it until the focus has really gone.
-        clearTimeout(this._qT);
-        clearTimeout(this._scrollT);
-        this._qT = setTimeout(() => this.setState({ kbQty: false }), 260);
       }
     };
     document.addEventListener("focusin", this._focusIn);
@@ -901,8 +880,10 @@ class Component extends DCLogic {
       return Object.assign({}, mkRow(fo), {
         v1: sv[0], v2: sv[1], v3: sv[2],
         qty: qtyOf(fo.name), qtyUnit: fo.mu === "ml" ? "ml" : "g",
+        // Mobile reads the size rather than editing it — the steppers are the whole input.
+        // Fixed width for three digits, so the + and − stay in a column down the table.
         qtyStyle: s.narrow
-          ? Object.assign({}, qtyStyle, { width: Math.max(3.4, String(qtyOf(fo.name)).length + 0.4) + "ch" })
+          ? Object.assign({}, qtyStyle, { width: "3.4ch", height: "auto", lineHeight: 1 })
           : qtyStyle,
         stepPulse: s.qtyHint === fo.name && !!s.narrow ? "on" : "off",
         fb: this.fmt(fo.fb * g),
@@ -1033,7 +1014,7 @@ class Component extends DCLogic {
         padding: bare ? ".35rem 0" : 0
       },
       mHeadRow: {
-        flex: "none", position: "relative", zIndex: 20, display: s.kbQty ? "none" : "block",
+        flex: "none", position: "relative", zIndex: 20, display: "block",
         height: "2.4rem",
         borderTop: "1px solid rgba(34,211,238,.28)", borderBottom: "1px solid rgba(34,211,238,.55)",
         fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".08em",
@@ -1096,18 +1077,12 @@ class Component extends DCLogic {
         width: "1.9rem", height: "100%", flex: "none", cursor: "pointer", color: "#7b91a3"
       },
       mSumPanel: {
-        // Editing a serving size makes the summary the subject; the results list can wait.
-        flex: s.kbQty ? "1 1 auto" : "none",
-        maxHeight: s.kbQty ? "none" : "72%",
+        flex: "none", maxHeight: "72%",
         display: "flex", flexDirection: "column", background: "#090f18",
         borderTop: "1px solid rgba(34,211,238,.55)",
         transition: "max-height 220ms cubic-bezier(.22,1,.36,1)"
       },
-      // The results list steps aside entirely while a serving size is being typed.
-      mListStyle: s.kbQty
-        ? { display: "none" }
-        : { flex: 1, minHeight: 0, overflowY: "auto" },
-      mHeadRowHidden: s.kbQty,
+      mListStyle: { flex: 1, minHeight: 0, overflowY: "auto" },
       // Removal mode swaps the row's numbers for a single bin, and the name takes the width.
       binMode: !!bin, notBinMode: !bin,
       enterBin: () => this.setState({ binMode: true }),
