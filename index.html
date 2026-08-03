@@ -251,8 +251,9 @@ option{background:#070b12;color:#d7e6ef}
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
-  state = { view: "results", q: "", cat: "ALL", catOpen: false, email: "", user: null, narrow: typeof window !== "undefined" && window.innerWidth < 700 };
+  state = { view: "results", q: "", cat: "ALL", catOpen: false, email: "", user: null, lib: "CORE", narrow: typeof window !== "undefined" && window.innerWidth < 700 };
   componentDidMount() {
+    this.loadLib(this.state.lib);
     try {
       const sm = JSON.parse(localStorage.getItem("nutri-search-sum") || "null");
       if (Array.isArray(sm)) this.setState({ sum: sm });
@@ -267,35 +268,34 @@ class Component extends DCLogic {
     window.addEventListener("resize", this._onResize);
   }
   componentWillUnmount() { document.removeEventListener("keydown", this._esc); window.removeEventListener("resize", this._onResize); }
-  foods() {
+  // Each library is a static JSON file: {cats:[...], foods:[[name,catIdx,kcal,p,c,fb,f,sf,sg,liquid],...]},
+  // built from the USDA FoodData Central CSV releases. Values are per 100 g/ml, FDC's own basis.
+  loadLib(k) {
+    const cache = this._libs || (this._libs = {});
+    if (cache[k]) return;
+    const src = (this.libraries().find(l => l.k === k) || {}).file;
+    if (!src) return;
+    cache[k] = [];
+    fetch(src)
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(d => {
+        cache[k] = d.foods.map(a => {
+          const fo = { name: a[0], cat: d.cats[a[1]], kcal: a[2], p: a[3], c: a[4], fb: a[5], f: a[6], sf: a[7], sg: a[8] };
+          if (a[9]) fo.mu = "ml";
+          return fo;
+        });
+        this.setState({ loadTick: (this.state.loadTick || 0) + 1 });
+      })
+      .catch(() => { delete cache[k]; this.setState({ loadErr: k }); });
+  }
+  libraries() {
     return [
-      { name: "Broccoli, raw", cat: "VEGES", kcal: 34, p: 2.8, c: 6.6, fb: 2.6, f: 0.4, sf: 0.1, sg: 1.7 },
-      { name: "Spinach, raw", cat: "VEGES", kcal: 23, p: 2.9, c: 3.6, fb: 2.2, f: 0.4, sf: 0.1, sg: 0.4 },
-      { name: "Carrot, raw", cat: "VEGES", kcal: 41, p: 0.9, c: 9.6, fb: 2.8, f: 0.2, sf: 0, sg: 4.7 },
-      { name: "Potato, boiled", cat: "VEGES", kcal: 87, p: 1.9, c: 20.1, fb: 1.8, f: 0.1, sf: 0, sg: 0.9 },
-      { name: "Apple, raw", cat: "FRUIT", kcal: 52, p: 0.3, c: 13.8, fb: 2.4, f: 0.2, sf: 0, sg: 10.4 },
-      { name: "Banana, raw", cat: "FRUIT", kcal: 89, p: 1.1, c: 22.8, fb: 2.6, f: 0.3, sf: 0.1, sg: 12.2 },
-      { name: "Blueberries, raw", cat: "FRUIT", kcal: 57, p: 0.7, c: 14.5, fb: 2.4, f: 0.3, sf: 0, sg: 10 },
-      { name: "Oats, dry", cat: "GRAINS", kcal: 389, p: 16.9, c: 66.3, fb: 10.6, f: 6.9, sf: 1.2, sg: 0 },
-      { name: "Brown rice, cooked", cat: "GRAINS", kcal: 112, p: 2.3, c: 23.5, fb: 1.8, f: 0.8, sf: 0.2, sg: 0.4 },
-      { name: "Quinoa, cooked", cat: "GRAINS", kcal: 120, p: 4.4, c: 21.3, fb: 2.8, f: 1.9, sf: 0.2, sg: 0.9 },
-      { name: "White bread", cat: "GRAINS", kcal: 265, p: 9.0, c: 49.0, fb: 2.7, f: 3.2, sf: 0.7, sg: 5.7 },
-      { name: "Chicken breast, cooked", cat: "PROTEIN", kcal: 165, p: 31.0, c: 0, fb: 0, f: 3.6, sf: 1, sg: 0 },
-      { name: "Egg, hard-boiled", cat: "PROTEIN", kcal: 155, p: 12.6, c: 1.1, fb: 0, f: 10.6, sf: 3.3, sg: 1.1 },
-      { name: "Salmon, cooked", cat: "PROTEIN", kcal: 206, p: 22.1, c: 0, fb: 0, f: 12.4, sf: 3.1, sg: 0 },
-      { name: "Tofu, firm", cat: "PROTEIN", kcal: 76, p: 8.1, c: 1.9, fb: 0.3, f: 4.8, sf: 0.7, sg: 0.6 },
-      { name: "Greek yogurt, nonfat", cat: "DAIRY", kcal: 59, p: 10.2, c: 3.6, fb: 0, f: 0.4, sf: 0.1, sg: 3.2 },
-      { name: "Cottage cheese, 2%", cat: "DAIRY", kcal: 84, p: 11.0, c: 4.3, fb: 0, f: 2.3, sf: 1.4, sg: 4.1 },
-      { name: "Lentils, cooked", cat: "LEGUMES", kcal: 116, p: 9.0, c: 20.1, fb: 7.9, f: 0.4, sf: 0.1, sg: 1.8 },
-      { name: "Chickpeas, cooked", cat: "LEGUMES", kcal: 164, p: 8.9, c: 27.4, fb: 7.6, f: 2.6, sf: 0.3, sg: 4.8 },
-      { name: "Black beans, cooked", cat: "LEGUMES", kcal: 132, p: 8.9, c: 23.7, fb: 8.7, f: 0.5, sf: 0.1, sg: 0.3 },
-      { name: "Almonds, raw", cat: "NUTS", kcal: 579, p: 21.2, c: 21.6, fb: 12.5, f: 49.9, sf: 3.8, sg: 4.4 },
-      { name: "Peanut butter", cat: "NUTS", kcal: 588, p: 25.0, c: 20.0, fb: 6.0, f: 50.0, sf: 10.3, sg: 9 },
-      { name: "Milk, whole", cat: "DAIRY", kcal: 61, p: 3.2, c: 4.8, fb: 0, f: 3.3, mu: "ml", sf: 1.9, sg: 5.1 },
-      { name: "Soy milk, unsweetened", cat: "DAIRY", kcal: 33, p: 2.9, c: 1.2, fb: 0.4, f: 1.6, mu: "ml", sf: 0.2, sg: 0.9 },
-      { name: "Orange juice", cat: "FRUIT", kcal: 45, p: 0.7, c: 10.4, fb: 0.2, f: 0.2, mu: "ml", sf: 0, sg: 8.4 }
+      { k: "CORE", label: "USDA CORE", sub: "1,779", file: "data/core.json" },
+      { k: "LEGACY", label: "USDA SR LEGACY", sub: "7,756", file: "data/legacy.json" },
+      { k: "SURVEY", label: "USDA SURVEY FNDDS", sub: "8,661", file: "data/survey.json" }
     ];
   }
+  foods() { return (this._libs && this._libs[this.state.lib || "CORE"]) || []; }
   // Bars scale to the largest value actually on screen, not the whole library.
   sortBy(k) {
     this.setState(s => s.sortKey === k ? { sortDir: s.sortDir === -1 ? 1 : -1 } : { sortKey: k, sortDir: -1 });
@@ -433,7 +433,7 @@ class Component extends DCLogic {
           ? [String(Math.round(mk[0] * uf)), String(Math.round(mk[1] * uf)), String(Math.round(mk[2] * uf))]
           : [this.fmt(fo.p * uf), this.fmt(fo.c * uf), this.fmt(fo.f * uf)];
       return {
-        name: fo.name, cat: this.catLabel(fo.cat), kcal: String(fo.kcal),
+        name: fo.name, cat: fo.cat, catLabel: this.catLabel(fo.cat), kcal: String(fo.kcal),
         p: this.fmt(fo.p), c: this.fmt(fo.c), f: this.fmt(fo.f), fb: this.fmt(fo.fb),
         score: String(sc), band: bd,
         kcalVal: String(Math.round(ekc * uf)),
@@ -462,21 +462,28 @@ class Component extends DCLogic {
         _raw: fo, _score: sc, _extraSort: extra.k === "score" ? sc : extra.k === "dens" ? fo.kcal / 100 : extra.get(fo)
       };
     };
-    let rows = this.foods().map(mkRow);
+    // Filter and sort the plain foods first, then build row objects for the slice that
+    // actually gets painted — a whole USDA library is thousands of rows, and mapping every
+    // one of them into styles per keystroke is what makes the table feel dead.
+    let src = this.foods();
     const q = s.q.trim().toLowerCase();
-    if (q) rows = rows.filter(r => r.name.toLowerCase().includes(q));
-    if (s.cat !== "ALL") rows = rows.filter(r => r.cat === s.cat);
+    if (q) src = src.filter(fo => fo.name.toLowerCase().includes(q));
+    if (s.cat !== "ALL") src = src.filter(fo => fo.cat === s.cat);
     // On mobile an added food moves to the summary rather than sitting in both lists.
-    if (s.narrow) rows = rows.filter(r => !inSum(r.name));
+    if (s.narrow) src = src.filter(fo => !inSum(fo.name));
+    const matchCount = src.length;
     const key = sortKey, dir = key === "name" ? sortDir : -sortDir;
-    rows.sort((a, b) => {
-      if (key === "name") return dir * a.name.localeCompare(b.name);
-      const isSh = key === "s1" || key === "s2" || key === "s3";
-      const va = key === "extra" ? a._extraSort : key === "score" ? a._score : isSh ? a._sh[key] : a._raw[key];
-      const vb = key === "extra" ? b._extraSort : key === "score" ? b._score : isSh ? b._sh[key] : b._raw[key];
-      return dir * (va - vb);
-    });
-    const cats = ["ALL", "VEGES", "FRUIT", "GRAINS", "PROTEIN", "DAIRY", "LEGUMES", "NUTS"];
+    const sortNum = fo => key === "extra"
+      ? (extra.k === "score" ? scoreOf(fo) : extra.k === "dens" ? fo.kcal / 100 : extra.get(fo))
+      : key === "score" ? scoreOf(fo)
+        : key === "s1" ? fo.p : key === "s2" ? fo.c : key === "s3" ? fo.f : fo[key];
+    src = src.slice().sort((a, b) =>
+      key === "name" ? dir * a.name.localeCompare(b.name) : dir * (sortNum(a) - sortNum(b)));
+    // The list is a leaderboard for the current sort; searching is how you reach the rest.
+    const ROW_CAP = 250;
+    let rows = src.slice(0, ROW_CAP).map(mkRow);
+    // The library decides which groups exist, so the filter list follows the data.
+    const cats = ["ALL"].concat(Array.from(new Set(this.foods().map(fo => fo.cat))).sort());
     const microBtn = active => ({
       flex: "none", height: "1.6rem", padding: "0 .5rem", borderRadius: 0, cursor: "pointer",
       background: "transparent", fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".12em",
@@ -490,17 +497,12 @@ class Component extends DCLogic {
       fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em", textTransform: "uppercase",
       color: "#94a3b8"
     };
-    const libs = [
-      { k: "CORE", label: "USDA CORE", sub: "1,100" },
-      { k: "LEGACY", label: "USDA SR LEGACY", sub: "7,793" },
-      { k: "SURVEY", label: "USDA SURVEY FNDDS", sub: "7,000" },
-      { k: "BRANDED", label: "USDA BRANDED", sub: "450,000" }
-    ];
+    const libs = this.libraries();
     const lib = s.lib || "CORE";
     const libOpts = libs.map((d, di) => ({
       label: d.label.replace("USDA ", ""), sub: d.sub,
       countStyle: { fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em", fontVariantNumeric: "tabular-nums", textAlign: "right", color: lib === d.k ? "#22d3ee" : "#7b91a3" },
-      onClick: () => this.setState({ lib: d.k, libOpen: false }),
+      onClick: () => { this.loadLib(d.k); this.setState({ lib: d.k, cat: "ALL", libOpen: false }); },
       style: {
         display: "grid", gridTemplateColumns: "minmax(0,1fr) 4.6rem", columnGap: ".55rem", alignItems: "center",
         height: "1.95rem", padding: "0 .7rem", border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left",
@@ -834,7 +836,7 @@ class Component extends DCLogic {
       })),
       headUnit: { textTransform: "none", fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".06em", color: "#94a3b8" },
       fillLegend: isPct ? "MACROS AS % OF FOOD ENERGY" : isKcalBasis ? "MACROS AS KCAL CONTRIBUTED" : "MACROS IN GRAMS",
-      shownCount: String(rows.length),
+      shownCount: String(matchCount),
       hasSummary: sumRows.length > 0, sumRows,
       sumFillers: Array.from({ length: Math.max(0, 10 - sumRows.length) }, (_, i) => i),
       blankEdge: { borderLeft: EDGE }, blankInner: { borderLeft: INNER }, tot, sumCount: String(sumRows.length),
