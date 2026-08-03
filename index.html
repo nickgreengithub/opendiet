@@ -85,9 +85,13 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
 /* First plate of the session: the step controls breathe once or twice so they are noticed.
    Animations outrank inline styles, so this lifts the button's own colour. */
 @keyframes od-breathe{
-  0%,100%{color:#7b91a3;text-shadow:none}
-  50%{color:#22d3ee;text-shadow:0 0 11px rgba(34,211,238,.7)}}
-[data-pulse="on"]{animation:od-breathe 1500ms ease-in-out 3}
+  0%,100%{color:#7b91a3;text-shadow:none;transform:scale(1)}
+  45%{color:#8ff0fb;text-shadow:0 0 10px rgba(34,211,238,.95),0 0 26px rgba(34,211,238,.55);transform:scale(1.5)}
+  70%{color:#22d3ee;text-shadow:0 0 8px rgba(34,211,238,.5);transform:scale(1.16)}}
+[data-pulse="on"]{animation:od-breathe 1200ms ease-in-out 4}
+/* Grow away from the number, so the glyph swells in place rather than drifting. */
+[data-pulse="on"][data-step="l"]{transform-origin:100% 50%}
+[data-pulse="on"][data-step="r"]{transform-origin:0 50%}
 @media (prefers-reduced-motion:reduce){[data-pulse="on"]{animation:none;color:#22d3ee}}
 @media (hover:none){
   [data-row][data-row]:hover{background:transparent!important}
@@ -254,7 +258,7 @@ option{background:#070b12;color:#d7e6ef}
           <div data-row style="{{ mSumRow }}">
             <span style="{{ mName }}">{{ r.name }}</span>
             <button onClick="{{ r.remove }}" style="{{ rowBinBtn }}" style-hover="color:#f08c7a"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 7h16"></path><path d="M10 11.5v5.5M14 11.5v5.5"></path><path d="M6.5 7l.9 12.1a1.4 1.4 0 0 0 1.4 1.3h6.4a1.4 1.4 0 0 0 1.4-1.3L17.5 7"></path><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"></path></svg></button>
-            <span style="{{ qtyCell }}"><button data-pulse="{{ r.stepPulse }}" onClick="{{ r.stepDown }}" style="{{ stepBtnL }}" style-hover="color:#22d3ee">−</button><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ r.qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span><button data-pulse="{{ r.stepPulse }}" onClick="{{ r.stepUp }}" style="{{ stepBtnR }}" style-hover="color:#22d3ee">+</button></span>
+            <span style="{{ qtyCell }}"><button data-step="l" data-pulse="{{ r.stepPulse }}" onClick="{{ r.stepDown }}" style="{{ stepBtnL }}" style-hover="color:#22d3ee">−</button><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ r.qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span><button data-step="r" data-pulse="{{ r.stepPulse }}" onClick="{{ r.stepUp }}" style="{{ stepBtnR }}" style-hover="color:#22d3ee">+</button></span>
             <span style="{{ mSumKcal }}">{{ r.mSumVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
           </div>
         </sc-for>
