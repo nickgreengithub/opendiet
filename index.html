@@ -995,11 +995,17 @@ class Component extends DCLogic {
       q: s.q, onQ: e => {
         const v = e.target.value;
         this.setState({ q: v, libOpen: false, searchHinted: true, typed: this.state.typed || !!v });
-        // The first search earns one run of the row hint, then it never returns this session.
+        // Wait for typing to stop before pointing at anything. Firing on the first keystroke
+        // put the hand on screen during the landing animation, aimed at results for a single
+        // letter, and expired it before a real query had even been finished.
+        clearTimeout(this._hintStart);
+        clearTimeout(this._hintEnd);
         if (v.trim() && !this._rowHinted) {
-          this._rowHinted = true;
-          this.setState({ rowHint: true });
-          setTimeout(() => this.setState({ rowHint: false }), 4400);
+          this._hintStart = setTimeout(() => {
+            this._rowHinted = true;
+            this.setState({ rowHint: true });
+            this._hintEnd = setTimeout(() => this.setState({ rowHint: false }), 3200);
+          }, 750);
         }
       },
       // Mobile drops the library name — at the larger type it would push the count off the edge.
