@@ -231,7 +231,7 @@ option{background:#070b12;color:#d7e6ef}
       </sc-if>
     </div>
     <div style="{{ mBody }}">
-    <div style="flex:none;position:relative;display:grid;grid-template-columns:minmax(0,1fr) 2.8rem 2.8rem 2.8rem 4.2rem;column-gap:.4rem;align-items:center;height:2.4rem;border-top:1px solid rgba(34,211,238,.28);border-bottom:1px solid rgba(34,211,238,.55);font-family:var(--font-2);font-size:.84rem;letter-spacing:.08em;color:#c3d6e2;text-transform:uppercase">
+    <div style="{{ mHeadRow }}">
       <span data-pop onClick="{{ mUnit }}" style="display:flex;align-items:center;gap:.3rem;min-width:0;height:100%;cursor:pointer;white-space:nowrap"><span>{{ measureLabel }}</span><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ unitOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ unitOpts }}" as="u" hint-placeholder-count="4"><button onClick="{{ u.onClick }}" style="{{ u.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ u.label }}</span><span style="{{ u.gStyle }}">{{ u.grams }}</span></button></sc-for><span style="{{ mPopNote }}">Sets the portion every food is measured at. Once added, a food's size can be typed directly in the summary table.</span></span></span></sc-if></span>
       <span data-pop onClick="{{ mTipP }}" style="{{ mHead }}"><span>P</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ mTip.s1 }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></button></sc-for><span style="{{ mPopLabel }}">PROTEIN</span><span style="{{ mPopNote }}">Builds and repairs tissue. 4 kcal per gram; the most satiating macro per calorie.</span></span></span></sc-if></span>
       <span data-pop onClick="{{ mTipC }}" style="{{ mHead }}"><span>C</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ mTip.s2 }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></button></sc-for><span style="{{ mPopLabel }}">CARB</span><span style="{{ mPopNote }}">The body's most accessible fuel. 4 kcal per gram; includes sugars, starches and fibre.</span></span></span></sc-if></span>
@@ -658,7 +658,7 @@ class Component extends DCLogic {
         toggleRow: () => this.toggleSum(fo.name),
         mRow: {
           position: "relative",
-          display: "grid", gridTemplateColumns: "minmax(0,1fr) 2.8rem 2.8rem 2.8rem 4.2rem", columnGap: ".4rem",
+          display: "grid", gridTemplateColumns: mCols, columnGap: ".4rem",
           alignItems: "center", minHeight: "2.5rem", cursor: "pointer", transition: "background 140ms ease",
           borderBottom: "1px solid rgba(34,211,238,.14)",
           borderLeft: "2px solid transparent", background: "transparent"
@@ -687,6 +687,10 @@ class Component extends DCLogic {
     // something is typed, then glow the top result until a food is actually added. Both
     // reset on a fresh load, so a returning user still gets the nudge.
     const rowHint = !!s.rowHint;
+    // Searching is a name-matching job, so while the keyboard is up the macro columns stand
+    // down and the food name takes the full width — at a phone's width they were competing.
+    const bare = !!(s.narrow && s.kb);
+    const mCols = bare ? "minmax(0,1fr)" : "minmax(0,1fr) 2.8rem 2.8rem 2.8rem 4.2rem";
     // One-way: once you have typed, the page never returns to the landing state.
     const landing = !!s.narrow && !s.typed;
     const vh = s.vvh || (typeof window !== "undefined" ? window.innerHeight : 800);
@@ -960,14 +964,28 @@ class Component extends DCLogic {
         fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".12em", color: "#94a3b8"
       },
       aboutMade: { whiteSpace: s.narrow ? "normal" : "nowrap", lineHeight: 1.6 },
-      mName: { display: "block", minWidth: 0, fontWeight: 300, fontSize: "1.02rem", color: "#d7e6ef", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
-      mHead: { display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".15rem", height: "100%", cursor: "pointer", whiteSpace: "nowrap" },
+      mName: {
+        display: "block", minWidth: 0, fontWeight: 300, fontSize: "1.02rem", color: "#d7e6ef",
+        // Given the whole row, show the whole name rather than trailing it off.
+        whiteSpace: bare ? "normal" : "nowrap",
+        overflow: bare ? "visible" : "hidden",
+        textOverflow: bare ? "clip" : "ellipsis",
+        padding: bare ? ".35rem 0" : 0
+      },
+      mHeadRow: {
+        flex: "none", position: "relative", display: "grid", gridTemplateColumns: mCols,
+        columnGap: ".4rem", alignItems: "center", height: "2.4rem",
+        borderTop: "1px solid rgba(34,211,238,.28)", borderBottom: "1px solid rgba(34,211,238,.55)",
+        fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".08em",
+        color: "#c3d6e2", textTransform: "uppercase"
+      },
+      mHead: { display: bare ? "none" : "flex", alignItems: "center", justifyContent: "flex-end", gap: ".15rem", height: "100%", cursor: "pointer", whiteSpace: "nowrap" },
       mPop: { position: "absolute", top: "100%", left: 0, right: 0, zIndex: 40, display: "flex", flexDirection: "column", paddingTop: ".3rem", textTransform: "none", letterSpacing: 0 },
       mPopInner: { display: "flex", flexDirection: "column", background: "#070b12", border: "1px solid rgba(34,211,238,.55)", boxShadow: "0 0 28px rgba(34,211,238,.12)" },
       mPopLabel: { padding: ".55rem .7rem 0", fontFamily: "var(--font-2)", fontSize: ".78rem", letterSpacing: ".12em", color: "#7b91a3" },
       mPopNote: { padding: ".35rem .7rem .7rem", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".94rem", lineHeight: 1.55, color: "#94a3b8", textWrap: "pretty", whiteSpace: "normal" },
-      mNum: { textAlign: "right", fontWeight: 300, fontSize: "1rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
-      mColCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300, fontSize: "1.04rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
+      mNum: { display: bare ? "none" : "block", textAlign: "right", fontWeight: 300, fontSize: "1rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
+      mColCell: { display: bare ? "none" : "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300, fontSize: "1.04rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
       mMacroTag: { fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".08em", color: "#7b91a3" },
       isResults: s.view === "results", isSettings: s.view === "settings", isSignin: s.view === "signin",
       aboutOpen: !!s.aboutOpen,
