@@ -219,7 +219,7 @@ option{background:#070b12;color:#d7e6ef}
     </div>
     <sc-if value="{{ hasSummary }}" hint-placeholder-val="{{ false }}">
     <div style="flex:none;max-height:40%;display:flex;flex-direction:column;background:#090f18;border-top:1px solid rgba(34,211,238,.55)">
-      <div style="flex:none;display:flex;align-items:center;justify-content:space-between;min-height:1.8rem;font-family:var(--font-2);font-size:.72rem;letter-spacing:.14em;color:#7b91a3;border-bottom:1px solid rgba(34,211,238,.28)"><span>SUMMARY</span><span style="color:#22d3ee">{{ sumCount }}</span></div>
+      <div style="flex:none;display:flex;align-items:center;justify-content:space-between;min-height:1.8rem;font-family:var(--font-2);font-size:.72rem;letter-spacing:.14em;color:#7b91a3;border-bottom:1px solid rgba(34,211,238,.28)"><span>MY FOOD SUMMARY</span><button onClick="{{ clearSum }}" style="{{ clearBtn }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></div>
       <div data-scroll style="flex:1;min-height:0;overflow-y:auto">
         <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
           <div data-row onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(0,1fr) 4.2rem 4.2rem;column-gap:.4rem;align-items:center;min-height:2.5rem;border-left:2px solid transparent;border-bottom:1px solid rgba(34,211,238,.14);cursor:pointer;transition:background 140ms ease">
@@ -230,7 +230,7 @@ option{background:#070b12;color:#d7e6ef}
         </sc-for>
       </div>
       <div style="flex:none;display:flex;align-items:center;gap:.7rem;min-height:2.2rem;padding:0 0 calc(1.35rem + env(safe-area-inset-bottom, 0px));border-top:1px solid rgba(34,211,238,.55)">
-        <span style="font-family:var(--font-2);font-size:.76rem;letter-spacing:.1em;color:#7b91a3">TOT</span>
+        <span style="font-family:var(--font-2);font-size:.76rem;letter-spacing:.1em;color:#7b91a3">TOT <span style="color:#22d3ee">({{ sumCount }})</span></span>
         <span style="flex:1;display:flex;gap:.75rem;justify-content:flex-end;align-items:baseline;font-weight:300;font-size:.88rem;color:#d7e6ef;font-variant-numeric:tabular-nums;white-space:nowrap">
           <span><span style="{{ mMacroTag }}">PROT</span> {{ tot.v1 }}<span style="{{ unitSuffix }}">{{ tot.u3 }}</span></span>
           <span><span style="{{ mMacroTag }}">CARB</span> {{ tot.v2 }}<span style="{{ unitSuffix }}">{{ tot.u3 }}</span></span>
@@ -851,6 +851,16 @@ class Component extends DCLogic {
         const u = s.email.trim() || "nick@example.com";
         try { localStorage.setItem("nutri-search-user", u); } catch (e) {}
         this.setState({ user: u, view: "results" });
+      },
+      clearSum: () => {
+        try { localStorage.setItem("nutri-search-sum", "[]"); } catch (e) {}
+        this.setState({ sum: [] });
+      },
+      clearBtn: {
+        display: "flex", alignItems: "center", justifyContent: "flex-end",
+        height: "100%", width: "2.6rem", padding: 0, border: 0, borderRadius: 0,
+        background: "transparent", cursor: "pointer", color: "#7b91a3",
+        transition: "color 140ms ease"
       },
       q: s.q, onQ: e => {
         const v = e.target.value;
