@@ -341,6 +341,13 @@ class Component extends DCLogic {
     try {
       const sm = JSON.parse(localStorage.getItem("nutri-search-sum") || "null");
       if (Array.isArray(sm)) this.setState({ sum: sm });
+      // Someone arriving with a plate already knows how foods are added, so they get the
+      // step-button hint instead of the "tap a row" hand — but not until they have typed and
+      // the summary is actually on screen. Mobile opens on the search box alone.
+      if (Array.isArray(sm) && sm.length) {
+        this._rowHinted = true;
+        this._qtyOnReveal = true;
+      }
       const u = localStorage.getItem("nutri-search-user");
       const patch = {};
       if (u) patch.user = u;
@@ -385,6 +392,9 @@ class Component extends DCLogic {
       if (t.matches("[data-search]")) {
         clearTimeout(this._kbT);
         this._kbT = setTimeout(() => this.setState({ kb: false }), 380);
+        // The summary is hidden while the keyboard is up, so a plate carried over from last
+        // time is only worth pointing at once the field is let go and it has risen.
+        if (this._qtyOnReveal && this.state.typed) this.qtyHint(900);
       }
     };
     document.addEventListener("focusin", this._focusIn);
@@ -545,15 +555,21 @@ class Component extends DCLogic {
       // An emptied plate leaves removal mode, so the next one does not open in it.
       if (!sum.length && s.binMode) return { sum, starred: true, rowHint: false, binMode: false };
       // Adding a food answers the "tap a row" hint, so retire it for this session.
-      // The first add also earns one run of the hint on that food's serving-size field.
-      if (sum.length > (s.sum || []).length && !this._qtyHinted) {
+      // The first add also earns one run of the step-button hint.
+      if (sum.length > (s.sum || []).length) {
         this._rowHinted = true;
-        this._qtyHinted = true;
-        setTimeout(() => this.setState({ qtyHint: name }), 460);
-        setTimeout(() => this.setState({ qtyHint: null }), 5000);
+        this.qtyHint(460);
       }
       return { sum, starred: true, rowHint: false, sumHold: hold };
     });
+  }
+  // Every row in the summary breathes together, once a session — a returning plate can be
+  // half a dozen foods, and pointing at only one of them read as a fault rather than a hint.
+  qtyHint(delay) {
+    if (this._qtyHinted) return;
+    this._qtyHinted = true;
+    setTimeout(() => this.setState({ qtyHint: true }), delay);
+    setTimeout(() => this.setState({ qtyHint: false }), delay + 4900);
   }
   renderVals() {
     const s = this.state;
@@ -885,7 +901,7 @@ class Component extends DCLogic {
         qtyStyle: s.narrow
           ? Object.assign({}, qtyStyle, { width: "3.4ch", height: "auto", lineHeight: 1 })
           : qtyStyle,
-        stepPulse: s.qtyHint === fo.name && !!s.narrow ? "on" : "off",
+        stepPulse: s.qtyHint && !!s.narrow ? "on" : "off",
         fb: this.fmt(fo.fb * g),
         sumKcal: String(Math.round(kcalOf(fo) * g)),
         sumExtra: extra.k === "score" ? String(scoreOf(fo)) : extra.k === "dens" ? (fo.kcal / 100).toFixed(2) : this.fmt(extra.get(fo) * g),
