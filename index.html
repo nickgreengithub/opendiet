@@ -257,13 +257,14 @@ option{background:#070b12;color:#d7e6ef}
     </div>
     <sc-if value="{{ hasSummary }}" hint-placeholder-val="{{ false }}">
     <div data-rise style="{{ mSumPanel }}">
-      <div style="flex:none;display:flex;align-items:center;justify-content:space-between;min-height:2rem;font-family:var(--font-2);font-size:.8rem;letter-spacing:.14em;color:#7b91a3;border-bottom:1px solid rgba(34,211,238,.28)"><span>MY FOOD SUMMARY</span><button onClick="{{ clearSum }}" style="{{ clearBtn }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></div>
+      <div style="flex:none;display:flex;align-items:center;justify-content:space-between;min-height:2rem;font-family:var(--font-2);font-size:.8rem;letter-spacing:.14em;color:#7b91a3;border-bottom:1px solid rgba(34,211,238,.28)"><span>MY FOOD SUMMARY</span><span style="display:flex;align-items:center;gap:.9rem"><sc-if value="{{ binMode }}" hint-placeholder-val="{{ false }}"><button onClick="{{ clearSum }}" style="{{ binAllBtn }}" style-hover="color:#f08c7a">BIN ALL</button><button onClick="{{ exitBin }}" style="{{ tickBtn }}" style-hover="color:#7ee0a8"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4.5 12.5l5 5 10-11"></path></svg></button></sc-if><sc-if value="{{ notBinMode }}" hint-placeholder-val="{{ true }}"><button onClick="{{ enterBin }}" style="{{ clearBtn }}" style-hover="color:#d7e6ef"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 7h16"></path><path d="M10 11.5v5.5M14 11.5v5.5"></path><path d="M6.5 7l.9 12.1a1.4 1.4 0 0 0 1.4 1.3h6.4a1.4 1.4 0 0 0 1.4-1.3L17.5 7"></path><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"></path></svg></button></sc-if></span></div>
       <div data-scroll style="flex:1;min-height:0;overflow-y:auto">
         <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
-          <div data-row onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(0,1fr) 7.9rem 4.2rem;column-gap:.4rem;align-items:center;min-height:2.5rem;border-left:2px solid transparent;border-bottom:1px solid rgba(34,211,238,.14);cursor:pointer;transition:background 140ms ease">
+          <div data-row style="{{ mSumRow }}">
             <span style="{{ mName }}">{{ r.name }}</span>
-            <span style="position:relative;display:flex;align-items:center;justify-content:flex-end"><button onClick="{{ r.stepDown }}" style="{{ stepBtn }}" style-hover="color:#22d3ee">−</button><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ r.qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span><button onClick="{{ r.stepUp }}" style="{{ stepBtn }}" style-hover="color:#22d3ee">+</button><sc-if value="{{ r.qtyFinger }}" hint-placeholder-val="{{ false }}"><span data-finger="qty"><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span></sc-if></span>
-            <span style="{{ mColCell }}">{{ r.mSumVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
+            <button onClick="{{ r.remove }}" style="{{ rowBinBtn }}" style-hover="color:#f08c7a"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 7h16"></path><path d="M10 11.5v5.5M14 11.5v5.5"></path><path d="M6.5 7l.9 12.1a1.4 1.4 0 0 0 1.4 1.3h6.4a1.4 1.4 0 0 0 1.4-1.3L17.5 7"></path><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"></path></svg></button>
+            <span style="{{ qtyCell }}"><button onClick="{{ r.stepDown }}" style="{{ stepBtnL }}" style-hover="color:#22d3ee">−</button><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ r.qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span><button onClick="{{ r.stepUp }}" style="{{ stepBtnR }}" style-hover="color:#22d3ee">+</button><sc-if value="{{ r.qtyFinger }}" hint-placeholder-val="{{ false }}"><span data-finger="qty"><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span></sc-if></span>
+            <span style="{{ mSumKcal }}">{{ r.mSumVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
           </div>
         </sc-for>
       </div>
@@ -567,6 +568,8 @@ class Component extends DCLogic {
     this.setState(s => {
       const sum = (s.sum || []).includes(name) ? (s.sum || []).filter(n => n !== name) : (s.sum || []).concat(name);
       try { localStorage.setItem("nutri-search-sum", JSON.stringify(sum)); } catch (e) {}
+      // An emptied plate leaves removal mode, so the next one does not open in it.
+      if (!sum.length && s.binMode) return { sum, starred: true, rowHint: false, binMode: false };
       // Adding a food answers the "tap a row" hint, so retire it for this session.
       // The first add also earns one run of the hint on that food's serving-size field.
       if (sum.length > (s.sum || []).length && !this._qtyHinted) {
@@ -720,6 +723,11 @@ class Component extends DCLogic {
     // Searching is a name-matching job, so while the keyboard is up the macro columns stand
     // down and the food name takes the full width — at a phone's width they were competing.
     const bare = !!(s.narrow && s.kb);
+    const bin = !!s.binMode;
+    const mColCellBase = {
+      display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300,
+      fontSize: "1.04rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
+    };
     const mCols = bare ? "minmax(0,1fr)" : "minmax(0,1fr) 2.8rem 2.8rem 2.8rem 4.2rem";
     // One-way: once you have typed, the page never returns to the landing state.
     const landing = !!s.narrow && !s.typed;
@@ -847,13 +855,15 @@ class Component extends DCLogic {
     const tipOn = { s1: () => this.setState({ tip: "s1" }), s2: () => this.setState({ tip: "s2" }), s3: () => this.setState({ tip: "s3" }), fb: () => this.setState({ tip: "fb" }), kcal: () => this.setState({ tip: "kcal" }), score: () => this.setState({ tip: "score" }) };
     const sumFoods = (s.sum || []).map(n => this.foods().find(fo => fo.name === n)).filter(Boolean);
     // Each summary row carries its own quantity; macros and totals scale off it.
+    const QTY_MAX = 990;
     const qtyOf = name => { const v = (s.qty || {})[name]; return v === undefined ? "100" : v; };
     const step = (name, d) => e => {
       if (e && e.stopPropagation) e.stopPropagation();
       const cur = parseFloat(qtyOf(name));
       const base = isNaN(cur) ? 100 : cur;
       const next = d > 0 ? (Math.floor(base / 10) + 1) * 10 : (Math.ceil(base / 10) - 1) * 10;
-      this.setState(st => ({ qty: Object.assign({}, st.qty, { [name]: String(Math.max(0, next)) }) }));
+      const capped = Math.min(QTY_MAX, Math.max(0, next));
+      this.setState(st => ({ qty: Object.assign({}, st.qty, { [name]: String(capped) }) }));
     };
     const gramsOf = name => { const n = parseFloat(qtyOf(name)); return isNaN(n) || n < 0 ? 0 : n; };
     const sumKcalMax = Math.max.apply(null, sumFoods.map(fo => kcalOf(fo) * (gramsOf(fo.name) / 100)).concat([1]));
@@ -899,10 +909,15 @@ class Component extends DCLogic {
         mSumVal: mCol.k === "score" ? String(scoreOf(fo)) : mCol.k === "kcal" ? String(Math.round(kcalOf(fo) * g)) : mCol.k === "dens" ? (fo.kcal / 100).toFixed(2) : this.fmt(mCol.get(fo) * g),
         sfill1: sumFillOf(sfv[0], sfvMax), sfill2: sumFillOf(sfv[1], sfvMax), sfill3: sumFillOf(sfv[2], sfvMax),
         sfillK: sumFillOf(kcalOf(fo) * g, sumKcalMax),
-        onQty: e => { const v = e.target.value; this.setState(st => ({ qty: Object.assign({}, st.qty, { [fo.name]: v }) })); },
+        onQty: e => {
+          const raw = e.target.value, num = parseFloat(raw);
+          const v = !isNaN(num) && num > QTY_MAX ? String(QTY_MAX) : raw;
+          this.setState(st => ({ qty: Object.assign({}, st.qty, { [fo.name]: v }) }));
+        },
         // Nudge to the next multiple of ten, so an oddly-typed 137 lands on 140, not 147.
         stepUp: step(fo.name, 1),
-        stepDown: step(fo.name, -1)
+        stepDown: step(fo.name, -1),
+        remove: e => { if (e && e.stopPropagation) e.stopPropagation(); this.toggleSum(fo.name); }
       });
     });
     const gs = fo => gramsOf(fo.name) / 100;
@@ -1028,7 +1043,7 @@ class Component extends DCLogic {
       mPopLabel: { padding: ".55rem .7rem 0", fontFamily: "var(--font-2)", fontSize: ".86rem", letterSpacing: ".12em", color: "#7b91a3" },
       mPopNote: { padding: ".35rem .7rem .7rem", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.02rem", lineHeight: 1.55, color: "#94a3b8", textWrap: "pretty", whiteSpace: "normal" },
       mNum: { display: bare ? "none" : "block", textAlign: "right", fontWeight: 300, fontSize: "1rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
-      mColCell: { display: bare ? "none" : "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300, fontSize: "1.04rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
+      mColCell: Object.assign({}, mColCellBase, { display: bare ? "none" : "flex" }),
       mMacroTag: { fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".06em", color: "#7b91a3" },
       isResults: s.view === "results", isSettings: s.view === "settings", isSignin: s.view === "signin",
       aboutOpen: !!s.aboutOpen,
@@ -1091,8 +1106,46 @@ class Component extends DCLogic {
         ? { display: "none" }
         : { flex: 1, minHeight: 0, overflowY: "auto" },
       mHeadRowHidden: s.kbQty,
-      stepBtn: {
-        flex: "none", width: "2rem", alignSelf: "stretch", padding: 0,
+      // Removal mode swaps the row's numbers for a single bin, and the name takes the width.
+      binMode: !!bin, notBinMode: !bin,
+      enterBin: () => this.setState({ binMode: true }),
+      exitBin: () => this.setState({ binMode: false }),
+      mSumRow: {
+        display: "grid",
+        gridTemplateColumns: bin ? "minmax(0,1fr) 3rem" : "minmax(0,1fr) 7.9rem 4.2rem",
+        columnGap: ".4rem", alignItems: "center", minHeight: "2.5rem",
+        borderLeft: "2px solid transparent",
+        borderBottom: "1px solid rgba(34,211,238,.14)", transition: "background 140ms ease"
+      },
+      qtyCell: { position: "relative", display: bin ? "none" : "flex", alignItems: "center", justifyContent: "flex-end" },
+      mSumKcal: Object.assign({}, mColCellBase, { display: bin ? "none" : "flex" }),
+      rowBinBtn: {
+        display: bin ? "flex" : "none", alignItems: "center", justifyContent: "center",
+        alignSelf: "stretch", width: "3rem", padding: 0, border: 0, borderRadius: 0,
+        background: "transparent", cursor: "pointer", color: "#7b91a3", transition: "color 140ms ease"
+      },
+      binAllBtn: {
+        padding: 0, border: 0, background: "transparent", cursor: "pointer", color: "#7b91a3",
+        fontFamily: "var(--font-2)", fontSize: ".8rem", letterSpacing: ".14em",
+        transition: "color 140ms ease"
+      },
+      tickBtn: {
+        display: "flex", alignItems: "center", justifyContent: "center", padding: 0,
+        border: 0, background: "transparent", cursor: "pointer", color: "#22d3ee",
+        transition: "color 140ms ease"
+      },
+      // The glyphs sit toward the number rather than centred in their targets, so they read
+      // as attached to it while keeping a 32px area to hit.
+      stepBtnL: {
+        flex: "none", width: "2rem", alignSelf: "stretch", padding: "0 .15rem 0 0",
+        display: "flex", alignItems: "center", justifyContent: "flex-end",
+        border: 0, borderRadius: 0, background: "transparent", cursor: "pointer",
+        color: "#7b91a3", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.35rem",
+        lineHeight: 1, transition: "color 140ms ease"
+      },
+      stepBtnR: {
+        flex: "none", width: "2rem", alignSelf: "stretch", padding: "0 0 0 .15rem",
+        display: "flex", alignItems: "center", justifyContent: "flex-start",
         border: 0, borderRadius: 0, background: "transparent", cursor: "pointer",
         color: "#7b91a3", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.35rem",
         lineHeight: 1, transition: "color 140ms ease"
@@ -1113,7 +1166,7 @@ class Component extends DCLogic {
       },
       clearSum: () => {
         try { localStorage.setItem("nutri-search-sum", "[]"); } catch (e) {}
-        this.setState({ sum: [] });
+        this.setState({ sum: [], binMode: false });
       },
       clearBtn: {
         display: "flex", alignItems: "center", justifyContent: "flex-end",
