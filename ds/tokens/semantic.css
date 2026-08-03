@@ -1,0 +1,26 @@
+:root{
+  --surface-page:var(--ink-950);
+  --surface-panel:var(--ink-900);
+  --surface-input:var(--ink-800);
+  --surface-input-strong:var(--ink-700);
+
+  --text-body:var(--slate-100);
+  --text-muted:var(--slate-400);
+  --text-accent:var(--cyan-400);
+  --text-accent-hover:var(--cyan-200);
+  --text-accent-dim:var(--cyan-a55);
+
+  --border-default:var(--cyan-a28);
+  --border-emphasis:var(--cyan-a55);
+  --border-active:var(--cyan-400);
+
+  --accent:var(--cyan-400);
+  --accent-soft:var(--cyan-a12);
+
+  --status-ok:var(--emerald-400);
+  --status-warn:var(--amber-400);
+  --status-error:var(--rose-400);
+}
+html,body{background:var(--backdrop),var(--surface-page);color:var(--text-body);font-family:var(--font-1)}
+a{color:var(--text-accent);text-decoration:none;transition:color var(--ease)}
+a:hover{color:var(--text-accent-hover)}

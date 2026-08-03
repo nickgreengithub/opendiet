@@ -1,0 +1,17 @@
+:root{
+  /* Corners are square. Hard brand rule — there is no radius token above 0. */
+  --radius:0px;
+
+  --border-hairline:1px solid var(--cyan-a28);
+  --border-strong:1px solid var(--cyan-a55);
+
+  --glow-panel:inset 0 0 0 1px var(--cyan-a04),0 0 24px var(--cyan-a05);
+  --glow-panel-focus:inset 0 0 0 1px var(--cyan-a08),0 0 28px var(--cyan-a12);
+  --glow-control:0 0 16px var(--cyan-a12);
+  --glow-control-hover:0 0 22px var(--cyan-a28);
+  --glow-input-focus:0 0 0 1px var(--cyan-a20),0 0 16px var(--cyan-a15);
+  --glow-text:0 0 12px var(--cyan-a35);
+
+  --ease:140ms ease; /* @kind other */
+  --backdrop:radial-gradient(900px 500px at 50% -20%,var(--cyan-a07),transparent 60%);
+}

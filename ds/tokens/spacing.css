@@ -1,0 +1,23 @@
+:root{
+  --space-1:.15rem;
+  --space-2:.4rem;
+  --space-3:.55rem;
+  --space-4:.6rem;
+  --space-5:.7rem;
+  --space-6:.75rem;
+  --space-7:.85rem;
+  --space-8:1rem;
+  --space-9:1.15rem;
+  --space-10:1.25rem;
+  --space-12:1.5rem;
+  --space-14:3.5rem;
+  --space-16:4.5rem;
+
+  --control-h:2.75rem;      /* every button and single-line input */
+  --pad-control-x:.8rem;
+  --pad-editor:1.1rem 1.15rem;
+  --pad-stat:.85rem .6rem;
+
+  --shell-max:980px;
+  --grid-break:860px;
+}
