@@ -39,16 +39,19 @@ a{color:#22d3ee;text-decoration:none;transition:color 140ms ease}a:hover{color:#
 input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:inset 0 0 0 1px rgba(34,211,238,.5);caret-color:#22d3ee}
 /* Ambient onboarding: a light sweeps through whatever the user should touch next.
    Purely decorative — it never blocks a tap, and it stops the moment the step is done. */
-@keyframes od-sweep{0%{background-position:190% 0}60%{background-position:-90% 0}100%{background-position:-90% 0}}
-@keyframes od-ring{0%,100%{box-shadow:inset 0 0 0 1px rgba(34,211,238,.30)}50%{box-shadow:inset 0 0 0 1px rgba(34,211,238,.85), 0 0 16px rgba(34,211,238,.20)}}
+@keyframes od-sweep{0%{background-position:190% 0}70%{background-position:-90% 0}100%{background-position:-90% 0}}
+@keyframes od-ring{0%,100%{box-shadow:inset 0 0 0 1px rgba(34,211,238,.22)}50%{box-shadow:inset 0 0 0 1px rgba(34,211,238,.9), 0 0 18px rgba(34,211,238,.22)}}
+@keyframes od-edge{0%,100%{border-left-color:rgba(34,211,238,.12)}50%{border-left-color:rgba(34,211,238,.95)}}
 [data-hint="on"]{
-  background-image:linear-gradient(100deg,transparent 22%,rgba(34,211,238,.16) 38%,rgba(34,211,238,.50) 50%,rgba(34,211,238,.16) 62%,transparent 78%);
-  background-size:230% 100%;background-repeat:no-repeat;
-  animation:od-sweep 2.4s cubic-bezier(.35,0,.2,1) infinite, od-ring 2.4s ease-in-out infinite}
-[data-hint="on"] svg{animation:od-pulse 2.4s ease-in-out infinite}
+  /* !important because rows carry an inline `background: transparent`, and that shorthand
+     resets background-image — which is the sweep. Parked off-screen once the run ends. */
+  background-image:linear-gradient(100deg,transparent 22%,rgba(34,211,238,.18) 38%,rgba(34,211,238,.55) 50%,rgba(34,211,238,.18) 62%,transparent 78%)!important;
+  background-size:230% 100%;background-repeat:no-repeat;background-position:-90% 0;
+  animation:od-sweep 2.1s cubic-bezier(.35,0,.2,1) 2, od-ring 2.1s ease-in-out 2, od-edge 2.1s ease-in-out 2}
+[data-hint="on"] svg{animation:od-pulse 2.1s ease-in-out 2}
 @keyframes od-pulse{0%,100%{opacity:.5}50%{opacity:1;stroke:#22d3ee}}
 @media (prefers-reduced-motion:reduce){
-  [data-hint="on"]{animation:none;background-image:none;box-shadow:inset 0 0 0 1px rgba(34,211,238,.45)}
+  [data-hint="on"]{animation:none;background-image:none!important;box-shadow:inset 0 0 0 1px rgba(34,211,238,.45)}
   [data-hint="on"] svg{animation:none;opacity:1}}
 input::placeholder{color:#7b91a3;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:1}
 [data-scroll]{overflow-x:hidden;scrollbar-width:thin;scrollbar-color:rgba(34,211,238,.35) rgba(34,211,238,.07)}
@@ -169,7 +172,7 @@ option{background:#070b12;color:#d7e6ef}
   </sc-if>
   <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
   <div style="display:flex;flex-direction:column;flex:1;min-height:0">
-    <div data-hint="{{ searchHint }}" style="flex:none;position:relative;display:flex;align-items:center;gap:.55rem;height:2.9rem;padding:0 .1rem;font-family:var(--font-2)">
+    <div data-hint="{{ searchHint }}" style="flex:none;position:relative;display:flex;align-items:center;gap:.6rem;height:2.9rem;padding:0 .35rem 0 .75rem;font-family:var(--font-2)">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="flex:none"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
       <input placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="flex:1;min-width:0;height:2rem;background:transparent;border:0;padding:0 .3rem;color:#eaf5fb;font-family:var(--font-2);font-size:1rem;letter-spacing:.05em;text-transform:uppercase;text-overflow:ellipsis">
       <span data-pop onClick="{{ mLib }}" style="display:flex;align-items:center;justify-content:center;width:2rem;height:100%;cursor:pointer;color:#c3d6e2"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg></span>
@@ -185,7 +188,7 @@ option{background:#070b12;color:#d7e6ef}
         </span>
       </sc-if>
     </div>
-    <div style="flex:none;position:relative;display:grid;grid-template-columns:minmax(0,1fr) 2.8rem 2.8rem 2.8rem 4.2rem;column-gap:.4rem;align-items:center;height:2.2rem;border-top:1px solid rgba(34,211,238,.28);border-bottom:1px solid rgba(34,211,238,.55);font-family:var(--font-2);font-size:.66rem;letter-spacing:.1em;color:#c3d6e2;text-transform:uppercase">
+    <div style="flex:none;position:relative;display:grid;grid-template-columns:minmax(0,1fr) 2.8rem 2.8rem 2.8rem 4.2rem;column-gap:.4rem;align-items:center;height:2.4rem;border-top:1px solid rgba(34,211,238,.28);border-bottom:1px solid rgba(34,211,238,.55);font-family:var(--font-2);font-size:.76rem;letter-spacing:.08em;color:#c3d6e2;text-transform:uppercase">
       <span data-pop onClick="{{ mUnit }}" style="display:flex;align-items:center;gap:.3rem;min-width:0;height:100%;padding-left:.5rem;cursor:pointer;white-space:nowrap"><span>{{ measureLabel }}</span><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ unitOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ unitOpts }}" as="u" hint-placeholder-count="4"><button onClick="{{ u.onClick }}" style="{{ u.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ u.label }}</span><span style="{{ u.gStyle }}">{{ u.grams }}</span></button></sc-for><span style="{{ mPopNote }}">Sets the portion every food is measured at. Once added, a food's size can be typed directly in the summary table.</span></span></span></sc-if></span>
       <span data-pop onClick="{{ mTipP }}" style="{{ mHead }}"><span>P</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ mTip.s1 }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></button></sc-for><span style="{{ mPopLabel }}">PROTEIN</span><span style="{{ mPopNote }}">Builds and repairs tissue. 4 kcal per gram; the most satiating macro per calorie.</span></span></span></sc-if></span>
       <span data-pop onClick="{{ mTipC }}" style="{{ mHead }}"><span>C</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ mTip.s2 }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></button></sc-for><span style="{{ mPopLabel }}">CARB</span><span style="{{ mPopNote }}">The body's most accessible fuel. 4 kcal per gram; includes sugars, starches and fibre.</span></span></span></sc-if></span>
@@ -215,8 +218,8 @@ option{background:#070b12;color:#d7e6ef}
         </sc-for>
       </div>
       <div style="flex:none;display:flex;align-items:center;gap:.7rem;min-height:2.2rem;padding-bottom:calc(1.35rem + env(safe-area-inset-bottom, 0px));border-top:1px solid rgba(34,211,238,.55)">
-        <span style="font-family:var(--font-2);font-size:.66rem;letter-spacing:.1em;color:#7b91a3">TOT</span>
-        <span style="flex:1;display:flex;gap:.85rem;justify-content:flex-end;align-items:baseline;font-weight:300;font-size:.78rem;color:#d7e6ef;font-variant-numeric:tabular-nums;white-space:nowrap">
+        <span style="font-family:var(--font-2);font-size:.76rem;letter-spacing:.1em;color:#7b91a3">TOT</span>
+        <span style="flex:1;display:flex;gap:.75rem;justify-content:flex-end;align-items:baseline;font-weight:300;font-size:.88rem;color:#d7e6ef;font-variant-numeric:tabular-nums;white-space:nowrap">
           <span><span style="{{ mMacroTag }}">PROT</span> {{ tot.v1 }}<span style="{{ unitSuffix }}">{{ tot.u3 }}</span></span>
           <span><span style="{{ mMacroTag }}">CARB</span> {{ tot.v2 }}<span style="{{ unitSuffix }}">{{ tot.u3 }}</span></span>
           <span><span style="{{ mMacroTag }}">FAT</span> {{ tot.v3 }}<span style="{{ unitSuffix }}">{{ tot.u3 }}</span></span>
@@ -469,7 +472,7 @@ class Component extends DCLogic {
     // Total is scaled against itself, so it gets its own tone — cyan-300.
     const totFillOf = (v, max) => Object.assign({}, fillOf(v, max), { background: "rgba(103,232,249,.34)" });
     const numWrap = { position: "relative", display: "flex", alignItems: "baseline", justifyContent: "flex-end" };
-    const unitSuffix = { marginLeft: ".15rem", fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".06em", color: "#94a3b8" };
+    const unitSuffix = { marginLeft: ".15rem", fontFamily: "var(--font-2)", fontSize: s.narrow ? ".76rem" : ".66rem", letterSpacing: ".06em", color: "#94a3b8" };
     const inSum = name => (s.sum || []).includes(name);
     const mkRow = fo => {
       const sc = scoreOf(fo), bd = this.band(sc), mu = fo.mu === "ml" ? "ml" : "g", ekc = kcalOf(fo);
@@ -511,7 +514,7 @@ class Component extends DCLogic {
         toggleRow: () => this.toggleSum(fo.name),
         mRow: {
           display: "grid", gridTemplateColumns: "minmax(0,1fr) 2.8rem 2.8rem 2.8rem 4.2rem", columnGap: ".4rem",
-          alignItems: "center", minHeight: "2.2rem", cursor: "pointer", transition: "background 140ms ease",
+          alignItems: "center", minHeight: "2.5rem", cursor: "pointer", transition: "background 140ms ease",
           borderBottom: "1px solid rgba(34,211,238,.14)",
           borderLeft: "2px solid transparent", background: "transparent"
         },
@@ -538,7 +541,7 @@ class Component extends DCLogic {
     // Ambient onboarding, per session rather than per person: glow the search box until
     // something is typed, then glow the top result until a food is actually added. Both
     // reset on a fresh load, so a returning user still gets the nudge.
-    const rowHint = !!q && !s.starred;
+    const rowHint = !!s.rowHint;
     // The list is a leaderboard for the current sort; searching is how you reach the rest.
     const ROW_CAP = 250;
     let rows = src.slice(0, ROW_CAP).map((fo, ri) => Object.assign(mkRow(fo), { hint: ri === 0 && rowHint ? "on" : "off" }));
@@ -738,13 +741,13 @@ class Component extends DCLogic {
     const qtyStyle = {
       width: "2.9rem", textAlign: "right", background: "transparent", border: 0,
       borderRadius: 0, padding: "0 0 .1rem",
-      color: "#d7e6ef", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".875rem",
+      color: "#d7e6ef", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1rem" : ".875rem",
       fontVariantNumeric: "tabular-nums", transition: "border-color 140ms ease"
     };
     const signOut = () => { try { localStorage.removeItem("nutri-search-user"); } catch (e) {} this.setState({ user: null, view: "results" }); };
 
     return {
-      searchHint: q ? "off" : "on",
+      searchHint: !s.searchHinted && !q ? "on" : "off",
       isMobile: !!s.narrow, isDesktop: !s.narrow,
       mLib: () => this.setState({ libOpen: !s.libOpen, unitOpen: false, catOpen: false, extraOpen: false, mColOpen: false, mTip: "" }),
       mUnit: () => this.setState({ unitOpen: !s.unitOpen, libOpen: false, catOpen: false, extraOpen: false, mColOpen: false, mTip: "" }),
@@ -802,15 +805,15 @@ class Component extends DCLogic {
         fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".12em", color: "#94a3b8"
       },
       aboutMade: { whiteSpace: s.narrow ? "normal" : "nowrap", lineHeight: 1.6 },
-      mName: { display: "block", minWidth: 0, paddingLeft: ".5rem", fontWeight: 300, fontSize: ".8rem", color: "#d7e6ef", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
+      mName: { display: "block", minWidth: 0, paddingLeft: ".5rem", fontWeight: 300, fontSize: ".92rem", color: "#d7e6ef", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
       mHead: { display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".15rem", height: "100%", cursor: "pointer", whiteSpace: "nowrap" },
       mPop: { position: "absolute", top: "100%", left: 0, right: 0, zIndex: 40, display: "flex", flexDirection: "column", paddingTop: ".3rem", textTransform: "none", letterSpacing: 0 },
       mPopInner: { display: "flex", flexDirection: "column", background: "#070b12", border: "1px solid rgba(34,211,238,.55)", boxShadow: "0 0 28px rgba(34,211,238,.12)" },
       mPopLabel: { padding: ".55rem .7rem 0", fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".12em", color: "#7b91a3" },
       mPopNote: { padding: ".35rem .7rem .7rem", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".85rem", lineHeight: 1.55, color: "#94a3b8", textWrap: "pretty", whiteSpace: "normal" },
-      mNum: { textAlign: "right", fontWeight: 300, fontSize: ".78rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
-      mColCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300, fontSize: ".82rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
-      mMacroTag: { fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".08em", color: "#7b91a3" },
+      mNum: { textAlign: "right", fontWeight: 300, fontSize: ".9rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
+      mColCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300, fontSize: ".94rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
+      mMacroTag: { fontFamily: "var(--font-2)", fontSize: ".76rem", letterSpacing: ".08em", color: "#7b91a3" },
       isResults: s.view === "results", isSettings: s.view === "settings", isSignin: s.view === "signin",
       aboutOpen: !!s.aboutOpen,
       openAbout: () => this.setState({ aboutOpen: true }),
@@ -828,7 +831,16 @@ class Component extends DCLogic {
         try { localStorage.setItem("nutri-search-user", u); } catch (e) {}
         this.setState({ user: u, view: "results" });
       },
-      q: s.q, onQ: e => this.setState({ q: e.target.value, libOpen: false }),
+      q: s.q, onQ: e => {
+        const v = e.target.value;
+        this.setState({ q: v, libOpen: false, searchHinted: true });
+        // The first search earns one run of the row hint, then it never returns this session.
+        if (v.trim() && !this._rowHinted) {
+          this._rowHinted = true;
+          this.setState({ rowHint: true });
+          setTimeout(() => this.setState({ rowHint: false }), 4400);
+        }
+      },
       // Mobile drops the library name — at the larger type it would push the count off the edge.
       searchPlaceholder: "SEARCH " + this.foods().filter(fo => s.cat === "ALL" || fo.cat === s.cat).length.toLocaleString()
         + (s.narrow ? "" : " " + (libs.find(d => d.k === lib) || libs[0]).label.replace("USDA ", "")) + " FOODS",
@@ -869,7 +881,7 @@ class Component extends DCLogic {
         transition: "background 140ms ease"
       },
       extraLabel: extra.label, extraUnit: extra.unit,
-      extraSuffix: { marginLeft: ".25rem", fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".04em", color: "#5f7f8e" },
+      extraSuffix: { marginLeft: ".25rem", fontFamily: "var(--font-2)", fontSize: s.narrow ? ".76rem" : ".66rem", letterSpacing: ".04em", color: "#5f7f8e" },
       extraOpen: !!s.extraOpen,
       openExtra: () => this.setState({ extraOpen: true }),
       closeExtra: () => this.setState({ extraOpen: false }),
@@ -907,7 +919,7 @@ class Component extends DCLogic {
       qtyStyle, headIsland, unitSuffix, numWrap, never: false,
       headMeasure: { position: "relative", display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".3rem", paddingLeft: ".55rem", cursor: "pointer", color: "#c3d6e2", whiteSpace: "nowrap" },
       measureCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300, fontSize: ".875rem", fontVariantNumeric: "tabular-nums", color: "#7b91a3", whiteSpace: "nowrap" },
-      sizeSuffix: { marginLeft: ".2rem", display: "inline-block", width: "1.05rem", textAlign: "left", flex: "none", fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".06em", color: "#94a3b8" },
+      sizeSuffix: { marginLeft: ".2rem", display: "inline-block", width: "1.2rem", textAlign: "left", flex: "none", fontFamily: "var(--font-2)", fontSize: s.narrow ? ".8rem" : ".7rem", letterSpacing: ".06em", color: "#94a3b8" },
       sumSizeCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300, fontSize: ".875rem", fontVariantNumeric: "tabular-nums", color: "#d7e6ef", whiteSpace: "nowrap" },
       catFiltered: s.cat !== "ALL",
       inputFix: { style: { boxSizing: "border-box" } }
