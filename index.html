@@ -215,7 +215,7 @@ option{background:#070b12;color:#d7e6ef}
       </sc-for>
     </div>
     <sc-if value="{{ hasSummary }}" hint-placeholder-val="{{ false }}">
-    <div style="flex:none;max-height:40%;display:flex;flex-direction:column;border-top:1px solid rgba(34,211,238,.55)">
+    <div style="flex:none;max-height:40%;display:flex;flex-direction:column;background:#090f18;border-top:1px solid rgba(34,211,238,.55)">
       <div style="flex:1;min-height:0;overflow-y:auto">
         <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
           <div data-row onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(0,1fr) 4.2rem 4.2rem;column-gap:.4rem;align-items:center;min-height:2.5rem;border-left:2px solid transparent;border-bottom:1px solid rgba(34,211,238,.14);cursor:pointer;transition:background 140ms ease">
