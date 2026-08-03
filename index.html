@@ -380,10 +380,19 @@ class Component extends DCLogic {
         clearTimeout(this._kbT);
         this.setState({ kb: true });
       } else if (t.tagName === "INPUT") {
+        clearTimeout(this._qT);
         this.setState({ kbQty: true });
-        // Wait for the keyboard to take its space, then make sure the row being edited is
-        // actually on screen — it is usually the one the summary has just scrolled past.
-        setTimeout(() => { try { t.scrollIntoView({ block: "nearest" }); } catch (err) {} }, 340);
+        // Only move the row if it is genuinely out of sight. Scrolling while the keyboard is
+        // settling makes iOS dismiss and re-present it, and moving between two fields that are
+        // both already visible was scrolling for no reason — hence the sink and spring back.
+        clearTimeout(this._scrollT);
+        this._scrollT = setTimeout(() => {
+          try {
+            const r = t.getBoundingClientRect();
+            const h = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+            if (r.top < 0 || r.bottom > h) t.scrollIntoView({ block: "nearest" });
+          } catch (err) {}
+        }, 340);
       }
     };
     // The keyboard takes about a third of a second to leave. Holding kb for that long stops
@@ -395,7 +404,12 @@ class Component extends DCLogic {
         clearTimeout(this._kbT);
         this._kbT = setTimeout(() => this.setState({ kb: false }), 380);
       } else if (t.tagName === "INPUT") {
-        this.setState({ kbQty: false });
+        // Moving from one serving size to the next fires focusout then focusin. Dropping the
+        // layout in between collapsed the summary and let the keyboard start closing, so it
+        // sank and sprang back. Hold it until the focus has really gone.
+        clearTimeout(this._qT);
+        clearTimeout(this._scrollT);
+        this._qT = setTimeout(() => this.setState({ kbQty: false }), 260);
       }
     };
     document.addEventListener("focusin", this._focusIn);
