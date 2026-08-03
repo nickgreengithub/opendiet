@@ -229,6 +229,25 @@ option{background:#070b12;color:#d7e6ef}
   </div>
   </div>
   </sc-if>
+  <sc-if value="{{ tourOn }}" hint-placeholder-val="{{ false }}">
+  <div style="{{ tourScrim }}">
+    <sc-if value="{{ tourSpotOn }}" hint-placeholder-val="{{ false }}">
+      <div style="{{ tourSpot }}"></div>
+    </sc-if>
+    <div onClick="{{ stopProp }}" style="{{ tourCard }}">
+      <div style="{{ tourStepTag }}">{{ tourStepLabel }}</div>
+      <div style="{{ tourTitle }}">{{ tourTitleText }}</div>
+      <div style="{{ tourBody }}">{{ tourBodyText }}</div>
+      <sc-if value="{{ tourStep1 }}" hint-placeholder-val="{{ true }}">
+        <input placeholder="{{ tourPlaceholder }}" value="{{ tourQ }}" onChange="{{ onTourQ }}" style="{{ tourInput }}">
+      </sc-if>
+      <div style="{{ tourActions }}">
+        <button onClick="{{ tourSkip }}" style="{{ tourSkipBtn }}" style-hover="color:#d7e6ef">SKIP</button>
+        <button onClick="{{ tourNext }}" style="{{ tourNextBtn }}" style-hover="background:rgba(34,211,238,.18)">{{ tourNextLabel }}</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
   <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
   <div style="max-width:460px">
     <a onClick="{{ goResults }}" style="font-family:var(--font-2);font-size:.78rem;letter-spacing:.16em;cursor:pointer">← RESULTS</a>
@@ -298,14 +317,30 @@ class Component extends DCLogic {
     };
     document.addEventListener("click", this._dismiss);
     document.addEventListener("touchstart", this._dismiss, { passive: true });
-    this._onResize = () => { const n = window.innerWidth < 700; if (n !== this.state.narrow) this.setState({ narrow: n }); };
+    this._onResize = () => {
+      const n = window.innerWidth < 700;
+      if (n !== this.state.narrow) this.setState({ narrow: n });
+      if (this.state.tour === 2) this.measureRow();
+    };
     window.addEventListener("resize", this._onResize);
+    // First visit only. Anyone who has finished or skipped the tour carries the flag.
+    try { if (!localStorage.getItem("nutri-search-tour")) this.setState({ tour: 1 }); } catch (e) {}
   }
   componentWillUnmount() {
     document.removeEventListener("keydown", this._esc);
     document.removeEventListener("click", this._dismiss);
     document.removeEventListener("touchstart", this._dismiss);
     window.removeEventListener("resize", this._onResize);
+  }
+  // Step two points at a real row, so it has to know where that row landed.
+  measureRow() {
+    const el = document.querySelector("[data-scroll] > div");
+    const r = el && el.getBoundingClientRect();
+    this.setState({ tourRect: r && r.height ? { top: r.top, left: r.left, width: r.width, height: r.height } : null });
+  }
+  endTour() {
+    try { localStorage.setItem("nutri-search-tour", "1"); } catch (e) {}
+    this.setState({ tour: 0, tourRect: null });
   }
   // Each library is a static JSON file: {cats:[...], foods:[[name,catIdx,kcal,p,c,fb,f,sf,sg,liquid],...]},
   // built from the USDA FoodData Central CSV releases. Values are per 100 g/ml, FDC's own basis.
@@ -381,6 +416,11 @@ class Component extends DCLogic {
     this.setState(s => {
       const sum = (s.sum || []).includes(name) ? (s.sum || []).filter(n => n !== name) : (s.sum || []).concat(name);
       try { localStorage.setItem("nutri-search-sum", JSON.stringify(sum)); } catch (e) {}
+      // Adding a food during step two is the step being completed — get out of the way.
+      if (s.tour === 2) {
+        try { localStorage.setItem("nutri-search-tour", "1"); } catch (e) {}
+        return { sum, tour: 0, tourRect: null };
+      }
       return { sum };
     });
   }
@@ -721,7 +761,78 @@ class Component extends DCLogic {
       fontVariantNumeric: "tabular-nums", transition: "border-color 140ms ease"
     };
     const signOut = () => { try { localStorage.removeItem("nutri-search-user"); } catch (e) {} this.setState({ user: null, view: "results" }); };
+
+    // ---- first-run tour -------------------------------------------------------
+    const tour = s.tour || 0, step1 = tour === 1, step2 = tour === 2;
+    const rect = s.tourRect;
+    const tap = s.narrow ? "Tap" : "Click";
+    // Card sits under the highlighted row when there is room, otherwise above it.
+    const below = rect ? rect.top + rect.height + 12 : 0;
+    const roomBelow = rect ? window.innerHeight - below > 210 : true;
+    const tourCard = Object.assign(
+      {
+        width: s.narrow ? "calc(100% - 1.8rem)" : "23rem", maxWidth: "27rem", boxSizing: "border-box",
+        background: "#070b12", border: "1px solid rgba(34,211,238,.55)",
+        boxShadow: "0 0 34px rgba(34,211,238,.14)", padding: "1rem 1.05rem 1.05rem",
+        position: step2 && rect ? "fixed" : "relative", zIndex: 62, pointerEvents: "auto"
+      },
+      step2 && rect
+        ? roomBelow
+          ? { top: below + "px", left: s.narrow ? ".9rem" : rect.left + "px" }
+          : { bottom: (window.innerHeight - rect.top + 12) + "px", left: s.narrow ? ".9rem" : rect.left + "px" }
+        : {}
+    );
+    const tourBtn = {
+      height: "2.1rem", padding: "0 .95rem", borderRadius: 0, cursor: "pointer",
+      fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".14em",
+      transition: "background 140ms ease, color 140ms ease"
+    };
+
     return {
+      tourOn: tour > 0, tourStep1: step1, tourSpotOn: step2 && !!rect,
+      tourStepLabel: step1 ? "1 / 2" : "2 / 2",
+      tourTitleText: step1 ? "Search any food" : "Build a total",
+      tourBodyText: step1
+        ? "Every food in the library, with protein, carbs, fat and calories side by side. Type something to start — or just press begin."
+        : tap + " a row to add that food to your summary. Its serving size can be typed straight into the summary table, and the totals follow.",
+      tourPlaceholder: "e.g. chicken breast",
+      tourQ: s.tourQ || "",
+      onTourQ: e => this.setState({ tourQ: e.target.value }),
+      tourNextLabel: step1 ? "BEGIN" : "GOT IT",
+      tourNext: () => {
+        if (step1) {
+          this.setState({ q: (s.tourQ || "").trim(), tour: 2 });
+          setTimeout(() => this.measureRow(), 80);
+        } else this.endTour();
+      },
+      tourSkip: () => this.endTour(),
+      tourScrim: {
+        position: "fixed", inset: 0, zIndex: 60, display: "flex",
+        alignItems: "center", justifyContent: "center", padding: "0 .9rem", boxSizing: "border-box",
+        // In step two the cut-out does the dimming, so the scrim itself stays clear — and it
+        // stops swallowing taps, because the step is telling you to tap the row underneath it.
+        background: step2 && rect ? "transparent" : "rgba(5,8,13,.86)",
+        pointerEvents: step2 && rect ? "none" : "auto"
+      },
+      // A transparent box over the row with an enormous shadow — that shadow is the dimming.
+      tourSpot: rect ? {
+        position: "fixed", top: rect.top + "px", left: rect.left + "px",
+        width: rect.width + "px", height: rect.height + "px",
+        border: "1px solid rgba(34,211,238,.75)", boxShadow: "0 0 0 9999px rgba(5,8,13,.86)",
+        pointerEvents: "none", zIndex: 61
+      } : {},
+      tourCard,
+      tourStepTag: { fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".18em", color: "#22d3ee" },
+      tourTitle: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.25rem", color: "#eaf5fb", margin: ".5rem 0 .4rem" },
+      tourBody: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".9rem", lineHeight: 1.55, color: "#94a3b8", textWrap: "pretty" },
+      tourInput: {
+        width: "100%", boxSizing: "border-box", marginTop: ".85rem", height: "2.4rem", padding: "0 .6rem",
+        background: "transparent", border: "1px solid rgba(34,211,238,.4)", borderRadius: 0,
+        color: "#eaf5fb", fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".08em"
+      },
+      tourActions: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: ".7rem", marginTop: "1rem" },
+      tourSkipBtn: Object.assign({}, tourBtn, { background: "transparent", border: 0, color: "#7b91a3", padding: 0 }),
+      tourNextBtn: Object.assign({}, tourBtn, { background: "rgba(34,211,238,.10)", border: "1px solid #22d3ee", color: "#22d3ee" }),
       isMobile: !!s.narrow, isDesktop: !s.narrow,
       mLib: () => this.setState({ libOpen: !s.libOpen, unitOpen: false, catOpen: false, extraOpen: false, mColOpen: false, mTip: "" }),
       mUnit: () => this.setState({ unitOpen: !s.unitOpen, libOpen: false, catOpen: false, extraOpen: false, mColOpen: false, mTip: "" }),
