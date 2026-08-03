@@ -201,7 +201,7 @@ option{background:#070b12;color:#d7e6ef}
           </div>
         </sc-for>
       </div>
-      <div style="flex:none;display:flex;align-items:center;gap:.7rem;min-height:2.2rem;padding-bottom:.55rem;border-top:1px solid rgba(34,211,238,.55)">
+      <div style="flex:none;display:flex;align-items:center;gap:.7rem;min-height:2.2rem;padding-bottom:calc(1.35rem + env(safe-area-inset-bottom, 0px));border-top:1px solid rgba(34,211,238,.55)">
         <span style="font-family:var(--font-2);font-size:.66rem;letter-spacing:.1em;color:#7b91a3">TOT</span>
         <span style="flex:1;display:flex;gap:.85rem;justify-content:flex-end;align-items:baseline;font-weight:300;font-size:.78rem;color:#d7e6ef;font-variant-numeric:tabular-nums;white-space:nowrap">
           <span><span style="{{ mMacroTag }}">PROT</span> {{ tot.v1 }}<span style="{{ unitSuffix }}">{{ tot.u3 }}</span></span>
@@ -268,6 +268,10 @@ option{background:#070b12;color:#d7e6ef}
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
+// iOS Safari counts 100vh as the viewport with the URL bar retracted, so a full-height
+// shell puts its last rows underneath the bar. dvh tracks what is actually visible.
+const VH = typeof CSS !== "undefined" && CSS.supports && CSS.supports("height", "100dvh") ? "100dvh" : "100vh";
+
 class Component extends DCLogic {
   state = { view: "results", q: "", cat: "ALL", catOpen: false, email: "", user: null, lib: "CORE", narrow: typeof window !== "undefined" && window.innerWidth < 700 };
   componentDidMount() {
@@ -736,8 +740,8 @@ class Component extends DCLogic {
         }
       })),
       shell: s.narrow
-        ? { height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: ".2rem .9rem 0", boxSizing: "border-box" }
-        : { height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: "2.4rem 1.25rem", boxSizing: "border-box" },
+        ? { height: VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: ".2rem .9rem 0", boxSizing: "border-box" }
+        : { height: VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: "2.4rem 1.25rem", boxSizing: "border-box" },
       aboutScrim: {
         position: "fixed", inset: 0, zIndex: 50, background: "rgba(5,8,13,.75)", display: "flex",
         alignItems: s.narrow ? "stretch" : "flex-start", justifyContent: "center",
