@@ -53,6 +53,14 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
 @media (prefers-reduced-motion:reduce){
   [data-hint="on"]{animation:none;background-image:none!important;box-shadow:inset 0 0 0 1px rgba(34,211,238,.45)}
   [data-hint="on"] svg{animation:none;opacity:1}}
+/* Row hover is a pointer idiom. On touch, :hover latches after a tap and stays until you
+   tap elsewhere — and since adding a food removes its row, the stale highlight lands on
+   whatever row slid into that slot, reading as a selection that was never made. Swap it
+   for a press flash, which is what a tap should actually confirm.
+   Doubled attribute selector to outrank the generated .scpN:hover !important rules. */
+@media (hover:none){
+  [data-row][data-row]:hover{background:transparent!important}
+  [data-row][data-row]:active{background:rgba(34,211,238,.22)!important}}
 input::placeholder{color:#7b91a3;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:1}
 [data-scroll]{overflow-x:hidden;scrollbar-width:thin;scrollbar-color:rgba(34,211,238,.35) rgba(34,211,238,.07)}
 [data-scroll]::-webkit-scrollbar{width:10px}
@@ -110,7 +118,7 @@ option{background:#070b12;color:#d7e6ef}
     <div style="position:relative;flex:1 1 0;min-height:0;display:flex;flex-direction:column">
     <div data-scroll style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box">
     <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
-      <div data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
+      <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
         <span style="display:flex;align-items:center;gap:.55rem;min-width:0">
           <button onClick="{{ r.togglePlus }}" style="{{ r.starStyle }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="{{ r.starFill }}" stroke="currentColor" stroke-width="1.8" style="flex:none"><path d="M12 3.2l2.7 5.7 6 .9-4.35 4.4 1.03 6.2L12 17.5 6.62 20.4l1.03-6.2L3.3 9.8l6-.9L12 3.2z"></path></svg></button>
           <span style="flex:1;min-width:0;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span>
@@ -130,7 +138,7 @@ option{background:#070b12;color:#d7e6ef}
         <div style="position:relative;flex:1;min-height:0;display:flex;flex-direction:column">
         <div data-scroll style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box">
           <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
-            <div onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
+            <div data-row onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
               <span style="display:flex;align-items:center;gap:.55rem;min-width:0">
                 <button onClick="{{ r.togglePlus }}" style="{{ r.starStyle }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" style="flex:none"><path d="M12 3.2l2.7 5.7 6 .9-4.35 4.4 1.03 6.2L12 17.5 6.62 20.4l1.03-6.2L3.3 9.8l6-.9L12 3.2z"></path></svg></button>
                 <span style="font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:color 140ms ease" style-hover="color:#a5f3fc">{{ r.name }}</span>
@@ -197,7 +205,7 @@ option{background:#070b12;color:#d7e6ef}
     </div>
     <div data-scroll style="flex:1;min-height:0;overflow-y:auto">
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
-        <div data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ r.mRow }}" style-hover="background:rgba(34,211,238,.13)">
+        <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ r.mRow }}" style-hover="background:rgba(34,211,238,.13)">
           <span style="{{ mName }}">{{ r.name }}</span>
           <span style="{{ mNum }}">{{ r.v1 }}</span>
           <span style="{{ mNum }}">{{ r.v2 }}</span>
@@ -210,7 +218,7 @@ option{background:#070b12;color:#d7e6ef}
     <div style="flex:none;max-height:40%;display:flex;flex-direction:column;border-top:1px solid rgba(34,211,238,.55)">
       <div style="flex:1;min-height:0;overflow-y:auto">
         <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
-          <div onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(0,1fr) 4.2rem 4.2rem;column-gap:.4rem;align-items:center;min-height:2.2rem;border-left:2px solid transparent;border-bottom:1px solid rgba(34,211,238,.14);cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.13)">
+          <div data-row onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(0,1fr) 4.2rem 4.2rem;column-gap:.4rem;align-items:center;min-height:2.2rem;border-left:2px solid transparent;border-bottom:1px solid rgba(34,211,238,.14);cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.13)">
             <span style="{{ mName }}">{{ r.name }}</span>
             <span style="display:flex;align-items:center;justify-content:flex-end"><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" style="{{ qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
             <span style="{{ mColCell }}">{{ r.mSumVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
