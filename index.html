@@ -260,9 +260,9 @@ option{background:#070b12;color:#d7e6ef}
       <div style="flex:none;display:flex;align-items:center;justify-content:space-between;min-height:2rem;font-family:var(--font-2);font-size:.8rem;letter-spacing:.14em;color:#7b91a3;border-bottom:1px solid rgba(34,211,238,.28)"><span>MY FOOD SUMMARY</span><button onClick="{{ clearSum }}" style="{{ clearBtn }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></div>
       <div data-scroll style="flex:1;min-height:0;overflow-y:auto">
         <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
-          <div data-row onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(0,1fr) 4.2rem 4.2rem;column-gap:.4rem;align-items:center;min-height:2.5rem;border-left:2px solid transparent;border-bottom:1px solid rgba(34,211,238,.14);cursor:pointer;transition:background 140ms ease">
+          <div data-row onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(0,1fr) 7.9rem 4.2rem;column-gap:.4rem;align-items:center;min-height:2.5rem;border-left:2px solid transparent;border-bottom:1px solid rgba(34,211,238,.14);cursor:pointer;transition:background 140ms ease">
             <span style="{{ mName }}">{{ r.name }}</span>
-            <span style="position:relative;display:flex;align-items:center;justify-content:flex-end"><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ r.qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span><sc-if value="{{ r.qtyFinger }}" hint-placeholder-val="{{ false }}"><span data-finger="qty"><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span></sc-if></span>
+            <span style="position:relative;display:flex;align-items:center;justify-content:flex-end"><button onClick="{{ r.stepDown }}" style="{{ stepBtn }}" style-hover="color:#22d3ee">−</button><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ r.qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span><button onClick="{{ r.stepUp }}" style="{{ stepBtn }}" style-hover="color:#22d3ee">+</button><sc-if value="{{ r.qtyFinger }}" hint-placeholder-val="{{ false }}"><span data-finger="qty"><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span></sc-if></span>
             <span style="{{ mColCell }}">{{ r.mSumVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
           </div>
         </sc-for>
@@ -848,6 +848,13 @@ class Component extends DCLogic {
     const sumFoods = (s.sum || []).map(n => this.foods().find(fo => fo.name === n)).filter(Boolean);
     // Each summary row carries its own quantity; macros and totals scale off it.
     const qtyOf = name => { const v = (s.qty || {})[name]; return v === undefined ? "100" : v; };
+    const step = (name, d) => e => {
+      if (e && e.stopPropagation) e.stopPropagation();
+      const cur = parseFloat(qtyOf(name));
+      const base = isNaN(cur) ? 100 : cur;
+      const next = d > 0 ? (Math.floor(base / 10) + 1) * 10 : (Math.ceil(base / 10) - 1) * 10;
+      this.setState(st => ({ qty: Object.assign({}, st.qty, { [name]: String(Math.max(0, next)) }) }));
+    };
     const gramsOf = name => { const n = parseFloat(qtyOf(name)); return isNaN(n) || n < 0 ? 0 : n; };
     const sumKcalMax = Math.max.apply(null, sumFoods.map(fo => kcalOf(fo) * (gramsOf(fo.name) / 100)).concat([1]));
     const sumGramMax = Math.max.apply(null, sumFoods.map(fo => { const g = gramsOf(fo.name) / 100; return Math.max(fo.p, fo.c, fo.f) * g; }).concat([1]));
@@ -883,7 +890,7 @@ class Component extends DCLogic {
         v1: sv[0], v2: sv[1], v3: sv[2],
         qty: qtyOf(fo.name), qtyUnit: fo.mu === "ml" ? "ml" : "g",
         qtyStyle: s.narrow
-          ? Object.assign({}, qtyStyle, { width: (String(qtyOf(fo.name)).length + 0.4) + "ch" })
+          ? Object.assign({}, qtyStyle, { width: Math.max(3.4, String(qtyOf(fo.name)).length + 0.4) + "ch" })
           : qtyStyle,
         qtyFinger: s.qtyHint === fo.name && !!s.narrow,
         fb: this.fmt(fo.fb * g),
@@ -892,7 +899,10 @@ class Component extends DCLogic {
         mSumVal: mCol.k === "score" ? String(scoreOf(fo)) : mCol.k === "kcal" ? String(Math.round(kcalOf(fo) * g)) : mCol.k === "dens" ? (fo.kcal / 100).toFixed(2) : this.fmt(mCol.get(fo) * g),
         sfill1: sumFillOf(sfv[0], sfvMax), sfill2: sumFillOf(sfv[1], sfvMax), sfill3: sumFillOf(sfv[2], sfvMax),
         sfillK: sumFillOf(kcalOf(fo) * g, sumKcalMax),
-        onQty: e => { const v = e.target.value; this.setState(st => ({ qty: Object.assign({}, st.qty, { [fo.name]: v }) })); }
+        onQty: e => { const v = e.target.value; this.setState(st => ({ qty: Object.assign({}, st.qty, { [fo.name]: v }) })); },
+        // Nudge to the next multiple of ten, so an oddly-typed 137 lands on 140, not 147.
+        stepUp: step(fo.name, 1),
+        stepDown: step(fo.name, -1)
       });
     });
     const gs = fo => gramsOf(fo.name) / 100;
@@ -1081,6 +1091,12 @@ class Component extends DCLogic {
         ? { display: "none" }
         : { flex: 1, minHeight: 0, overflowY: "auto" },
       mHeadRowHidden: s.kbQty,
+      stepBtn: {
+        flex: "none", width: "2rem", alignSelf: "stretch", padding: 0,
+        border: 0, borderRadius: 0, background: "transparent", cursor: "pointer",
+        color: "#7b91a3", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.35rem",
+        lineHeight: 1, transition: "color 140ms ease"
+      },
       mLibBtn: {
         display: "flex", alignItems: "center", justifyContent: "center",
         width: "2rem", height: "100%", cursor: "pointer", color: "#c3d6e2",
