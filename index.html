@@ -331,8 +331,27 @@ class Component extends DCLogic {
     };
     // While the search keyboard is up the summary stays out of the way entirely — there is
     // not room for it above the keyboard and it is not what you are looking at.
-    this._focusIn = e => { if (e.target && e.target.matches && e.target.matches("[data-search]")) this.setState({ kb: true }); };
-    this._focusOut = e => { if (e.target && e.target.matches && e.target.matches("[data-search]")) this.setState({ kb: false }); };
+    const searchFocused = () => {
+      const el = document.activeElement;
+      return !!(el && el.matches && el.matches("[data-search]"));
+    };
+    this._press = () => { this._kbAtPress = searchFocused(); };
+    document.addEventListener("touchstart", this._press, true);
+    document.addEventListener("mousedown", this._press, true);
+    this._focusIn = e => {
+      if (e.target && e.target.matches && e.target.matches("[data-search]")) {
+        clearTimeout(this._kbT);
+        this.setState({ kb: true });
+      }
+    };
+    // The keyboard takes about a third of a second to leave. Holding kb for that long stops
+    // the summary reappearing underneath it on the way out.
+    this._focusOut = e => {
+      if (e.target && e.target.matches && e.target.matches("[data-search]")) {
+        clearTimeout(this._kbT);
+        this._kbT = setTimeout(() => this.setState({ kb: false }), 380);
+      }
+    };
     document.addEventListener("focusin", this._focusIn);
     document.addEventListener("focusout", this._focusOut);
     document.addEventListener("click", this._dismiss);
@@ -363,6 +382,8 @@ class Component extends DCLogic {
   }
   componentWillUnmount() {
     document.removeEventListener("keydown", this._esc);
+    document.removeEventListener("touchstart", this._press, true);
+    document.removeEventListener("mousedown", this._press, true);
     document.removeEventListener("focusin", this._focusIn);
     document.removeEventListener("focusout", this._focusOut);
     document.removeEventListener("click", this._dismiss);
@@ -451,7 +472,8 @@ class Component extends DCLogic {
     // A focused input means the keyboard is up — more reliable than comparing viewport
     // heights, which iOS reports inconsistently mid-animation.
     const el = typeof document !== "undefined" && document.activeElement;
-    const kbOpen = !!this.state.narrow && !!el && el.tagName === "INPUT";
+    const stillFocused = !!(el && el.matches && el.matches("[data-search]"));
+    const kbOpen = !!this.state.narrow && (stillFocused || !!this._kbAtPress);
     const hold = kbOpen && !(this.state.sum || []).includes(name);
     if (hold) {
       try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (e) {}
