@@ -183,7 +183,7 @@ option{background:#070b12;color:#d7e6ef}
   </sc-if>
   <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
   <div style="display:flex;flex-direction:column;flex:1;min-height:0">
-    <div data-hint="{{ searchHint }}" style="flex:none;position:relative;display:flex;align-items:center;gap:.6rem;height:2.9rem;padding:0 .55rem 0 .6rem;font-family:var(--font-2)">
+    <div data-hint="{{ searchHint }}" style="{{ mSearchRow }}">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="flex:none"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
       <input placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="flex:1;min-width:0;height:2rem;background:transparent;border:0;padding:0 .3rem;color:#eaf5fb;font-family:var(--font-2);font-size:1rem;letter-spacing:.05em;text-transform:uppercase;text-overflow:ellipsis">
       <span data-pop onClick="{{ mLib }}" style="display:flex;align-items:center;justify-content:center;width:2rem;height:100%;cursor:pointer;color:#c3d6e2"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg></span>
@@ -199,6 +199,7 @@ option{background:#070b12;color:#d7e6ef}
         </span>
       </sc-if>
     </div>
+    <div style="{{ mBody }}">
     <div style="flex:none;position:relative;display:grid;grid-template-columns:minmax(0,1fr) 2.8rem 2.8rem 2.8rem 4.2rem;column-gap:.4rem;align-items:center;height:2.4rem;border-top:1px solid rgba(34,211,238,.28);border-bottom:1px solid rgba(34,211,238,.55);font-family:var(--font-2);font-size:.76rem;letter-spacing:.08em;color:#c3d6e2;text-transform:uppercase">
       <span data-pop onClick="{{ mUnit }}" style="display:flex;align-items:center;gap:.3rem;min-width:0;height:100%;cursor:pointer;white-space:nowrap"><span>{{ measureLabel }}</span><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ unitOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ unitOpts }}" as="u" hint-placeholder-count="4"><button onClick="{{ u.onClick }}" style="{{ u.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ u.label }}</span><span style="{{ u.gStyle }}">{{ u.grams }}</span></button></sc-for><span style="{{ mPopNote }}">Sets the portion every food is measured at. Once added, a food's size can be typed directly in the summary table.</span></span></span></sc-if></span>
       <span data-pop onClick="{{ mTipP }}" style="{{ mHead }}"><span>P</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ mTip.s1 }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></button></sc-for><span style="{{ mPopLabel }}">PROTEIN</span><span style="{{ mPopNote }}">Builds and repairs tissue. 4 kcal per gram; the most satiating macro per calorie.</span></span></span></sc-if></span>
@@ -240,6 +241,7 @@ option{background:#070b12;color:#d7e6ef}
       </div>
     </div>
     </sc-if>
+    </div>
   </div>
   </sc-if>
   <sc-if value="{{ aboutOpen }}" hint-placeholder-val="{{ false }}">
@@ -561,6 +563,10 @@ class Component extends DCLogic {
     // something is typed, then glow the top result until a food is actually added. Both
     // reset on a fresh load, so a returning user still gets the nudge.
     const rowHint = !!s.rowHint;
+    // One-way: once you have typed, the page never returns to the landing state.
+    const landing = !!s.narrow && !s.typed;
+    const vh = typeof window !== "undefined" ? window.innerHeight : 800;
+    const landingDrop = Math.max(0, Math.round((vh - 46) / 2) - 3);
     // The list is a leaderboard for the current sort; searching is how you reach the rest.
     const ROW_CAP = 250;
     let rows = src.slice(0, ROW_CAP).map((fo, ri) => Object.assign(mkRow(fo), { hint: ri === 0 && rowHint ? "on" : "off" }));
@@ -852,6 +858,22 @@ class Component extends DCLogic {
         try { localStorage.setItem("nutri-search-user", u); } catch (e) {}
         this.setState({ user: u, view: "results" });
       },
+      // Mobile opens on the search box alone, centred. The first keystroke lifts it to the
+      // top and drops the table in underneath. Transform only, so the layout never reflows —
+      // the table is already in place behind the fade, just invisible.
+      mSearchRow: {
+        flex: "none", position: "relative", display: "flex", alignItems: "center", gap: ".6rem",
+        height: "2.9rem", padding: "0 .55rem 0 .6rem", fontFamily: "var(--font-2)", zIndex: 2,
+        transform: landing ? "translateY(" + landingDrop + "px)" : "none",
+        transition: "transform 560ms cubic-bezier(.22,1,.36,1)"
+      },
+      mBody: {
+        display: "flex", flexDirection: "column", flex: 1, minHeight: 0,
+        opacity: landing ? 0 : 1,
+        transform: landing ? "translateY(14px)" : "none",
+        pointerEvents: landing ? "none" : "auto",
+        transition: "opacity 380ms ease 140ms, transform 560ms cubic-bezier(.22,1,.36,1)"
+      },
       clearSum: () => {
         try { localStorage.setItem("nutri-search-sum", "[]"); } catch (e) {}
         this.setState({ sum: [] });
@@ -864,7 +886,7 @@ class Component extends DCLogic {
       },
       q: s.q, onQ: e => {
         const v = e.target.value;
-        this.setState({ q: v, libOpen: false, searchHinted: true });
+        this.setState({ q: v, libOpen: false, searchHinted: true, typed: this.state.typed || !!v });
         // The first search earns one run of the row hint, then it never returns this session.
         if (v.trim() && !this._rowHinted) {
           this._rowHinted = true;
