@@ -241,12 +241,23 @@ option{background:#070b12;color:#d7e6ef}
     </div>
     <div data-scroll style="{{ mListStyle }}">
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
-        <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ r.mRow }}">
-          <sc-if value="{{ r.finger }}" hint-placeholder-val="{{ false }}">
-            <span data-finger><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span>
-          </sc-if>
-          <span style="{{ mName }}">{{ r.name }}</span>
-          <span style="{{ mColCell }}">{{ r.mVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
+        <div>
+          <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ r.mRow }}">
+            <sc-if value="{{ r.finger }}" hint-placeholder-val="{{ false }}">
+              <span data-finger><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span>
+            </sc-if>
+            <span style="{{ mName }}">{{ r.name }}</span>
+            <span style="{{ r.mValCell }}">{{ r.mVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
+            <span style="{{ r.mAddCell }}"><button onClick="{{ r.addRow }}" style="{{ mAddBtn }}" style-hover="background:rgba(34,211,238,.24)">ADD</button></span>
+          </div>
+          <div style="{{ r.mExpand }}">
+            <span style="{{ mExpandGrid }}">
+              <span><span style="{{ mMacroTag }}">PROT</span> {{ r.v1 }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></span>
+              <span><span style="{{ mMacroTag }}">CARB</span> {{ r.v2 }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></span>
+              <span><span style="{{ mMacroTag }}">FAT</span> {{ r.v3 }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></span>
+              <span style="{{ mExpandVal }}">{{ r.mVal }}<span style="{{ unitSuffix }}">{{ mColUnit }}</span></span>
+            </span>
+          </div>
         </div>
       </sc-for>
     </div>
@@ -646,14 +657,16 @@ class Component extends DCLogic {
     const numWrap = { position: "relative", display: "flex", alignItems: "baseline", justifyContent: "flex-end" };
     const unitSuffix = { marginLeft: ".15rem", fontFamily: "var(--font-2)", fontSize: s.narrow ? ".84rem" : ".66rem", letterSpacing: ".06em", color: "#94a3b8" };
     const inSum = name => (s.sum || []).includes(name);
+    // These three sweep the whole library, so they are measured once per render rather than
+    // once per row — with a hundred rows on screen that was the cost of a tap.
+    const rowKcalMax = Math.max.apply(null, visible.map(fo2 => kcalOf(fo2)).concat([1]));
+    const gramMax = Math.max.apply(null, visible.map(fo2 => Math.max(fo2.p, fo2.c, fo2.f)).concat([1]));
+    const macroMax = Math.max.apply(null, visible.map(fo2 => { const r2 = fo2.p * 4 + fo2.c * 4 + fo2.f * 9 || 1, k2 = fo2.kcal / r2; return Math.max(fo2.p * 4, fo2.c * 4, fo2.f * 9) * k2; }).concat([1]));
     const mkRow = fo => {
       const sc = scoreOf(fo), bd = this.band(sc), mu = fo.mu === "ml" ? "ml" : "g", ekc = kcalOf(fo);
       const mk = macroK(fo);
       const tot = mk[0] + mk[1] + mk[2] || 1;
       const pct = v => Math.round(v / tot * 1000) / 10;
-      const rowKcalMax = Math.max.apply(null, visible.map(fo2 => kcalOf(fo2)).concat([1]));
-      const gramMax = Math.max.apply(null, visible.map(fo2 => Math.max(fo2.p, fo2.c, fo2.f)).concat([1]));
-      const macroMax = Math.max.apply(null, visible.map(fo2 => { const r2 = fo2.p * 4 + fo2.c * 4 + fo2.f * 9 || 1, k2 = fo2.kcal / r2; return Math.max(fo2.p * 4, fo2.c * 4, fo2.f * 9) * k2; }).concat([1]));
       const gTot = fo.p + fo.c + fo.f || 1;
       const gsh = [fo.p / gTot * 100, fo.c / gTot * 100, fo.f / gTot * 100];
       const fv = isPct ? gsh : isKcalBasis ? mk : [fo.p, fo.c, fo.f];
@@ -732,10 +745,44 @@ class Component extends DCLogic {
     const landingDrop = Math.max(0, Math.round((vh - (landing ? 58 : 46)) / 2) - 3);
     // The list is a leaderboard for the current sort; searching is how you reach the rest.
     const ROW_CAP = s.narrow ? 100 : 250;
-    let rows = src.slice(0, ROW_CAP).map((fo, ri) => Object.assign(mkRow(fo), {
-      hint: ri === 0 && rowHint && !s.narrow ? "on" : "off",
-      finger: ri === 0 && rowHint && !!s.narrow
-    }));
+    // Mobile has no room for the macros beside the name, so a tap opens the food instead of
+    // adding it: the row grows a second line carrying the macros, and adding becomes explicit.
+    const openName = s.narrow && !bare ? s.mOpen : null;
+    let rows = src.slice(0, ROW_CAP).map((fo, ri) => {
+      const open = openName === fo.name;
+      const r = mkRow(fo);
+      return Object.assign(r, {
+        hint: ri === 0 && rowHint && !s.narrow ? "on" : "off",
+        finger: ri === 0 && rowHint && !!s.narrow,
+        open: open,
+        toggleRow: s.narrow
+          ? () => this.setState({ mOpen: open ? null : fo.name })
+          : r.toggleRow,
+        addRow: e => {
+          if (e && e.stopPropagation) e.stopPropagation();
+          this.setState({ mOpen: null });
+          this.toggleSum(fo.name);
+        },
+        mRow: Object.assign({}, r.mRow, {
+          background: open ? "rgba(34,211,238,.08)" : "transparent",
+          borderBottom: open ? 0 : "1px solid rgba(34,211,238,.14)"
+        }),
+        // Only one of these two is ever laid out, so the row keeps its two columns.
+        mValCell: Object.assign({}, mColCellBase, { display: bare || open ? "none" : "flex" }),
+        mAddCell: {
+          display: open ? "flex" : "none", alignItems: "center", justifyContent: "flex-end",
+          paddingRight: ".3rem"
+        },
+        mExpand: {
+          overflow: "hidden",
+          height: open ? "2.5rem" : "0px",
+          opacity: open ? 1 : 0,
+          background: "rgba(34,211,238,.08)",
+          borderBottom: open ? "1px solid rgba(34,211,238,.14)" : 0,
+          transition: "height 260ms cubic-bezier(.22,1,.36,1), opacity 200ms ease"
+        }
+      });
+    });
     // The library decides which groups exist, so the filter list follows the data.
     const cats = ["ALL"].concat(Array.from(new Set(this.foods().map(fo => fo.cat))).sort());
     const microBtn = active => ({
@@ -756,7 +803,7 @@ class Component extends DCLogic {
     const libOpts = libs.map((d, di) => ({
       label: d.label.replace("USDA ", ""), sub: d.sub,
       countStyle: { fontFamily: "var(--font-2)", fontSize: s.narrow ? ".95rem" : ".75rem", letterSpacing: ".12em", fontVariantNumeric: "tabular-nums", textAlign: "right", color: lib === d.k ? "#22d3ee" : "#7b91a3" },
-      onClick: () => { this.loadLib(d.k); this.setState({ lib: d.k, cat: "ALL", libOpen: false }); },
+      onClick: () => { this.loadLib(d.k); this.setState({ lib: d.k, cat: "ALL", libOpen: false, mOpen: null }); },
       style: {
         display: "grid", gridTemplateColumns: "minmax(0,1fr) 4.6rem", columnGap: ".55rem", alignItems: "center",
         height: s.narrow ? "2.4rem" : "1.95rem", padding: s.narrow ? "0 .85rem" : "0 .7rem",
@@ -1044,6 +1091,20 @@ class Component extends DCLogic {
       mNum: { display: bare ? "none" : "block", textAlign: "right", fontWeight: 300, fontSize: "1rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
       mColCell: Object.assign({}, mColCellBase, { display: bare ? "none" : "flex" }),
       mMacroTag: { fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".06em", color: "#7b91a3" },
+      // The open row's second line reads like the totals bar: four even, unruled cells.
+      mExpandGrid: {
+        display: "grid", gridTemplateColumns: "repeat(4,1fr)", alignItems: "center",
+        justifyItems: "center", height: "2.5rem", textAlign: "center",
+        fontWeight: 300, fontSize: "1.02rem", color: "#d7e6ef",
+        fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
+      },
+      mExpandVal: { color: "#22d3ee" },
+      mAddBtn: {
+        display: "flex", alignItems: "center", height: "1.9rem", padding: "0 .8rem",
+        border: "1px solid #22d3ee", borderRadius: 0, background: "rgba(34,211,238,.10)",
+        cursor: "pointer", color: "#22d3ee",
+        fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".14em"
+      },
       isResults: s.view === "results", isSettings: s.view === "settings", isSignin: s.view === "signin",
       aboutOpen: !!s.aboutOpen,
       openAbout: () => this.setState({ aboutOpen: true }),
@@ -1191,7 +1252,7 @@ class Component extends DCLogic {
       },
       q: s.q, onQ: e => {
         const v = e.target.value;
-        this.setState({ q: v, libOpen: false, searchHinted: true, typed: this.state.typed || !!v });
+        this.setState({ q: v, libOpen: false, mOpen: null, searchHinted: true, typed: this.state.typed || !!v });
         // Wait for typing to stop before pointing at anything. Firing on the first keystroke
         // put the hand on screen during the landing animation, aimed at results for a single
         // letter, and expired it before a real query had even been finished.
