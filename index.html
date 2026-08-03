@@ -87,7 +87,7 @@ option{background:#070b12;color:#d7e6ef}
       <span data-hint="{{ searchHint }}" onMouseEnter="{{ openLib }}" onMouseLeave="{{ closeLib }}" style="position:relative;display:flex;align-items:center;gap:.55rem;padding:0 .85rem 0 0;min-width:0;white-space:nowrap">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="flex:none"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
         <span onClick="{{ sortOn.name }}" style="display:flex;align-items:center;cursor:pointer"><sc-if value="{{ sorted.name }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if></span>
-        <input placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="flex:1;min-width:0;height:1.6rem;background:transparent;border:0;padding:0;color:#eaf5fb;font-family:var(--font-2);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;text-overflow:ellipsis">
+        <input data-search placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="flex:1;min-width:0;height:1.6rem;background:transparent;border:0;padding:0;color:#eaf5fb;font-family:var(--font-2);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;text-overflow:ellipsis">
         
         <sc-if value="{{ libOpen }}" hint-placeholder-val="{{ false }}">
           <span data-pop style="position:absolute;top:100%;left:0;z-index:40;display:flex;flex-direction:column;min-width:16rem;max-height:70vh;overflow-y:auto;padding-top:.35rem">
@@ -188,7 +188,7 @@ option{background:#070b12;color:#d7e6ef}
   <div style="display:flex;flex-direction:column;flex:1;min-height:0">
     <div data-hint="{{ searchHint }}" style="{{ mSearchRow }}">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="flex:none"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
-      <input placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="flex:1;min-width:0;height:2rem;background:transparent;border:0;padding:0 .3rem;color:#eaf5fb;font-family:var(--font-2);font-size:1rem;letter-spacing:.05em;text-transform:uppercase;text-overflow:ellipsis">
+      <input data-search placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="flex:1;min-width:0;height:2rem;background:transparent;border:0;padding:0 .3rem;color:#eaf5fb;font-family:var(--font-2);font-size:1rem;letter-spacing:.05em;text-transform:uppercase;text-overflow:ellipsis">
       <span data-pop onClick="{{ mLib }}" style="display:flex;align-items:center;justify-content:center;width:2rem;height:100%;cursor:pointer;color:#c3d6e2"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg></span>
       <sc-if value="{{ libOpen }}" hint-placeholder-val="{{ false }}">
         <span data-pop style="position:absolute;top:100%;left:0;z-index:40;display:flex;flex-direction:column;min-width:16rem;max-height:70vh;overflow-y:auto;padding-top:.35rem">
@@ -329,6 +329,12 @@ class Component extends DCLogic {
       if (e.target && e.target.closest && e.target.closest("[data-pop]")) return;
       this.setState({ libOpen: false, unitOpen: false, catOpen: false, extraOpen: false, mColOpen: false, mTip: "" });
     };
+    // While the search keyboard is up the summary stays out of the way entirely — there is
+    // not room for it above the keyboard and it is not what you are looking at.
+    this._focusIn = e => { if (e.target && e.target.matches && e.target.matches("[data-search]")) this.setState({ kb: true }); };
+    this._focusOut = e => { if (e.target && e.target.matches && e.target.matches("[data-search]")) this.setState({ kb: false }); };
+    document.addEventListener("focusin", this._focusIn);
+    document.addEventListener("focusout", this._focusOut);
     document.addEventListener("click", this._dismiss);
     document.addEventListener("touchstart", this._dismiss, { passive: true });
     this._onResize = () => {
@@ -344,9 +350,10 @@ class Component extends DCLogic {
       this._vv = () => {
         if (window.scrollY || window.scrollX) window.scrollTo(0, 0);
         const h = Math.round(vv.height);
+        if (h > (this._maxVh || 0)) this._maxVh = h;
         const patch = {};
         if (h !== this.state.vvh) patch.vvh = h;
-        if (this.state.sumHold && h > (this.state.vvh || 0)) patch.sumHold = false;
+        if (this.state.sumHold && h >= this._maxVh - 4) patch.sumHold = false;
         if (Object.keys(patch).length) this.setState(patch);
       };
       vv.addEventListener("resize", this._vv);
@@ -356,6 +363,8 @@ class Component extends DCLogic {
   }
   componentWillUnmount() {
     document.removeEventListener("keydown", this._esc);
+    document.removeEventListener("focusin", this._focusIn);
+    document.removeEventListener("focusout", this._focusOut);
     document.removeEventListener("click", this._dismiss);
     document.removeEventListener("touchstart", this._dismiss);
     window.removeEventListener("resize", this._onResize);
@@ -447,7 +456,7 @@ class Component extends DCLogic {
     if (hold) {
       try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (e) {}
       clearTimeout(this._holdT);
-      this._holdT = setTimeout(() => this.setState({ sumHold: false }), 520);
+      this._holdT = setTimeout(() => this.setState({ sumHold: false }), 700);
     }
     this.setState(s => {
       const sum = (s.sum || []).includes(name) ? (s.sum || []).filter(n => n !== name) : (s.sum || []).concat(name);
@@ -1004,7 +1013,7 @@ class Component extends DCLogic {
       headUnit: { textTransform: "none", fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".06em", color: "#94a3b8" },
       fillLegend: isPct ? "MACROS AS % OF FOOD ENERGY" : isKcalBasis ? "MACROS AS KCAL CONTRIBUTED" : "MACROS IN GRAMS",
       shownCount: String(matchCount),
-      hasSummary: sumRows.length > 0 && !s.sumHold, sumRows,
+      hasSummary: sumRows.length > 0 && !s.sumHold && !(s.narrow && s.kb), sumRows,
       sumFillers: Array.from({ length: Math.max(0, 10 - sumRows.length) }, (_, i) => i),
       blankEdge: { borderLeft: EDGE }, blankInner: { borderLeft: INNER }, tot, sumCount: String(sumRows.length),
       qtyStyle, headIsland, unitSuffix, numWrap, never: false,
