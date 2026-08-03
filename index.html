@@ -367,6 +367,8 @@ class Component extends DCLogic {
       return !!(el && el.matches && el.matches("[data-search]"));
     };
     this._press = () => { this._kbAtPress = searchFocused(); };
+    this._unscroll = () => { if (window.scrollY || window.scrollX) window.scrollTo(0, 0); };
+    window.addEventListener("scroll", this._unscroll, true);
     document.addEventListener("touchstart", this._press, true);
     document.addEventListener("mousedown", this._press, true);
     this._focusIn = e => {
@@ -413,6 +415,7 @@ class Component extends DCLogic {
   }
   componentWillUnmount() {
     document.removeEventListener("keydown", this._esc);
+    window.removeEventListener("scroll", this._unscroll, true);
     document.removeEventListener("touchstart", this._press, true);
     document.removeEventListener("mousedown", this._press, true);
     document.removeEventListener("focusin", this._focusIn);
@@ -935,7 +938,7 @@ class Component extends DCLogic {
         }
       })),
       shell: s.narrow
-        ? { height: s.vvh ? s.vvh + "px" : VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: ".2rem 0 0", boxSizing: "border-box", transition: "height 240ms cubic-bezier(.22,1,.36,1)" }
+        ? { position: "fixed", top: 0, left: 0, right: 0, height: s.vvh ? s.vvh + "px" : VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: ".2rem 0 0", boxSizing: "border-box", transition: "height 240ms cubic-bezier(.22,1,.36,1)" }
         : { height: VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: "2.4rem 1.25rem", boxSizing: "border-box" },
       aboutScrim: {
         position: "fixed", inset: 0, zIndex: 50, background: "rgba(5,8,13,.75)", display: "flex",
