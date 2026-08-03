@@ -36,7 +36,20 @@
 <style>
 html,body{margin:0;background:radial-gradient(900px 500px at 50% -20%, rgba(34,211,238,.07), transparent 60%), #05080d;color:#d7e6ef;font-family:var(--font-1),sans-serif}
 a{color:#22d3ee;text-decoration:none;transition:color 140ms ease}a:hover{color:#a5f3fc}
-input:focus{outline:none}
+input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:inset 0 0 0 1px rgba(34,211,238,.5);caret-color:#22d3ee}
+/* Ambient onboarding: a light sweeps through whatever the user should touch next.
+   Purely decorative — it never blocks a tap, and it stops the moment the step is done. */
+@keyframes od-sweep{0%{background-position:190% 0}60%{background-position:-90% 0}100%{background-position:-90% 0}}
+@keyframes od-ring{0%,100%{box-shadow:inset 0 0 0 1px rgba(34,211,238,.30)}50%{box-shadow:inset 0 0 0 1px rgba(34,211,238,.85), 0 0 16px rgba(34,211,238,.20)}}
+[data-hint="on"]{
+  background-image:linear-gradient(100deg,transparent 22%,rgba(34,211,238,.16) 38%,rgba(34,211,238,.50) 50%,rgba(34,211,238,.16) 62%,transparent 78%);
+  background-size:230% 100%;background-repeat:no-repeat;
+  animation:od-sweep 2.4s cubic-bezier(.35,0,.2,1) infinite, od-ring 2.4s ease-in-out infinite}
+[data-hint="on"] svg{animation:od-pulse 2.4s ease-in-out infinite}
+@keyframes od-pulse{0%,100%{opacity:.5}50%{opacity:1;stroke:#22d3ee}}
+@media (prefers-reduced-motion:reduce){
+  [data-hint="on"]{animation:none;background-image:none;box-shadow:inset 0 0 0 1px rgba(34,211,238,.45)}
+  [data-hint="on"] svg{animation:none;opacity:1}}
 input::placeholder{color:#7b91a3;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:1}
 [data-scroll]{overflow-x:hidden;scrollbar-width:thin;scrollbar-color:rgba(34,211,238,.35) rgba(34,211,238,.07)}
 [data-scroll]::-webkit-scrollbar{width:10px}
@@ -54,7 +67,7 @@ option{background:#070b12;color:#d7e6ef}
     <div style="flex:none;z-index:5;padding-right:10px">
 
     <div style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;height:1.95rem;border-top:1px solid rgba(34,211,238,.55);border-bottom:1px solid rgba(34,211,238,.55);font-family:var(--font-2);font-size:.75rem;letter-spacing:.12em;color:#7b91a3;text-transform:uppercase">
-      <span onMouseEnter="{{ openLib }}" onMouseLeave="{{ closeLib }}" style="position:relative;display:flex;align-items:center;gap:.55rem;padding:0 .85rem 0 0;min-width:0;white-space:nowrap">
+      <span data-hint="{{ searchHint }}" onMouseEnter="{{ openLib }}" onMouseLeave="{{ closeLib }}" style="position:relative;display:flex;align-items:center;gap:.55rem;padding:0 .85rem 0 0;min-width:0;white-space:nowrap">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="flex:none"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
         <span onClick="{{ sortOn.name }}" style="display:flex;align-items:center;cursor:pointer"><sc-if value="{{ sorted.name }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if></span>
         <input placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="flex:1;min-width:0;height:1.6rem;background:transparent;border:0;padding:0;color:#eaf5fb;font-family:var(--font-2);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;text-overflow:ellipsis">
@@ -94,7 +107,7 @@ option{background:#070b12;color:#d7e6ef}
     <div style="position:relative;flex:1 1 0;min-height:0;display:flex;flex-direction:column">
     <div data-scroll style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box">
     <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
-      <div onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
+      <div data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
         <span style="display:flex;align-items:center;gap:.55rem;min-width:0">
           <button onClick="{{ r.togglePlus }}" style="{{ r.starStyle }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="{{ r.starFill }}" stroke="currentColor" stroke-width="1.8" style="flex:none"><path d="M12 3.2l2.7 5.7 6 .9-4.35 4.4 1.03 6.2L12 17.5 6.62 20.4l1.03-6.2L3.3 9.8l6-.9L12 3.2z"></path></svg></button>
           <span style="flex:1;min-width:0;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span>
@@ -156,9 +169,9 @@ option{background:#070b12;color:#d7e6ef}
   </sc-if>
   <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
   <div style="display:flex;flex-direction:column;flex:1;min-height:0">
-    <div style="flex:none;position:relative;display:flex;align-items:center;gap:.55rem;height:2.6rem;padding:0 .1rem;font-family:var(--font-2)">
+    <div data-hint="{{ searchHint }}" style="flex:none;position:relative;display:flex;align-items:center;gap:.55rem;height:2.9rem;padding:0 .1rem;font-family:var(--font-2)">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="flex:none"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
-      <input placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="flex:1;min-width:0;height:1.6rem;background:transparent;border:0;padding:0;color:#eaf5fb;font-family:var(--font-2);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;text-overflow:ellipsis">
+      <input placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="flex:1;min-width:0;height:2rem;background:transparent;border:0;padding:0 .3rem;color:#eaf5fb;font-family:var(--font-2);font-size:1rem;letter-spacing:.05em;text-transform:uppercase;text-overflow:ellipsis">
       <span data-pop onClick="{{ mLib }}" style="display:flex;align-items:center;justify-content:center;width:2rem;height:100%;cursor:pointer;color:#c3d6e2"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg></span>
       <sc-if value="{{ libOpen }}" hint-placeholder-val="{{ false }}">
         <span data-pop style="position:absolute;top:100%;left:0;z-index:40;display:flex;flex-direction:column;min-width:16rem;max-height:70vh;overflow-y:auto;padding-top:.35rem">
@@ -181,7 +194,7 @@ option{background:#070b12;color:#d7e6ef}
     </div>
     <div data-scroll style="flex:1;min-height:0;overflow-y:auto">
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
-        <div onClick="{{ r.toggleRow }}" style="{{ r.mRow }}" style-hover="background:rgba(34,211,238,.13)">
+        <div data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ r.mRow }}" style-hover="background:rgba(34,211,238,.13)">
           <span style="{{ mName }}">{{ r.name }}</span>
           <span style="{{ mNum }}">{{ r.v1 }}</span>
           <span style="{{ mNum }}">{{ r.v2 }}</span>
@@ -227,25 +240,6 @@ option{background:#070b12;color:#d7e6ef}
       <a href="https://github.com/nickgreengithub/opendiet" target="_blank" style="display:flex;align-items:center;gap:.4rem;font-family:var(--font-2);font-size:.72rem;letter-spacing:.16em;cursor:pointer;white-space:nowrap"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="M12 .5C5.73.5.99 5.24.99 11.51c0 4.86 3.15 8.98 7.52 10.44.55.1.75-.24.75-.53v-2.05c-3.06.67-3.71-1.3-3.71-1.3-.5-1.28-1.23-1.62-1.23-1.62-1-.69.08-.67.08-.67 1.11.08 1.69 1.14 1.69 1.14.98 1.69 2.58 1.2 3.21.92.1-.72.39-1.2.7-1.48-2.44-.28-5.01-1.22-5.01-5.44 0-1.2.43-2.18 1.13-2.95-.11-.28-.49-1.4.11-2.92 0 0 .92-.3 3.02 1.13a10.4 10.4 0 0 1 5.5 0c2.1-1.43 3.02-1.13 3.02-1.13.6 1.52.22 2.64.11 2.92.7.77 1.13 1.75 1.13 2.95 0 4.23-2.58 5.16-5.03 5.43.4.34.75 1.02.75 2.06v3.05c0 .3.2.64.76.53a11.03 11.03 0 0 0 7.51-10.44C23.01 5.24 18.27.5 12 .5z"></path></svg>GITHUB</a>
     </div>
   </div>
-  </div>
-  </sc-if>
-  <sc-if value="{{ tourOn }}" hint-placeholder-val="{{ false }}">
-  <div style="{{ tourScrim }}">
-    <sc-if value="{{ tourSpotOn }}" hint-placeholder-val="{{ false }}">
-      <div style="{{ tourSpot }}"></div>
-    </sc-if>
-    <div onClick="{{ stopProp }}" style="{{ tourCard }}">
-      <div style="{{ tourStepTag }}">{{ tourStepLabel }}</div>
-      <div style="{{ tourTitle }}">{{ tourTitleText }}</div>
-      <div style="{{ tourBody }}">{{ tourBodyText }}</div>
-      <sc-if value="{{ tourStep1 }}" hint-placeholder-val="{{ true }}">
-        <input placeholder="{{ tourPlaceholder }}" value="{{ tourQ }}" onChange="{{ onTourQ }}" style="{{ tourInput }}">
-      </sc-if>
-      <div style="{{ tourActions }}">
-        <button onClick="{{ tourSkip }}" style="{{ tourSkipBtn }}" style-hover="color:#d7e6ef">SKIP</button>
-        <button onClick="{{ tourNext }}" style="{{ tourNextBtn }}" style-hover="background:rgba(34,211,238,.18)">{{ tourNextLabel }}</button>
-      </div>
-    </div>
   </div>
   </sc-if>
   <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
@@ -320,27 +314,14 @@ class Component extends DCLogic {
     this._onResize = () => {
       const n = window.innerWidth < 700;
       if (n !== this.state.narrow) this.setState({ narrow: n });
-      if (this.state.tour === 2) this.measureRow();
     };
     window.addEventListener("resize", this._onResize);
-    // First visit only. Anyone who has finished or skipped the tour carries the flag.
-    try { if (!localStorage.getItem("nutri-search-tour")) this.setState({ tour: 1 }); } catch (e) {}
   }
   componentWillUnmount() {
     document.removeEventListener("keydown", this._esc);
     document.removeEventListener("click", this._dismiss);
     document.removeEventListener("touchstart", this._dismiss);
     window.removeEventListener("resize", this._onResize);
-  }
-  // Step two points at a real row, so it has to know where that row landed.
-  measureRow() {
-    const el = document.querySelector("[data-scroll] > div");
-    const r = el && el.getBoundingClientRect();
-    this.setState({ tourRect: r && r.height ? { top: r.top, left: r.left, width: r.width, height: r.height } : null });
-  }
-  endTour() {
-    try { localStorage.setItem("nutri-search-tour", "1"); } catch (e) {}
-    this.setState({ tour: 0, tourRect: null });
   }
   // Each library is a static JSON file: {cats:[...], foods:[[name,catIdx,kcal,p,c,fb,f,sf,sg,liquid],...]},
   // built from the USDA FoodData Central CSV releases. Values are per 100 g/ml, FDC's own basis.
@@ -416,12 +397,8 @@ class Component extends DCLogic {
     this.setState(s => {
       const sum = (s.sum || []).includes(name) ? (s.sum || []).filter(n => n !== name) : (s.sum || []).concat(name);
       try { localStorage.setItem("nutri-search-sum", JSON.stringify(sum)); } catch (e) {}
-      // Adding a food during step two is the step being completed — get out of the way.
-      if (s.tour === 2) {
-        try { localStorage.setItem("nutri-search-tour", "1"); } catch (e) {}
-        return { sum, tour: 0, tourRect: null };
-      }
-      return { sum };
+      // Adding a food answers the "tap a row" hint, so retire it for this session.
+      return { sum, starred: true };
     });
   }
   renderVals() {
@@ -558,9 +535,13 @@ class Component extends DCLogic {
         : key === "s1" ? fo.p : key === "s2" ? fo.c : key === "s3" ? fo.f : fo[key];
     src = src.slice().sort((a, b) =>
       key === "name" ? dir * a.name.localeCompare(b.name) : dir * (sortNum(a) - sortNum(b)));
+    // Ambient onboarding, per session rather than per person: glow the search box until
+    // something is typed, then glow the top result until a food is actually added. Both
+    // reset on a fresh load, so a returning user still gets the nudge.
+    const rowHint = !!q && !s.starred;
     // The list is a leaderboard for the current sort; searching is how you reach the rest.
     const ROW_CAP = 250;
-    let rows = src.slice(0, ROW_CAP).map(mkRow);
+    let rows = src.slice(0, ROW_CAP).map((fo, ri) => Object.assign(mkRow(fo), { hint: ri === 0 && rowHint ? "on" : "off" }));
     // The library decides which groups exist, so the filter list follows the data.
     const cats = ["ALL"].concat(Array.from(new Set(this.foods().map(fo => fo.cat))).sort());
     const microBtn = active => ({
@@ -762,77 +743,8 @@ class Component extends DCLogic {
     };
     const signOut = () => { try { localStorage.removeItem("nutri-search-user"); } catch (e) {} this.setState({ user: null, view: "results" }); };
 
-    // ---- first-run tour -------------------------------------------------------
-    const tour = s.tour || 0, step1 = tour === 1, step2 = tour === 2;
-    const rect = s.tourRect;
-    const tap = s.narrow ? "Tap" : "Click";
-    // Card sits under the highlighted row when there is room, otherwise above it.
-    const below = rect ? rect.top + rect.height + 12 : 0;
-    const roomBelow = rect ? window.innerHeight - below > 210 : true;
-    const tourCard = Object.assign(
-      {
-        width: s.narrow ? "calc(100% - 1.8rem)" : "23rem", maxWidth: "27rem", boxSizing: "border-box",
-        background: "#070b12", border: "1px solid rgba(34,211,238,.55)",
-        boxShadow: "0 0 34px rgba(34,211,238,.14)", padding: "1rem 1.05rem 1.05rem",
-        position: step2 && rect ? "fixed" : "relative", zIndex: 62, pointerEvents: "auto"
-      },
-      step2 && rect
-        ? roomBelow
-          ? { top: below + "px", left: s.narrow ? ".9rem" : rect.left + "px" }
-          : { bottom: (window.innerHeight - rect.top + 12) + "px", left: s.narrow ? ".9rem" : rect.left + "px" }
-        : {}
-    );
-    const tourBtn = {
-      height: "2.1rem", padding: "0 .95rem", borderRadius: 0, cursor: "pointer",
-      fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".14em",
-      transition: "background 140ms ease, color 140ms ease"
-    };
-
     return {
-      tourOn: tour > 0, tourStep1: step1, tourSpotOn: step2 && !!rect,
-      tourStepLabel: step1 ? "1 / 2" : "2 / 2",
-      tourTitleText: step1 ? "Search any food" : "Build a total",
-      tourBodyText: step1
-        ? "Every food in the library, with protein, carbs, fat and calories side by side. Type something to start — or just press begin."
-        : tap + " a row to add that food to your summary. Its serving size can be typed straight into the summary table, and the totals follow.",
-      tourPlaceholder: "e.g. chicken breast",
-      tourQ: s.tourQ || "",
-      onTourQ: e => this.setState({ tourQ: e.target.value }),
-      tourNextLabel: step1 ? "BEGIN" : "GOT IT",
-      tourNext: () => {
-        if (step1) {
-          this.setState({ q: (s.tourQ || "").trim(), tour: 2 });
-          setTimeout(() => this.measureRow(), 80);
-        } else this.endTour();
-      },
-      tourSkip: () => this.endTour(),
-      tourScrim: {
-        position: "fixed", inset: 0, zIndex: 60, display: "flex",
-        alignItems: "center", justifyContent: "center", padding: "0 .9rem", boxSizing: "border-box",
-        // In step two the cut-out does the dimming, so the scrim itself stays clear — and it
-        // stops swallowing taps, because the step is telling you to tap the row underneath it.
-        background: step2 && rect ? "transparent" : "rgba(5,8,13,.86)",
-        pointerEvents: step2 && rect ? "none" : "auto"
-      },
-      // A transparent box over the row with an enormous shadow — that shadow is the dimming.
-      tourSpot: rect ? {
-        position: "fixed", top: rect.top + "px", left: rect.left + "px",
-        width: rect.width + "px", height: rect.height + "px",
-        border: "1px solid rgba(34,211,238,.75)", boxShadow: "0 0 0 9999px rgba(5,8,13,.86)",
-        pointerEvents: "none", zIndex: 61
-      } : {},
-      tourCard,
-      tourStepTag: { fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".18em", color: "#22d3ee" },
-      tourTitle: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.25rem", color: "#eaf5fb", margin: ".5rem 0 .4rem" },
-      tourBody: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".9rem", lineHeight: 1.55, color: "#94a3b8", textWrap: "pretty" },
-      tourInput: {
-        width: "100%", boxSizing: "border-box", marginTop: ".85rem", height: "2.4rem", padding: "0 .6rem",
-        background: "transparent", border: "1px solid rgba(34,211,238,.4)", borderRadius: 0,
-        color: "#eaf5fb", fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".08em"
-      },
-      tourActions: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: ".7rem", marginTop: "1rem" },
-      tourSkipBtn: Object.assign({}, tourBtn, { background: "transparent", border: 0, color: "#7b91a3", padding: 0 }),
-      tourNextBtn: Object.assign({}, tourBtn, { background: "rgba(34,211,238,.10)", border: "1px solid #22d3ee", color: "#22d3ee" }),
+      searchHint: q ? "off" : "on",
       isMobile: !!s.narrow, isDesktop: !s.narrow,
       mLib: () => this.setState({ libOpen: !s.libOpen, unitOpen: false, catOpen: false, extraOpen: false, mColOpen: false, mTip: "" }),
       mUnit: () => this.setState({ unitOpen: !s.unitOpen, libOpen: false, catOpen: false, extraOpen: false, mColOpen: false, mTip: "" }),
@@ -917,7 +829,9 @@ class Component extends DCLogic {
         this.setState({ user: u, view: "results" });
       },
       q: s.q, onQ: e => this.setState({ q: e.target.value, libOpen: false }),
-      searchPlaceholder: "SEARCH " + this.foods().filter(fo => s.cat === "ALL" || fo.cat === s.cat).length + " " + (libs.find(d => d.k === lib) || libs[0]).label.replace("USDA ", "") + " FOODS",
+      // Mobile drops the library name — at the larger type it would push the count off the edge.
+      searchPlaceholder: "SEARCH " + this.foods().filter(fo => s.cat === "ALL" || fo.cat === s.cat).length.toLocaleString()
+        + (s.narrow ? "" : " " + (libs.find(d => d.k === lib) || libs[0]).label.replace("USDA ", "")) + " FOODS",
       rows, cats, selStyle, catOpts, libOpts, unitOpts, unitFoot: unit.foot,
       libLabel: (libs.find(d => d.k === lib) || libs[0]).label,
       libShort: (libs.find(d => d.k === lib) || libs[0]).label.replace("USDA ", ""),
