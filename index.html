@@ -333,12 +333,30 @@ class Component extends DCLogic {
       if (n !== this.state.narrow) this.setState({ narrow: n });
     };
     window.addEventListener("resize", this._onResize);
+    // When the keyboard opens, iOS shrinks the visual viewport and scrolls the layout
+    // viewport to reveal the focused field — which shoves a 100dvh shell off the top.
+    // Sizing to the visual viewport instead keeps the search box pinned to what is visible.
+    const vv = typeof window !== "undefined" && window.visualViewport;
+    if (vv) {
+      this._vv = () => {
+        if (window.scrollY || window.scrollX) window.scrollTo(0, 0);
+        const h = Math.round(vv.height);
+        if (h !== this.state.vvh) this.setState({ vvh: h });
+      };
+      vv.addEventListener("resize", this._vv);
+      vv.addEventListener("scroll", this._vv);
+      this._vv();
+    }
   }
   componentWillUnmount() {
     document.removeEventListener("keydown", this._esc);
     document.removeEventListener("click", this._dismiss);
     document.removeEventListener("touchstart", this._dismiss);
     window.removeEventListener("resize", this._onResize);
+    if (this._vv && window.visualViewport) {
+      window.visualViewport.removeEventListener("resize", this._vv);
+      window.visualViewport.removeEventListener("scroll", this._vv);
+    }
   }
   // Each library is a static JSON file: {cats:[...], foods:[[name,catIdx,kcal,p,c,fb,f,sf,sg,liquid],...]},
   // built from the USDA FoodData Central CSV releases. Values are per 100 g/ml, FDC's own basis.
@@ -565,7 +583,7 @@ class Component extends DCLogic {
     const rowHint = !!s.rowHint;
     // One-way: once you have typed, the page never returns to the landing state.
     const landing = !!s.narrow && !s.typed;
-    const vh = typeof window !== "undefined" ? window.innerHeight : 800;
+    const vh = s.vvh || (typeof window !== "undefined" ? window.innerHeight : 800);
     const landingDrop = Math.max(0, Math.round((vh - 46) / 2) - 3);
     // The list is a leaderboard for the current sort; searching is how you reach the rest.
     const ROW_CAP = 250;
@@ -810,7 +828,7 @@ class Component extends DCLogic {
         }
       })),
       shell: s.narrow
-        ? { height: VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: ".2rem 0 0", boxSizing: "border-box" }
+        ? { height: s.vvh ? s.vvh + "px" : VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: ".2rem 0 0", boxSizing: "border-box" }
         : { height: VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: "2.4rem 1.25rem", boxSizing: "border-box" },
       aboutScrim: {
         position: "fixed", inset: 0, zIndex: 50, background: "rgba(5,8,13,.75)", display: "flex",
