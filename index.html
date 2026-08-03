@@ -196,8 +196,8 @@ option{background:#070b12;color:#d7e6ef}
         </span>
       </sc-if>
     </div>
-    <div style="flex:none;position:relative;display:grid;grid-template-columns:minmax(0,1fr) 2.8rem 2.8rem 2.8rem 4.2rem;column-gap:.4rem;align-items:center;height:2.4rem;padding-right:.55rem;border-top:1px solid rgba(34,211,238,.28);border-bottom:1px solid rgba(34,211,238,.55);font-family:var(--font-2);font-size:.76rem;letter-spacing:.08em;color:#c3d6e2;text-transform:uppercase">
-      <span data-pop onClick="{{ mUnit }}" style="display:flex;align-items:center;gap:.3rem;min-width:0;height:100%;padding-left:.5rem;cursor:pointer;white-space:nowrap"><span>{{ measureLabel }}</span><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ unitOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ unitOpts }}" as="u" hint-placeholder-count="4"><button onClick="{{ u.onClick }}" style="{{ u.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ u.label }}</span><span style="{{ u.gStyle }}">{{ u.grams }}</span></button></sc-for><span style="{{ mPopNote }}">Sets the portion every food is measured at. Once added, a food's size can be typed directly in the summary table.</span></span></span></sc-if></span>
+    <div style="flex:none;position:relative;display:grid;grid-template-columns:minmax(0,1fr) 2.8rem 2.8rem 2.8rem 4.2rem;column-gap:.4rem;align-items:center;height:2.4rem;border-top:1px solid rgba(34,211,238,.28);border-bottom:1px solid rgba(34,211,238,.55);font-family:var(--font-2);font-size:.76rem;letter-spacing:.08em;color:#c3d6e2;text-transform:uppercase">
+      <span data-pop onClick="{{ mUnit }}" style="display:flex;align-items:center;gap:.3rem;min-width:0;height:100%;cursor:pointer;white-space:nowrap"><span>{{ measureLabel }}</span><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ unitOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ unitOpts }}" as="u" hint-placeholder-count="4"><button onClick="{{ u.onClick }}" style="{{ u.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ u.label }}</span><span style="{{ u.gStyle }}">{{ u.grams }}</span></button></sc-for><span style="{{ mPopNote }}">Sets the portion every food is measured at. Once added, a food's size can be typed directly in the summary table.</span></span></span></sc-if></span>
       <span data-pop onClick="{{ mTipP }}" style="{{ mHead }}"><span>P</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ mTip.s1 }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></button></sc-for><span style="{{ mPopLabel }}">PROTEIN</span><span style="{{ mPopNote }}">Builds and repairs tissue. 4 kcal per gram; the most satiating macro per calorie.</span></span></span></sc-if></span>
       <span data-pop onClick="{{ mTipC }}" style="{{ mHead }}"><span>C</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ mTip.s2 }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></button></sc-for><span style="{{ mPopLabel }}">CARB</span><span style="{{ mPopNote }}">The body's most accessible fuel. 4 kcal per gram; includes sugars, starches and fibre.</span></span></span></sc-if></span>
       <span data-pop onClick="{{ mTipF }}" style="{{ mHead }}"><span>F</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ mTip.s3 }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></button></sc-for><span style="{{ mPopLabel }}">FAT</span><span style="{{ mPopNote }}">Most energy-dense at 9 kcal per gram; needed to absorb vitamins A, D, E and K.</span></span></span></sc-if></span>
@@ -218,14 +218,14 @@ option{background:#070b12;color:#d7e6ef}
     <div style="flex:none;max-height:40%;display:flex;flex-direction:column;border-top:1px solid rgba(34,211,238,.55)">
       <div style="flex:1;min-height:0;overflow-y:auto">
         <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
-          <div data-row onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(0,1fr) 4.2rem 4.2rem;column-gap:.4rem;align-items:center;min-height:2.5rem;padding-right:.55rem;border-left:2px solid transparent;border-bottom:1px solid rgba(34,211,238,.14);cursor:pointer;transition:background 140ms ease">
+          <div data-row onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(0,1fr) 4.2rem 4.2rem;column-gap:.4rem;align-items:center;min-height:2.5rem;border-left:2px solid transparent;border-bottom:1px solid rgba(34,211,238,.14);cursor:pointer;transition:background 140ms ease">
             <span style="{{ mName }}">{{ r.name }}</span>
             <span style="display:flex;align-items:center;justify-content:flex-end"><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" style="{{ qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
             <span style="{{ mColCell }}">{{ r.mSumVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
           </div>
         </sc-for>
       </div>
-      <div style="flex:none;display:flex;align-items:center;gap:.7rem;min-height:2.2rem;padding:0 .55rem calc(1.35rem + env(safe-area-inset-bottom, 0px)) .5rem;border-top:1px solid rgba(34,211,238,.55)">
+      <div style="flex:none;display:flex;align-items:center;gap:.7rem;min-height:2.2rem;padding:0 0 calc(1.35rem + env(safe-area-inset-bottom, 0px));border-top:1px solid rgba(34,211,238,.55)">
         <span style="font-family:var(--font-2);font-size:.76rem;letter-spacing:.1em;color:#7b91a3">TOT</span>
         <span style="flex:1;display:flex;gap:.75rem;justify-content:flex-end;align-items:baseline;font-weight:300;font-size:.88rem;color:#d7e6ef;font-variant-numeric:tabular-nums;white-space:nowrap">
           <span><span style="{{ mMacroTag }}">PROT</span> {{ tot.v1 }}<span style="{{ unitSuffix }}">{{ tot.u3 }}</span></span>
@@ -521,7 +521,7 @@ class Component extends DCLogic {
         togglePlus: e => { if (e && e.stopPropagation) e.stopPropagation(); this.toggleSum(fo.name); },
         toggleRow: () => this.toggleSum(fo.name),
         mRow: {
-          display: "grid", gridTemplateColumns: "minmax(0,1fr) 2.8rem 2.8rem 2.8rem 4.2rem", columnGap: ".4rem", paddingRight: ".55rem",
+          display: "grid", gridTemplateColumns: "minmax(0,1fr) 2.8rem 2.8rem 2.8rem 4.2rem", columnGap: ".4rem",
           alignItems: "center", minHeight: "2.5rem", cursor: "pointer", transition: "background 140ms ease",
           borderBottom: "1px solid rgba(34,211,238,.14)",
           borderLeft: "2px solid transparent", background: "transparent"
@@ -813,7 +813,7 @@ class Component extends DCLogic {
         fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".12em", color: "#94a3b8"
       },
       aboutMade: { whiteSpace: s.narrow ? "normal" : "nowrap", lineHeight: 1.6 },
-      mName: { display: "block", minWidth: 0, paddingLeft: ".5rem", fontWeight: 300, fontSize: ".92rem", color: "#d7e6ef", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
+      mName: { display: "block", minWidth: 0, fontWeight: 300, fontSize: ".92rem", color: "#d7e6ef", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
       mHead: { display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".15rem", height: "100%", cursor: "pointer", whiteSpace: "nowrap" },
       mPop: { position: "absolute", top: "100%", left: 0, right: 0, zIndex: 40, display: "flex", flexDirection: "column", paddingTop: ".3rem", textTransform: "none", letterSpacing: 0 },
       mPopInner: { display: "flex", flexDirection: "column", background: "#070b12", border: "1px solid rgba(34,211,238,.55)", boxShadow: "0 0 28px rgba(34,211,238,.12)" },
