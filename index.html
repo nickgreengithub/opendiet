@@ -635,7 +635,7 @@ class Component extends DCLogic {
     // One-way: once you have typed, the page never returns to the landing state.
     const landing = !!s.narrow && !s.typed;
     const vh = s.vvh || (typeof window !== "undefined" ? window.innerHeight : 800);
-    const landingDrop = Math.max(0, Math.round((vh - 46) / 2) - 3);
+    const landingDrop = Math.max(0, Math.round((vh - (landing ? 58 : 46)) / 2) - 3);
     // The list is a leaderboard for the current sort; searching is how you reach the rest.
     const ROW_CAP = s.narrow ? 100 : 250;
     let rows = src.slice(0, ROW_CAP).map((fo, ri) => Object.assign(mkRow(fo), { hint: ri === 0 && rowHint ? "on" : "off" }));
@@ -843,7 +843,7 @@ class Component extends DCLogic {
     const signOut = () => { try { localStorage.removeItem("nutri-search-user"); } catch (e) {} this.setState({ user: null, view: "results" }); };
 
     return {
-      searchHint: !s.searchHinted && !q ? "on" : "off",
+      searchHint: !s.narrow && !s.searchHinted && !q ? "on" : "off",
       isMobile: !!s.narrow, isDesktop: !s.narrow,
       mLib: () => this.setState({ libOpen: !s.libOpen, unitOpen: false, catOpen: false, extraOpen: false, mColOpen: false, mTip: "" }),
       mUnit: () => this.setState({ unitOpen: !s.unitOpen, libOpen: false, catOpen: false, extraOpen: false, mColOpen: false, mTip: "" }),
@@ -931,10 +931,15 @@ class Component extends DCLogic {
       // top and drops the table in underneath. Transform only, so the layout never reflows —
       // the table is already in place behind the fade, just invisible.
       mSearchRow: {
-        flex: "none", position: "relative", display: "flex", alignItems: "center", gap: ".6rem",
-        height: "2.9rem", padding: "0 .55rem 0 .6rem", fontFamily: "var(--font-2)", zIndex: 2,
+        flex: "none", position: "relative", display: "flex", alignItems: "center",
+        gap: landing ? ".9rem" : ".6rem",
+        height: landing ? "3.6rem" : "2.9rem",
+        padding: landing ? "0 1.15rem" : "0 .55rem 0 .6rem",
+        fontFamily: "var(--font-2)", zIndex: 2,
         transform: landing ? "translateY(" + landingDrop + "px)" : "none",
-        transition: "transform 560ms cubic-bezier(.22,1,.36,1)"
+        // It travels at one speed and settles into the compact bar at a slower one, so the
+        // shape keeps resolving after the move has landed.
+        transition: "transform 620ms cubic-bezier(.22,1,.36,1), height 760ms cubic-bezier(.22,1,.36,1), padding 760ms cubic-bezier(.22,1,.36,1), gap 760ms ease"
       },
       // The landing screen is a search box and nothing else — the library picker fades in
       // with the table. Space is reserved so the input does not resize underneath you.
@@ -950,7 +955,7 @@ class Component extends DCLogic {
         opacity: landing ? 0 : 1,
         transform: landing ? "translateY(14px)" : "none",
         pointerEvents: landing ? "none" : "auto",
-        transition: "opacity 380ms ease 140ms, transform 560ms cubic-bezier(.22,1,.36,1)"
+        transition: "opacity 420ms ease 120ms, transform 620ms cubic-bezier(.22,1,.36,1)"
       },
       clearSum: () => {
         try { localStorage.setItem("nutri-search-sum", "[]"); } catch (e) {}
