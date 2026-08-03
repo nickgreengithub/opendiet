@@ -62,7 +62,10 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
   [data-row][data-row]:hover{background:transparent!important}
   [data-row][data-row]:active{background:rgba(34,211,238,.22)!important}}
 input::placeholder{color:#7b91a3;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:1}
-[data-scroll]{overflow-x:hidden;scrollbar-width:thin;scrollbar-color:rgba(34,211,238,.35) rgba(34,211,238,.07)}
+/* Without this, reaching the end of a table hands the gesture to the page: iOS rubber-bands
+   the whole document, the URL bar slides, and the next swipe is spent re-entering the table. */
+html,body{overscroll-behavior:none;height:100%}
+[data-scroll]{overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin;scrollbar-color:rgba(34,211,238,.35) rgba(34,211,238,.07)}
 [data-scroll]::-webkit-scrollbar{width:10px}
 [data-scroll]::-webkit-scrollbar-track{background:rgba(34,211,238,.07)}
 [data-scroll]::-webkit-scrollbar-thumb{background:rgba(34,211,238,.35)}
@@ -216,7 +219,8 @@ option{background:#070b12;color:#d7e6ef}
     </div>
     <sc-if value="{{ hasSummary }}" hint-placeholder-val="{{ false }}">
     <div style="flex:none;max-height:40%;display:flex;flex-direction:column;background:#090f18;border-top:1px solid rgba(34,211,238,.55)">
-      <div style="flex:1;min-height:0;overflow-y:auto">
+      <div style="flex:none;display:flex;align-items:center;justify-content:space-between;min-height:1.8rem;font-family:var(--font-2);font-size:.72rem;letter-spacing:.14em;color:#7b91a3;border-bottom:1px solid rgba(34,211,238,.28)"><span>SUMMARY</span><span style="color:#22d3ee">{{ sumCount }}</span></div>
+      <div data-scroll style="flex:1;min-height:0;overflow-y:auto">
         <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
           <div data-row onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(0,1fr) 4.2rem 4.2rem;column-gap:.4rem;align-items:center;min-height:2.5rem;border-left:2px solid transparent;border-bottom:1px solid rgba(34,211,238,.14);cursor:pointer;transition:background 140ms ease">
             <span style="{{ mName }}">{{ r.name }}</span>
