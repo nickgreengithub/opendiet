@@ -214,6 +214,7 @@ option{background:#070b12;color:#d7e6ef}
   </sc-if>
   <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
   <div style="display:flex;flex-direction:column;flex:1;min-height:0">
+    <sc-if value="{{ popOpen }}" hint-placeholder-val="{{ false }}"><div data-pop onClick="{{ closePops }}" style="{{ popScrim }}"></div></sc-if>
     <div data-hint="{{ searchHint }}" style="{{ mSearchRow }}">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="flex:none"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
       <input data-search="m" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ mSearchInput }}">
@@ -1027,7 +1028,7 @@ class Component extends DCLogic {
         padding: bare ? ".35rem 0" : 0
       },
       mHeadRow: {
-        flex: "none", position: "relative", display: s.kbQty ? "none" : "grid", gridTemplateColumns: mCols,
+        flex: "none", position: "relative", zIndex: 20, display: s.kbQty ? "none" : "grid", gridTemplateColumns: mCols,
         columnGap: ".4rem", alignItems: "center", height: "2.4rem",
         borderTop: "1px solid rgba(34,211,238,.28)", borderBottom: "1px solid rgba(34,211,238,.55)",
         fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".08em",
@@ -1066,7 +1067,7 @@ class Component extends DCLogic {
         gap: landing ? ".9rem" : ".6rem",
         height: landing ? "3.6rem" : "2.9rem",
         padding: landing ? "0 1.9rem" : "0 .55rem 0 .6rem",
-        fontFamily: "var(--font-2)", zIndex: 20,
+        fontFamily: "var(--font-2)", zIndex: 30,
         transform: landing ? "translateY(" + landingDrop + "px)" : "none",
         // It travels at one speed and settles into the compact bar at a slower one, so the
         // shape keeps resolving after the move has landed.
@@ -1145,6 +1146,16 @@ class Component extends DCLogic {
         border: 0, borderRadius: 0, background: "transparent", cursor: "pointer",
         color: "#7b91a3", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.35rem",
         lineHeight: 1, transition: "color 140ms ease"
+      },
+      // Any open menu dims and blurs what is behind it, and swallows the tap that dismisses
+      // it — otherwise closing a menu would also add whatever food was underneath.
+      popOpen: !!(s.narrow && (s.libOpen || s.unitOpen || s.mColOpen || s.extraOpen || s.catOpen || s.mTip)),
+      closePops: () => this.setState({ libOpen: false, unitOpen: false, mColOpen: false, extraOpen: false, catOpen: false, mTip: "" }),
+      popScrim: {
+        position: "fixed", inset: 0, zIndex: 15,
+        background: "rgba(5,8,13,.45)",
+        backdropFilter: "blur(7px)", WebkitBackdropFilter: "blur(7px)",
+        pointerEvents: "auto"
       },
       mLibBtn: {
         display: "flex", alignItems: "center", justifyContent: "center",
