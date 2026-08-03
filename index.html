@@ -58,6 +58,9 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
    whatever row slid into that slot, reading as a selection that was never made. Swap it
    for a press flash, which is what a tap should actually confirm.
    Doubled attribute selector to outrank the generated .scpN:hover !important rules. */
+@keyframes od-rise{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+[data-rise]{animation:od-rise 260ms cubic-bezier(.22,1,.36,1)}
+@media (prefers-reduced-motion:reduce){[data-rise]{animation:none}}
 @media (hover:none){
   [data-row][data-row]:hover{background:transparent!important}
   [data-row][data-row]:active{background:rgba(34,211,238,.22)!important}}
@@ -219,7 +222,7 @@ option{background:#070b12;color:#d7e6ef}
       </sc-for>
     </div>
     <sc-if value="{{ hasSummary }}" hint-placeholder-val="{{ false }}">
-    <div style="flex:none;max-height:40%;display:flex;flex-direction:column;background:#090f18;border-top:1px solid rgba(34,211,238,.55)">
+    <div data-rise style="flex:none;max-height:40%;display:flex;flex-direction:column;background:#090f18;border-top:1px solid rgba(34,211,238,.55)">
       <div style="flex:none;display:flex;align-items:center;justify-content:space-between;min-height:1.8rem;font-family:var(--font-2);font-size:.72rem;letter-spacing:.14em;color:#7b91a3;border-bottom:1px solid rgba(34,211,238,.28)"><span>MY FOOD SUMMARY</span><button onClick="{{ clearSum }}" style="{{ clearBtn }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></div>
       <div data-scroll style="flex:1;min-height:0;overflow-y:auto">
         <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
@@ -586,7 +589,7 @@ class Component extends DCLogic {
     const vh = s.vvh || (typeof window !== "undefined" ? window.innerHeight : 800);
     const landingDrop = Math.max(0, Math.round((vh - 46) / 2) - 3);
     // The list is a leaderboard for the current sort; searching is how you reach the rest.
-    const ROW_CAP = 250;
+    const ROW_CAP = s.narrow ? 100 : 250;
     let rows = src.slice(0, ROW_CAP).map((fo, ri) => Object.assign(mkRow(fo), { hint: ri === 0 && rowHint ? "on" : "off" }));
     // The library decides which groups exist, so the filter list follows the data.
     const cats = ["ALL"].concat(Array.from(new Set(this.foods().map(fo => fo.cat))).sort());
@@ -828,7 +831,7 @@ class Component extends DCLogic {
         }
       })),
       shell: s.narrow
-        ? { height: s.vvh ? s.vvh + "px" : VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: ".2rem 0 0", boxSizing: "border-box" }
+        ? { height: s.vvh ? s.vvh + "px" : VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: ".2rem 0 0", boxSizing: "border-box", transition: "height 240ms cubic-bezier(.22,1,.36,1)" }
         : { height: VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: "2.4rem 1.25rem", boxSizing: "border-box" },
       aboutScrim: {
         position: "fixed", inset: 0, zIndex: 50, background: "rgba(5,8,13,.75)", display: "flex",
