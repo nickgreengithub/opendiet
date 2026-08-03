@@ -256,13 +256,13 @@ option{background:#070b12;color:#d7e6ef}
       </sc-for>
     </div>
     <sc-if value="{{ hasSummary }}" hint-placeholder-val="{{ false }}">
-    <div data-rise style="flex:none;max-height:40%;display:flex;flex-direction:column;background:#090f18;border-top:1px solid rgba(34,211,238,.55)">
+    <div data-rise style="{{ mSumPanel }}">
       <div style="flex:none;display:flex;align-items:center;justify-content:space-between;min-height:2rem;font-family:var(--font-2);font-size:.8rem;letter-spacing:.14em;color:#7b91a3;border-bottom:1px solid rgba(34,211,238,.28)"><span>MY FOOD SUMMARY</span><button onClick="{{ clearSum }}" style="{{ clearBtn }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></div>
       <div data-scroll style="flex:1;min-height:0;overflow-y:auto">
         <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
           <div data-row onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(0,1fr) 4.2rem 4.2rem;column-gap:.4rem;align-items:center;min-height:2.5rem;border-left:2px solid transparent;border-bottom:1px solid rgba(34,211,238,.14);cursor:pointer;transition:background 140ms ease">
             <span style="{{ mName }}">{{ r.name }}</span>
-            <span style="position:relative;display:flex;align-items:center;justify-content:flex-end"><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span><sc-if value="{{ r.qtyFinger }}" hint-placeholder-val="{{ false }}"><span data-finger="qty"><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span></sc-if></span>
+            <span style="position:relative;display:flex;align-items:center;justify-content:flex-end"><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ r.qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span><sc-if value="{{ r.qtyFinger }}" hint-placeholder-val="{{ false }}"><span data-finger="qty"><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span></sc-if></span>
             <span style="{{ mColCell }}">{{ r.mSumVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
           </div>
         </sc-for>
@@ -375,17 +375,28 @@ class Component extends DCLogic {
     document.addEventListener("touchstart", this._press, true);
     document.addEventListener("mousedown", this._press, true);
     this._focusIn = e => {
-      if (e.target && e.target.matches && e.target.matches("[data-search]")) {
+      const t = e.target;
+      if (!t || !t.matches) return;
+      if (t.matches("[data-search]")) {
         clearTimeout(this._kbT);
         this.setState({ kb: true });
+      } else if (t.tagName === "INPUT") {
+        this.setState({ kbQty: true });
+        // Wait for the keyboard to take its space, then make sure the row being edited is
+        // actually on screen — it is usually the one the summary has just scrolled past.
+        setTimeout(() => { try { t.scrollIntoView({ block: "nearest" }); } catch (err) {} }, 340);
       }
     };
     // The keyboard takes about a third of a second to leave. Holding kb for that long stops
     // the summary reappearing underneath it on the way out.
     this._focusOut = e => {
-      if (e.target && e.target.matches && e.target.matches("[data-search]")) {
+      const t = e.target;
+      if (!t || !t.matches) return;
+      if (t.matches("[data-search]")) {
         clearTimeout(this._kbT);
         this._kbT = setTimeout(() => this.setState({ kb: false }), 380);
+      } else if (t.tagName === "INPUT") {
+        this.setState({ kbQty: false });
       }
     };
     document.addEventListener("focusin", this._focusIn);
@@ -831,6 +842,13 @@ class Component extends DCLogic {
       const vb = sortKey === "extra" ? (extra.k === "score" ? scoreOf(b) : extra.k === "dens" ? b.kcal / 100 : extra.get(b)) : this.sortVal(b, sortKey);
       return -sortDir * (va - vb);
     });
+    const qtyStyle = {
+      width: s.narrow ? "2.8rem" : "2.9rem", textAlign: "right", background: "transparent", border: 0,
+      borderRadius: 0, padding: s.narrow ? "0 .25rem" : "0 0 .1rem",
+      height: s.narrow ? "2.3rem" : "auto",
+      color: "#d7e6ef", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1.1rem" : ".875rem",
+      fontVariantNumeric: "tabular-nums", transition: "border-color 140ms ease"
+    };
     const sumRows = sumFoods.map(fo => {
       const g = gramsOf(fo.name) / 100;
       const rmk = macroK(fo);
@@ -848,6 +866,9 @@ class Component extends DCLogic {
       return Object.assign({}, mkRow(fo), {
         v1: sv[0], v2: sv[1], v3: sv[2],
         qty: qtyOf(fo.name), qtyUnit: fo.mu === "ml" ? "ml" : "g",
+        qtyStyle: s.narrow
+          ? Object.assign({}, qtyStyle, { width: (String(qtyOf(fo.name)).length + 0.4) + "ch" })
+          : qtyStyle,
         qtyFinger: s.qtyHint === fo.name && !!s.narrow,
         fb: this.fmt(fo.fb * g),
         sumKcal: String(Math.round(kcalOf(fo) * g)),
@@ -898,13 +919,6 @@ class Component extends DCLogic {
       qty: String(Math.round(tQty)),
       // Mixed solids + liquids fall back to G, matching USDA's gram basis.
       qtyUnit: sumFoods.length && sumFoods.every(fo => fo.mu === "ml") ? "ml" : "g"
-    };
-    const qtyStyle = {
-      width: s.narrow ? "2.8rem" : "2.9rem", textAlign: "right", background: "transparent", border: 0,
-      borderRadius: 0, padding: s.narrow ? "0 .25rem" : "0 0 .1rem",
-      height: s.narrow ? "2.3rem" : "auto",
-      color: "#d7e6ef", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1.1rem" : ".875rem",
-      fontVariantNumeric: "tabular-nums", transition: "border-color 140ms ease"
     };
     const signOut = () => { try { localStorage.removeItem("nutri-search-user"); } catch (e) {} this.setState({ user: null, view: "results" }); };
 
@@ -1037,6 +1051,14 @@ class Component extends DCLogic {
       mClearBtn: {
         display: "flex", alignItems: "center", justifyContent: "center",
         width: "1.9rem", height: "100%", flex: "none", cursor: "pointer", color: "#7b91a3"
+      },
+      mSumPanel: {
+        flex: "none",
+        // Editing a serving size makes the summary the subject; the results list can wait.
+        maxHeight: s.kbQty ? "72%" : "40%",
+        display: "flex", flexDirection: "column", background: "#090f18",
+        borderTop: "1px solid rgba(34,211,238,.55)",
+        transition: "max-height 220ms cubic-bezier(.22,1,.36,1)"
       },
       mLibBtn: {
         display: "flex", alignItems: "center", justifyContent: "center",
