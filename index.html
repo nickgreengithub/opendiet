@@ -268,11 +268,11 @@ option{background:#070b12;color:#d7e6ef}
         </sc-for>
       </div>
       <div style="flex:none;display:flex;align-items:center;gap:.7rem;min-height:2.2rem;padding:.5rem 0 calc(1.35rem + env(safe-area-inset-bottom, 0px));border-top:1px solid rgba(34,211,238,.55)">
-        <span style="flex:1;min-width:0;display:flex;justify-content:space-between;align-items:baseline;font-weight:300;font-size:1.08rem;color:#d7e6ef;font-variant-numeric:tabular-nums;white-space:nowrap">
+        <span style="flex:1;min-width:0;display:grid;grid-template-columns:repeat(4,1fr);align-items:baseline;justify-items:center;text-align:center;font-weight:300;font-size:1.08rem;color:#d7e6ef;font-variant-numeric:tabular-nums;white-space:nowrap">
           <span><span style="{{ mMacroTag }}">PROT</span> {{ tot.v1 }}<span style="{{ unitSuffix }}">{{ tot.u3 }}</span></span>
           <span><span style="{{ mMacroTag }}">CARB</span> {{ tot.v2 }}<span style="{{ unitSuffix }}">{{ tot.u3 }}</span></span>
           <span><span style="{{ mMacroTag }}">FAT</span> {{ tot.v3 }}<span style="{{ unitSuffix }}">{{ tot.u3 }}</span></span>
-          <span style="padding-left:.35rem;color:#22d3ee">{{ tot.mTotVal }}<span style="{{ unitSuffix }}">{{ mColUnit }}</span></span>
+          <span style="color:#22d3ee">{{ tot.mTotVal }}<span style="{{ unitSuffix }}">{{ mColUnit }}</span></span>
         </span>
       </div>
     </div>
