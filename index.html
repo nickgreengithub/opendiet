@@ -78,13 +78,13 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
   72%{opacity:1;transform:translate(0,0) scale(1)}
   100%{opacity:0;transform:translate(0,-8px) scale(1)}
 }
-[data-finger="qty"]{left:auto;right:20px;animation-name:od-point-l}
 [data-finger]{
   position:absolute;left:38%;top:50%;margin-top:-5px;
   color:#22d3ee;pointer-events:none;z-index:1;
   filter:drop-shadow(0 0 7px rgba(34,211,238,.55));
   animation:od-point 2500ms cubic-bezier(.22,1,.36,1) both;
 }
+[data-finger="qty"]{left:auto;right:63px;width:23px;animation-name:od-point-l}
 @media (prefers-reduced-motion:reduce){[data-finger]{animation:none;opacity:.9;transform:none}}
 @keyframes od-rise{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
 [data-rise]{animation:od-rise 260ms cubic-bezier(.22,1,.36,1)}
@@ -542,8 +542,8 @@ class Component extends DCLogic {
       if (sum.length > (s.sum || []).length && !this._qtyHinted) {
         this._rowHinted = true;
         this._qtyHinted = true;
-        setTimeout(() => this.setState({ qtyHint: name }), 260);
-        setTimeout(() => this.setState({ qtyHint: null }), 4800);
+        setTimeout(() => this.setState({ qtyHint: name }), 460);
+        setTimeout(() => this.setState({ qtyHint: null }), 5000);
       }
       return { sum, starred: true, rowHint: false, sumHold: hold };
     });
