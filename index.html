@@ -87,7 +87,7 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
   filter:drop-shadow(0 0 7px rgba(34,211,238,.55));
   animation:od-point 2500ms cubic-bezier(.22,1,.36,1) both;
 }
-[data-finger="qty"]{left:auto;right:63px;width:23px;animation-name:od-point-l}
+[data-finger="qty"]{left:auto;right:54px;width:23px;animation-name:od-point-l}
 @media (prefers-reduced-motion:reduce){[data-finger]{animation:none;opacity:.9;transform:none}}
 @keyframes od-rise{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
 [data-rise]{animation:od-rise 260ms cubic-bezier(.22,1,.36,1)}
@@ -900,7 +900,7 @@ class Component extends DCLogic {
       qtyUnit: sumFoods.length && sumFoods.every(fo => fo.mu === "ml") ? "ml" : "g"
     };
     const qtyStyle = {
-      width: s.narrow ? "3.4rem" : "2.9rem", textAlign: "right", background: "transparent", border: 0,
+      width: s.narrow ? "2.8rem" : "2.9rem", textAlign: "right", background: "transparent", border: 0,
       borderRadius: 0, padding: s.narrow ? "0 .25rem" : "0 0 .1rem",
       height: s.narrow ? "2.3rem" : "auto",
       color: "#d7e6ef", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1.1rem" : ".875rem",
