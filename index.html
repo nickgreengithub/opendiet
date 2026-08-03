@@ -216,7 +216,7 @@ option{background:#070b12;color:#d7e6ef}
   <div style="display:flex;flex-direction:column;flex:1;min-height:0">
     <div data-hint="{{ searchHint }}" style="{{ mSearchRow }}">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="flex:none"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
-      <input data-search placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="flex:1;min-width:0;height:2rem;background:transparent;border:0;padding:0 .3rem;color:#eaf5fb;font-family:var(--font-2);font-size:1rem;letter-spacing:.05em;text-transform:uppercase;text-overflow:ellipsis">
+      <input data-search placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ mSearchInput }}">
       <span data-pop onClick="{{ mLib }}" style="{{ mLibBtn }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg></span>
       <sc-if value="{{ libOpen }}" hint-placeholder-val="{{ false }}">
         <span data-pop style="position:absolute;top:100%;left:0;z-index:40;display:flex;flex-direction:column;min-width:16rem;max-height:70vh;overflow-y:auto;padding-top:.35rem">
@@ -420,6 +420,7 @@ class Component extends DCLogic {
     document.removeEventListener("click", this._dismiss);
     document.removeEventListener("touchstart", this._dismiss);
     window.removeEventListener("resize", this._onResize);
+    clearInterval(this._tw);
     if (this._vv && window.visualViewport) {
       window.visualViewport.removeEventListener("resize", this._vv);
       window.visualViewport.removeEventListener("scroll", this._vv);
@@ -442,8 +443,27 @@ class Component extends DCLogic {
           return fo;
         });
         this.setState({ loadTick: (this.state.loadTick || 0) + 1 });
+        this.startTypewriter();
       })
       .catch(() => { delete cache[k]; this.setState({ loadErr: k }); });
+  }
+  placeholderText() {
+    const s = this.state, libs = this.libraries(), lib = s.lib || "CORE";
+    const n = this.foods().filter(fo => s.cat === "ALL" || fo.cat === s.cat).length;
+    return "SEARCH " + n.toLocaleString()
+      + (s.narrow ? "" : " " + (libs.find(d => d.k === lib) || libs[0]).label.replace("USDA ", ""))
+      + " FOODS";
+  }
+  // The landing screen types its own prompt. Started once the library has loaded, since the
+  // count is part of the line being typed.
+  startTypewriter() {
+    if (this._tw || !this.state.narrow || this.state.typed) return;
+    this._tw = setInterval(() => {
+      const full = this.placeholderText();
+      const n = (this.state.tw || 0) + 1;
+      if (n >= full.length) { clearInterval(this._tw); this._tw = null; }
+      this.setState({ tw: n });
+    }, 52);
   }
   libraries() {
     return [
@@ -519,8 +539,8 @@ class Component extends DCLogic {
       if (sum.length > (s.sum || []).length && !this._qtyHinted) {
         this._rowHinted = true;
         this._qtyHinted = true;
-        setTimeout(() => this.setState({ qtyHint: name }), 60);
-        setTimeout(() => this.setState({ qtyHint: null }), 4600);
+        setTimeout(() => this.setState({ qtyHint: name }), 260);
+        setTimeout(() => this.setState({ qtyHint: null }), 4800);
       }
       return { sum, starred: true, rowHint: false, sumHold: hold };
     });
@@ -969,7 +989,7 @@ class Component extends DCLogic {
         flex: "none", position: "relative", display: "flex", alignItems: "center",
         gap: landing ? ".9rem" : ".6rem",
         height: landing ? "3.6rem" : "2.9rem",
-        padding: landing ? "0 1.15rem" : "0 .55rem 0 .6rem",
+        padding: landing ? "0 1.9rem" : "0 .55rem 0 .6rem",
         fontFamily: "var(--font-2)", zIndex: 2,
         transform: landing ? "translateY(" + landingDrop + "px)" : "none",
         // It travels at one speed and settles into the compact bar at a slower one, so the
@@ -978,6 +998,15 @@ class Component extends DCLogic {
       },
       // The landing screen is a search box and nothing else — the library picker fades in
       // with the table. Space is reserved so the input does not resize underneath you.
+      mSearchInput: {
+        flex: 1, minWidth: 0, background: "transparent", border: 0,
+        color: "#eaf5fb", fontFamily: "var(--font-2)", textTransform: "uppercase", textOverflow: "ellipsis",
+        height: landing ? "2.7rem" : "2rem",
+        padding: landing ? "0 .1rem" : "0 .3rem",
+        fontSize: landing ? "1.24rem" : "1rem",
+        letterSpacing: landing ? ".07em" : ".05em",
+        transition: "font-size 760ms cubic-bezier(.22,1,.36,1), height 760ms cubic-bezier(.22,1,.36,1), letter-spacing 760ms ease, padding 760ms ease"
+      },
       mLibBtn: {
         display: "flex", alignItems: "center", justifyContent: "center",
         width: "2rem", height: "100%", cursor: "pointer", color: "#c3d6e2",
@@ -1015,12 +1044,13 @@ class Component extends DCLogic {
             this._rowHinted = true;
             this.setState({ rowHint: true });
             this._hintEnd = setTimeout(() => this.setState({ rowHint: false }), 3200);
-          }, 750);
+          }, 950);
         }
       },
       // Mobile drops the library name — at the larger type it would push the count off the edge.
-      searchPlaceholder: "SEARCH " + this.foods().filter(fo => s.cat === "ALL" || fo.cat === s.cat).length.toLocaleString()
-        + (s.narrow ? "" : " " + (libs.find(d => d.k === lib) || libs[0]).label.replace("USDA ", "")) + " FOODS",
+      searchPlaceholder: landing
+        ? this.placeholderText().slice(0, s.tw || 0) + ((s.tw || 0) < this.placeholderText().length ? "\u258f" : "")
+        : this.placeholderText(),
       rows, cats, selStyle, catOpts, libOpts, unitOpts, unitFoot: unit.foot,
       libLabel: (libs.find(d => d.k === lib) || libs[0]).label,
       libShort: (libs.find(d => d.k === lib) || libs[0]).label.replace("USDA ", ""),
