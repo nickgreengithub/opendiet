@@ -233,8 +233,7 @@ option{background:#070b12;color:#d7e6ef}
     </div>
     <div style="{{ mBody }}">
     <div style="{{ mHeadRow }}">
-      <span data-pop onClick="{{ mUnit }}" style="display:flex;align-items:center;gap:.3rem;min-width:0;height:100%;cursor:pointer;white-space:nowrap"><span>{{ measureLabel }}</span><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ unitOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ unitOpts }}" as="u" hint-placeholder-count="4"><button onClick="{{ u.onClick }}" style="{{ u.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ u.label }}</span><span style="{{ u.gStyle }}">{{ u.grams }}</span></button></sc-for><span style="{{ mPopNote }}">Sets the portion every food is measured at. Once added, a food's size can be typed directly in the summary table.</span></span></span></sc-if></span>
-      <span data-pop onClick="{{ mColToggle }}" style="{{ mHead }}"><span>{{ mColLabel }}</span><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ mColOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><sc-for list="{{ mColOpts }}" as="o" hint-placeholder-count="5"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ o.label }}</span><span style="{{ o.unitStyle }}">{{ o.unit }}</span></button></sc-for><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(34,211,238,.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="{{ mPopNote }}">Digestion costs 25% of protein calories, 8% of carbohydrate, 2% of fat. Always applied to KCAL; applied to the macro columns only when they show kcal contribution.</span></span></span></sc-if></span>
+      <span data-pop onClick="{{ mColToggle }}" style="{{ mHeadOne }}"><span>{{ measureLabel }}</span><span style="{{ mHeadDot }}">·</span><span style="{{ mHeadCol }}">{{ mColLabel }}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ mColOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><span style="display:grid;grid-template-columns:1fr 1fr"><span style="display:flex;flex-direction:column;border-right:1px solid rgba(34,211,238,.28)"><span style="{{ mPopHead }}">MEASURE</span><sc-for list="{{ unitOpts }}" as="u" hint-placeholder-count="4"><button onClick="{{ u.onClick }}" style="{{ u.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ u.label }}</span><span style="{{ u.gStyle }}">{{ u.grams }}</span></button></sc-for></span><span style="display:flex;flex-direction:column"><span style="{{ mPopHead }}">COLUMN</span><sc-for list="{{ mColOpts }}" as="o" hint-placeholder-count="9"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ o.label }}</span><span style="{{ o.unitStyle }}">{{ o.unit }}</span></button></sc-for></span></span><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(34,211,238,.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="{{ mPopNote }}">Digestion costs 25% of protein calories, 8% of carbohydrate and 2% of fat. Applied to calories.</span></span></span></sc-if></span>
     </div>
     <div data-scroll style="{{ mListStyle }}">
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
@@ -601,11 +600,11 @@ class Component extends DCLogic {
     const extra = EXTRAS.find(x => x.k === (s.extra || "score")) || EXTRAS[0];
     // Mobile's last column does double duty: kcal by default, or one chosen nutrient.
     const MCOLS = [
-      { k: "kcal", label: "KCAL", unit: "kcal", get: fo => kcalOf(fo) },
-      { k: "p", label: "PROT", unit: "g", get: fo => fo.p },
-      { k: "c", label: "CARB", unit: "g", get: fo => fo.c },
+      { k: "kcal", label: "CALORIES", unit: "kcal", get: fo => kcalOf(fo) },
+      { k: "p", label: "PROTEIN", unit: "g", get: fo => fo.p },
+      { k: "c", label: "CARBS", unit: "g", get: fo => fo.c },
       { k: "f", label: "FAT", unit: "g", get: fo => fo.f }
-    ].concat(EXTRAS.map(x => ({ k: x.k, label: x.k === "score" ? "FULLNESS" : x.k === "fb" ? "FIBRE" : x.k === "sf" ? "SAT FAT" : x.k === "sg" ? "SUGAR" : "DENSITY", unit: x.unit, get: x.get })));
+    ].concat(EXTRAS.map(x => ({ k: x.k, label: x.k === "score" ? "FULLNESS SCORE" : x.k === "fb" ? "FIBRE" : x.k === "sf" ? "SATURATED FAT" : x.k === "sg" ? "SUGAR" : "CALORIE DENSITY", unit: x.unit, get: x.get })));
     const mCol = MCOLS.find(x => x.k === (s.mCol || "kcal")) || MCOLS[0];
     const units = [
       { k: "TSP", label: "TSP", grams: "5", g: 5, foot: "PER TSP \u00b7 5 G/ML" },
@@ -723,6 +722,8 @@ class Component extends DCLogic {
     const bin = !!s.binMode;
     const mColCellBase = {
       display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300,
+      // Just enough to keep the unit off the glass; the name side stays full bleed.
+      paddingRight: ".3rem",
       fontSize: "1.04rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
     };
     const mCols = bare ? "minmax(0,1fr)" : "minmax(0,1fr) 7rem";
@@ -802,7 +803,7 @@ class Component extends DCLogic {
     };
     const unitOpts = units.map((u, ui) => ({
       label: u.label, grams: u.grams,
-      onClick: () => this.setState({ unit: u.k, unitOpen: false }),
+      onClick: () => this.setState({ unit: u.k, unitOpen: false, mColOpen: false }),
       gStyle: { fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", fontVariantNumeric: "tabular-nums", color: unit.k === u.k ? "#22d3ee" : "#94a3b8", flex: "none" },
       style: {
         display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem",
@@ -1028,8 +1029,8 @@ class Component extends DCLogic {
         padding: bare ? ".35rem 0" : 0
       },
       mHeadRow: {
-        flex: "none", position: "relative", zIndex: 20, display: s.kbQty ? "none" : "grid", gridTemplateColumns: mCols,
-        columnGap: ".4rem", alignItems: "center", height: "2.4rem",
+        flex: "none", position: "relative", zIndex: 20, display: s.kbQty ? "none" : "block",
+        height: "2.4rem",
         borderTop: "1px solid rgba(34,211,238,.28)", borderBottom: "1px solid rgba(34,211,238,.55)",
         fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".08em",
         color: "#c3d6e2", textTransform: "uppercase"
@@ -1156,6 +1157,18 @@ class Component extends DCLogic {
         background: "rgba(5,8,13,.45)",
         backdropFilter: "blur(7px)", WebkitBackdropFilter: "blur(7px)",
         pointerEvents: "auto"
+      },
+      mHeadOne: {
+        display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".45rem",
+        height: "100%", paddingRight: ".3rem", cursor: "pointer", whiteSpace: "nowrap"
+      },
+      // With the keyboard up the numbers column is gone, so only the measure is worth naming.
+      mHeadDot: { display: bare ? "none" : "inline", color: "#3f5364" },
+      mHeadCol: { display: bare ? "none" : "inline" },
+      mPopHead: {
+        padding: ".45rem .7rem", fontFamily: "var(--font-2)", fontSize: ".76rem",
+        letterSpacing: ".14em", color: "#7b91a3",
+        borderBottom: "1px solid rgba(34,211,238,.55)"
       },
       mLibBtn: {
         display: "flex", alignItems: "center", justifyContent: "center",
