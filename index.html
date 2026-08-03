@@ -189,7 +189,7 @@ option{background:#070b12;color:#d7e6ef}
     <div data-hint="{{ searchHint }}" style="{{ mSearchRow }}">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="flex:none"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
       <input data-search placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="flex:1;min-width:0;height:2rem;background:transparent;border:0;padding:0 .3rem;color:#eaf5fb;font-family:var(--font-2);font-size:1rem;letter-spacing:.05em;text-transform:uppercase;text-overflow:ellipsis">
-      <span data-pop onClick="{{ mLib }}" style="display:flex;align-items:center;justify-content:center;width:2rem;height:100%;cursor:pointer;color:#c3d6e2"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg></span>
+      <span data-pop onClick="{{ mLib }}" style="{{ mLibBtn }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg></span>
       <sc-if value="{{ libOpen }}" hint-placeholder-val="{{ false }}">
         <span data-pop style="position:absolute;top:100%;left:0;z-index:40;display:flex;flex-direction:column;min-width:16rem;max-height:70vh;overflow-y:auto;padding-top:.35rem">
           <span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)">
@@ -913,6 +913,15 @@ class Component extends DCLogic {
         height: "2.9rem", padding: "0 .55rem 0 .6rem", fontFamily: "var(--font-2)", zIndex: 2,
         transform: landing ? "translateY(" + landingDrop + "px)" : "none",
         transition: "transform 560ms cubic-bezier(.22,1,.36,1)"
+      },
+      // The landing screen is a search box and nothing else — the library picker fades in
+      // with the table. Space is reserved so the input does not resize underneath you.
+      mLibBtn: {
+        display: "flex", alignItems: "center", justifyContent: "center",
+        width: "2rem", height: "100%", cursor: "pointer", color: "#c3d6e2",
+        opacity: landing ? 0 : 1,
+        pointerEvents: landing ? "none" : "auto",
+        transition: "opacity 300ms ease 200ms"
       },
       mBody: {
         display: "flex", flexDirection: "column", flex: 1, minHeight: 0,
