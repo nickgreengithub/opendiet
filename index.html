@@ -143,7 +143,7 @@ option{background:#070b12;color:#d7e6ef}
                 <button onClick="{{ r.togglePlus }}" style="{{ r.starStyle }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" style="flex:none"><path d="M12 3.2l2.7 5.7 6 .9-4.35 4.4 1.03 6.2L12 17.5 6.62 20.4l1.03-6.2L3.3 9.8l6-.9L12 3.2z"></path></svg></button>
                 <span style="font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:color 140ms ease" style-hover="color:#a5f3fc">{{ r.name }}</span>
               </span>
-              <span style="{{ sumSizeCell }}"><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" style="{{ qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
+              <span style="{{ sumSizeCell }}"><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
               <span style="{{ r.cell1 }}"><span style="{{ r.sfill1 }}"></span><span style="{{ numWrap }}">{{ r.v1 }}</span></span>
               <span style="{{ r.cell2 }}"><span style="{{ r.sfill2 }}"></span><span style="{{ numWrap }}">{{ r.v2 }}</span></span>
               <span style="{{ r.cell3 }}"><span style="{{ r.sfill3 }}"></span><span style="{{ numWrap }}">{{ r.v3 }}</span></span>
@@ -220,7 +220,7 @@ option{background:#070b12;color:#d7e6ef}
         <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
           <div data-row onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(0,1fr) 4.2rem 4.2rem;column-gap:.4rem;align-items:center;min-height:2.5rem;border-left:2px solid transparent;border-bottom:1px solid rgba(34,211,238,.14);cursor:pointer;transition:background 140ms ease">
             <span style="{{ mName }}">{{ r.name }}</span>
-            <span style="display:flex;align-items:center;justify-content:flex-end"><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" style="{{ qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
+            <span data-hint="{{ r.qtyHint }}" style="display:flex;align-items:stretch;justify-content:flex-end"><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
             <span style="{{ mColCell }}">{{ r.mSumVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
           </div>
         </sc-for>
@@ -409,7 +409,14 @@ class Component extends DCLogic {
       const sum = (s.sum || []).includes(name) ? (s.sum || []).filter(n => n !== name) : (s.sum || []).concat(name);
       try { localStorage.setItem("nutri-search-sum", JSON.stringify(sum)); } catch (e) {}
       // Adding a food answers the "tap a row" hint, so retire it for this session.
-      return { sum, starred: true };
+      // The first add also earns one run of the hint on that food's serving-size field.
+      if (sum.length > (s.sum || []).length && !this._qtyHinted) {
+        this._rowHinted = true;
+        this._qtyHinted = true;
+        setTimeout(() => this.setState({ qtyHint: name }), 60);
+        setTimeout(() => this.setState({ qtyHint: null }), 4600);
+      }
+      return { sum, starred: true, rowHint: false };
     });
   }
   renderVals() {
@@ -696,6 +703,7 @@ class Component extends DCLogic {
       return Object.assign({}, mkRow(fo), {
         v1: sv[0], v2: sv[1], v3: sv[2],
         qty: qtyOf(fo.name), qtyUnit: fo.mu === "ml" ? "ml" : "g",
+        qtyHint: s.qtyHint === fo.name ? "on" : "off",
         fb: this.fmt(fo.fb * g),
         sumKcal: String(Math.round(kcalOf(fo) * g)),
         sumExtra: extra.k === "score" ? String(scoreOf(fo)) : extra.k === "dens" ? (fo.kcal / 100).toFixed(2) : this.fmt(extra.get(fo) * g),
@@ -747,8 +755,9 @@ class Component extends DCLogic {
       qtyUnit: sumFoods.length && sumFoods.every(fo => fo.mu === "ml") ? "ml" : "g"
     };
     const qtyStyle = {
-      width: "2.9rem", textAlign: "right", background: "transparent", border: 0,
-      borderRadius: 0, padding: "0 0 .1rem",
+      width: s.narrow ? "3.4rem" : "2.9rem", textAlign: "right", background: "transparent", border: 0,
+      borderRadius: 0, padding: s.narrow ? "0 .25rem" : "0 0 .1rem",
+      height: s.narrow ? "2.3rem" : "auto",
       color: "#d7e6ef", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1rem" : ".875rem",
       fontVariantNumeric: "tabular-nums", transition: "border-color 140ms ease"
     };
