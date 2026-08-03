@@ -344,7 +344,10 @@ class Component extends DCLogic {
       this._vv = () => {
         if (window.scrollY || window.scrollX) window.scrollTo(0, 0);
         const h = Math.round(vv.height);
-        if (h !== this.state.vvh) this.setState({ vvh: h });
+        const patch = {};
+        if (h !== this.state.vvh) patch.vvh = h;
+        if (this.state.sumHold && h > (this.state.vvh || 0)) patch.sumHold = false;
+        if (Object.keys(patch).length) this.setState(patch);
       };
       vv.addEventListener("resize", this._vv);
       vv.addEventListener("scroll", this._vv);
@@ -432,6 +435,20 @@ class Component extends DCLogic {
   band(s) { return s >= 80 ? "A" : s >= 65 ? "B" : s >= 45 ? "C" : s >= 30 ? "D" : "F"; }
   fmt(n) { return n === 0 ? "\u2014" : n < 1 ? n.toFixed(2) : n < 10 ? n.toFixed(1) : String(Math.round(n)); }
   toggleSum(name) {
+    // Adding a food with the keyboard up used to render the summary at the bottom of the
+    // keyboard-sized shell — mid-screen — and then drop it when the keyboard left. Send the
+    // keyboard away first and hold the summary back until the viewport has settled, so it
+    // arrives once, already in its final place.
+    // A focused input means the keyboard is up — more reliable than comparing viewport
+    // heights, which iOS reports inconsistently mid-animation.
+    const el = typeof document !== "undefined" && document.activeElement;
+    const kbOpen = !!this.state.narrow && !!el && el.tagName === "INPUT";
+    const hold = kbOpen && !(this.state.sum || []).includes(name);
+    if (hold) {
+      try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (e) {}
+      clearTimeout(this._holdT);
+      this._holdT = setTimeout(() => this.setState({ sumHold: false }), 520);
+    }
     this.setState(s => {
       const sum = (s.sum || []).includes(name) ? (s.sum || []).filter(n => n !== name) : (s.sum || []).concat(name);
       try { localStorage.setItem("nutri-search-sum", JSON.stringify(sum)); } catch (e) {}
@@ -443,7 +460,7 @@ class Component extends DCLogic {
         setTimeout(() => this.setState({ qtyHint: name }), 60);
         setTimeout(() => this.setState({ qtyHint: null }), 4600);
       }
-      return { sum, starred: true, rowHint: false };
+      return { sum, starred: true, rowHint: false, sumHold: hold };
     });
   }
   renderVals() {
@@ -987,7 +1004,7 @@ class Component extends DCLogic {
       headUnit: { textTransform: "none", fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".06em", color: "#94a3b8" },
       fillLegend: isPct ? "MACROS AS % OF FOOD ENERGY" : isKcalBasis ? "MACROS AS KCAL CONTRIBUTED" : "MACROS IN GRAMS",
       shownCount: String(matchCount),
-      hasSummary: sumRows.length > 0, sumRows,
+      hasSummary: sumRows.length > 0 && !s.sumHold, sumRows,
       sumFillers: Array.from({ length: Math.max(0, 10 - sumRows.length) }, (_, i) => i),
       blankEdge: { borderLeft: EDGE }, blankInner: { borderLeft: INNER }, tot, sumCount: String(sumRows.length),
       qtyStyle, headIsland, unitSuffix, numWrap, never: false,
