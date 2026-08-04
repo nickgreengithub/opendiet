@@ -1,0 +1,33 @@
+/* Base palette. The cyan ramp is Tailwind cyan (200/300/400/500); the near-blacks
+   are product-specific and sit just below Tailwind slate-950. */
+:root{
+  --cyan-200:#a5f3fc;
+  --cyan-300:#67e8f9;
+  --cyan-400:#22d3ee;
+  --cyan-500:#06b6d4;
+
+  --ink-950:#05080d;
+  --ink-900:#070b12;
+  --ink-800:#121a26;
+  --ink-700:#182233;
+
+  --slate-100:#d7e6ef;
+  --slate-400:#5f7384;
+
+  /* Cyan alpha ramp — every border, glow and tint in the product is cyan at low alpha. */
+  --cyan-a04:rgba(34,211,238,.04);
+  --cyan-a05:rgba(34,211,238,.05);
+  --cyan-a07:rgba(34,211,238,.07);
+  --cyan-a08:rgba(34,211,238,.08);
+  --cyan-a12:rgba(34,211,238,.12);
+  --cyan-a15:rgba(34,211,238,.15);
+  --cyan-a20:rgba(34,211,238,.20);
+  --cyan-a28:rgba(34,211,238,.28);
+  --cyan-a35:rgba(34,211,238,.35);
+  --cyan-a55:rgba(34,211,238,.55);
+
+  /* Semantic status — intentional addition (Tailwind 400 stops), not present in source. */
+  --emerald-400:#34d399;
+  --amber-400:#fbbf24;
+  --rose-400:#fb7185;
+}

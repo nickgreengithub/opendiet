@@ -1,0 +1,25 @@
+:root{
+  --font-1:"Alliance No.1",sans-serif;   /* body, values, buttons */
+  --font-2:"Alliance No.2",sans-serif;   /* labels, placeholders, inputs */
+  --font-mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  --weight-light:300;
+  --weight-regular:400;
+
+  --text-2xs:.62rem;   /* stat labels */
+  --text-xs:.68rem;    /* nav / link labels */
+  --text-sm:.9rem;     /* inputs, buttons */
+  --text-base:1rem;    /* editor body */
+  --text-lg:1.15rem;   /* stat values */
+  --text-xl:1.6rem;
+  --text-2xl:2.4rem;
+  --text-3xl:3.6rem;
+
+  --leading-tight:1.1;
+  --leading-normal:1.4;
+  --leading-relaxed:1.65;
+
+  --tracking-tight:.04em;
+  --tracking-wide:.12em;
+  --tracking-wider:.16em;
+}

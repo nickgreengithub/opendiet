@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>OpenDiet v0.3 preview</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="A fast way to find and compare macros, using open data from USDA FoodData Central.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2305080d'/%3E%3Ctext x='16' y='23' font-family='sans-serif' font-size='18' fill='%2322d3ee' text-anchor='middle'%3EO%3C/text%3E%3C/svg%3E">
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="#05080d"/><text x="60" y="72" font-family="Helvetica,Arial,sans-serif" font-size="42" font-weight="300" letter-spacing="2" fill="#22d3ee" text-anchor="middle">OD</text></svg></template>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<link rel="stylesheet" href="ds/styles.css">
+<script src="ds/_ds_bundle.js"></script>
+<style>
+html,body{margin:0;background:radial-gradient(900px 500px at 50% -20%, rgba(34,211,238,.07), transparent 60%), #05080d;color:#d7e6ef;font-family:var(--font-1),sans-serif}
+a{color:#22d3ee;text-decoration:none;transition:color 140ms ease}a:hover{color:#a5f3fc}
+input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:inset 0 0 0 1px rgba(34,211,238,.5);caret-color:#22d3ee}
+/* The mobile search field says enough with a caret and the text being typed. The wash and
+   ring were carrying the "start here" job that the landing screen now does. */
+[data-search="m"]:focus{background:transparent!important;box-shadow:none}
+/* Ambient onboarding: a light sweeps through whatever the user should touch next.
+   Purely decorative — it never blocks a tap, and it stops the moment the step is done. */
+@keyframes od-sweep{0%{background-position:190% 0}70%{background-position:-90% 0}100%{background-position:-90% 0}}
+@keyframes od-ring{0%,100%{box-shadow:inset 0 0 0 1px rgba(34,211,238,.22)}50%{box-shadow:inset 0 0 0 1px rgba(34,211,238,.9), 0 0 18px rgba(34,211,238,.22)}}
+@keyframes od-edge{0%,100%{border-left-color:rgba(34,211,238,.12)}50%{border-left-color:rgba(34,211,238,.95)}}
+[data-hint="on"]{
+  /* !important because rows carry an inline `background: transparent`, and that shorthand
+     resets background-image — which is the sweep. Parked off-screen once the run ends. */
+  background-image:linear-gradient(100deg,transparent 22%,rgba(34,211,238,.18) 38%,rgba(34,211,238,.55) 50%,rgba(34,211,238,.18) 62%,transparent 78%)!important;
+  background-size:230% 100%;background-repeat:no-repeat;background-position:-90% 0;
+  animation:od-sweep 2.1s cubic-bezier(.35,0,.2,1) 2, od-ring 2.1s ease-in-out 2, od-edge 2.1s ease-in-out 2}
+[data-hint="on"] svg{animation:od-pulse 2.1s ease-in-out 2}
+@keyframes od-pulse{0%,100%{opacity:.5}50%{opacity:1;stroke:#22d3ee}}
+@media (prefers-reduced-motion:reduce){
+  [data-hint="on"]{animation:none;background-image:none!important;box-shadow:inset 0 0 0 1px rgba(34,211,238,.45)}
+  [data-hint="on"] svg{animation:none;opacity:1}}
+/* Row hover is a pointer idiom. On touch, :hover latches after a tap and stays until you
+   tap elsewhere — and since adding a food removes its row, the stale highlight lands on
+   whatever row slid into that slot, reading as a selection that was never made. Swap it
+   for a press flash, which is what a tap should actually confirm.
+   Doubled attribute selector to outrank the generated .scpN:hover !important rules. */
+/* A hand slides in over the food name and presses it, once, then leaves. Transform and
+   opacity only, and pointer-events:none — it sits over the thing it is asking you to tap. */
+@keyframes od-point{
+  0%{opacity:0;transform:translate(78px,6px) scale(1)}
+  20%{opacity:1;transform:translate(0,0) scale(1)}
+  36%{transform:translate(0,0) scale(.8)}
+  48%{transform:translate(0,0) scale(1)}
+  60%{transform:translate(0,0) scale(.8)}
+  72%{opacity:1;transform:translate(0,0) scale(1)}
+  100%{opacity:0;transform:translate(0,-8px) scale(1)}
+}
+[data-finger]{
+  position:absolute;left:38%;top:50%;margin-top:-5px;
+  color:#22d3ee;pointer-events:none;z-index:1;
+  filter:drop-shadow(0 0 7px rgba(34,211,238,.55));
+  animation:od-point 2500ms cubic-bezier(.22,1,.36,1) both;
+}
+@media (prefers-reduced-motion:reduce){[data-finger]{animation:none;opacity:.9;transform:none}}
+@keyframes od-rise{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+[data-rise]{animation:od-rise 260ms cubic-bezier(.22,1,.36,1)}
+@media (prefers-reduced-motion:reduce){[data-rise]{animation:none}}
+/* First plate of the session: the step controls breathe once or twice so they are noticed.
+   Animations outrank inline styles, so this lifts the button's own colour. */
+@keyframes od-breathe{
+  0%,100%{color:#7b91a3;text-shadow:none;transform:scale(1)}
+  45%{color:#8ff0fb;text-shadow:0 0 10px rgba(34,211,238,.95),0 0 26px rgba(34,211,238,.55);transform:scale(1.5)}
+  70%{color:#22d3ee;text-shadow:0 0 8px rgba(34,211,238,.5);transform:scale(1.16)}}
+[data-pulse="on"]{animation:od-breathe 1200ms ease-in-out 4}
+/* Grow away from the number, so the glyph swells in place rather than drifting. */
+[data-pulse="on"][data-step="l"]{transform-origin:100% 50%}
+[data-pulse="on"][data-step="r"]{transform-origin:0 50%}
+@media (prefers-reduced-motion:reduce){[data-pulse="on"]{animation:none;color:#22d3ee}}
+@media (hover:none){
+  [data-row][data-row]:hover{background:transparent!important}
+  [data-row][data-row]:active{background:rgba(34,211,238,.22)!important}}
+input::placeholder{color:#7b91a3;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:1}
+/* Without this, reaching the end of a table hands the gesture to the page: iOS rubber-bands
+   the whole document, the URL bar slides, and the next swipe is spent re-entering the table. */
+html,body{overscroll-behavior:none;height:100%}
+[data-scroll]{overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin;scrollbar-color:rgba(34,211,238,.35) rgba(34,211,238,.07)}
+[data-scroll]::-webkit-scrollbar{width:10px}
+[data-scroll]::-webkit-scrollbar-track{background:rgba(34,211,238,.07)}
+[data-scroll]::-webkit-scrollbar-thumb{background:rgba(34,211,238,.35)}
+select{color-scheme:dark}
+option{background:#070b12;color:#d7e6ef}
+</style>
+</helmet>
+<div style="{{ shell }}">
+<div style="width:100%;max-width:1120px;display:flex;flex-direction:column;flex:1;min-height:0">
+  <sc-if value="{{ tabsOn }}" hint-placeholder-val="{{ false }}">
+  <div style="{{ tabBar }}">
+    <span onClick="{{ goHome }}" style="{{ tabMark }}" style-hover="color:#22d3ee">OPENDIET<span style="{{ tabVer }}">V0.3</span></span>
+    <sc-for list="{{ appTabs }}" as="t" hint-placeholder-count="4">
+      <span onClick="{{ t.onClick }}" style="{{ t.style }}" style-hover="color:#d7e6ef">{{ t.label }}</span>
+    </sc-for>
+  </div>
+  </sc-if>
+  <sc-if value="{{ backOn }}" hint-placeholder-val="{{ false }}">
+  <div style="{{ mBackRow }}">
+    <button onClick="{{ goHome }}" style="{{ mBackBtn }}" style-hover="color:#22d3ee"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M15 5l-7 7 7 7"></path></svg><span>APPS</span></button>
+    <span style="{{ mBackTitle }}">{{ appTitle }}</span>
+  </div>
+  </sc-if>
+  <sc-if value="{{ appHome }}" hint-placeholder-val="{{ true }}">
+  <div style="{{ homeWrap }}">
+    <div style="{{ homeHead }}">
+      <span style="{{ homeMark }}">OPENDIET<span style="{{ tabVer }}">V0.3</span></span>
+      <span style="{{ homeSub }}">CHOOSE AN APP</span>
+    </div>
+    <div style="{{ homeGrid }}">
+      <sc-for list="{{ appCards }}" as="a" hint-placeholder-count="4">
+        <div onClick="{{ a.onClick }}" style="{{ a.style }}" style-hover="border-color:rgba(34,211,238,.75);background:rgba(34,211,238,.08)">
+          <span style="{{ cardTop }}"><span style="{{ a.nameStyle }}">{{ a.label }}</span><span style="{{ a.tagStyle }}">{{ a.tag }}</span></span>
+          <span style="{{ cardNote }}">{{ a.note }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ appSoon }}" hint-placeholder-val="{{ false }}">
+  <div style="{{ soonWrap }}">
+    <span style="{{ soonTag }}">NOT BUILT YET</span>
+    <span style="{{ soonName }}">{{ appTitle }}</span>
+    <span style="{{ soonNote }}">{{ appNote }}</span>
+  </div>
+  </sc-if>
+  <sc-if value="{{ isResults }}" hint-placeholder-val="{{ true }}">
+  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;flex-direction:column;flex:1;min-height:0">
+    <div style="flex:none;z-index:5;padding-right:10px">
+
+    <div style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;height:1.95rem;border-top:1px solid rgba(34,211,238,.55);border-bottom:1px solid rgba(34,211,238,.55);font-family:var(--font-2);font-size:.75rem;letter-spacing:.12em;color:#7b91a3;text-transform:uppercase">
+      <span data-hint="{{ searchHint }}" onMouseEnter="{{ openLib }}" onMouseLeave="{{ closeLib }}" style="position:relative;display:flex;align-items:center;gap:.55rem;padding:0 .85rem 0 0;min-width:0;white-space:nowrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="flex:none"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
+        <span onClick="{{ sortOn.name }}" style="display:flex;align-items:center;cursor:pointer"><sc-if value="{{ sorted.name }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if></span>
+        <input data-search placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="flex:1;min-width:0;height:1.6rem;background:transparent;border:0;padding:0;color:#eaf5fb;font-family:var(--font-2);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;text-overflow:ellipsis">
+        
+        <sc-if value="{{ libOpen }}" hint-placeholder-val="{{ false }}">
+          <span data-pop style="position:absolute;top:100%;left:0;z-index:40;display:flex;flex-direction:column;min-width:16rem;max-height:70vh;overflow-y:auto;padding-top:.35rem">
+            <span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)">
+              <span style="display:grid;grid-template-columns:minmax(0,1fr) 4.6rem;column-gap:.55rem;padding:.35rem .7rem;border-bottom:1px solid rgba(34,211,238,.55);font-family:var(--font-2);font-size:.68rem;letter-spacing:.12em;color:#7b91a3"><span>LIBRARY</span><span style="text-align:right">FOODS</span></span>
+              <sc-for list="{{ libOpts }}" as="o" hint-placeholder-count="4">
+                <button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ o.label }}</span><span style="{{ o.countStyle }}">{{ o.sub }}</span></button>
+              </sc-for>
+              <button onClick="{{ openAbout }}" style="{{ aboutRowStyle }}" style-hover="background:rgba(34,211,238,.18)"><span>ABOUT</span><span style="color:#d7e6ef">OPENDIET.ORG</span></button>
+            </span>
+          </span>
+        </sc-if>
+      </span>
+      <span onMouseEnter="{{ openUnit }}" onMouseLeave="{{ closeUnit }}" style="{{ headMeasure }}"><span>SIZE</span><sc-if value="{{ unitOpen }}" hint-placeholder-val="{{ false }}">
+          <span style="position:absolute;top:100%;left:0;z-index:40;display:flex;flex-direction:column;min-width:18rem;padding-top:.35rem;text-transform:none;letter-spacing:0">
+            <span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)">
+              <span style="display:grid;grid-template-columns:1fr 1fr">
+                <sc-for list="{{ unitOpts }}" as="u" hint-placeholder-count="4">
+                  <button onClick="{{ u.onClick }}" style="{{ u.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ u.label }}</span><span style="{{ u.gStyle }}">{{ u.grams }}</span></button>
+                </sc-for>
+              </span>
+              <span style="padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55);font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#94a3b8;text-wrap:pretty">Sets the portion every food is measured at. Once added, a food's size can be typed directly in the summary table.</span>
+            </span>
+          </span>
+        </sc-if>
+</span>
+      <span onMouseEnter="{{ openBasis.s1 }}" onMouseLeave="{{ closeBasis }}" onClick="{{ sortOn.s1 }}" style="{{ head1 }}"><span>PROT</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s1 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-25%</span></sc-if><sc-if value="{{ basisShow.s1 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></span></button></sc-for><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">PROTEIN</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.s1 }}</span></span></span></span></sc-if></span>
+      <span onMouseEnter="{{ openBasis.s2 }}" onMouseLeave="{{ closeBasis }}" onClick="{{ sortOn.s2 }}" style="{{ head2 }}"><span>CARB</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s2 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-8%</span></sc-if><sc-if value="{{ basisShow.s2 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></span></button></sc-for><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">CARB</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.s2 }}</span></span></span></span></sc-if></span>
+      <span onMouseEnter="{{ openBasis.s3 }}" onMouseLeave="{{ closeBasis }}" onClick="{{ sortOn.s3 }}" style="{{ head3 }}"><span>FAT</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s3 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-2%</span></sc-if><sc-if value="{{ basisShow.s3 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></span></button></sc-for><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">FAT</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.s3 }}</span></span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.kcal }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.kcal }}" style="{{ headTotal }}"><span>KCAL</span><sc-if value="{{ sorted.kcal }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.kcal }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(34,211,238,.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="display:block;padding:0 .7rem .7rem"><span style="font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#94a3b8;text-wrap:pretty">Digestion costs 25% of protein calories, 8% of carbohydrate, 2% of fat. Always applied to KCAL; applied to the macro columns only when they show kcal contribution.</span></span><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">KCAL</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.kcal }}</span></span></span></span></sc-if></span>
+      <span onMouseEnter="{{ openExtra }}" onMouseLeave="{{ closeExtra }}" onClick="{{ sortOn.extra }}" style="{{ headIsland }}"><span>{{ extraLabel }}</span><sc-if value="{{ sorted.extra }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ extraOpen }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ extraOpts }}" as="x" hint-placeholder-count="4"><button onClick="{{ x.onClick }}" style="{{ x.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ x.label }}</span><span style="{{ x.unitStyle }}">{{ x.unit }}</span></span><span style="{{ x.descStyle }}">{{ x.desc }}</span></button></sc-for></span></span></sc-if></span>
+    </div>
+    </div>
+    <div style="position:relative;flex:1 1 0;min-height:0;display:flex;flex-direction:column">
+    <div data-scroll style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box">
+    <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
+      <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
+        <span style="display:flex;align-items:center;gap:.55rem;min-width:0">
+          <button onClick="{{ r.togglePlus }}" style="{{ r.starStyle }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="{{ r.starFill }}" stroke="currentColor" stroke-width="1.8" style="flex:none"><path d="M12 3.2l2.7 5.7 6 .9-4.35 4.4 1.03 6.2L12 17.5 6.62 20.4l1.03-6.2L3.3 9.8l6-.9L12 3.2z"></path></svg></button>
+          <span style="flex:1;min-width:0;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span>
+        </span>
+        <span style="{{ measureCell }}">{{ r.measureVal }}<span style="{{ sizeSuffix }}">{{ r.measureUnit }}</span></span>
+        <span style="{{ r.cell1 }}"><span style="{{ r.fill1 }}"></span><span style="{{ numWrap }}">{{ r.v1 }}</span></span>
+        <span style="{{ r.cell2 }}"><span style="{{ r.fill2 }}"></span><span style="{{ numWrap }}">{{ r.v2 }}</span></span>
+        <span style="{{ r.cell3 }}"><span style="{{ r.fill3 }}"></span><span style="{{ numWrap }}">{{ r.v3 }}</span></span>
+        <span style="{{ r.cellK }}"><span style="{{ r.fillK }}"></span><span style="{{ numWrap }}">{{ r.kcalVal }}</span></span>
+        <span style="{{ r.cellScore }}">{{ r.extraVal }}<span style="{{ extraSuffix }}">{{ extraUnit }}</span></span>
+      </div>
+    </sc-for>
+    </div>
+    </div>
+    <sc-if value="{{ hasSummary }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:0 0 auto;max-height:55%;min-height:0;display:flex;flex-direction:column;margin-top:1.5rem;border-top:1px solid rgba(34,211,238,.55)">
+        <div style="position:relative;flex:1;min-height:0;display:flex;flex-direction:column">
+        <div data-scroll style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box">
+          <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
+            <div data-row onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
+              <span style="display:flex;align-items:center;gap:.55rem;min-width:0">
+                <button onClick="{{ r.togglePlus }}" style="{{ r.starStyle }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" style="flex:none"><path d="M12 3.2l2.7 5.7 6 .9-4.35 4.4 1.03 6.2L12 17.5 6.62 20.4l1.03-6.2L3.3 9.8l6-.9L12 3.2z"></path></svg></button>
+                <span style="font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:color 140ms ease" style-hover="color:#a5f3fc">{{ r.name }}</span>
+              </span>
+              <span style="{{ sumSizeCell }}"><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
+              <span style="{{ r.cell1 }}"><span style="{{ r.sfill1 }}"></span><span style="{{ numWrap }}">{{ r.v1 }}</span></span>
+              <span style="{{ r.cell2 }}"><span style="{{ r.sfill2 }}"></span><span style="{{ numWrap }}">{{ r.v2 }}</span></span>
+              <span style="{{ r.cell3 }}"><span style="{{ r.sfill3 }}"></span><span style="{{ numWrap }}">{{ r.v3 }}</span></span>
+              <span style="{{ r.cellK }}"><span style="{{ r.sfillK }}"></span><span style="{{ numWrap }}">{{ r.sumKcal }}</span></span>
+              <span style="{{ r.cellScore }}">{{ r.sumExtra }}<span style="{{ extraSuffix }}">{{ extraUnit }}</span></span>
+            </div>
+          </sc-for>
+          <sc-if value="{{ never }}" hint-placeholder-val="{{ false }}">
+            <div style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14)">
+              <span></span>
+              <span></span>
+              <span style="{{ blankFaint }}"></span>
+              <span style="{{ blankEdge }}"></span>
+              <span style="{{ blankInner }}"></span>
+              <span style="{{ blankInner }}"></span>
+              <span style="{{ blankInner }}"></span>
+              <span style="{{ blankEdge }}"></span>
+            </div>
+          </sc-if>
+        </div>
+        </div>
+        <div style="flex:none;margin-right:10px;display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-top:1px solid rgba(34,211,238,.55);font-size:.9rem;color:#d7e6ef">
+          <span style="display:flex;align-items:center;gap:.55rem;font-family:var(--font-2);font-size:.75rem;letter-spacing:.12em;color:#7b91a3"><svg width="14" height="14" viewBox="0 0 24 24" fill="#22d3ee" stroke="#22d3ee" stroke-width="1.8" style="flex:none"><path d="M12 3.2l2.7 5.7 6 .9-4.35 4.4 1.03 6.2L12 17.5 6.62 20.4l1.03-6.2L3.3 9.8l6-.9L12 3.2z"></path></svg>TOTAL</span>
+          <span style="{{ measureCell }}">{{ tot.qty }}<span style="{{ sizeSuffix }}">{{ tot.qtyUnit }}</span></span>
+          <span style="{{ tot.cell1 }}"><span style="{{ tot.fill1 }}"></span><span style="{{ numWrap }}">{{ tot.v1 }}</span></span>
+          <span style="{{ tot.cell2 }}"><span style="{{ tot.fill2 }}"></span><span style="{{ numWrap }}">{{ tot.v2 }}</span></span>
+          <span style="{{ tot.cell3 }}"><span style="{{ tot.fill3 }}"></span><span style="{{ numWrap }}">{{ tot.v3 }}</span></span>
+          <span style="{{ tot.cellK }}"><span style="{{ tot.fillK }}"></span><span style="{{ numWrap }}">{{ tot.kcalVal }}</span></span>
+          <span style="{{ tot.cellScore }}">{{ tot.extraVal }}<span style="{{ extraSuffix }}">{{ extraUnit }}</span></span>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+  </sc-if>
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;flex:1;min-height:0">
+    <sc-if value="{{ popOpen }}" hint-placeholder-val="{{ false }}"><div data-pop onClick="{{ closePops }}" style="{{ popScrim }}"></div></sc-if>
+    <div data-hint="{{ searchHint }}" style="{{ mSearchRow }}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="flex:none"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
+      <input data-search="m" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ mSearchInput }}">
+      <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ mClearBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if><span data-pop onClick="{{ mLib }}" style="{{ mLibBtn }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></span>
+      <sc-if value="{{ libOpen }}" hint-placeholder-val="{{ false }}">
+        <span data-pop style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:18rem;max-height:70vh;overflow-y:auto;padding-top:.35rem">
+          <span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)">
+            <span style="display:grid;grid-template-columns:minmax(0,1fr) 5.2rem;column-gap:.55rem;padding:.45rem .85rem;border-bottom:1px solid rgba(34,211,238,.55);font-family:var(--font-2);font-size:.86rem;letter-spacing:.12em;color:#7b91a3"><span>LIBRARY</span><span style="text-align:right">FOODS</span></span>
+            <sc-for list="{{ libOpts }}" as="o" hint-placeholder-count="4">
+              <button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ o.label }}</span><span style="{{ o.countStyle }}">{{ o.sub }}</span></button>
+            </sc-for>
+            <button onClick="{{ openAbout }}" style="{{ aboutRowStyle }}" style-hover="background:rgba(34,211,238,.18)"><span>ABOUT</span><span style="color:#d7e6ef">OPENDIET.ORG</span></button>
+          </span>
+        </span>
+      </sc-if>
+    </div>
+    <div style="{{ mBody }}">
+    <div style="{{ mHeadRow }}">
+      <span data-pop onClick="{{ mColToggle }}" style="{{ mHeadOne }}"><span>{{ measureLabel }}</span><span style="{{ mHeadDot }}">·</span><span style="{{ mHeadCol }}">{{ mColLabel }}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ mColOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><span style="display:grid;grid-template-columns:1fr 1fr"><span style="display:flex;flex-direction:column;border-right:1px solid rgba(34,211,238,.28)"><span style="{{ mPopHead }}">MEASURE</span><sc-for list="{{ unitOpts }}" as="u" hint-placeholder-count="4"><button onClick="{{ u.onClick }}" style="{{ u.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ u.label }}</span><span style="{{ u.gStyle }}">{{ u.grams }}</span></button></sc-for></span><span style="display:flex;flex-direction:column"><span style="{{ mPopHead }}">COLUMN</span><sc-for list="{{ mColOpts }}" as="o" hint-placeholder-count="9"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ o.label }}</span><span style="{{ o.unitStyle }}">{{ o.unit }}</span></button></sc-for></span></span><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(34,211,238,.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="{{ mPopNote }}">Digestion costs 25% of protein calories, 8% of carbohydrate and 2% of fat. Applied to calories.</span></span></span></sc-if></span>
+    </div>
+    <div data-scroll style="{{ mListStyle }}">
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
+        <div>
+          <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ r.mRow }}">
+            <sc-if value="{{ r.finger }}" hint-placeholder-val="{{ false }}">
+              <span data-finger><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span>
+            </sc-if>
+            <span style="{{ mName }}">{{ r.name }}</span>
+            <span style="{{ r.mValCell }}">{{ r.mVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
+            <span style="{{ r.mAddCell }}"><button onClick="{{ r.addRow }}" style="{{ mAddBtn }}" style-hover="background:rgba(34,211,238,.24)">ADD</button></span>
+          </div>
+          <div style="{{ r.mExpand }}">
+            <span style="{{ mExpandGrid }}">
+              <span><span style="{{ mMacroTag }}">PROT</span> {{ r.v1 }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></span>
+              <span><span style="{{ mMacroTag }}">CARB</span> {{ r.v2 }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></span>
+              <span><span style="{{ mMacroTag }}">FAT</span> {{ r.v3 }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></span>
+              <span style="{{ mExpandVal }}">{{ r.mVal }}<span style="{{ unitSuffix }}">{{ mColUnit }}</span></span>
+            </span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ hasSummary }}" hint-placeholder-val="{{ false }}">
+    <div data-rise style="{{ mSumPanel }}">
+      <div style="flex:none;display:flex;align-items:center;justify-content:space-between;min-height:2.3rem;padding:.15rem .3rem .15rem 0;font-family:var(--font-2);font-size:.9rem;letter-spacing:.14em;color:#7b91a3"><span style="flex:1;min-width:0">MY FOOD SUMMARY</span><span style="{{ mSumHeadQty }}">{{ sumQtyLabel }}</span><span style="{{ mSumHeadEnd }}"><sc-if value="{{ binMode }}" hint-placeholder-val="{{ false }}"><button onClick="{{ clearSum }}" style="{{ binAllBtn }}" style-hover="color:#f08c7a">CLEAR ALL</button><button onClick="{{ exitBin }}" style="{{ tickBtn }}" style-hover="color:#7ee0a8"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4.5 12.5l5 5 10-11"></path></svg></button></sc-if><sc-if value="{{ notBinMode }}" hint-placeholder-val="{{ true }}"><button onClick="{{ enterBin }}" style="{{ clearBtn }}" style-hover="color:#d7e6ef"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 7h16"></path><path d="M10 11.5v5.5M14 11.5v5.5"></path><path d="M6.5 7l.9 12.1a1.4 1.4 0 0 0 1.4 1.3h6.4a1.4 1.4 0 0 0 1.4-1.3L17.5 7"></path><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"></path></svg></button></sc-if></span></div>
+      <div data-scroll style="flex:1;min-height:0;overflow-y:auto">
+        <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
+          <div data-row style="{{ mSumRow }}">
+            <span style="{{ mName }}">{{ r.name }}</span>
+            <button onClick="{{ r.remove }}" style="{{ rowBinBtn }}" style-hover="color:#f08c7a"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 7h16"></path><path d="M10 11.5v5.5M14 11.5v5.5"></path><path d="M6.5 7l.9 12.1a1.4 1.4 0 0 0 1.4 1.3h6.4a1.4 1.4 0 0 0 1.4-1.3L17.5 7"></path><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"></path></svg></button>
+            <span style="{{ qtyCell }}"><button data-step="l" data-pulse="{{ r.stepPulse }}" onClick="{{ r.stepDown }}" style="{{ stepBtnL }}" style-hover="color:#22d3ee">−</button><span style="{{ r.qtyStyle }}">{{ r.qty }}</span><button data-step="r" data-pulse="{{ r.stepPulse }}" onClick="{{ r.stepUp }}" style="{{ stepBtnR }}" style-hover="color:#22d3ee">+</button></span>
+            <span style="{{ mSumKcal }}">{{ r.mSumVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="flex:none;display:flex;align-items:center;gap:.7rem;min-height:2.2rem;padding:.5rem 0 calc(.8rem + env(safe-area-inset-bottom, 0px))">
+        <span style="flex:1;min-width:0;display:grid;grid-template-columns:repeat(4,1fr);align-items:baseline;justify-items:center;text-align:center;font-weight:300;font-size:1.08rem;color:#d7e6ef;font-variant-numeric:tabular-nums;white-space:nowrap">
+          <span><span style="{{ mMacroTag }}">PROT</span> {{ tot.v1 }}<span style="{{ unitSuffix }}">{{ tot.u3 }}</span></span>
+          <span><span style="{{ mMacroTag }}">CARB</span> {{ tot.v2 }}<span style="{{ unitSuffix }}">{{ tot.u3 }}</span></span>
+          <span><span style="{{ mMacroTag }}">FAT</span> {{ tot.v3 }}<span style="{{ unitSuffix }}">{{ tot.u3 }}</span></span>
+          <span style="color:#22d3ee">{{ tot.mTotVal }}<span style="{{ unitSuffix }}">{{ mColUnit }}</span></span>
+        </span>
+      </div>
+    </div>
+    </sc-if>
+    </div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ aboutOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeAbout }}" style="{{ aboutScrim }}">
+  <div onClick="{{ stopProp }}" style="{{ aboutPanel }}">
+    <div style="{{ aboutMeta }}"><span>V0.1.0-BETA</span><a onClick="{{ closeAbout }}" style="{{ aboutClose }}">CLOSE</a></div>
+    <div style="{{ aboutLead }}">This open source project is free to fork for non-commercial use.</div>
+    <div style="{{ aboutPara }}">Values come from USDA FoodData Central, public domain. Numbers are averages for a generic item — brands, cuts and cooking method move them.</div>
+    <div style="{{ aboutLabel }}">DISCLAIMER</div>
+    <div style="{{ aboutDisc }}">Not medical or nutritional advice. Nothing here diagnoses, treats or prevents anything. Talk to a doctor or a registered dietitian before changing your diet, especially with a medical condition, pregnancy, or a history of disordered eating.</div>
+    <div style="{{ aboutFoot }}">
+      <span style="{{ aboutMade }}">MADE BY <a href="https://www.linkedin.com/in/analystnickgreen/" target="_blank" style="letter-spacing:.12em;cursor:pointer;white-space:nowrap">NICHOLAS GREEN</a> · 2026</span>
+      <a href="https://github.com/nickgreengithub/opendiet" target="_blank" style="{{ aboutGit }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="M12 .5C5.73.5.99 5.24.99 11.51c0 4.86 3.15 8.98 7.52 10.44.55.1.75-.24.75-.53v-2.05c-3.06.67-3.71-1.3-3.71-1.3-.5-1.28-1.23-1.62-1.23-1.62-1-.69.08-.67.08-.67 1.11.08 1.69 1.14 1.69 1.14.98 1.69 2.58 1.2 3.21.92.1-.72.39-1.2.7-1.48-2.44-.28-5.01-1.22-5.01-5.44 0-1.2.43-2.18 1.13-2.95-.11-.28-.49-1.4.11-2.92 0 0 .92-.3 3.02 1.13a10.4 10.4 0 0 1 5.5 0c2.1-1.43 3.02-1.13 3.02-1.13.6 1.52.22 2.64.11 2.92.7.77 1.13 1.75 1.13 2.95 0 4.23-2.58 5.16-5.03 5.43.4.34.75 1.02.75 2.06v3.05c0 .3.2.64.76.53a11.03 11.03 0 0 0 7.51-10.44C23.01 5.24 18.27.5 12 .5z"></path></svg>GITHUB</a>
+    </div>
+  </div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:460px">
+    <a onClick="{{ goResults }}" style="font-family:var(--font-2);font-size:.78rem;letter-spacing:.16em;cursor:pointer">← RESULTS</a>
+    <div style="font-family:var(--font-1);font-weight:300;font-size:1.6rem;color:#d7e6ef;margin:.85rem 0 1.25rem">Settings</div>
+    <div style="border-top:1px solid rgba(34,211,238,.28)">
+      <div style="display:flex;justify-content:space-between;padding:.55rem 0;border-bottom:1px solid rgba(34,211,238,.14)"><span style="font-family:var(--font-2);font-size:.78rem;letter-spacing:.12em;color:#7b91a3">BASIS</span><span style="font-size:.9rem;font-weight:300;color:#d7e6ef">per 100 g</span></div>
+      <div style="display:flex;justify-content:space-between;padding:.55rem 0;border-bottom:1px solid rgba(34,211,238,.14)"><span style="font-family:var(--font-2);font-size:.78rem;letter-spacing:.12em;color:#7b91a3">SOURCE</span><span style="font-size:.9rem;font-weight:300;color:#d7e6ef">USDA FDC</span></div>
+      <div style="display:flex;justify-content:space-between;padding:.55rem 0;border-bottom:1px solid rgba(34,211,238,.14)"><span style="font-family:var(--font-2);font-size:.78rem;letter-spacing:.12em;color:#7b91a3">SIGNED IN</span><span style="font-size:.9rem;font-weight:300;color:#d7e6ef">{{ accountLabel }}</span></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:.85rem"><a onClick="{{ goAuth }}" style="font-family:var(--font-2);font-size:.78rem;letter-spacing:.16em;cursor:pointer">{{ authAction }}</a></div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ isSignin }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:400px;margin:3.5rem auto 0;width:100%">
+    <div style="font-family:var(--font-1);font-weight:300;font-size:1.6rem;color:#d7e6ef;text-align:center;margin-bottom:.4rem">OpenDiet.org</div>
+    <div style="font-family:var(--font-2);font-size:.75rem;letter-spacing:.12em;color:#7b91a3;text-align:center;margin-bottom:2rem">SUMMARY SYNCS TO ACCOUNT</div>
+    <div style="display:flex;flex-direction:column;gap:.55rem">
+      <x-import component-from-global-scope="PasteToFileDesignSystem_0eb22b.TextInput" placeholder="email" value="{{ email }}" onChange="{{ onEmail }}" dc-props="{{ inputFix }}" hint-size="100%,2.75rem"></x-import>
+      <x-import component-from-global-scope="PasteToFileDesignSystem_0eb22b.TextInput" type="password" placeholder="password" dc-props="{{ inputFix }}" hint-size="100%,2.75rem"></x-import>
+      <x-import component-from-global-scope="PasteToFileDesignSystem_0eb22b.Button" block="{{ true }}" onClick="{{ onSignIn }}" hint-size="100%,2.75rem">Sign in</x-import>
+    </div>
+    <div style="display:flex;align-items:center;gap:.7rem;margin:1.25rem 0">
+      <span style="flex:1;border-top:1px solid rgba(34,211,238,.12)"></span>
+      <span style="font-family:var(--font-2);font-size:.75rem;letter-spacing:.12em;color:#7b91a3">OR</span>
+      <span style="flex:1;border-top:1px solid rgba(34,211,238,.12)"></span>
+    </div>
+    <div style="text-align:center"><a onClick="{{ onSignIn }}" style="font-family:var(--font-2);font-size:.78rem;letter-spacing:.16em;cursor:pointer">EMAIL ME A MAGIC LINK</a></div>
+    <div style="text-align:center;margin-top:1.5rem"><a onClick="{{ onSignIn }}" style="font-family:var(--font-2);font-size:.78rem;letter-spacing:.16em;color:#7b91a3;cursor:pointer">CREATE ACCOUNT</a></div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+  <div style="flex:none;margin-top:auto">
+    <div style="border-top:1px solid rgba(34,211,238,.55)"></div>
+  </div>
+  </sc-if>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+// iOS Safari counts 100vh as the viewport with the URL bar retracted, so a full-height
+// shell puts its last rows underneath the bar. dvh tracks what is actually visible.
+// The food libraries are not copied into this folder — they are read from the live site
+// root, so the two versions can never drift apart. Promoting v3 to the root means setting
+// this back to "data/".
+const DATA = "../data/";
+
+const VH = typeof CSS !== "undefined" && CSS.supports && CSS.supports("height", "100dvh") ? "100dvh" : "100vh";
+
+class Component extends DCLogic {
+  state = { view: "results", q: "", cat: "ALL", catOpen: false, email: "", user: null, lib: "CORE", narrow: typeof window !== "undefined" && window.innerWidth < 700 };
+  componentDidMount() {
+    this.loadLib(this.state.lib);
+    try {
+      const sm = JSON.parse(localStorage.getItem("nutri-search-sum") || "null");
+      if (Array.isArray(sm)) this.setState({ sum: sm });
+      // Someone arriving with a plate already knows how foods are added, so they get the
+      // step-button hint instead of the "tap a row" hand — but not until they have typed and
+      // the summary is actually on screen. Mobile opens on the search box alone.
+      if (Array.isArray(sm) && sm.length) {
+        this._rowHinted = true;
+        this._qtyOnReveal = true;
+      }
+      const u = localStorage.getItem("nutri-search-user");
+      const patch = {};
+      if (u) patch.user = u;
+      if (Object.keys(patch).length) this.setState(patch);
+    } catch (e) {}
+    this._esc = e => { if (e.key === "Escape") this.setState({ aboutOpen: false }); };
+    document.addEventListener("keydown", this._esc);
+    // Desktop popovers close on mouseleave. Mobile has no hover, so they are toggled open
+    // and need a tap elsewhere to dismiss them. Triggers and panels carry data-pop; anything
+    // else counts as outside. touchstart as well as click, because iOS does not reliably
+    // bubble click to document from non-interactive elements.
+    this._dismiss = e => {
+      const s = this.state;
+      if (!(s.libOpen || s.unitOpen || s.catOpen || s.extraOpen || s.mColOpen || s.mTip)) return;
+      if (e.target && e.target.closest && e.target.closest("[data-pop]")) return;
+      this.setState({ libOpen: false, unitOpen: false, catOpen: false, extraOpen: false, mColOpen: false, mTip: "" });
+    };
+    // While the search keyboard is up the summary stays out of the way entirely — there is
+    // not room for it above the keyboard and it is not what you are looking at.
+    const searchFocused = () => {
+      const el = document.activeElement;
+      return !!(el && el.matches && el.matches("[data-search]"));
+    };
+    this._press = () => { this._kbAtPress = searchFocused(); };
+    this._unscroll = () => { if (window.scrollY || window.scrollX) window.scrollTo(0, 0); };
+    window.addEventListener("scroll", this._unscroll, true);
+    document.addEventListener("touchstart", this._press, true);
+    document.addEventListener("mousedown", this._press, true);
+    this._focusIn = e => {
+      const t = e.target;
+      if (!t || !t.matches) return;
+      if (t.matches("[data-search]")) {
+        clearTimeout(this._kbT);
+        this.setState({ kb: true });
+      }
+    };
+    // The keyboard takes about a third of a second to leave. Holding kb for that long stops
+    // the summary reappearing underneath it on the way out.
+    this._focusOut = e => {
+      const t = e.target;
+      if (!t || !t.matches) return;
+      if (t.matches("[data-search]")) {
+        clearTimeout(this._kbT);
+        this._kbT = setTimeout(() => this.setState({ kb: false }), 380);
+        // The summary is hidden while the keyboard is up, so a plate carried over from last
+        // time is only worth pointing at once the field is let go and it has risen.
+        if (this._qtyOnReveal && this.state.typed) this.qtyHint(900);
+      }
+    };
+    document.addEventListener("focusin", this._focusIn);
+    document.addEventListener("focusout", this._focusOut);
+    document.addEventListener("click", this._dismiss);
+    document.addEventListener("touchstart", this._dismiss, { passive: true });
+    this.startTypewriter();
+    this._onResize = () => {
+      const n = window.innerWidth < 700;
+      if (n !== this.state.narrow) this.setState({ narrow: n });
+    };
+    window.addEventListener("resize", this._onResize);
+    // When the keyboard opens, iOS shrinks the visual viewport and scrolls the layout
+    // viewport to reveal the focused field — which shoves a 100dvh shell off the top.
+    // Sizing to the visual viewport instead keeps the search box pinned to what is visible.
+    const vv = typeof window !== "undefined" && window.visualViewport;
+    if (vv) {
+      this._vv = () => {
+        if (window.scrollY || window.scrollX) window.scrollTo(0, 0);
+        const h = Math.round(vv.height);
+        if (h > (this._maxVh || 0)) this._maxVh = h;
+        const patch = {};
+        if (h !== this.state.vvh) patch.vvh = h;
+        if (this.state.sumHold && h >= this._maxVh - 4) patch.sumHold = false;
+        if (Object.keys(patch).length) this.setState(patch);
+      };
+      vv.addEventListener("resize", this._vv);
+      vv.addEventListener("scroll", this._vv);
+      this._vv();
+    }
+  }
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this._esc);
+    window.removeEventListener("scroll", this._unscroll, true);
+    document.removeEventListener("touchstart", this._press, true);
+    document.removeEventListener("mousedown", this._press, true);
+    document.removeEventListener("focusin", this._focusIn);
+    document.removeEventListener("focusout", this._focusOut);
+    document.removeEventListener("click", this._dismiss);
+    document.removeEventListener("touchstart", this._dismiss);
+    window.removeEventListener("resize", this._onResize);
+    clearInterval(this._tw);
+    if (this._vv && window.visualViewport) {
+      window.visualViewport.removeEventListener("resize", this._vv);
+      window.visualViewport.removeEventListener("scroll", this._vv);
+    }
+  }
+  // Each library is a static JSON file: {cats:[...], foods:[[name,catIdx,kcal,p,c,fb,f,sf,sg,liquid],...]},
+  // built from the USDA FoodData Central CSV releases. Values are per 100 g/ml, FDC's own basis.
+  loadLib(k) {
+    const cache = this._libs || (this._libs = {});
+    if (cache[k]) return;
+    const src = (this.libraries().find(l => l.k === k) || {}).file;
+    if (!src) return;
+    cache[k] = [];
+    fetch(src)
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(d => {
+        cache[k] = d.foods.map(a => {
+          const fo = { name: a[0], cat: d.cats[a[1]], kcal: a[2], p: a[3], c: a[4], fb: a[5], f: a[6], sf: a[7], sg: a[8] };
+          if (a[9]) fo.mu = "ml";
+          return fo;
+        });
+        this.setState({ loadTick: (this.state.loadTick || 0) + 1 });
+        this.startTypewriter();
+      })
+      .catch(() => { delete cache[k]; this.setState({ loadErr: k }); });
+  }
+  // The landing screen asks; it does not report. The count belongs on the docked bar.
+  landingPrompt() { return "SEARCH FOODS"; }
+  placeholderText() {
+    const s = this.state, libs = this.libraries(), lib = s.lib || "CORE";
+    const n = this.foods().filter(fo => s.cat === "ALL" || fo.cat === s.cat).length;
+    return "SEARCH " + n.toLocaleString()
+      + (s.narrow ? "" : " " + (libs.find(d => d.k === lib) || libs[0]).label.replace("USDA ", ""))
+      + " FOODS";
+  }
+  // The landing screen types its own prompt. Started once the library has loaded, since the
+  // count is part of the line being typed.
+  startTypewriter() {
+    if (this._tw || !this.state.narrow || this.state.typed) return;
+    this._tw = setInterval(() => {
+      const full = this.landingPrompt();
+      const n = (this.state.tw || 0) + 1;
+      if (n >= full.length) { clearInterval(this._tw); this._tw = null; }
+      this.setState({ tw: n });
+    }, 52);
+  }
+  libraries() {
+    return [
+      { k: "CORE", label: "USDA CORE", sub: "1,779", file: DATA + "core.json" },
+      { k: "LEGACY", label: "USDA SR LEGACY", sub: "7,756", file: DATA + "legacy.json" },
+      { k: "SURVEY", label: "USDA SURVEY FNDDS", sub: "8,661", file: DATA + "survey.json" }
+    ];
+  }
+  foods() { return (this._libs && this._libs[this.state.lib || "CORE"]) || []; }
+  // Bars scale to the largest value actually on screen, not the whole library.
+  sortBy(k) {
+    this.setState(s => s.sortKey === k ? { sortDir: s.sortDir === -1 ? 1 : -1 } : { sortKey: k, sortDir: -1 });
+  }
+  sortVal(fo, k) {
+    if (k === "name") return fo.name.toLowerCase();
+    if (k === "s1") return fo.p;
+    if (k === "s2") return fo.c;
+    if (k === "s3") return fo.f;
+    if (k === "kcal") return fo.kcal;
+    return 0;
+  }
+  visibleFoods() {
+    const s = this.state, q = s.q.trim().toLowerCase();
+    return this.foods().filter(fo =>
+      (!q || fo.name.toLowerCase().includes(q)) &&
+      (s.cat === "ALL" || fo.cat === s.cat)
+    );
+  }
+  // Every term is per calorie: macro shares of energy, plus fibre per 100 kcal.
+  fullness(fo, k) {
+    const K = k || fo.kcal;
+    const tot = fo.p * 4 + fo.c * 4 + fo.f * 9 || 1;
+    // Grams of food per 100 kcal — the bulk a calorie buys. Saturating, so water-heavy
+    // foods stop gaining once they are already very dilute.
+    const bulk = 100 / (K / 100);
+    return {
+      p: 70 * (fo.p * 4 / tot),
+      c: 20 * (fo.c * 4 / tot),
+      f: 5 * (fo.f * 9 / tot),
+      fb: 2.6 * (fo.fb / K * 100),
+      bk: 30 * (1 - Math.exp(-bulk / 120))
+    };
+  }
+  score(fo, k) {
+    const t = this.fullness(fo, k);
+    return Math.max(0, Math.min(100, Math.round(t.p + t.c + t.f + t.fb + t.bk)));
+  }
+  catLabel(c) { const t = c.slice(0, 7); return t.charAt(0) + t.slice(1).toLowerCase(); }
+  pctFmt(v) { return v === 0 ? "\u2014" : v < 1 ? v.toFixed(1) : String(Math.round(v)); }
+  band(s) { return s >= 80 ? "A" : s >= 65 ? "B" : s >= 45 ? "C" : s >= 30 ? "D" : "F"; }
+  fmt(n) { return n === 0 ? "\u2014" : n < 1 ? n.toFixed(2) : n < 10 ? n.toFixed(1) : String(Math.round(n)); }
+  toggleSum(name) {
+    // Adding a food with the keyboard up used to render the summary at the bottom of the
+    // keyboard-sized shell — mid-screen — and then drop it when the keyboard left. Send the
+    // keyboard away first and hold the summary back until the viewport has settled, so it
+    // arrives once, already in its final place.
+    // A focused input means the keyboard is up — more reliable than comparing viewport
+    // heights, which iOS reports inconsistently mid-animation.
+    const el = typeof document !== "undefined" && document.activeElement;
+    const stillFocused = !!(el && el.matches && el.matches("[data-search]"));
+    const kbOpen = !!this.state.narrow && (stillFocused || !!this._kbAtPress);
+    const hold = kbOpen && !(this.state.sum || []).includes(name);
+    if (hold) {
+      try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (e) {}
+      clearTimeout(this._holdT);
+      this._holdT = setTimeout(() => this.setState({ sumHold: false }), 700);
+    }
+    this.setState(s => {
+      const sum = (s.sum || []).includes(name) ? (s.sum || []).filter(n => n !== name) : (s.sum || []).concat(name);
+      try { localStorage.setItem("nutri-search-sum", JSON.stringify(sum)); } catch (e) {}
+      // An emptied plate leaves removal mode, so the next one does not open in it.
+      if (!sum.length && s.binMode) return { sum, starred: true, rowHint: false, binMode: false };
+      // Adding a food answers the "tap a row" hint, so retire it for this session.
+      // The first add also earns one run of the step-button hint.
+      if (sum.length > (s.sum || []).length) {
+        this._rowHinted = true;
+        this.qtyHint(460);
+      }
+      return { sum, starred: true, rowHint: false, sumHold: hold };
+    });
+  }
+  // Every row in the summary breathes together, once a session — a returning plate can be
+  // half a dozen foods, and pointing at only one of them read as a fault rather than a hint.
+  qtyHint(delay) {
+    if (this._qtyHinted) return;
+    this._qtyHinted = true;
+    setTimeout(() => this.setState({ qtyHint: true }), delay);
+    setTimeout(() => this.setState({ qtyHint: false }), delay + 4900);
+  }
+  renderVals() {
+    const s = this.state;
+    const visible = this.visibleFoods();
+    const sortKey = s.sortKey || "name", sortDir = s.sortDir === undefined ? 1 : s.sortDir;
+    const basis = s.basis || "std", isPct = basis === "gpct", isKcalBasis = basis === "kcal", isGrams = basis === "std";
+    const tef = !!s.tef;
+    // Thermic effect: protein costs ~25% of its energy to digest, carbs ~8%, fat ~2%.
+    const kcalOf = fo => tef ? Math.max(1, fo.kcal - (0.25 * fo.p * 4 + 0.08 * fo.c * 4 + 0.02 * fo.f * 9)) : fo.kcal;
+    // Macro kcal net of digestion, rebased so the three still sum to the KCAL column.
+    const TEF = tef ? [0.75, 0.92, 0.98] : [1, 1, 1];
+    const macroK = fo => {
+      const net = [fo.p * 4 * TEF[0], fo.c * 4 * TEF[1], fo.f * 9 * TEF[2]];
+      const k = kcalOf(fo) / (net[0] + net[1] + net[2] || 1);
+      return [net[0] * k, net[1] * k, net[2] * k];
+    };
+    // Fullness already prices in digestion cost through its macro weights, so it stays on gross kcal.
+    const scoreOf = fo => this.score(fo);
+    // One user-chosen island column: the fullness index or a raw nutrient.
+    const EXTRAS = [
+      { k: "score", label: "FULLNESS", unit: "/100", get: fo => scoreOf(fo), sum: false },
+      { k: "fb", label: "FIBRE", unit: "g", get: fo => fo.fb, sum: true },
+      { k: "sf", label: "SAT FAT", unit: "g", get: fo => fo.sf || 0, sum: true },
+      { k: "sg", label: "SUGAR", unit: "g", get: fo => fo.sg || 0, sum: true },
+      { k: "dens", label: "DENSITY", unit: "kcal/g", get: fo => fo.kcal / 100, sum: false }
+    ];
+    const extra = EXTRAS.find(x => x.k === (s.extra || "score")) || EXTRAS[0];
+    // Mobile's last column does double duty: kcal by default, or one chosen nutrient.
+    const MCOLS = [
+      { k: "kcal", label: "CALORIES", unit: "kcal", get: fo => kcalOf(fo) },
+      { k: "p", label: "PROTEIN", unit: "g", get: fo => fo.p },
+      { k: "c", label: "CARBS", unit: "g", get: fo => fo.c },
+      { k: "f", label: "FAT", unit: "g", get: fo => fo.f }
+    ].concat(EXTRAS.map(x => ({ k: x.k, label: x.k === "score" ? "FULLNESS SCORE" : x.k === "fb" ? "FIBRE" : x.k === "sf" ? "SATURATED FAT" : x.k === "sg" ? "SUGAR" : "CALORIE DENSITY", unit: x.unit, get: x.get })));
+    const mCol = MCOLS.find(x => x.k === (s.mCol || "kcal")) || MCOLS[0];
+    const units = [
+      { k: "TSP", label: "TSP", grams: "5", g: 5, foot: "PER TSP \u00b7 5 G/ML" },
+      { k: "TBSP", label: "TBSP", grams: "15", g: 15, foot: "PER TBSP \u00b7 15 G/ML" },
+      { k: "OZ", label: "OZ", grams: "28", g: 28.35, foot: "PER OZ \u00b7 28.35 G/ML" },
+      { k: "100G", label: "G/ML", grams: "100", g: 100, foot: "PER 100 G/ML" }
+    ];
+    const unit = units.find(u => u.k === (s.unit || "100G")) || units[3];
+    const uf = unit.g / 100;
+    // Three categorical hues — a stacked bar needs hue, not alpha, to be readable.
+    const HUE = ["#22d3ee", "#7ee0a8", "#f08c7a"];
+    // Units live in the cells as a dim suffix, not in the headers.
+    const LABELS = ["PROT", "CARB", "FAT"];
+    const EDGE = "1px solid rgba(34,211,238,.55)";
+    const INNER = "1px solid rgba(34,211,238,.14)";
+    const numCell = (hue, muted, edge) => ({
+      position: "relative", overflow: "hidden",
+      display: "flex", alignItems: "center", justifyContent: "flex-end",
+      fontVariantNumeric: "tabular-nums", fontWeight: 300, fontSize: ".875rem",
+      color: muted ? "#7b91a3" : "#d7e6ef",
+      borderLeft: edge ? EDGE : INNER, paddingLeft: ".55rem"
+    });
+    // Header underline in the segment hue — the header IS the legend.
+    // Label stays vertically centred like FOOD; the hue rule hangs below it, clear of the table edge.
+    const headCell = (hue, edge) => ({
+      position: "relative",
+      display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".3rem",
+      padding: "0 0 0 .55rem", cursor: "pointer", color: "#c3d6e2", whiteSpace: "nowrap",
+      borderLeft: edge ? EDGE : INNER
+    });
+    const headIsland = {
+      position: "relative",
+      display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".3rem", whiteSpace: "nowrap",
+      padding: "0 0 0 .55rem", cursor: "pointer", color: "#c3d6e2", borderLeft: EDGE
+    };
+    const fillOf = (v, max) => ({ position: "absolute", left: 0, top: 0, bottom: 0, display: v > 0 ? "block" : "none", width: Math.max(0, Math.min(100, v / max * 100)) + "%", background: "rgba(34,211,238,.30)", transition: "width 140ms ease" });
+    const sumFillOf = (v, max) => Object.assign({}, fillOf(v, max), { background: "rgba(165,243,252,.24)" });
+    // Total is scaled against itself, so it gets its own tone — cyan-300.
+    const totFillOf = (v, max) => Object.assign({}, fillOf(v, max), { background: "rgba(103,232,249,.34)" });
+    const numWrap = { position: "relative", display: "flex", alignItems: "baseline", justifyContent: "flex-end" };
+    const unitSuffix = { marginLeft: ".15rem", fontFamily: "var(--font-2)", fontSize: s.narrow ? ".84rem" : ".66rem", letterSpacing: ".06em", color: "#94a3b8" };
+    const inSum = name => (s.sum || []).includes(name);
+    // These three sweep the whole library, so they are measured once per render rather than
+    // once per row — with a hundred rows on screen that was the cost of a tap.
+    const rowKcalMax = Math.max.apply(null, visible.map(fo2 => kcalOf(fo2)).concat([1]));
+    const gramMax = Math.max.apply(null, visible.map(fo2 => Math.max(fo2.p, fo2.c, fo2.f)).concat([1]));
+    const macroMax = Math.max.apply(null, visible.map(fo2 => { const r2 = fo2.p * 4 + fo2.c * 4 + fo2.f * 9 || 1, k2 = fo2.kcal / r2; return Math.max(fo2.p * 4, fo2.c * 4, fo2.f * 9) * k2; }).concat([1]));
+    const mkRow = fo => {
+      const sc = scoreOf(fo), bd = this.band(sc), mu = fo.mu === "ml" ? "ml" : "g", ekc = kcalOf(fo);
+      const mk = macroK(fo);
+      const tot = mk[0] + mk[1] + mk[2] || 1;
+      const pct = v => Math.round(v / tot * 1000) / 10;
+      const gTot = fo.p + fo.c + fo.f || 1;
+      const gsh = [fo.p / gTot * 100, fo.c / gTot * 100, fo.f / gTot * 100];
+      const fv = isPct ? gsh : isKcalBasis ? mk : [fo.p, fo.c, fo.f];
+      const fvMax = isPct ? 100 : isKcalBasis ? macroMax : gramMax;
+      const vals = isPct
+        ? [this.pctFmt(gsh[0]), this.pctFmt(gsh[1]), this.pctFmt(gsh[2])]
+        : isKcalBasis
+          ? [String(Math.round(mk[0] * uf)), String(Math.round(mk[1] * uf)), String(Math.round(mk[2] * uf))]
+          : [this.fmt(fo.p * uf), this.fmt(fo.c * uf), this.fmt(fo.f * uf)];
+      return {
+        name: fo.name, cat: fo.cat, catLabel: this.catLabel(fo.cat), kcal: String(fo.kcal),
+        p: this.fmt(fo.p), c: this.fmt(fo.c), f: this.fmt(fo.f), fb: this.fmt(fo.fb),
+        score: String(sc), band: bd,
+        kcalVal: String(Math.round(ekc * uf)),
+        measureVal: String(unit.k === "100G" ? 100 : unit.grams), measureUnit: mu,
+        extraVal: extra.k === "score" ? String(sc) : extra.k === "dens" ? (fo.kcal / 100).toFixed(2) : this.fmt(extra.get(fo) * uf),
+        mVal: mCol.k === "score" ? String(sc) : mCol.k === "kcal" ? String(Math.round(ekc * uf)) : mCol.k === "dens" ? (fo.kcal / 100).toFixed(2) : this.fmt(mCol.get(fo) * uf),
+        starStyle: { display: "flex", alignItems: "center", justifyContent: "center", padding: 0, border: 0, borderRadius: 0, background: "transparent", cursor: "pointer", color: inSum(fo.name) ? "#22d3ee" : "#3f5364", transition: "color 140ms ease" },
+        starFill: inSum(fo.name) ? "currentColor" : "none",
+        fill1: fillOf(fv[0], fvMax), fill2: fillOf(fv[1], fvMax), fill3: fillOf(fv[2], fvMax),
+        fillK: fillOf(ekc * uf, rowKcalMax * uf),
+        cellK: Object.assign({}, numCell(null, false), { borderLeft: INNER }),
+        cellScore: Object.assign({}, numCell(null, false), { borderLeft: EDGE, color: "#22d3ee" }),
+        v1: vals[0], v2: vals[1], v3: vals[2],
+        cell1: numCell(HUE[0], vals[0] === "\u2014", true), cell2: numCell(HUE[1], vals[1] === "\u2014"), cell3: numCell(HUE[2], vals[2] === "\u2014"),
+        cellFb: Object.assign({}, numCell(null, fo.fb === 0), { borderLeft: EDGE }),
+        fbStyle: { display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300, fontSize: ".85rem", fontVariantNumeric: "tabular-nums", color: fo.fb === 0 ? "#7b91a3" : "#d7e6ef" },
+        _sh: { s1: fo.p, s2: fo.c, s3: fo.f },
+        togglePlus: e => { if (e && e.stopPropagation) e.stopPropagation(); this.toggleSum(fo.name); },
+        toggleRow: () => this.toggleSum(fo.name),
+        mRow: {
+          position: "relative",
+          display: "grid", gridTemplateColumns: mCols, columnGap: ".4rem",
+          alignItems: "center", minHeight: "2.5rem", cursor: "pointer", transition: "background 140ms ease",
+          borderBottom: "1px solid rgba(34,211,238,.14)",
+          borderLeft: "2px solid transparent", background: "transparent"
+        },
+        _raw: fo, _score: sc, _extraSort: extra.k === "score" ? sc : extra.k === "dens" ? fo.kcal / 100 : extra.get(fo)
+      };
+    };
+    // Filter and sort the plain foods first, then build row objects for the slice that
+    // actually gets painted — a whole USDA library is thousands of rows, and mapping every
+    // one of them into styles per keystroke is what makes the table feel dead.
+    let src = this.foods();
+    const q = s.q.trim().toLowerCase();
+    if (q) src = src.filter(fo => fo.name.toLowerCase().includes(q));
+    if (s.cat !== "ALL") src = src.filter(fo => fo.cat === s.cat);
+    // On mobile an added food moves to the summary rather than sitting in both lists.
+    if (s.narrow) src = src.filter(fo => !inSum(fo.name));
+    const matchCount = src.length;
+    const key = sortKey, dir = key === "name" ? sortDir : -sortDir;
+    const sortNum = fo => key === "extra"
+      ? (extra.k === "score" ? scoreOf(fo) : extra.k === "dens" ? fo.kcal / 100 : extra.get(fo))
+      : key === "score" ? scoreOf(fo)
+        : key === "s1" ? fo.p : key === "s2" ? fo.c : key === "s3" ? fo.f : fo[key];
+    src = src.slice().sort((a, b) =>
+      key === "name" ? dir * a.name.localeCompare(b.name) : dir * (sortNum(a) - sortNum(b)));
+    // Ambient onboarding, per session rather than per person: glow the search box until
+    // something is typed, then glow the top result until a food is actually added. Both
+    // reset on a fresh load, so a returning user still gets the nudge.
+    const rowHint = !!s.rowHint;
+    // Searching is a name-matching job, so while the keyboard is up the macro columns stand
+    // down and the food name takes the full width — at a phone's width they were competing.
+    const bare = !!(s.narrow && s.kb);
+    const bin = !!s.binMode;
+    // v0.3 turns the site into a set of small apps. Only FOOD SEARCH is built; the rest are
+    // placeholders so the shell around them can be judged before anything is written.
+    const APPS = [
+      { k: "search", label: "FOOD SEARCH", note: "Search 18,000 foods and read their macros side by side." },
+      { k: "calc", label: "CALORIE CALC", note: "Maintenance calories and a daily target from your own numbers." },
+      { k: "recipe", label: "RECIPE BUILDER", note: "Add ingredients, set the servings, get the macros per portion." },
+      { k: "compare", label: "FOOD COMPARE", note: "Two or three foods head to head, per 100 g or per calorie." }
+    ];
+    const app = s.app || "home";
+    const appDef = APPS.find(a => a.k === app);
+    const live = k => k === "search";
+    const setApp = k => () => {
+      // Re-arm the mobile landing animation, which otherwise only ever plays on first load.
+      if (k === "search" && s.narrow && !s.typed) this.setState({ tw: 0 });
+      this.setState({ app: k, mOpen: null });
+      if (k === "search") setTimeout(() => this.startTypewriter(), 0);
+    };
+    const mColCellBase = {
+      display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300,
+      // Just enough to keep the unit off the glass; the name side stays full bleed.
+      paddingRight: ".3rem",
+      fontSize: "1.04rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
+    };
+    const mCols = bare ? "minmax(0,1fr)" : "minmax(0,1fr) 7rem";
+    // One-way: once you have typed, the page never returns to the landing state.
+    const landing = !!s.narrow && !s.typed;
+    const vh = s.vvh || (typeof window !== "undefined" ? window.innerHeight : 800);
+    const landingDrop = Math.max(0, Math.round((vh - (landing ? 58 : 46)) / 2) - 3);
+    // The list is a leaderboard for the current sort; searching is how you reach the rest.
+    const ROW_CAP = s.narrow ? 100 : 250;
+    // Mobile has no room for the macros beside the name, so a tap opens the food instead of
+    // adding it: the row grows a second line carrying the macros, and adding becomes explicit.
+    const openName = s.narrow && !bare ? s.mOpen : null;
+    let rows = src.slice(0, ROW_CAP).map((fo, ri) => {
+      const open = openName === fo.name;
+      const r = mkRow(fo);
+      return Object.assign(r, {
+        hint: ri === 0 && rowHint && !s.narrow ? "on" : "off",
+        finger: ri === 0 && rowHint && !!s.narrow,
+        open: open,
+        toggleRow: s.narrow
+          ? () => this.setState({ mOpen: open ? null : fo.name })
+          : r.toggleRow,
+        addRow: e => {
+          if (e && e.stopPropagation) e.stopPropagation();
+          this.setState({ mOpen: null });
+          this.toggleSum(fo.name);
+        },
+        mRow: Object.assign({}, r.mRow, { borderBottom: open ? 0 : "1px solid rgba(34,211,238,.14)" }),
+        // Only one of these two is ever laid out, so the row keeps its two columns.
+        mValCell: Object.assign({}, mColCellBase, { display: bare || open ? "none" : "flex" }),
+        mAddCell: {
+          display: open ? "flex" : "none", alignItems: "center", justifyContent: "flex-end",
+          paddingRight: ".3rem"
+        },
+        mExpand: {
+          overflow: "hidden",
+          height: open ? "2.5rem" : "0px",
+          opacity: open ? 1 : 0,
+          borderBottom: open ? "1px solid rgba(34,211,238,.14)" : 0,
+          transition: "height 260ms cubic-bezier(.22,1,.36,1), opacity 200ms ease"
+        }
+      });
+    });
+    // The library decides which groups exist, so the filter list follows the data.
+    const cats = ["ALL"].concat(Array.from(new Set(this.foods().map(fo => fo.cat))).sort());
+    const microBtn = active => ({
+      flex: "none", height: "1.6rem", padding: "0 .5rem", borderRadius: 0, cursor: "pointer",
+      background: "transparent", fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".12em",
+      transition: "border-color 140ms ease, color 140ms ease",
+      border: "1px solid " + (active ? "#22d3ee" : "rgba(34,211,238,.28)"),
+      color: active ? "#22d3ee" : "#7b91a3"
+    });
+    const selStyle = {
+      display: "inline-flex", alignItems: "center", height: "2.1rem", padding: 0, border: 0, borderRadius: 0,
+      background: "transparent", cursor: "pointer", whiteSpace: "nowrap",
+      fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", textTransform: "uppercase",
+      color: "#94a3b8"
+    };
+    const libs = this.libraries();
+    const lib = s.lib || "CORE";
+    const libOpts = libs.map((d, di) => ({
+      label: d.label.replace("USDA ", ""), sub: d.sub,
+      countStyle: { fontFamily: "var(--font-2)", fontSize: s.narrow ? ".95rem" : ".75rem", letterSpacing: ".12em", fontVariantNumeric: "tabular-nums", textAlign: "right", color: lib === d.k ? "#22d3ee" : "#7b91a3" },
+      onClick: () => { this.loadLib(d.k); this.setState({ lib: d.k, cat: "ALL", libOpen: false, mOpen: null }); },
+      style: {
+        display: "grid", gridTemplateColumns: "minmax(0,1fr) 4.6rem", columnGap: ".55rem", alignItems: "center",
+        height: s.narrow ? "2.4rem" : "1.95rem", padding: s.narrow ? "0 .85rem" : "0 .7rem",
+        border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left",
+        borderBottom: "1px solid rgba(34,211,238,.28)",
+        fontFamily: "var(--font-2)", fontSize: s.narrow ? ".95rem" : ".75rem", letterSpacing: ".12em", whiteSpace: "nowrap",
+        transition: "background 140ms ease, color 140ms ease",
+        background: lib === d.k ? "rgba(34,211,238,.10)" : "transparent",
+        color: lib === d.k ? "#22d3ee" : "#d7e6ef"
+      }
+    }));
+    const BASES = [
+      { k: "std", label: "GRAMS", unit: "g" },
+      { k: "gpct", label: "GRAMS %", unit: "%" },
+      { k: "kcal", label: "KCAL CONTRIBUTION", unit: "kcal" }
+    ];
+    const basisOpts = BASES.map(b => ({
+      label: b.label, unit: b.unit,
+      unitStyle: { fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".06em", color: "#94a3b8", flex: "none" },
+      descStyle: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".82rem", lineHeight: 1.55, letterSpacing: 0, color: "#94a3b8", textWrap: "pretty", whiteSpace: "normal" },
+      onClick: () => this.setState({ basis: b.k, basisCol: "" }),
+      style: {
+        display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", width: "100%", boxSizing: "border-box",
+        height: "2.1rem", padding: "0 .7rem", border: 0, borderBottom: "1px solid rgba(34,211,238,.28)", borderRadius: 0,
+        cursor: "pointer", textAlign: "left",
+        fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em",
+        transition: "background 140ms ease, color 140ms ease",
+        background: basis === b.k ? "rgba(34,211,238,.10)" : "transparent",
+        color: basis === b.k ? "#22d3ee" : "#d7e6ef"
+      }
+    }));
+    const tefStyle = {
+      display: "flex", alignItems: "center", gap: ".55rem", width: "100%", boxSizing: "border-box",
+      padding: ".55rem .7rem .35rem", border: 0, borderTop: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
+      background: "transparent", cursor: "pointer", textAlign: "left",
+      fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".1em",
+      transition: "color 140ms ease", color: tef ? "#22d3ee" : "#c3d6e2"
+    };
+    const tefBox = {
+      flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
+      width: "1rem", height: "1rem", fontSize: ".7rem", lineHeight: 1,
+      border: "1px solid " + (tef ? "#22d3ee" : "rgba(34,211,238,.28)"), color: "#22d3ee"
+    };
+    const unitOpts = units.map((u, ui) => ({
+      label: u.label, grams: u.grams,
+      onClick: () => this.setState({ unit: u.k, unitOpen: false, mColOpen: false }),
+      gStyle: { fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", fontVariantNumeric: "tabular-nums", color: unit.k === u.k ? "#22d3ee" : "#94a3b8", flex: "none" },
+      style: {
+        display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem",
+        width: "100%", boxSizing: "border-box", height: "1.95rem", padding: "0 .7rem",
+        border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left",
+        borderBottom: ui < 2 ? "1px solid rgba(34,211,238,.28)" : "0",
+        borderRight: ui % 2 === 0 ? "1px solid rgba(34,211,238,.28)" : "0",
+        fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", whiteSpace: "nowrap",
+        transition: "background 140ms ease, color 140ms ease",
+        background: unit.k === u.k ? "rgba(34,211,238,.10)" : "transparent",
+        color: unit.k === u.k ? "#22d3ee" : "#d7e6ef"
+      }
+    }));
+    const qMatch = this.foods().filter(fo => !q || fo.name.toLowerCase().includes(q));
+    const catCount = c => c === "ALL" ? qMatch.length : qMatch.filter(fo => fo.cat === c).length;
+    const catOpts = cats.map(c => ({
+      label: c,
+      count: String(catCount(c)),
+      countStyle: { fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", fontVariantNumeric: "tabular-nums", textAlign: "right", color: c === s.cat ? "#22d3ee" : "#7b91a3" },
+      onClick: () => this.setState({ cat: c, catOpen: false }),
+      style: {
+        display: "grid", gridTemplateColumns: "minmax(0,1fr) 3.2rem", columnGap: ".55rem", alignItems: "center", height: "1.95rem", padding: "0 .7rem", border: 0, borderBottom: cats.indexOf(c) === cats.length - 1 ? 0 : "1px solid rgba(34,211,238,.28)", borderRadius: 0,
+        background: c === s.cat ? "rgba(34,211,238,.10)" : "transparent", cursor: "pointer",
+        fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", textAlign: "left",
+        transition: "background 140ms ease, color 140ms ease",
+        color: c === s.cat ? "#22d3ee" : "#d7e6ef"
+      }
+    }));
+    const TIPS = {
+      s1: "Amino acids used to build and repair tissue, including muscle. 4 kcal per gram. Requirements are usually set per kilogram of body weight rather than as a share of calories, and protein is the most satiating macronutrient per calorie.",
+      s2: "The body's most accessible fuel. 4 kcal per gram. Covers sugars, starches and fibre; digestible carbohydrate raises blood glucose and is stored as glycogen, which supplies higher-intensity effort.",
+      s3: "The most energy-dense macronutrient at 9 kcal per gram. Needed to absorb vitamins A, D, E and K and to make hormones; some fatty acids are essential and can only come from food.",
+      fb: "Carbohydrate that passes through the small intestine undigested. It adds bulk and slows digestion, so it contributes to fullness with little usable energy, and it feeds gut bacteria.",
+      kcal: "Food energy, measured by the Atwater factors 4/4/9. Intake relative to expenditure is what moves body mass; the macro split shapes composition and satiety, not that balance.",
+      score: "An index used on this site, not an official measure. It weighs each macronutrient's share of a food's calories — protein highest, then carbohydrate, then fat — and adds a bonus for fibre per calorie."
+    };
+    const tipStyle = {
+      position: "absolute", top: "100%", right: 0, zIndex: 40, width: "20rem",
+      display: "flex", flexDirection: "column", gap: ".35rem", padding: ".7rem .85rem",
+      background: "#070b12", border: "1px solid rgba(34,211,238,.55)", boxShadow: "0 0 28px rgba(34,211,238,.12)",
+      textAlign: "left", textTransform: "none", letterSpacing: 0, cursor: "default"
+    };
+    const tipStyleLeft = Object.assign({}, tipStyle, { right: "auto", left: 0 });
+    const tipTitle = { fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".12em", color: "#7b91a3" };
+    const tipBody = { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".85rem", lineHeight: 1.65, color: "#d7e6ef", textWrap: "pretty" };
+    const hd = s.tip || "";
+    const tipOn = { s1: () => this.setState({ tip: "s1" }), s2: () => this.setState({ tip: "s2" }), s3: () => this.setState({ tip: "s3" }), fb: () => this.setState({ tip: "fb" }), kcal: () => this.setState({ tip: "kcal" }), score: () => this.setState({ tip: "score" }) };
+    const sumFoods = (s.sum || []).map(n => this.foods().find(fo => fo.name === n)).filter(Boolean);
+    // Each summary row carries its own quantity; macros and totals scale off it.
+    const QTY_MAX = 990;
+    const qtyOf = name => { const v = (s.qty || {})[name]; return v === undefined ? "100" : v; };
+    const step = (name, d) => e => {
+      if (e && e.stopPropagation) e.stopPropagation();
+      const cur = parseFloat(qtyOf(name));
+      const base = isNaN(cur) ? 100 : cur;
+      const next = d > 0 ? (Math.floor(base / 10) + 1) * 10 : (Math.ceil(base / 10) - 1) * 10;
+      const capped = Math.min(QTY_MAX, Math.max(0, next));
+      this.setState(st => ({ qty: Object.assign({}, st.qty, { [name]: String(capped) }) }));
+    };
+    const gramsOf = name => { const n = parseFloat(qtyOf(name)); return isNaN(n) || n < 0 ? 0 : n; };
+    const sumKcalMax = Math.max.apply(null, sumFoods.map(fo => kcalOf(fo) * (gramsOf(fo.name) / 100)).concat([1]));
+    const sumGramMax = Math.max.apply(null, sumFoods.map(fo => { const g = gramsOf(fo.name) / 100; return Math.max(fo.p, fo.c, fo.f) * g; }).concat([1]));
+    const sumMacroMax = Math.max.apply(null, sumFoods.map(fo => { const g = gramsOf(fo.name) / 100, r = fo.p * 4 + fo.c * 4 + fo.f * 9 || 1, k = fo.kcal / r; return Math.max(fo.p * 4, fo.c * 4, fo.f * 9) * k * g; }).concat([1]));
+    sumFoods.sort((a, b) => {
+      if (sortKey === "name") return sortDir * a.name.localeCompare(b.name);
+      const va = sortKey === "extra" ? (extra.k === "score" ? scoreOf(a) : extra.k === "dens" ? a.kcal / 100 : extra.get(a)) : this.sortVal(a, sortKey);
+      const vb = sortKey === "extra" ? (extra.k === "score" ? scoreOf(b) : extra.k === "dens" ? b.kcal / 100 : extra.get(b)) : this.sortVal(b, sortKey);
+      return -sortDir * (va - vb);
+    });
+    const qtyStyle = {
+      width: s.narrow ? "2.8rem" : "2.9rem", textAlign: "right", background: "transparent", border: 0,
+      borderRadius: 0, padding: s.narrow ? "0 .25rem" : "0 0 .1rem",
+      height: s.narrow ? "2.3rem" : "auto",
+      color: "#d7e6ef", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1.1rem" : ".875rem",
+      fontVariantNumeric: "tabular-nums", transition: "border-color 140ms ease"
+    };
+    const sumRows = sumFoods.map(fo => {
+      const g = gramsOf(fo.name) / 100;
+      const rmk = macroK(fo);
+      const kTot = rmk[0] + rmk[1] + rmk[2] || 1;
+      const smk = [rmk[0] * g, rmk[1] * g, rmk[2] * g];
+      const sgTot = fo.p + fo.c + fo.f || 1;
+      const sgsh = [fo.p / sgTot * 100, fo.c / sgTot * 100, fo.f / sgTot * 100];
+      const sfv = isPct ? sgsh : isKcalBasis ? smk : [fo.p * g, fo.c * g, fo.f * g];
+      const sfvMax = isPct ? 100 : isKcalBasis ? sumMacroMax : sumGramMax;
+      const sv = isPct
+        ? [this.pctFmt(sgsh[0]), this.pctFmt(sgsh[1]), this.pctFmt(sgsh[2])]
+        : isKcalBasis
+          ? [String(Math.round(smk[0])), String(Math.round(smk[1])), String(Math.round(smk[2]))]
+          : [this.fmt(fo.p * g), this.fmt(fo.c * g), this.fmt(fo.f * g)];
+      return Object.assign({}, mkRow(fo), {
+        v1: sv[0], v2: sv[1], v3: sv[2],
+        qty: qtyOf(fo.name), qtyUnit: fo.mu === "ml" ? "ml" : "g",
+        // Mobile reads the size rather than editing it — the steppers are the whole input.
+        // Fixed width for three digits, so the + and − stay in a column down the table.
+        qtyStyle: s.narrow
+          ? Object.assign({}, qtyStyle, { width: "3.4ch", height: "auto", lineHeight: 1 })
+          : qtyStyle,
+        stepPulse: s.qtyHint && !!s.narrow ? "on" : "off",
+        fb: this.fmt(fo.fb * g),
+        sumKcal: String(Math.round(kcalOf(fo) * g)),
+        sumExtra: extra.k === "score" ? String(scoreOf(fo)) : extra.k === "dens" ? (fo.kcal / 100).toFixed(2) : this.fmt(extra.get(fo) * g),
+        mSumVal: mCol.k === "score" ? String(scoreOf(fo)) : mCol.k === "kcal" ? String(Math.round(kcalOf(fo) * g)) : mCol.k === "dens" ? (fo.kcal / 100).toFixed(2) : this.fmt(mCol.get(fo) * g),
+        sfill1: sumFillOf(sfv[0], sfvMax), sfill2: sumFillOf(sfv[1], sfvMax), sfill3: sumFillOf(sfv[2], sfvMax),
+        sfillK: sumFillOf(kcalOf(fo) * g, sumKcalMax),
+        onQty: e => {
+          const raw = e.target.value, num = parseFloat(raw);
+          const v = !isNaN(num) && num > QTY_MAX ? String(QTY_MAX) : raw;
+          this.setState(st => ({ qty: Object.assign({}, st.qty, { [fo.name]: v }) }));
+        },
+        // Nudge to the next multiple of ten, so an oddly-typed 137 lands on 140, not 147.
+        stepUp: step(fo.name, 1),
+        stepDown: step(fo.name, -1),
+        remove: e => { if (e && e.stopPropagation) e.stopPropagation(); this.toggleSum(fo.name); }
+      });
+    });
+    const gs = fo => gramsOf(fo.name) / 100;
+    const tP = sumFoods.reduce((a, fo) => a + fo.p * gs(fo), 0), tC = sumFoods.reduce((a, fo) => a + fo.c * gs(fo), 0), tF = sumFoods.reduce((a, fo) => a + fo.f * gs(fo), 0);
+    const tK = sumFoods.reduce((a, fo) => a + kcalOf(fo) * gs(fo), 0);
+    const tQty = sumFoods.reduce((a, fo) => a + gramsOf(fo.name), 0);
+    const totCell = { position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "flex-end", fontVariantNumeric: "tabular-nums", fontWeight: 300, fontSize: ".875rem", color: "#d7e6ef", borderLeft: INNER, paddingLeft: ".55rem" };
+    const tFb = sumFoods.reduce((a, fo) => a + fo.fb * gs(fo), 0);
+    // Totals must sum the rows as displayed: each food rebased by its OWN Atwater factor.
+    // Sum what the rows display, not the unrounded values — otherwise the total contradicts them.
+    const tMk = sumFoods.reduce((a, fo) => {
+      const g = gs(fo), m = macroK(fo);
+      return [a[0] + Math.round(m[0] * g), a[1] + Math.round(m[1] * g), a[2] + Math.round(m[2] * g)];
+    }, [0, 0, 0]);
+    // The displayed total must sum the rounded row figures, not the raw ones.
+    const tKDisp = sumFoods.reduce((a, fo) => a + Math.round(kcalOf(fo) * gs(fo)), 0);
+    const tKGross = sumFoods.reduce((a, fo) => a + fo.kcal * gs(fo), 0);
+    const tScore = tKGross > 0 && tQty > 0 ? this.score({ p: tP, c: tC, f: tF, fb: tFb, kcal: tKGross }, tKGross) : 0;
+    const tMkSum = tMk[0] + tMk[1] + tMk[2] || 1;
+    const tShares = [tMk[0] / tMkSum, tMk[1] / tMkSum, tMk[2] / tMkSum];
+    const tGram = tP + tC + tF || 1;
+    const tGsh = [tP / tGram * 100, tC / tGram * 100, tF / tGram * 100];
+    const tfv = isPct ? tGsh : isKcalBasis ? tMk : [tP, tC, tF];
+    const tfvMax = isPct ? 100 : Math.max(tfv[0], tfv[1], tfv[2]) || 1;
+    const tot = {
+      v1: isPct ? this.pctFmt(tGsh[0]) : isKcalBasis ? String(Math.round(tMk[0])) : this.fmt(tP),
+      v2: isPct ? this.pctFmt(tGsh[1]) : isKcalBasis ? String(Math.round(tMk[1])) : this.fmt(tC),
+      v3: isPct ? this.pctFmt(tGsh[2]) : isKcalBasis ? String(Math.round(tMk[2])) : this.fmt(tF),
+      u3: isPct ? "%" : isKcalBasis ? "kcal" : "g",
+      fb: this.fmt(tFb),
+      cellFb: Object.assign({}, totCell, { borderLeft: EDGE }),
+      cell1: Object.assign({}, totCell, { borderLeft: EDGE }), cell2: totCell, cell3: totCell,
+      kcalVal: String(tKDisp),
+      extraVal: extra.k === "score" ? (tScore ? String(tScore) : "\u2014") : extra.k === "dens" ? (tQty > 0 ? (tK / tQty).toFixed(2) : "\u2014") : this.fmt(sumFoods.reduce((a, fo) => a + extra.get(fo) * gs(fo), 0)),
+      mTotVal: mCol.k === "score" ? (tScore ? String(tScore) : "\u2014") : mCol.k === "kcal" ? String(tKDisp) : mCol.k === "dens" ? (tQty > 0 ? (tK / tQty).toFixed(2) : "\u2014") : this.fmt(sumFoods.reduce((a, fo) => a + mCol.get(fo) * gs(fo), 0)),
+      fill1: totFillOf(tfv[0], tfvMax), fill2: totFillOf(tfv[1], tfvMax), fill3: totFillOf(tfv[2], tfvMax),
+      fillK: totFillOf(1, 1),
+      cellK: Object.assign({}, totCell, { borderLeft: INNER }),
+      cellScore: Object.assign({}, totCell, { borderLeft: EDGE, color: "#22d3ee" }),
+      qty: String(Math.round(tQty)),
+      // Mixed solids + liquids fall back to G, matching USDA's gram basis.
+      qtyUnit: sumFoods.length && sumFoods.every(fo => fo.mu === "ml") ? "ml" : "g"
+    };
+    // The mobile summary names its size column once in the header instead of repeating the
+    // unit on every row — a plate of both solids and liquids says so with G/ML.
+    const sumHasMl = sumFoods.some(fo => fo.mu === "ml"), sumHasG = sumFoods.some(fo => fo.mu !== "ml");
+    const sumQtyLabel = sumHasMl && sumHasG ? "G/ML" : sumHasMl ? "ML" : "G";
+    const signOut = () => { try { localStorage.removeItem("nutri-search-user"); } catch (e) {} this.setState({ user: null, view: "results" }); };
+
+    return {
+      searchHint: !s.narrow && !s.searchHinted && !q ? "on" : "off",
+      isMobile: !!s.narrow, isDesktop: !s.narrow,
+      mLib: () => this.setState({ libOpen: !s.libOpen, unitOpen: false, catOpen: false, extraOpen: false, mColOpen: false, mTip: "" }),
+      mUnit: () => this.setState({ unitOpen: !s.unitOpen, libOpen: false, catOpen: false, extraOpen: false, mColOpen: false, mTip: "" }),
+      mTip: { s1: s.mTip === "s1", s2: s.mTip === "s2", s3: s.mTip === "s3" },
+      mTipP: () => this.setState({ mTip: s.mTip === "s1" ? "" : "s1", libOpen: false, unitOpen: false, mColOpen: false }),
+      mTipC: () => this.setState({ mTip: s.mTip === "s2" ? "" : "s2", libOpen: false, unitOpen: false, mColOpen: false }),
+      mTipF: () => this.setState({ mTip: s.mTip === "s3" ? "" : "s3", libOpen: false, unitOpen: false, mColOpen: false }),
+      mTipPop: { position: "absolute", top: "100%", right: 0, zIndex: 40, width: "16rem", display: "flex", flexDirection: "column", gap: ".35rem", padding: ".7rem .85rem", background: "#070b12", border: "1px solid rgba(34,211,238,.55)", boxShadow: "0 0 28px rgba(34,211,238,.12)", textAlign: "left", textTransform: "none", letterSpacing: 0, whiteSpace: "normal", cursor: "default" },
+      mExtra: () => this.setState({ extraOpen: !s.extraOpen, libOpen: false, unitOpen: false, catOpen: false }),
+      mColLabel: mCol.label === "FULLNESS" ? "FULLN" : mCol.label, mColUnit: mCol.unit,
+      basisUnit: isPct ? "%" : isKcalBasis ? "kcal" : "g",
+      sortOn: {
+        name: () => this.sortBy("name"), s1: () => this.sortBy("s1"), s2: () => this.sortBy("s2"),
+        s3: () => this.sortBy("s3"), kcal: () => this.sortBy("kcal"), extra: () => this.sortBy("extra")
+      },
+      sorted: { name: sortKey === "name", s1: sortKey === "s1", s2: sortKey === "s2", s3: sortKey === "s3", kcal: sortKey === "kcal", extra: sortKey === "extra" },
+      sortMark: sortDir === -1 ? "M5 9l7 7 7-7" : "M5 15l7-7 7 7",
+      sortMarkStyle: { flex: "none", color: "#22d3ee" },
+      mColOpen: !!s.mColOpen,
+      mColToggle: () => this.setState({ mColOpen: !s.mColOpen, unitOpen: false, catOpen: false, libOpen: false, mTip: "" }),
+      mColOpts: MCOLS.map((x, xi) => ({
+        label: x.label, unit: x.unit,
+        unitStyle: { fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".06em", color: "#94a3b8", flex: "none" },
+        onClick: () => this.setState({ mCol: x.k, mColOpen: false }),
+        style: {
+          display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem",
+          height: "2.4rem", padding: "0 .7rem", border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left",
+          borderBottom: xi === MCOLS.length - 1 ? 0 : "1px solid rgba(34,211,238,.28)",
+          fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", whiteSpace: "nowrap",
+          transition: "background 140ms ease, color 140ms ease",
+          background: mCol.k === x.k ? "rgba(34,211,238,.10)" : "transparent",
+          color: mCol.k === x.k ? "#22d3ee" : "#d7e6ef"
+        }
+      })),
+      shell: s.narrow
+        ? { position: "fixed", top: 0, left: 0, right: 0, height: s.vvh ? s.vvh + "px" : VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: ".2rem 0 0", boxSizing: "border-box", transition: "height 240ms cubic-bezier(.22,1,.36,1)" }
+        : { height: VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: "2.4rem 1.25rem", boxSizing: "border-box" },
+      aboutScrim: {
+        position: "fixed", inset: 0, zIndex: 50, background: "rgba(5,8,13,.75)", display: "flex",
+        alignItems: s.narrow ? "stretch" : "flex-start", justifyContent: "center",
+        padding: s.narrow ? 0 : "2.4rem 1.25rem", boxSizing: "border-box"
+      },
+      aboutPanel: {
+        width: s.narrow ? "100%" : "640px", maxWidth: "100%", maxHeight: s.narrow ? "100%" : "90vh",
+        overflowY: "auto", background: "#070b12",
+        border: s.narrow ? 0 : "1px solid rgba(34,211,238,.28)",
+        boxShadow: s.narrow ? "none" : "inset 0 0 0 1px rgba(34,211,238,.04), 0 0 24px rgba(34,211,238,.05)",
+        padding: s.narrow ? ".9rem .9rem 1.5rem" : "1.15rem 1.25rem", boxSizing: "border-box"
+      },
+      aboutFoot: {
+        display: "flex", flexDirection: s.narrow ? "column" : "row",
+        justifyContent: "space-between", alignItems: s.narrow ? "flex-start" : "baseline",
+        gap: s.narrow ? ".7rem" : "1rem", marginTop: s.narrow ? "1rem" : "1.25rem", paddingTop: ".7rem",
+        borderTop: "1px solid rgba(34,211,238,.28)",
+        fontFamily: "var(--font-2)", fontSize: s.narrow ? ".84rem" : ".72rem", letterSpacing: ".12em", color: "#94a3b8"
+      },
+      // A phone reads this at arm's length like everything else on the page, so the dialog
+      // steps up with it rather than staying at desktop's size.
+      aboutMeta: {
+        display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "1rem",
+        marginBottom: ".4rem", fontFamily: "var(--font-2)",
+        fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", color: "#7b91a3"
+      },
+      aboutClose: { fontSize: s.narrow ? ".92rem" : ".78rem", letterSpacing: ".16em", cursor: "pointer", whiteSpace: "nowrap" },
+      aboutLead: {
+        borderTop: "1px solid rgba(34,211,238,.28)", paddingTop: ".7rem",
+        fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1.06rem" : ".9rem",
+        lineHeight: 1.65, color: "#d7e6ef", textWrap: "pretty"
+      },
+      aboutPara: {
+        marginTop: ".7rem", fontFamily: "var(--font-1)", fontWeight: 300,
+        fontSize: s.narrow ? "1.06rem" : ".9rem", lineHeight: 1.65, color: "#d7e6ef", textWrap: "pretty"
+      },
+      aboutLabel: {
+        marginTop: "1rem", marginBottom: ".4rem", fontFamily: "var(--font-2)",
+        fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", color: "#7b91a3"
+      },
+      aboutDisc: {
+        borderTop: "1px solid rgba(34,211,238,.28)", borderBottom: "1px solid rgba(34,211,238,.14)",
+        padding: ".7rem 0", fontFamily: "var(--font-1)", fontWeight: 300,
+        fontSize: s.narrow ? "1.06rem" : ".9rem", lineHeight: 1.65, color: "#a9c0d0", textWrap: "pretty"
+      },
+      aboutGit: {
+        display: "flex", alignItems: "center", gap: ".4rem", fontFamily: "var(--font-2)",
+        fontSize: s.narrow ? ".84rem" : ".72rem", letterSpacing: ".16em", cursor: "pointer", whiteSpace: "nowrap"
+      },
+      aboutMade: { whiteSpace: s.narrow ? "normal" : "nowrap", lineHeight: 1.6 },
+      mName: {
+        display: "block", minWidth: 0, fontWeight: 300, fontSize: "1.02rem", color: "#d7e6ef",
+        // Given the whole row, show the whole name rather than trailing it off.
+        whiteSpace: bare ? "normal" : "nowrap",
+        overflow: bare ? "visible" : "hidden",
+        textOverflow: bare ? "clip" : "ellipsis",
+        padding: bare ? ".35rem 0" : 0
+      },
+      mHeadRow: {
+        flex: "none", position: "relative", zIndex: 20, display: "block",
+        height: "2.4rem",
+        borderTop: "1px solid rgba(34,211,238,.28)", borderBottom: "1px solid rgba(34,211,238,.55)",
+        fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".08em",
+        color: "#c3d6e2", textTransform: "uppercase"
+      },
+      mHead: { display: bare ? "none" : "flex", alignItems: "center", justifyContent: "flex-end", gap: ".15rem", height: "100%", cursor: "pointer", whiteSpace: "nowrap" },
+      mPop: { position: "absolute", top: "100%", left: 0, right: 0, zIndex: 40, display: "flex", flexDirection: "column", paddingTop: ".3rem", textTransform: "none", letterSpacing: 0 },
+      mPopInner: { display: "flex", flexDirection: "column", background: "#070b12", border: "1px solid rgba(34,211,238,.55)", boxShadow: "0 0 28px rgba(34,211,238,.12)" },
+      mPopLabel: { padding: ".55rem .7rem 0", fontFamily: "var(--font-2)", fontSize: ".86rem", letterSpacing: ".12em", color: "#7b91a3" },
+      mPopNote: { padding: ".35rem .7rem .7rem", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.02rem", lineHeight: 1.55, color: "#94a3b8", textWrap: "pretty", whiteSpace: "normal" },
+      mNum: { display: bare ? "none" : "block", textAlign: "right", fontWeight: 300, fontSize: "1rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
+      mColCell: Object.assign({}, mColCellBase, { display: bare ? "none" : "flex" }),
+      mMacroTag: { fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".06em", color: "#7b91a3" },
+      // The open row's second line is the totals bar: same four cells, same type, same places.
+      mExpandGrid: {
+        display: "grid", gridTemplateColumns: "repeat(4,1fr)", alignItems: "center",
+        justifyItems: "center", height: "2.5rem", textAlign: "center",
+        fontWeight: 300, fontSize: "1.08rem", color: "#d7e6ef",
+        fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
+      },
+      mExpandVal: { color: "#22d3ee" },
+      mAddBtn: {
+        display: "flex", alignItems: "center", height: "1.9rem", padding: "0 .8rem",
+        border: "1px solid #22d3ee", borderRadius: 0, background: "rgba(34,211,238,.10)",
+        cursor: "pointer", color: "#22d3ee",
+        fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".14em"
+      },
+      appHome: app === "home",
+      appSoon: !!appDef && !live(app),
+      appTitle: appDef ? appDef.label : "",
+      appNote: appDef ? appDef.note : "",
+      tabsOn: !s.narrow && app !== "home",
+      backOn: !!s.narrow && app !== "home",
+      goHome: () => this.setState({ app: "home", mOpen: null }),
+      appTabs: APPS.map(a => ({
+        label: a.label, onClick: setApp(a.k),
+        style: {
+          display: "flex", alignItems: "center", height: "1.9rem", padding: "0 .1rem",
+          cursor: "pointer", whiteSpace: "nowrap", transition: "color 140ms ease, border-color 140ms ease",
+          borderBottom: "2px solid " + (a.k === app ? "#22d3ee" : "transparent"),
+          color: a.k === app ? "#22d3ee" : "#7b91a3"
+        }
+      })),
+      appCards: APPS.map(a => ({
+        label: a.label, note: a.note, tag: live(a.k) ? "LIVE" : "SOON",
+        onClick: setApp(a.k),
+        nameStyle: { fontFamily: "var(--font-2)", fontSize: s.narrow ? ".92rem" : ".95rem", letterSpacing: ".14em", color: live(a.k) ? "#22d3ee" : "#c3d6e2" },
+        tagStyle: {
+          flex: "none", fontFamily: "var(--font-2)", fontSize: ".68rem", letterSpacing: ".16em",
+          color: live(a.k) ? "#22d3ee" : "#5b7183"
+        },
+        style: {
+          display: "flex", flexDirection: "column", justifyContent: "space-between",
+          gap: s.narrow ? ".7rem" : "1.1rem",
+          minHeight: s.narrow ? "7.4rem" : "6.6rem",
+          padding: s.narrow ? ".8rem .8rem .9rem" : "1.1rem 1.15rem 1.2rem",
+          border: "1px solid rgba(34,211,238,.28)", cursor: "pointer",
+          background: "rgba(34,211,238,.02)",
+          transition: "border-color 160ms ease, background 160ms ease"
+        }
+      })),
+      tabBar: {
+        flex: "none", display: "flex", alignItems: "center", gap: "1.6rem", height: "2.4rem",
+        marginBottom: "1rem", borderBottom: "1px solid rgba(34,211,238,.28)",
+        fontFamily: "var(--font-2)", fontSize: ".78rem", letterSpacing: ".14em"
+      },
+      tabMark: { display: "flex", alignItems: "baseline", gap: ".4rem", marginRight: ".4rem", cursor: "pointer", color: "#d7e6ef", whiteSpace: "nowrap", transition: "color 140ms ease" },
+      tabVer: { marginLeft: ".35rem", fontSize: ".62rem", letterSpacing: ".16em", color: "#5b7183" },
+      mBackRow: {
+        flex: "none", display: "flex", alignItems: "center", justifyContent: "space-between",
+        gap: ".6rem", height: "2.2rem", padding: "0 .5rem 0 .1rem",
+        fontFamily: "var(--font-2)", fontSize: ".8rem", letterSpacing: ".14em", color: "#7b91a3"
+      },
+      mBackBtn: {
+        display: "flex", alignItems: "center", gap: ".25rem", height: "100%", padding: "0 .4rem 0 .2rem",
+        border: 0, borderRadius: 0, background: "transparent", cursor: "pointer", color: "#7b91a3",
+        fontFamily: "var(--font-2)", fontSize: ".8rem", letterSpacing: ".14em", transition: "color 140ms ease"
+      },
+      mBackTitle: { color: "#c3d6e2", whiteSpace: "nowrap" },
+      homeWrap: {
+        flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column",
+        justifyContent: s.narrow ? "flex-start" : "center",
+        padding: s.narrow ? "1.4rem .7rem 1rem" : "0 0 2rem", boxSizing: "border-box"
+      },
+      homeHead: { flex: "none", display: "flex", flexDirection: "column", gap: ".35rem", marginBottom: s.narrow ? "1.2rem" : "1.6rem" },
+      homeMark: { display: "flex", alignItems: "baseline", fontFamily: "var(--font-2)", fontSize: s.narrow ? "1.3rem" : "1.6rem", letterSpacing: ".2em", color: "#d7e6ef" },
+      homeSub: { fontFamily: "var(--font-2)", fontSize: s.narrow ? ".8rem" : ".78rem", letterSpacing: ".18em", color: "#5b7183" },
+      homeGrid: { flex: "none", display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: s.narrow ? ".6rem" : "1rem" },
+      cardTop: { display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: ".6rem" },
+      cardNote: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? ".95rem" : "1rem", lineHeight: 1.5, color: "#94a3b8", textWrap: "pretty" },
+      soonWrap: {
+        flex: 1, minHeight: 0, display: "flex", flexDirection: "column", alignItems: "flex-start",
+        justifyContent: "center", gap: ".6rem", padding: s.narrow ? "0 .8rem" : "0 0 3rem", boxSizing: "border-box"
+      },
+      soonTag: { fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".18em", color: "#5b7183" },
+      soonName: { fontFamily: "var(--font-2)", fontSize: s.narrow ? "1.3rem" : "1.7rem", letterSpacing: ".18em", color: "#22d3ee" },
+      soonNote: { maxWidth: "34ch", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1.06rem" : "1.05rem", lineHeight: 1.55, color: "#94a3b8", textWrap: "pretty" },
+      isResults: s.view === "results" && app === "search", isSettings: s.view === "settings", isSignin: s.view === "signin",
+      aboutOpen: !!s.aboutOpen,
+      openAbout: () => this.setState({ aboutOpen: true }),
+      closeAbout: () => this.setState({ aboutOpen: false }),
+      stopProp: e => e.stopPropagation(),
+      goResults: () => this.setState({ view: "results" }),
+      goSettings: () => this.setState({ view: "settings" }),
+      goAuth: s.user ? signOut : () => this.setState({ view: "signin" }),
+      authLabel: s.user ? "SIGN OUT" : "SIGN IN",
+      authAction: s.user ? "SIGN OUT" : "SIGN IN",
+      accountLabel: s.user || "—",
+      email: s.email, onEmail: e => this.setState({ email: e.target.value }),
+      onSignIn: () => {
+        const u = s.email.trim() || "nick@example.com";
+        try { localStorage.setItem("nutri-search-user", u); } catch (e) {}
+        this.setState({ user: u, view: "results" });
+      },
+      // Mobile opens on the search box alone, centred. The first keystroke lifts it to the
+      // top and drops the table in underneath. Transform only, so the layout never reflows —
+      // the table is already in place behind the fade, just invisible.
+      mSearchRow: {
+        flex: "none", position: "relative", display: "flex", alignItems: "center",
+        gap: landing ? ".9rem" : ".6rem",
+        height: landing ? "3.6rem" : "2.9rem",
+        padding: landing ? "0 1.9rem" : "0 .55rem 0 .6rem",
+        fontFamily: "var(--font-2)", zIndex: 30,
+        transform: landing ? "translateY(" + landingDrop + "px)" : "none",
+        // It travels at one speed and settles into the compact bar at a slower one, so the
+        // shape keeps resolving after the move has landed.
+        transition: "transform 620ms cubic-bezier(.22,1,.36,1), height 760ms cubic-bezier(.22,1,.36,1), padding 760ms cubic-bezier(.22,1,.36,1), gap 760ms ease"
+      },
+      // The landing screen is a search box and nothing else — the library picker fades in
+      // with the table. Space is reserved so the input does not resize underneath you.
+      mSearchInput: {
+        flex: 1, minWidth: 0, background: "transparent", border: 0,
+        color: "#eaf5fb", fontFamily: "var(--font-2)", textTransform: "uppercase", textOverflow: "ellipsis",
+        height: landing ? "2.7rem" : "2rem",
+        padding: landing ? "0 .1rem" : "0 .3rem",
+        fontSize: landing ? "1.34rem" : "1.1rem",
+        letterSpacing: landing ? ".07em" : ".05em",
+        transition: "font-size 760ms cubic-bezier(.22,1,.36,1), height 760ms cubic-bezier(.22,1,.36,1), letter-spacing 760ms ease, padding 760ms ease"
+      },
+      hasQuery: !!q && !landing,
+      clearQ: () => this.setState({ q: "" }),
+      mClearBtn: {
+        display: "flex", alignItems: "center", justifyContent: "center",
+        width: "1.9rem", height: "100%", flex: "none", cursor: "pointer", color: "#7b91a3"
+      },
+      mSumPanel: {
+        flex: "none", maxHeight: "72%",
+        display: "flex", flexDirection: "column", background: "#090f18",
+        borderTop: "1px solid rgba(34,211,238,.55)",
+        transition: "max-height 220ms cubic-bezier(.22,1,.36,1)"
+      },
+      mListStyle: { flex: 1, minHeight: 0, overflowY: "auto" },
+      // Removal mode swaps the row's numbers for a single bin, and the name takes the width.
+      binMode: !!bin, notBinMode: !bin,
+      enterBin: () => this.setState({ binMode: true }),
+      exitBin: () => this.setState({ binMode: false }),
+      sumQtyLabel: bin ? "" : sumQtyLabel,
+      // Same track as the row's size cell, so the header sits over its own column.
+      mSumHeadQty: {
+        display: bin ? "none" : "flex", alignItems: "center", justifyContent: "center",
+        width: "6.2rem", flex: "none"
+      },
+      mSumHeadEnd: { display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".9rem", width: bin ? "auto" : "4.2rem", flex: "none" },
+      mSumRow: {
+        display: "grid",
+        gridTemplateColumns: bin ? "minmax(0,1fr) 3rem" : "minmax(0,1fr) 6.2rem 4.2rem",
+        columnGap: ".4rem", alignItems: "center", minHeight: "2.5rem",
+        borderLeft: "2px solid transparent",
+        borderBottom: "1px solid rgba(34,211,238,.14)", transition: "background 140ms ease"
+      },
+      qtyCell: { position: "relative", display: bin ? "none" : "flex", alignItems: "center", justifyContent: "flex-end" },
+      mSumKcal: Object.assign({}, mColCellBase, { display: bin ? "none" : "flex" }),
+      rowBinBtn: {
+        display: bin ? "flex" : "none", alignItems: "center", justifyContent: "center",
+        alignSelf: "stretch", width: "3rem", padding: 0, border: 0, borderRadius: 0,
+        background: "transparent", cursor: "pointer", color: "#7b91a3", transition: "color 140ms ease"
+      },
+      binAllBtn: {
+        padding: 0, border: 0, background: "transparent", cursor: "pointer", color: "#7b91a3",
+        fontFamily: "var(--font-2)", fontSize: ".9rem", letterSpacing: ".14em",
+        transition: "color 140ms ease"
+      },
+      tickBtn: {
+        display: "flex", alignItems: "center", justifyContent: "center", padding: 0,
+        border: 0, background: "transparent", cursor: "pointer", color: "#22d3ee",
+        transition: "color 140ms ease"
+      },
+      // The glyphs sit toward the number rather than centred in their targets, so they read
+      // as attached to it while keeping a 32px area to hit.
+      stepBtnL: {
+        flex: "none", width: "2rem", alignSelf: "stretch", padding: "0 .15rem 0 0",
+        display: "flex", alignItems: "center", justifyContent: "flex-end",
+        border: 0, borderRadius: 0, background: "transparent", cursor: "pointer",
+        color: "#7b91a3", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.35rem",
+        lineHeight: 1, transition: "color 140ms ease"
+      },
+      stepBtnR: {
+        flex: "none", width: "2rem", alignSelf: "stretch", padding: "0 0 0 .15rem",
+        display: "flex", alignItems: "center", justifyContent: "flex-start",
+        border: 0, borderRadius: 0, background: "transparent", cursor: "pointer",
+        color: "#7b91a3", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.35rem",
+        lineHeight: 1, transition: "color 140ms ease"
+      },
+      // Any open menu dims and blurs what is behind it, and swallows the tap that dismisses
+      // it — otherwise closing a menu would also add whatever food was underneath.
+      popOpen: !!(s.narrow && (s.libOpen || s.unitOpen || s.mColOpen || s.extraOpen || s.catOpen || s.mTip)),
+      closePops: () => this.setState({ libOpen: false, unitOpen: false, mColOpen: false, extraOpen: false, catOpen: false, mTip: "" }),
+      popScrim: {
+        position: "fixed", inset: 0, zIndex: 15,
+        background: "rgba(5,8,13,.45)",
+        backdropFilter: "blur(7px)", WebkitBackdropFilter: "blur(7px)",
+        pointerEvents: "auto"
+      },
+      mHeadOne: {
+        display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".45rem",
+        height: "100%", paddingRight: ".3rem", cursor: "pointer", whiteSpace: "nowrap"
+      },
+      // With the keyboard up the numbers column is gone, so only the measure is worth naming.
+      mHeadDot: { display: bare ? "none" : "inline", color: "#3f5364" },
+      mHeadCol: { display: bare ? "none" : "inline" },
+      mPopHead: {
+        padding: ".45rem .7rem", fontFamily: "var(--font-2)", fontSize: ".76rem",
+        letterSpacing: ".14em", color: "#7b91a3",
+        borderBottom: "1px solid rgba(34,211,238,.55)"
+      },
+      mLibBtn: {
+        display: "flex", alignItems: "center", justifyContent: "center",
+        width: "2rem", height: "100%", cursor: "pointer", color: "#c3d6e2",
+        opacity: landing ? 0 : 1,
+        pointerEvents: landing ? "none" : "auto",
+        transition: "opacity 300ms ease 200ms"
+      },
+      mBody: {
+        display: "flex", flexDirection: "column", flex: 1, minHeight: 0,
+        opacity: landing ? 0 : 1,
+        transform: landing ? "translateY(14px)" : "none",
+        pointerEvents: landing ? "none" : "auto",
+        transition: "opacity 420ms ease 120ms, transform 620ms cubic-bezier(.22,1,.36,1)"
+      },
+      clearSum: () => {
+        try { localStorage.setItem("nutri-search-sum", "[]"); } catch (e) {}
+        this.setState({ sum: [], binMode: false });
+      },
+      clearBtn: {
+        display: "flex", alignItems: "center", justifyContent: "flex-end",
+        height: "100%", width: "2.6rem", padding: 0, border: 0, borderRadius: 0,
+        background: "transparent", cursor: "pointer", color: "#7b91a3",
+        transition: "color 140ms ease"
+      },
+      q: s.q, onQ: e => {
+        const v = e.target.value;
+        this.setState({ q: v, libOpen: false, mOpen: null, searchHinted: true, typed: this.state.typed || !!v });
+        // Wait for typing to stop before pointing at anything. Firing on the first keystroke
+        // put the hand on screen during the landing animation, aimed at results for a single
+        // letter, and expired it before a real query had even been finished.
+        clearTimeout(this._hintStart);
+        clearTimeout(this._hintEnd);
+        if (v.trim() && !this._rowHinted) {
+          this._hintStart = setTimeout(() => {
+            this._rowHinted = true;
+            this.setState({ rowHint: true });
+            this._hintEnd = setTimeout(() => this.setState({ rowHint: false }), 3200);
+          }, 950);
+        }
+      },
+      // Mobile drops the library name — at the larger type it would push the count off the edge.
+      searchPlaceholder: landing
+        ? this.landingPrompt().slice(0, s.tw || 0) + ((s.tw || 0) < this.landingPrompt().length ? "\u258f" : "")
+        : this.placeholderText(),
+      rows, cats, selStyle, catOpts, libOpts, unitOpts, unitFoot: unit.foot,
+      libLabel: (libs.find(d => d.k === lib) || libs[0]).label,
+      libShort: (libs.find(d => d.k === lib) || libs[0]).label.replace("USDA ", ""),
+      measureLabel: (unit.k === "100G" ? "100 G" : unit.grams + " G") + (tef ? " · TEF" : ""),
+      unitShort: (unit.k === "100G" ? "100 G/ML" : unit.grams + " G · " + unit.label) + (isPct ? " · %" : isKcalBasis ? " · KCAL" : " · G") + (tef ? " · TEF" : ""),
+      basisOpts, tefStyle, tefBox, tefMark: tef ? "×" : "",
+      basisShow: { s1: s.basisCol === "s1", s2: s.basisCol === "s2", s3: s.basisCol === "s3" },
+      openBasis: { s1: () => this.setState({ basisCol: "s1" }), s2: () => this.setState({ basisCol: "s2" }), s3: () => this.setState({ basisCol: "s3" }) },
+      closeBasis: () => this.setState({ basisCol: "" }),
+      basisLabel: isPct ? "GRAMS %" : isKcalBasis ? "KCAL" : "GRAMS",
+      toggleTef: () => this.setState({ tef: !s.tef }),
+      tefOn: tef && isKcalBasis,
+      tefTag: { fontFamily: "var(--font-2)", fontSize: ".62rem", letterSpacing: ".04em", color: "#22d3ee" },
+      cat: s.cat, catShort: s.cat.slice(0, 5), catOpen: !!s.catOpen,
+      libOpen: !!s.libOpen, unitOpen: !!s.unitOpen,
+      openLib: () => { if (!s.q.trim()) this.setState({ libOpen: true }); },
+      closeLib: () => this.setState({ libOpen: false }),
+      openUnit: () => this.setState({ unitOpen: true }),
+      closeUnit: () => this.setState({ unitOpen: false }),
+      openCat: () => this.setState({ catOpen: true }),
+      closeCat: () => this.setState({ catOpen: false }),
+      toggleCat: () => this.setState({ catOpen: !s.catOpen }),
+      lab1: LABELS[0], lab2: LABELS[1], lab3: LABELS[2],
+      lab1s: "PROTEIN", lab2s: "CARB", lab3s: "FAT",
+      tip: { s1: hd === "s1", s2: hd === "s2", s3: hd === "s3", fb: hd === "fb", kcal: hd === "kcal", score: hd === "score" },
+      tipText: TIPS, tipOn, tipOff: () => this.setState({ tip: "" }),
+      tipStyle, tipStyleLeft, tipTitle, tipBody,
+      head1: headCell(HUE[0], true), head2: headCell(HUE[1]), head3: headCell(HUE[2]),
+      headTotal: Object.assign({}, headIsland, { borderLeft: INNER }),
+      aboutRowStyle: {
+        display: "flex", alignItems: "center", gap: ".3rem",
+        height: s.narrow ? "2.4rem" : "1.95rem", padding: s.narrow ? "0 .85rem" : "0 .7rem",
+        border: 0, borderTop: "1px solid rgba(34,211,238,.55)", borderRadius: 0, cursor: "pointer",
+        background: "transparent", textAlign: "left", whiteSpace: "nowrap",
+        fontFamily: "var(--font-2)", fontSize: s.narrow ? ".95rem" : ".75rem", letterSpacing: ".12em", color: "#94a3b8",
+        transition: "background 140ms ease"
+      },
+      extraLabel: extra.label, extraUnit: extra.unit,
+      extraSuffix: { marginLeft: ".25rem", fontFamily: "var(--font-2)", fontSize: s.narrow ? ".84rem" : ".66rem", letterSpacing: ".04em", color: "#5f7f8e" },
+      extraOpen: !!s.extraOpen,
+      openExtra: () => this.setState({ extraOpen: true }),
+      closeExtra: () => this.setState({ extraOpen: false }),
+      extraOpts: EXTRAS.map(x => ({
+        label: x.k === "score" ? "FULLNESS SCORE" : x.k === "fb" ? "DIETARY FIBRE" : x.k === "sf" ? "SATURATED FAT" : x.k === "sg" ? "SUGAR" : "ENERGY DENSITY",
+        unit: x.unit,
+        desc: x.k === "score"
+          ? "(protein% \u00d7 0.7) + (carb% \u00d7 0.2) + (fat% \u00d7 0.05) + (fibre g per 100 kcal \u00d7 2.6) + bulk, where bulk is 30 \u00d7 (1 \u2212 e^\u2212grams per 100 kcal / 120). Capped at 100; percentages are shares of the food's energy."
+          : x.k === "fb"
+            ? "Carbohydrate the body cannot digest. Adds bulk and slows digestion, with little usable energy."
+            : x.k === "sf"
+              ? "Solid at room temperature. Most guidelines cap it near 10% of daily calories."
+              : x.k === "sg"
+                ? "Total sugars. USDA does not separate added sugar here."
+                : "Calories per gram of food. Low density means more food for the same energy.",
+        unitStyle: { fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".06em", color: "#94a3b8", flex: "none" },
+        descStyle: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".82rem", lineHeight: 1.55, letterSpacing: 0, color: "#94a3b8", textWrap: "pretty", whiteSpace: "normal" },
+        onClick: () => this.setState({ extra: x.k, extraOpen: false }),
+        style: {
+          display: "flex", flexDirection: "column", alignItems: "flex-start", gap: ".2rem",
+          padding: ".5rem .7rem .6rem", border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left", width: "100%",
+          borderBottom: x.k === "dens" ? 0 : "1px solid rgba(34,211,238,.28)",
+          fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em",
+          transition: "background 140ms ease, color 140ms ease",
+          background: extra.k === x.k ? "rgba(34,211,238,.10)" : "transparent",
+          color: extra.k === x.k ? "#22d3ee" : "#d7e6ef"
+        }
+      })),
+      headUnit: { textTransform: "none", fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".06em", color: "#94a3b8" },
+      fillLegend: isPct ? "MACROS AS % OF FOOD ENERGY" : isKcalBasis ? "MACROS AS KCAL CONTRIBUTED" : "MACROS IN GRAMS",
+      shownCount: String(matchCount),
+      hasSummary: sumRows.length > 0 && !s.sumHold && !(s.narrow && s.kb), sumRows,
+      sumFillers: Array.from({ length: Math.max(0, 10 - sumRows.length) }, (_, i) => i),
+      blankEdge: { borderLeft: EDGE }, blankInner: { borderLeft: INNER }, tot, sumCount: String(sumRows.length),
+      qtyStyle, headIsland, unitSuffix, numWrap, never: false,
+      headMeasure: { position: "relative", display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".3rem", paddingLeft: ".55rem", cursor: "pointer", color: "#c3d6e2", whiteSpace: "nowrap" },
+      measureCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300, fontSize: ".875rem", fontVariantNumeric: "tabular-nums", color: "#7b91a3", whiteSpace: "nowrap" },
+      sizeSuffix: { marginLeft: ".2rem", display: "inline-block", width: s.narrow ? "1.35rem" : "1.2rem", textAlign: "left", flex: "none", fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".7rem", letterSpacing: ".06em", color: "#94a3b8" },
+      sumSizeCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300, fontSize: ".875rem", fontVariantNumeric: "tabular-nums", color: "#d7e6ef", whiteSpace: "nowrap" },
+      catFiltered: s.cat !== "ALL",
+      inputFix: { style: { boxSizing: "border-box" } }
+    };
+  }
+}
+</script>
+</body>
+</html>
