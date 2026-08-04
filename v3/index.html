@@ -95,7 +95,7 @@ option{background:#070b12;color:#d7e6ef}
 <div style="width:100%;max-width:1120px;display:flex;flex-direction:column;flex:1;min-height:0">
   <sc-if value="{{ tabsOn }}" hint-placeholder-val="{{ false }}">
   <div style="{{ tabBar }}">
-    <span onClick="{{ goHome }}" style="{{ tabMark }}" style-hover="color:#22d3ee">OPENDIET<span style="{{ tabVer }}">V0.3</span></span>
+    <span onClick="{{ goHome }}" style="{{ tabHome }}" style-hover="color:#a9c0d0">APPS</span>
     <sc-for list="{{ appTabs }}" as="t" hint-placeholder-count="4">
       <span onClick="{{ t.onClick }}" style="{{ t.style }}" style-hover="color:#d7e6ef">{{ t.label }}</span>
     </sc-for>
@@ -1188,9 +1188,9 @@ class Component extends DCLogic {
         label: a.label, onClick: setApp(a.k),
         style: {
           display: "flex", alignItems: "center", height: "1.9rem", padding: "0 .1rem",
-          cursor: "pointer", whiteSpace: "nowrap", transition: "color 140ms ease, border-color 140ms ease",
-          borderBottom: "2px solid " + (a.k === app ? "#22d3ee" : "transparent"),
-          color: a.k === app ? "#22d3ee" : "#7b91a3"
+          cursor: "pointer", whiteSpace: "nowrap", transition: "color 160ms ease, text-shadow 160ms ease",
+          color: a.k === app ? "#22d3ee" : "#5f7688",
+          textShadow: a.k === app ? "0 0 12px rgba(34,211,238,.45)" : "none"
         }
       })),
       appCards: APPS.map(a => ({
@@ -1212,11 +1212,12 @@ class Component extends DCLogic {
         }
       })),
       tabBar: {
-        flex: "none", display: "flex", alignItems: "center", gap: "1.6rem", height: "2.4rem",
-        marginBottom: "1rem", borderBottom: "1px solid rgba(34,211,238,.28)",
-        fontFamily: "var(--font-2)", fontSize: ".78rem", letterSpacing: ".14em"
+        flex: "none", display: "flex", alignItems: "center", gap: "1.7rem", height: "2.4rem",
+        marginBottom: "1.1rem",
+        fontFamily: "var(--font-2)", fontSize: ".86rem", letterSpacing: ".14em"
       },
-      tabMark: { display: "flex", alignItems: "baseline", gap: ".4rem", marginRight: ".4rem", cursor: "pointer", color: "#d7e6ef", whiteSpace: "nowrap", transition: "color 140ms ease" },
+      // The way back to the launcher, kept as quiet as an unselected tab.
+      tabHome: { display: "flex", alignItems: "center", marginRight: ".5rem", cursor: "pointer", color: "#43586a", whiteSpace: "nowrap", transition: "color 160ms ease" },
       tabVer: { marginLeft: ".35rem", fontSize: ".62rem", letterSpacing: ".16em", color: "#5b7183" },
       mBackRow: {
         flex: "none", display: "flex", alignItems: "center", justifyContent: "space-between",
