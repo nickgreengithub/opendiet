@@ -22,7 +22,7 @@ a{color:#22d3ee;text-decoration:none;transition:color 140ms ease}a:hover{color:#
 input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:inset 0 0 0 1px rgba(34,211,238,.5);caret-color:#22d3ee}
 /* The mobile search field says enough with a caret and the text being typed. The wash and
    ring were carrying the "start here" job that the landing screen now does. */
-[data-search="m"]:focus{background:transparent!important;box-shadow:none}
+[data-search]:focus{background:transparent!important;box-shadow:none}
 /* The landing line is type on a page, not a field in a form. */
 [data-land="on"]:focus{background:transparent!important;box-shadow:none}
 /* Ambient onboarding: a light sweeps through whatever the user should touch next.
@@ -142,6 +142,7 @@ option{background:#070b12;color:#d7e6ef}
         <span style="{{ dLandHide }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="flex:none"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg></span>
         <span onClick="{{ sortOn.name }}" style="{{ dSortCell }}"><sc-if value="{{ sorted.name }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if></span>
         <input data-search data-land="{{ dLandFlag }}" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ dSearchInput }}">
+        <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ dClearBtn }}" style-hover="color:#d7e6ef"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if>
         
         <sc-if value="{{ libOpen }}" hint-placeholder-val="{{ false }}">
           <span data-pop style="position:absolute;top:100%;left:0;z-index:40;display:flex;flex-direction:column;min-width:16rem;max-height:70vh;overflow-y:auto;padding-top:.35rem">
@@ -176,9 +177,9 @@ option{background:#070b12;color:#d7e6ef}
     </div>
     </div>
     <div style="{{ dBody }}">
-    <div data-scroll style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box">
+    <div data-scroll style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box;display:flex;flex-direction:column">
     <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
-      <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
+      <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="flex:none;display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
         <span style="display:flex;align-items:center;gap:.55rem;min-width:0">
           <button onClick="{{ r.togglePlus }}" style="{{ r.starStyle }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="{{ r.starFill }}" stroke="currentColor" stroke-width="1.8" style="flex:none"><path d="M12 3.2l2.7 5.7 6 .9-4.35 4.4 1.03 6.2L12 17.5 6.62 20.4l1.03-6.2L3.3 9.8l6-.9L12 3.2z"></path></svg></button>
           <span style="flex:1;min-width:0;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span>
@@ -191,6 +192,7 @@ option{background:#070b12;color:#d7e6ef}
         <span style="{{ r.cellScore }}">{{ r.extraVal }}<span style="{{ extraSuffix }}">{{ extraUnit }}</span></span>
       </div>
     </sc-for>
+    <div style="{{ gridFill }}"></div>
     </div>
     </div>
     <sc-if value="{{ hasSummary }}" hint-placeholder-val="{{ false }}">
@@ -657,6 +659,7 @@ class Component extends DCLogic {
     const LABELS = ["PROT", "CARB", "FAT"];
     const EDGE = "1px solid rgba(34,211,238,.55)";
     const INNER = "1px solid rgba(34,211,238,.14)";
+    const EDGE_C = "rgba(34,211,238,.55)", INNER_C = "rgba(34,211,238,.14)";
     const numCell = (hue, muted, edge) => ({
       position: "relative", overflow: "hidden",
       display: "flex", alignItems: "center", justifyContent: "flex-end",
@@ -1066,6 +1069,26 @@ class Component extends DCLogic {
 
     return {
       dLandFlag: dLanding ? "on" : "off",
+      dClearBtn: {
+        display: "flex", alignItems: "center", flex: "none", padding: "0 .2rem",
+        cursor: "pointer", color: "#7b91a3", transition: "color 140ms ease"
+      },
+      // Empty rows below the last result: the table keeps its shape instead of stopping
+      // mid-page. Drawn rather than built, so it costs no rows and never lengthens the scroll.
+      gridFill: {
+        flex: "1 1 auto", minHeight: 0, pointerEvents: "none",
+        backgroundRepeat: "no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat",
+        backgroundImage:
+          "linear-gradient(" + EDGE_C + "," + EDGE_C + ")," +
+          "linear-gradient(" + INNER_C + "," + INNER_C + ")," +
+          "linear-gradient(" + INNER_C + "," + INNER_C + ")," +
+          "linear-gradient(" + INNER_C + "," + INNER_C + ")," +
+          "linear-gradient(" + EDGE_C + "," + EDGE_C + ")," +
+          "repeating-linear-gradient(to bottom, transparent 0, transparent 1.8rem, " + INNER_C + " 1.8rem, " + INNER_C + " calc(1.8rem + 1px))",
+        backgroundSize: "1px 100%, 1px 100%, 1px 100%, 1px 100%, 1px 100%, 100% calc(1.8rem + 1px)",
+        backgroundPosition:
+          "right 38.2rem top, right 30.45rem top, right 22.7rem top, right 14.95rem top, right 7.2rem top, left top"
+      },
       dHeadRow: {
         display: "grid", gridTemplateColumns: dLanding ? "minmax(0,1fr)" : dCols,
         columnGap: ".55rem", alignItems: "stretch",
