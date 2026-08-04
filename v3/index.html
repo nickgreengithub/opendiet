@@ -97,7 +97,6 @@ option{background:#070b12;color:#d7e6ef}
 <div style="width:100%;max-width:1120px;display:flex;flex-direction:column;flex:1;min-height:0">
   <sc-if value="{{ tabsOn }}" hint-placeholder-val="{{ false }}">
   <div style="{{ tabBar }}">
-    <span onClick="{{ goHome }}" style="{{ tabHome }}" style-hover="color:#a9c0d0">APPS</span>
     <sc-for list="{{ appTabs }}" as="t" hint-placeholder-count="4">
       <span onClick="{{ t.onClick }}" style="{{ t.style }}" style-hover="color:#d7e6ef">{{ t.label }}</span>
     </sc-for>
@@ -796,9 +795,9 @@ class Component extends DCLogic {
     const landingDrop = Math.max(0, Math.round((vh - (landing ? 58 : 46)) / 2) - 3);
     // Desktop opens the same way as a phone: the search line alone, in the middle of the
     // page. Typing lifts it to its header position and the table comes up underneath.
-    // 94px is the shell's top padding plus the tab bar; 54 is the tall landing row.
+    // 82px is the shell's top padding plus the tab bar; 54 is the tall landing row.
     const dLanding = !s.narrow && !s.typed && app === "search";
-    const dDrop = Math.max(0, Math.round((vh - 54) / 2) - 94);
+    const dDrop = Math.max(0, Math.round((vh - 54) / 2) - 82);
     const dCols = "minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem";
     const dHide = dLanding ? { display: "none" } : {};
     // The list is a leaderboard for the current sort; searching is how you reach the rest.
@@ -1296,11 +1295,9 @@ class Component extends DCLogic {
       })),
       tabBar: {
         flex: "none", display: "flex", alignItems: "center", gap: "1.7rem", height: "2.4rem",
-        marginBottom: "1.1rem",
+        marginBottom: ".35rem",
         fontFamily: "var(--font-2)", fontSize: ".86rem", letterSpacing: ".14em"
       },
-      // The way back to the launcher, kept as quiet as an unselected tab.
-      tabHome: { display: "flex", alignItems: "center", marginRight: ".5rem", cursor: "pointer", color: "#43586a", whiteSpace: "nowrap", transition: "color 160ms ease" },
       tabVer: { marginLeft: ".35rem", fontSize: ".62rem", letterSpacing: ".16em", color: "#5b7183" },
       mBackRow: {
         flex: "none", display: "flex", alignItems: "center", justifyContent: "space-between",
