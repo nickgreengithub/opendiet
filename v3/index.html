@@ -23,6 +23,8 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
 /* The mobile search field says enough with a caret and the text being typed. The wash and
    ring were carrying the "start here" job that the landing screen now does. */
 [data-search="m"]:focus{background:transparent!important;box-shadow:none}
+/* The landing line is type on a page, not a field in a form. */
+[data-land="on"]:focus{background:transparent!important;box-shadow:none}
 /* Ambient onboarding: a light sweeps through whatever the user should touch next.
    Purely decorative — it never blocks a tap, and it stops the moment the step is done. */
 @keyframes od-sweep{0%{background-position:190% 0}70%{background-position:-90% 0}100%{background-position:-90% 0}}
@@ -135,11 +137,11 @@ option{background:#070b12;color:#d7e6ef}
   <div style="display:flex;flex-direction:column;flex:1;min-height:0">
     <div style="flex:none;z-index:5;padding-right:10px">
 
-    <div style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;height:1.95rem;border-top:1px solid rgba(34,211,238,.55);border-bottom:1px solid rgba(34,211,238,.55);font-family:var(--font-2);font-size:.75rem;letter-spacing:.12em;color:#7b91a3;text-transform:uppercase">
-      <span data-hint="{{ searchHint }}" onMouseEnter="{{ openLib }}" onMouseLeave="{{ closeLib }}" style="position:relative;display:flex;align-items:center;gap:.55rem;padding:0 .85rem 0 0;min-width:0;white-space:nowrap">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="flex:none"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
-        <span onClick="{{ sortOn.name }}" style="display:flex;align-items:center;cursor:pointer"><sc-if value="{{ sorted.name }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if></span>
-        <input data-search placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="flex:1;min-width:0;height:1.6rem;background:transparent;border:0;padding:0;color:#eaf5fb;font-family:var(--font-2);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;text-overflow:ellipsis">
+    <div style="{{ dHeadRow }}">
+      <span data-hint="{{ searchHint }}" onMouseEnter="{{ openLib }}" onMouseLeave="{{ closeLib }}" style="{{ dSearchCell }}">
+        <span style="{{ dLandHide }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="flex:none"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg></span>
+        <span onClick="{{ sortOn.name }}" style="{{ dSortCell }}"><sc-if value="{{ sorted.name }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if></span>
+        <input data-search data-land="{{ dLandFlag }}" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ dSearchInput }}">
         
         <sc-if value="{{ libOpen }}" hint-placeholder-val="{{ false }}">
           <span data-pop style="position:absolute;top:100%;left:0;z-index:40;display:flex;flex-direction:column;min-width:16rem;max-height:70vh;overflow-y:auto;padding-top:.35rem">
@@ -173,7 +175,7 @@ option{background:#070b12;color:#d7e6ef}
       <span onMouseEnter="{{ openExtra }}" onMouseLeave="{{ closeExtra }}" onClick="{{ sortOn.extra }}" style="{{ headIsland }}"><span>{{ extraLabel }}</span><sc-if value="{{ sorted.extra }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ extraOpen }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ extraOpts }}" as="x" hint-placeholder-count="4"><button onClick="{{ x.onClick }}" style="{{ x.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ x.label }}</span><span style="{{ x.unitStyle }}">{{ x.unit }}</span></span><span style="{{ x.descStyle }}">{{ x.desc }}</span></button></sc-for></span></span></sc-if></span>
     </div>
     </div>
-    <div style="position:relative;flex:1 1 0;min-height:0;display:flex;flex-direction:column">
+    <div style="{{ dBody }}">
     <div data-scroll style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box">
     <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
       <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
@@ -192,7 +194,7 @@ option{background:#070b12;color:#d7e6ef}
     </div>
     </div>
     <sc-if value="{{ hasSummary }}" hint-placeholder-val="{{ false }}">
-      <div style="flex:0 0 auto;max-height:55%;min-height:0;display:flex;flex-direction:column;margin-top:1.5rem;border-top:1px solid rgba(34,211,238,.55)">
+      <div style="{{ dSumWrap }}">
         <div style="position:relative;flex:1;min-height:0;display:flex;flex-direction:column">
         <div data-scroll style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box">
           <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
@@ -354,7 +356,7 @@ option{background:#070b12;color:#d7e6ef}
   </sc-if>
   <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
   <div style="flex:none;margin-top:auto">
-    <div style="border-top:1px solid rgba(34,211,238,.55)"></div>
+    <div style="{{ dFootRule }}"></div>
   </div>
   </sc-if>
 </div>
@@ -511,7 +513,7 @@ class Component extends DCLogic {
   // The landing screen types its own prompt. Started once the library has loaded, since the
   // count is part of the line being typed.
   startTypewriter() {
-    if (this._tw || !this.state.narrow || this.state.typed) return;
+    if (this._tw || this.state.typed) return;
     this._tw = setInterval(() => {
       const full = this.landingPrompt();
       const n = (this.state.tw || 0) + 1;
@@ -770,9 +772,13 @@ class Component extends DCLogic {
     const live = k => k === "search";
     const setApp = k => () => {
       // Re-arm the mobile landing animation, which otherwise only ever plays on first load.
-      if (k === "search" && s.narrow && !s.typed) this.setState({ tw: 0 });
+      if (k === "search" && !s.typed) this.setState({ tw: 0 });
       this.setState({ app: k, mOpen: null });
-      if (k === "search") setTimeout(() => this.startTypewriter(), 0);
+      if (k === "search") setTimeout(() => {
+        this.startTypewriter();
+        // A pointer already knows where it is; put the caret in the line it is looking at.
+        if (!this.state.narrow) { try { document.querySelector("[data-search]").focus(); } catch (e) {} }
+      }, 60);
     };
     const mColCellBase = {
       display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300,
@@ -785,6 +791,13 @@ class Component extends DCLogic {
     const landing = !!s.narrow && !s.typed;
     const vh = s.vvh || (typeof window !== "undefined" ? window.innerHeight : 800);
     const landingDrop = Math.max(0, Math.round((vh - (landing ? 58 : 46)) / 2) - 3);
+    // Desktop opens the same way as a phone: the search line alone, in the middle of the
+    // page. Typing lifts it to its header position and the table comes up underneath.
+    // 94px is the shell's top padding plus the tab bar; 54 is the tall landing row.
+    const dLanding = !s.narrow && !s.typed && app === "search";
+    const dDrop = Math.max(0, Math.round((vh - 54) / 2) - 94);
+    const dCols = "minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem";
+    const dHide = dLanding ? { display: "none" } : {};
     // The list is a leaderboard for the current sort; searching is how you reach the rest.
     const ROW_CAP = s.narrow ? 100 : 250;
     // Mobile has no room for the macros beside the name, so a tap opens the food instead of
@@ -1052,7 +1065,54 @@ class Component extends DCLogic {
     const signOut = () => { try { localStorage.removeItem("nutri-search-user"); } catch (e) {} this.setState({ user: null, view: "results" }); };
 
     return {
-      searchHint: !s.narrow && !s.searchHinted && !q ? "on" : "off",
+      dLandFlag: dLanding ? "on" : "off",
+      dHeadRow: {
+        display: "grid", gridTemplateColumns: dLanding ? "minmax(0,1fr)" : dCols,
+        columnGap: ".55rem", alignItems: "stretch",
+        height: dLanding ? "3.4rem" : "1.95rem",
+        borderTop: "1px solid " + (dLanding ? "transparent" : "rgba(34,211,238,.55)"),
+        borderBottom: "1px solid " + (dLanding ? "transparent" : "rgba(34,211,238,.55)"),
+        transform: dLanding ? "translateY(" + dDrop + "px)" : "none",
+        fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em",
+        color: "#7b91a3", textTransform: "uppercase",
+        transition: "transform 620ms cubic-bezier(.22,1,.36,1), height 760ms cubic-bezier(.22,1,.36,1), border-color 460ms ease"
+      },
+      dSearchCell: {
+        position: "relative", display: "flex", alignItems: "center",
+        justifyContent: dLanding ? "center" : "flex-start",
+        gap: ".55rem", padding: dLanding ? "0 1.25rem" : "0 .85rem 0 0",
+        minWidth: 0, whiteSpace: "nowrap", transition: "padding 760ms ease"
+      },
+      // The landing line is the search and nothing else — no icon, no sort arrow, no library.
+      dLandHide: { display: dLanding ? "none" : "flex", alignItems: "center", flex: "none" },
+      dSortCell: { display: dLanding ? "none" : "flex", alignItems: "center", cursor: "pointer" },
+      dSearchInput: {
+        flex: 1, minWidth: 0, background: "transparent", border: 0, padding: 0,
+        color: "#eaf5fb", fontFamily: "var(--font-2)", textTransform: "uppercase", textOverflow: "ellipsis",
+        height: dLanding ? "2.6rem" : "1.6rem",
+        fontSize: dLanding ? "1.5rem" : ".75rem",
+        letterSpacing: dLanding ? ".1em" : ".12em",
+        textAlign: dLanding ? "center" : "left",
+        transition: "font-size 760ms cubic-bezier(.22,1,.36,1), height 760ms cubic-bezier(.22,1,.36,1), letter-spacing 760ms ease"
+      },
+      dBody: {
+        position: "relative", flex: "1 1 0", minHeight: 0, display: "flex", flexDirection: "column",
+        opacity: dLanding ? 0 : 1,
+        transform: dLanding ? "translateY(14px)" : "none",
+        pointerEvents: dLanding ? "none" : "auto",
+        transition: "opacity 420ms ease 120ms, transform 620ms cubic-bezier(.22,1,.36,1)"
+      },
+      dSumWrap: {
+        flex: "0 0 auto", maxHeight: "55%", minHeight: 0, display: "flex", flexDirection: "column",
+        marginTop: "1.5rem", borderTop: "1px solid rgba(34,211,238,.55)",
+        opacity: dLanding ? 0 : 1, pointerEvents: dLanding ? "none" : "auto",
+        transition: "opacity 420ms ease 120ms"
+      },
+      dFootRule: {
+        borderTop: "1px solid " + (dLanding ? "transparent" : "rgba(34,211,238,.55)"),
+        transition: "border-color 460ms ease"
+      },
+      searchHint: !s.narrow && !dLanding && !s.searchHinted && !q ? "on" : "off",
       isMobile: !!s.narrow, isDesktop: !s.narrow,
       mLib: () => this.setState({ libOpen: !s.libOpen, unitOpen: false, catOpen: false, extraOpen: false, mColOpen: false, mTip: "" }),
       mUnit: () => this.setState({ unitOpen: !s.unitOpen, libOpen: false, catOpen: false, extraOpen: false, mColOpen: false, mTip: "" }),
@@ -1417,7 +1477,7 @@ class Component extends DCLogic {
         }
       },
       // Mobile drops the library name — at the larger type it would push the count off the edge.
-      searchPlaceholder: landing
+      searchPlaceholder: landing || dLanding
         ? this.landingPrompt().slice(0, s.tw || 0) + ((s.tw || 0) < this.landingPrompt().length ? "\u258f" : "")
         : this.placeholderText(),
       rows, cats, selStyle, catOpts, libOpts, unitOpts, unitFoot: unit.foot,
@@ -1435,7 +1495,7 @@ class Component extends DCLogic {
       tefTag: { fontFamily: "var(--font-2)", fontSize: ".62rem", letterSpacing: ".04em", color: "#22d3ee" },
       cat: s.cat, catShort: s.cat.slice(0, 5), catOpen: !!s.catOpen,
       libOpen: !!s.libOpen, unitOpen: !!s.unitOpen,
-      openLib: () => { if (!s.q.trim()) this.setState({ libOpen: true }); },
+      openLib: () => { if (!s.q.trim() && !dLanding) this.setState({ libOpen: true }); },
       closeLib: () => this.setState({ libOpen: false }),
       openUnit: () => this.setState({ unitOpen: true }),
       closeUnit: () => this.setState({ unitOpen: false }),
@@ -1447,8 +1507,9 @@ class Component extends DCLogic {
       tip: { s1: hd === "s1", s2: hd === "s2", s3: hd === "s3", fb: hd === "fb", kcal: hd === "kcal", score: hd === "score" },
       tipText: TIPS, tipOn, tipOff: () => this.setState({ tip: "" }),
       tipStyle, tipStyleLeft, tipTitle, tipBody,
-      head1: headCell(HUE[0], true), head2: headCell(HUE[1]), head3: headCell(HUE[2]),
-      headTotal: Object.assign({}, headIsland, { borderLeft: INNER }),
+      head1: Object.assign(headCell(HUE[0], true), dHide), head2: Object.assign(headCell(HUE[1]), dHide),
+      head3: Object.assign(headCell(HUE[2]), dHide),
+      headTotal: Object.assign({}, headIsland, { borderLeft: INNER }, dHide),
       aboutRowStyle: {
         display: "flex", alignItems: "center", gap: ".3rem",
         height: s.narrow ? "2.4rem" : "1.95rem", padding: s.narrow ? "0 .85rem" : "0 .7rem",
@@ -1493,8 +1554,8 @@ class Component extends DCLogic {
       hasSummary: sumRows.length > 0 && !s.sumHold && !(s.narrow && s.kb), sumRows,
       sumFillers: Array.from({ length: Math.max(0, 10 - sumRows.length) }, (_, i) => i),
       blankEdge: { borderLeft: EDGE }, blankInner: { borderLeft: INNER }, tot, sumCount: String(sumRows.length),
-      qtyStyle, headIsland, unitSuffix, numWrap, never: false,
-      headMeasure: { position: "relative", display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".3rem", paddingLeft: ".55rem", cursor: "pointer", color: "#c3d6e2", whiteSpace: "nowrap" },
+      qtyStyle, headIsland: Object.assign({}, headIsland, dHide), unitSuffix, numWrap, never: false,
+      headMeasure: { position: "relative", display: dLanding ? "none" : "flex", alignItems: "center", justifyContent: "flex-end", gap: ".3rem", paddingLeft: ".55rem", cursor: "pointer", color: "#c3d6e2", whiteSpace: "nowrap" },
       measureCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300, fontSize: ".875rem", fontVariantNumeric: "tabular-nums", color: "#7b91a3", whiteSpace: "nowrap" },
       sizeSuffix: { marginLeft: ".2rem", display: "inline-block", width: s.narrow ? "1.35rem" : "1.2rem", textAlign: "left", flex: "none", fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".7rem", letterSpacing: ".06em", color: "#94a3b8" },
       sumSizeCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300, fontSize: ".875rem", fontVariantNumeric: "tabular-nums", color: "#d7e6ef", whiteSpace: "nowrap" },
