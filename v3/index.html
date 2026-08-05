@@ -269,16 +269,18 @@ option{background:#070b12;color:#d7e6ef}
             <sc-if value="{{ r.finger }}" hint-placeholder-val="{{ false }}">
               <span data-finger><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span>
             </sc-if>
-            <span style="{{ mName }}">{{ r.name }}</span>
+            <span style="{{ r.mNameStyle }}">{{ r.name }}</span>
             <span style="{{ r.mValCell }}">{{ r.mVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
-            <span style="{{ r.mAddCell }}"><button onClick="{{ r.addRow }}" style="{{ mAddBtn }}" style-hover="background:rgba(34,211,238,.24)">ADD</button></span>
           </div>
           <div style="{{ r.mExpand }}">
+            <span style="{{ mExpandRow }}">
             <span style="{{ mExpandGrid }}">
               <span><span style="{{ mMacroTag }}">PROT</span> {{ r.v1 }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></span>
               <span><span style="{{ mMacroTag }}">CARB</span> {{ r.v2 }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></span>
               <span><span style="{{ mMacroTag }}">FAT</span> {{ r.v3 }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></span>
               <span style="{{ mExpandVal }}">{{ r.mVal }}<span style="{{ unitSuffix }}">{{ mColUnit }}</span></span>
+            </span>
+            <button onClick="{{ r.addRow }}" style="{{ mAddPlus }}" style-hover="color:#8ff0fb">+</button>
             </span>
           </div>
         </div>
@@ -820,12 +822,18 @@ class Component extends DCLogic {
           this.setState({ mOpen: null });
           this.toggleSum(fo.name);
         },
-        mRow: Object.assign({}, r.mRow, { borderBottom: open ? 0 : "1px solid rgba(34,211,238,.14)" }),
-        // Only one of these two is ever laid out, so the row keeps its two columns.
+        mRow: Object.assign({}, r.mRow, {
+          gridTemplateColumns: open ? "minmax(0,1fr)" : mCols,
+          borderBottom: open ? 0 : "1px solid rgba(34,211,238,.14)"
+        }),
         mValCell: Object.assign({}, mColCellBase, { display: bare || open ? "none" : "flex" }),
-        mAddCell: {
-          display: open ? "flex" : "none", alignItems: "center", justifyContent: "flex-end",
-          paddingRight: ".3rem"
+        // Open, the name has the row to itself and can run onto a second line.
+        mNameStyle: {
+          display: "block", minWidth: 0, fontWeight: 300, fontSize: "1.02rem", color: "#d7e6ef",
+          whiteSpace: bare || open ? "normal" : "nowrap",
+          overflow: bare || open ? "visible" : "hidden",
+          textOverflow: bare || open ? "clip" : "ellipsis",
+          padding: bare || open ? ".35rem 0" : 0
         },
         mExpand: {
           overflow: "hidden",
@@ -1247,17 +1255,21 @@ class Component extends DCLogic {
       mMacroTag: { fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".06em", color: "#7b91a3" },
       // The open row's second line is the totals bar: same four cells, same type, same places.
       mExpandGrid: {
+        flex: 1, minWidth: 0,
         display: "grid", gridTemplateColumns: "repeat(4,1fr)", alignItems: "center",
-        justifyItems: "center", height: "2.5rem", textAlign: "center",
+        justifyItems: "center", height: "100%", textAlign: "center",
         fontWeight: 300, fontSize: "1.08rem", color: "#d7e6ef",
         fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
       },
       mExpandVal: { color: "#22d3ee" },
-      mAddBtn: {
-        display: "flex", alignItems: "center", height: "1.9rem", padding: "0 .8rem",
-        border: "1px solid #22d3ee", borderRadius: 0, background: "rgba(34,211,238,.10)",
-        cursor: "pointer", color: "#22d3ee",
-        fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".14em"
+      mExpandRow: { display: "flex", alignItems: "center", height: "2.5rem" },
+      // Adding is a plus, not a word — the label was eating width the food names needed.
+      mAddPlus: {
+        flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
+        width: "2.6rem", height: "100%", padding: 0, border: 0, borderRadius: 0,
+        background: "transparent", cursor: "pointer", color: "#22d3ee",
+        fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.7rem", lineHeight: 1,
+        transition: "color 140ms ease"
       },
       appHome: app === "home",
       appSoon: !!appDef && !live(app),
