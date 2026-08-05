@@ -271,7 +271,7 @@ option{background:#070b12;color:#d7e6ef}
             </sc-if>
             <span style="{{ r.mNameStyle }}">{{ r.name }}</span>
             <span style="{{ r.mValCell }}">{{ r.mVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
-            <span style="{{ r.mAddCell }}"><button onClick="{{ r.addRow }}" style="{{ mAddPlus }}" style-hover="background:rgba(34,211,238,.24)">+</button></span>
+            <span style="{{ r.mAddCell }}"><button onClick="{{ r.addRow }}" style="{{ mAddPlus }}" style-hover="background:rgba(34,211,238,.24)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:block;flex:none"><path d="M12 5v14M5 12h14"></path></svg></button></span>
           </div>
           <div style="{{ r.mExpand }}">
             <span style="{{ mExpandGrid }}">
@@ -1267,7 +1267,7 @@ class Component extends DCLogic {
         width: "2.4rem", height: "2rem", padding: 0, borderRadius: 0,
         border: "1px solid #22d3ee", background: "rgba(34,211,238,.10)",
         cursor: "pointer", color: "#22d3ee",
-        fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.45rem", lineHeight: 1,
+        // Drawn rather than typed: a text + rides high on its own line box.
         transition: "background 140ms ease"
       },
       appHome: app === "home",
