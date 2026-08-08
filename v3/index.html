@@ -1180,7 +1180,7 @@ class Component extends DCLogic {
         })(),
         mExpand: {
           overflow: "hidden",
-          height: open ? "4.85rem" : "0px",
+          height: open ? "6.05rem" : "0px",
           opacity: open ? 1 : 0,
           background: open ? PICKED_BG : "transparent",
           borderBottom: open ? "1px solid rgba(34,211,238,.14)" : 0,
@@ -1393,7 +1393,7 @@ class Component extends DCLogic {
         }),
         sExpand: {
           overflow: "hidden",
-          height: sOpenName === fo.name ? "4.85rem" : "0px",
+          height: sOpenName === fo.name ? "6.05rem" : "0px",
           opacity: sOpenName === fo.name ? 1 : 0,
           borderBottom: sOpenName === fo.name ? "1px solid rgba(34,211,238,.14)" : 0,
           transition: "height 260ms cubic-bezier(.22,1,.36,1), opacity 200ms ease"
@@ -1643,8 +1643,8 @@ class Component extends DCLogic {
       mColCell: Object.assign({}, mColCellBase, { display: bare ? "none" : "flex" }),
       mMacroTag: { fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".06em", color: "#7b91a3" },
       mMeasureRow: {
-        display: "flex", alignItems: "center", gap: ".8rem", height: "2.75rem",
-        padding: "0 .3rem .4rem .55rem", boxSizing: "border-box",
+        display: "flex", alignItems: "center", gap: ".8rem", height: "3.3rem",
+        padding: "0 .3rem 1rem .55rem", boxSizing: "border-box",
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.1rem",
         fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
       },
@@ -1658,7 +1658,7 @@ class Component extends DCLogic {
       // The open row's second line is the totals bar: same four cells, same type, same places.
       mExpandGrid: {
         display: "grid", gridTemplateColumns: "repeat(4,1fr)", alignItems: "center",
-        justifyItems: "center", height: "2.1rem", textAlign: "center",
+        justifyItems: "center", height: "2.75rem", textAlign: "center",
         fontWeight: 300, fontSize: "1.08rem", color: "#d7e6ef",
         fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
       },
