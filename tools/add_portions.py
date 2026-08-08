@@ -87,6 +87,28 @@ def pick(portions, kcal100):
     return best and (best[1], best[2])
 
 
+# A quarter of SR Legacy has no household portion to find: for a steak or a handful of
+# cashews the only measure FDC publishes is a weight in ounces, which pick() throws out
+# because "1 oz" is not a thing you can picture. Those foods still deserve a second way of
+# reading the amount, so they fall back to a standard unit. It is a conversion rather than a
+# serving — the site shows it as "100 g = 3.5 OZ" — but that is what the control is for.
+OZ_G, TBSP_ML, CUP_ML = 28.35, 15.0, 240.0
+# Below this, a liquid is something you spoon rather than something you pour into a glass.
+SPOONABLE_ML = 60
+
+
+def fallback(portions, liquid):
+    """The unit to read a food in when USDA only ever weighs it."""
+    if not liquid:
+        # Weight-ounces are what meat, fish, nuts and cheese are sold and served in: 3 oz of
+        # steak, 1 oz of nuts. A tablespoon would be a volume, and there is no density here
+        # to turn one into the other.
+        return OZ_G, "OZ"
+    # Volume converts honestly. A shot is spoons; a beer is cups.
+    small = any(g <= SPOONABLE_ML for _, _, _, g in portions) if portions else False
+    return (TBSP_ML, "TBSP") if small else (CUP_ML, "CUP")
+
+
 def short(label):
     """'cup, sliced' -> 'CUP'. The grams carry the detail; the label only has to be read."""
     cut = re.split(r"[,(]|\s\d", label, 1)[0].strip(" .-")
@@ -139,14 +161,16 @@ def apply(lib, table, dry):
     for f in d["foods"]:
         while len(f) < 11:
             f.append(0)
-        got = pick(table.get(f[0], []), f[2] or 0)
+        rows = table.get(f[0], [])
+        got = pick(rows, f[2] or 0)
         if got:
             hit += 1
             picks[f[0]] = got
             grams, label = got
             f[11:] = [grams, short(label)]
         else:
-            del f[11:]
+            grams, label = fallback(rows, f[9])
+            f[11:] = [grams, label]
     if not dry:
         path.write_text(json.dumps(d, separators=(",", ":")))
     return hit, len(d["foods"]), picks

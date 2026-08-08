@@ -43,8 +43,10 @@ What is different from the root:
   alphabet. Nothing about any of it is visible: no badge, no dot.
 - The everyday flag is an eleventh element on each food row, written by
   `tools/mark_common.py`; the root site reads ten and ignores it.
-- Opening a food on mobile shows the amount two ways: grams, and the same amount as
-  household servings ("1 MEDIUM", "1 SLICE", "1 TBSP"). Whichever side you tap takes the
+- Opening a food on mobile shows the amount two ways, with an `=` between them: grams, and
+  the same amount as household servings ("1 MEDIUM", "1 SLICE", "1 TBSP"). Every food has a
+  second unit — the quarter of SR Legacy that USDA only ever weighs falls back to ounces,
+  or to cups and tablespoons if it is a liquid. Whichever side you tap takes the
   − and + — grams move in tens, servings in whole servings, and picking a side does not
   round until a stepper is pressed. The macros follow, a reset arrow (faint until the
   amount moves off the header measure) puts it back, and ADD puts that amount on the plate.

@@ -26,14 +26,20 @@ optionally followed by `everyday`, then `servingGrams, servingLabel`:
 ```
 
 Grams per 100 g, except where `liquid` is `1` — those are per 100 ml. A food with no
-reported value for a nutrient carries `0`, which the table renders as `—`.
+reported value for a nutrient carries `0`, and the table shows it as `0`.
 
 `everyday` marks the entry a shopper means by the plain word — written by
 [`../tools/mark_common.py`](../tools/mark_common.py), used only to order search results.
-`servingGrams` and `servingLabel` are one household measure from FDC's portion tables,
-chosen by [`../tools/add_portions.py`](../tools/add_portions.py): 5,805 of SR Legacy's
-7,756 foods have one, and 8,164 of FNDDS's 8,661. A reader that stops at `liquid` is
-unaffected by any of them.
+`servingGrams` and `servingLabel` are a second way of reading the amount, written by
+[`../tools/add_portions.py`](../tools/add_portions.py). Where FDC publishes a household
+measure it is used — `182 g = 1 MEDIUM`, `29 g = 1 SLICE` — which covers 5,805 of SR
+Legacy's 7,756 foods and 8,479 of FNDDS's 8,661. The rest fall back to a standard unit,
+because for a steak or a handful of cashews the only measure FDC publishes is a weight in
+ounces, which is not a thing you can picture: solids get `28.35 g = 1 OZ`, liquids get
+`240 ml = 1 CUP`, or `15 ml = 1 TBSP` where FDC's own portion is under 60 ml. Every food
+therefore carries a second unit; the fallback is a conversion rather than a serving, which
+is how the site reads it — `100 g = 3.5 OZ`. A reader that stops at `liquid` is unaffected
+by any of them.
 
 Nutrients are FDC nutrient ids 1008 (energy, kcal), 1003 (protein), 1005 (carbohydrate
 by difference), 1079 (fibre), 1004 (total fat), 1258 (saturated fat), 2000 (total sugars).
