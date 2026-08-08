@@ -332,7 +332,7 @@ option{background:#070b12;color:#d7e6ef}
             </sc-if>
             <span style="{{ r.mNameStyle }}">{{ r.name }}</span>
             <span style="{{ r.mValCell }}">{{ r.mVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
-            <button onClick="{{ r.ctl.reset }}" style="{{ r.resetCell }}" style-hover="color:#22d3ee"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
+            <button onClick="{{ r.ctl.reset }}" style="{{ r.resetCell }}" style-hover="color:#22d3ee"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
           </div>
           <div style="{{ r.mExpand }}">
             <span style="{{ mExpandGrid }}">
@@ -343,15 +343,15 @@ option{background:#070b12;color:#d7e6ef}
             </span>
             <span style="{{ mMeasureRow }}">
               <span onClick="{{ r.ctl.pickG }}" style="{{ r.ctl.gCell }}">
-                <button data-step="l" onClick="{{ r.ctl.gDown }}" style="{{ r.ctl.gStep }}" style-hover="color:#22d3ee">−</button>
-                <span style="{{ mAmt }}">{{ r.ctl.gQty }}</span><span style="{{ sizeSuffix }}">{{ r.ctl.gUnit }}</span>
-                <button data-step="r" onClick="{{ r.ctl.gUp }}" style="{{ r.ctl.gStep }}" style-hover="color:#22d3ee">+</button>
+                <button data-step="l" onClick="{{ r.ctl.gDown }}" style="{{ r.ctl.gStepL }}" style-hover="color:#22d3ee">−</button>
+                <span style="{{ mAmt }}">{{ r.ctl.gQty }}<span style="{{ sizeSuffix }}">{{ r.ctl.gUnit }}</span></span>
+                <button data-step="r" onClick="{{ r.ctl.gUp }}" style="{{ r.ctl.gStepR }}" style-hover="color:#22d3ee">+</button>
               </span>
               <sc-if value="{{ r.ctl.hasServing }}" hint-placeholder-val="{{ true }}">
                 <span onClick="{{ r.ctl.pickS }}" style="{{ r.ctl.sCell }}">
-                  <button data-step="l" onClick="{{ r.ctl.sDown }}" style="{{ r.ctl.sStep }}" style-hover="color:#22d3ee">−</button>
-                  <span style="{{ mAmt }}">{{ r.ctl.servQty }}</span><span style="{{ mServName }}">{{ r.ctl.servName }}</span>
-                  <button data-step="r" onClick="{{ r.ctl.sUp }}" style="{{ r.ctl.sStep }}" style-hover="color:#22d3ee">+</button>
+                  <button data-step="l" onClick="{{ r.ctl.sDown }}" style="{{ r.ctl.sStepL }}" style-hover="color:#22d3ee">−</button>
+                  <span style="{{ mAmt }}">{{ r.ctl.servQty }}<span style="{{ mServName }}">{{ r.ctl.servName }}</span></span>
+                  <button data-step="r" onClick="{{ r.ctl.sUp }}" style="{{ r.ctl.sStepR }}" style-hover="color:#22d3ee">+</button>
                 </span>
               </sc-if>
               <button onClick="{{ r.addRow }}" style="{{ mAddBtn }}" style-hover="background:rgba(34,211,238,.26)">ADD</button>
@@ -371,7 +371,7 @@ option{background:#070b12;color:#d7e6ef}
             <button onClick="{{ r.remove }}" style="{{ rowBinBtn }}" style-hover="color:#f08c7a"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 7h16"></path><path d="M10 11.5v5.5M14 11.5v5.5"></path><path d="M6.5 7l.9 12.1a1.4 1.4 0 0 0 1.4 1.3h6.4a1.4 1.4 0 0 0 1.4-1.3L17.5 7"></path><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"></path></svg></button>
             <span data-pulse="{{ r.stepPulse }}" style="{{ r.sQtyCell }}">{{ r.qty }}<span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
             <span style="{{ r.sKcalCell }}">{{ r.mSumVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
-            <button onClick="{{ r.ctl.reset }}" style="{{ r.resetCell }}" style-hover="color:#22d3ee"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
+            <button onClick="{{ r.ctl.reset }}" style="{{ r.resetCell }}" style-hover="color:#22d3ee"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
           </div>
           <div style="{{ r.sExpand }}">
             <span style="{{ mExpandGrid }}">
@@ -382,15 +382,15 @@ option{background:#070b12;color:#d7e6ef}
             </span>
             <span style="{{ mMeasureRow }}">
               <span onClick="{{ r.ctl.pickG }}" style="{{ r.ctl.gCell }}">
-                <button data-step="l" onClick="{{ r.ctl.gDown }}" style="{{ r.ctl.gStep }}" style-hover="color:#22d3ee">−</button>
-                <span style="{{ mAmt }}">{{ r.ctl.gQty }}</span><span style="{{ sizeSuffix }}">{{ r.ctl.gUnit }}</span>
-                <button data-step="r" onClick="{{ r.ctl.gUp }}" style="{{ r.ctl.gStep }}" style-hover="color:#22d3ee">+</button>
+                <button data-step="l" onClick="{{ r.ctl.gDown }}" style="{{ r.ctl.gStepL }}" style-hover="color:#22d3ee">−</button>
+                <span style="{{ mAmt }}">{{ r.ctl.gQty }}<span style="{{ sizeSuffix }}">{{ r.ctl.gUnit }}</span></span>
+                <button data-step="r" onClick="{{ r.ctl.gUp }}" style="{{ r.ctl.gStepR }}" style-hover="color:#22d3ee">+</button>
               </span>
               <sc-if value="{{ r.ctl.hasServing }}" hint-placeholder-val="{{ true }}">
                 <span onClick="{{ r.ctl.pickS }}" style="{{ r.ctl.sCell }}">
-                  <button data-step="l" onClick="{{ r.ctl.sDown }}" style="{{ r.ctl.sStep }}" style-hover="color:#22d3ee">−</button>
-                  <span style="{{ mAmt }}">{{ r.ctl.servQty }}</span><span style="{{ mServName }}">{{ r.ctl.servName }}</span>
-                  <button data-step="r" onClick="{{ r.ctl.sUp }}" style="{{ r.ctl.sStep }}" style-hover="color:#22d3ee">+</button>
+                  <button data-step="l" onClick="{{ r.ctl.sDown }}" style="{{ r.ctl.sStepL }}" style-hover="color:#22d3ee">−</button>
+                  <span style="{{ mAmt }}">{{ r.ctl.servQty }}<span style="{{ mServName }}">{{ r.ctl.servName }}</span></span>
+                  <button data-step="r" onClick="{{ r.ctl.sUp }}" style="{{ r.ctl.sStepR }}" style-hover="color:#22d3ee">+</button>
                 </span>
               </sc-if>
               <button onClick="{{ r.remove }}" style="{{ mBinBtn }}" style-hover="background:rgba(240,140,122,.26)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M4 7h16"></path><path d="M10 11.5v5.5M14 11.5v5.5"></path><path d="M6.5 7l.9 12.1a1.4 1.4 0 0 0 1.4 1.3h6.4a1.4 1.4 0 0 0 1.4-1.3L17.5 7"></path><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"></path></svg></button>
@@ -1050,7 +1050,7 @@ class Component extends DCLogic {
     // The reset lives at the top right of an open food, level with its name.
     const resetBase = {
       alignItems: "center", justifyContent: "flex-end", alignSelf: "start",
-      height: "2.5rem", padding: "0 .25rem 0 0", border: 0, borderRadius: 0,
+      height: "2.5rem", padding: "0 .6rem 0 0", border: 0, borderRadius: 0,
       background: "transparent", cursor: "pointer", transition: "color 160ms ease"
     };
     // One amount control, used by a results row before adding and by a plate row after. The
@@ -1077,8 +1077,10 @@ class Component extends DCLogic {
           color: mode === "s" ? "#eaf5fb" : "#7b91a3",
           textShadow: mode === "s" ? "0 0 12px rgba(34,211,238,.35)" : "none"
         }),
-        gStep: Object.assign({}, stepBase, { display: mode === "g" ? "flex" : "none" }),
-        sStep: Object.assign({}, stepBase, { display: mode === "s" ? "flex" : "none" }),
+        gStepL: Object.assign({}, stepL, { display: mode === "g" ? "flex" : "none" }),
+        gStepR: Object.assign({}, stepR, { display: mode === "g" ? "flex" : "none" }),
+        sStepL: Object.assign({}, stepL, { display: mode === "s" ? "flex" : "none" }),
+        sStepR: Object.assign({}, stepR, { display: mode === "s" ? "flex" : "none" }),
         pickG: stopWith(() => setMode("g")),
         pickS: stopWith(() => { if (pg) setMode("s"); }),
         gDown: stopWith(() => setQ(qty > 10 ? (Math.ceil(qty / 10) - 1) * 10 : 1)),
@@ -1091,12 +1093,16 @@ class Component extends DCLogic {
     };
     // Same stepper as the summary uses, minus the side-specific padding.
     const stepBase = {
-      flex: "none", width: "2rem", alignSelf: "stretch", padding: 0,
-      alignItems: "center", justifyContent: "center",
+      flex: "none", width: "2.1rem", alignSelf: "stretch", padding: 0,
+      alignItems: "center",
       border: 0, borderRadius: 0, background: "transparent", cursor: "pointer",
       color: "#22d3ee", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.35rem",
       lineHeight: 1, transition: "color 140ms ease"
     };
+    // Each stepper keeps the whole 2.1rem as a target but sits its glyph against its own
+    // edge of the cell, so the two of them read as the ends of the thing they change.
+    const stepL = Object.assign({}, stepBase, { justifyContent: "flex-start", paddingLeft: ".2rem" });
+    const stepR = Object.assign({}, stepBase, { justifyContent: "flex-end", paddingRight: ".2rem" });
     // One-way: once you have typed, the page never returns to the landing state.
     const landing = !!s.narrow && !s.typed;
     const vh = s.vvh || (typeof window !== "undefined" ? window.innerHeight : 800);
@@ -1637,12 +1643,14 @@ class Component extends DCLogic {
       mColCell: Object.assign({}, mColCellBase, { display: bare ? "none" : "flex" }),
       mMacroTag: { fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".06em", color: "#7b91a3" },
       mMeasureRow: {
-        display: "flex", alignItems: "center", gap: ".5rem", height: "2.75rem",
-        padding: "0 .35rem .4rem .55rem", boxSizing: "border-box",
+        display: "flex", alignItems: "center", gap: ".8rem", height: "2.75rem",
+        padding: "0 .3rem .4rem .55rem", boxSizing: "border-box",
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.1rem",
         fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
       },
-      mAmt: { padding: "0 .1rem" },
+      // The amount fills the middle of its cell, which leaves the two steppers pinned to
+      // the cell's edges instead of drifting with the width of the number.
+      mAmt: { flex: 1, minWidth: 0, textAlign: "center", padding: "0 .1rem" },
       mServName: {
         marginLeft: ".35rem", fontFamily: "var(--font-2)", fontSize: ".8rem",
         letterSpacing: ".1em", color: "#7b91a3"
@@ -1679,7 +1687,7 @@ class Component extends DCLogic {
       // A word rather than a button: the same voice as CLEAR ALL, lit like a chosen tab.
       mAddBtn: {
         flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
-        height: "2rem", padding: "0 .5rem 0 .35rem", border: 0, borderRadius: 0,
+        height: "2rem", padding: "0 .45rem 0 .5rem", border: 0, borderRadius: 0,
         background: "transparent", cursor: "pointer", color: "#22d3ee",
         fontFamily: "var(--font-2)", fontSize: ".82rem", letterSpacing: ".14em",
         textShadow: "0 0 12px rgba(34,211,238,.45)", transition: "text-shadow 140ms ease"
