@@ -45,8 +45,10 @@ What is different from the root:
   `tools/mark_common.py`; the root site reads ten and ignores it.
 - Opening a food on mobile shows the amount two ways, with an `=` between them: grams, and
   the same amount as household servings ("1 MEDIUM", "1 SLICE", "1 TBSP"). Every food has a
-  second unit — the quarter of SR Legacy that USDA only ever weighs falls back to ounces,
-  or to cups and tablespoons if it is a liquid. Whichever side you tap takes the
+  second unit — the quarter of SR Legacy that USDA only ever weighs falls back to OUNCES,
+  or to cups and tablespoons if it is a liquid. If OUNCES is the header measure too, that
+  pair turns round: your chosen measure on the left, grams on the right, since "28 g = 1
+  OUNCES" converts nothing. Whichever side you tap takes the
   − and + — grams move in tens, servings in whole servings, and picking a side does not
   round until a stepper is pressed. The macros follow, a reset arrow (faint until the
   amount moves off the header measure) puts it back, and ADD puts that amount on the plate.

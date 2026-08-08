@@ -103,7 +103,7 @@ def fallback(portions, liquid):
         # Weight-ounces are what meat, fish, nuts and cheese are sold and served in: 3 oz of
         # steak, 1 oz of nuts. A tablespoon would be a volume, and there is no density here
         # to turn one into the other.
-        return OZ_G, "OZ"
+        return OZ_G, "OUNCES"
     # Volume converts honestly. A shot is spoons; a beer is cups.
     small = any(g <= SPOONABLE_ML for _, _, _, g in portions) if portions else False
     return (TBSP_ML, "TBSP") if small else (CUP_ML, "CUP")
@@ -112,7 +112,9 @@ def fallback(portions, liquid):
 def short(label):
     """'cup, sliced' -> 'CUP'. The grams carry the detail; the label only has to be read."""
     cut = re.split(r"[,(]|\s\d", label, 1)[0].strip(" .-")
-    return (cut or label).upper()[:14]
+    out = (cut or label).upper()[:14]
+    # Spelt out, because two letters next to a number read as a variable rather than a unit.
+    return "OUNCES" if out == "OZ" else out
 
 
 def clean(desc):

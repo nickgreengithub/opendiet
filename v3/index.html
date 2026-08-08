@@ -351,7 +351,7 @@ option{background:#070b12;color:#d7e6ef}
                 <span style="{{ mEquals }}">=</span>
                 <span onClick="{{ r.ctl.pickS }}" style="{{ r.ctl.sCell }}">
                   <button data-step="l" onClick="{{ r.ctl.sDown }}" style="{{ r.ctl.sStepL }}" style-hover="color:#22d3ee">−</button>
-                  <span style="{{ r.ctl.sAmt }}">{{ r.ctl.servQty }}<span style="{{ mServName }}">{{ r.ctl.servName }}</span></span>
+                  <span style="{{ r.ctl.sAmt }}">{{ r.ctl.servQty }}<span style="{{ r.ctl.servStyle }}">{{ r.ctl.servName }}</span></span>
                   <button data-step="r" onClick="{{ r.ctl.sUp }}" style="{{ r.ctl.sStepR }}" style-hover="color:#22d3ee">+</button>
                 </span>
               </sc-if>
@@ -391,7 +391,7 @@ option{background:#070b12;color:#d7e6ef}
                 <span style="{{ mEquals }}">=</span>
                 <span onClick="{{ r.ctl.pickS }}" style="{{ r.ctl.sCell }}">
                   <button data-step="l" onClick="{{ r.ctl.sDown }}" style="{{ r.ctl.sStepL }}" style-hover="color:#22d3ee">−</button>
-                  <span style="{{ r.ctl.sAmt }}">{{ r.ctl.servQty }}<span style="{{ mServName }}">{{ r.ctl.servName }}</span></span>
+                  <span style="{{ r.ctl.sAmt }}">{{ r.ctl.servQty }}<span style="{{ r.ctl.servStyle }}">{{ r.ctl.servName }}</span></span>
                   <button data-step="r" onClick="{{ r.ctl.sUp }}" style="{{ r.ctl.sStepR }}" style-hover="color:#22d3ee">+</button>
                 </span>
               </sc-if>
@@ -1047,8 +1047,17 @@ class Component extends DCLogic {
     // Grams and servings are two ways of saying the same amount, so they are drawn as a
     // pair to choose between — a box each, the chosen one lit.
     const amtNumBase = { flex: 1, minWidth: 0, textAlign: "center", padding: "0 .1rem" };
+    // A unit that is a word rather than an abbreviation — OUNCES, TABLESPOON, CONTAINER —
+    // has to give some type back, or it runs into the + beside it on a narrow phone.
+    const servNameStyle = label => ({
+      marginLeft: label.length > 4 ? ".28rem" : ".35rem",
+      fontFamily: "var(--font-2)",
+      fontSize: label.length > 4 ? ".68rem" : ".8rem",
+      letterSpacing: label.length > 4 ? ".04em" : ".1em",
+      color: "#7b91a3"
+    });
     const amtCellBase = {
-      flex: 1, minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center",
+      minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center",
       height: "2rem", cursor: "pointer", borderRadius: 0,
       transition: "color 160ms ease, border-color 160ms ease, text-shadow 160ms ease"
     };
@@ -1066,12 +1075,26 @@ class Component extends DCLogic {
     const amountCtl = (fo, qty, setQ, mode, setMode) => {
       const pg = fo.pg || 0;
       const n = pg ? qty / pg : 0;
+      const gramsUnit = fo.mu === "ml" ? "ml" : "g";
+      // Picking the servings side does not round: it keeps showing the conversion until one
+      // of the steppers is actually pressed.
+      const servN = pg ? (Math.abs(n - Math.round(n)) < 0.05 ? String(Math.round(n)) : n.toFixed(1)) : "";
+      // Ounces are no use as the other way of reading an amount when ounces are already the
+      // measure — "28 g = 1 OUNCES" converts nothing. So the pair turns round: the measure
+      // you chose on the left, grams on the right, and the steppers follow their own side.
+      const flip = unit.k === "OZ" && fo.pn === "OUNCES" && !!pg;
+      const servLabel = flip ? gramsUnit.toUpperCase() : (fo.pn || "");
+      const tenDown = () => setQ(qty > 10 ? (Math.ceil(qty / 10) - 1) * 10 : 1);
+      const tenUp = () => setQ((Math.floor(qty / 10) + 1) * 10);
+      // Servings step to whole ones, which is the moment the rounding happens.
+      // Matched to the tolerance the number is displayed with, or an amount that reads as
+      // "1 oz" but is really 0.99 of one steps up to the ounce it is already showing.
+      const unitDown = () => { if (pg) setQ(Math.max(1, Math.ceil(qty / pg - 0.05) - 1) * pg); };
+      const unitUp = () => { if (pg) setQ((Math.floor(qty / pg + 0.05) + 1) * pg); };
       return {
-        gQty: String(qty), gUnit: fo.mu === "ml" ? "ml" : "g",
-        hasServing: !!pg, servName: fo.pn || "",
-        // Picking the servings side does not round: it keeps showing the conversion until
-        // one of the steppers is actually pressed.
-        servQty: pg ? (Math.abs(n - Math.round(n)) < 0.05 ? String(Math.round(n)) : n.toFixed(1)) : "",
+        gQty: flip ? servN : String(qty), gUnit: flip ? "oz" : gramsUnit,
+        hasServing: !!pg, servName: servLabel, servStyle: servNameStyle(servLabel),
+        servQty: flip ? String(qty) : servN,
         // The amount fills the middle of its cell, which leaves the two steppers pinned to
         // the cell's edges instead of drifting with the width of the number. The number of
         // the side you are not using stays readable — it is the same amount, not a disabled
@@ -1079,11 +1102,13 @@ class Component extends DCLogic {
         gAmt: Object.assign({}, amtNumBase, { color: mode === "g" ? "#eaf5fb" : "#b3c7d4" }),
         sAmt: Object.assign({}, amtNumBase, { color: mode === "s" ? "#eaf5fb" : "#b3c7d4" }),
         gCell: Object.assign({}, amtCellBase, {
+          flex: 1,
           borderBottom: "1px solid " + (mode === "g" ? "#22d3ee" : "rgba(34,211,238,.22)"),
           color: mode === "g" ? "#eaf5fb" : "#7b91a3",
           textShadow: mode === "g" ? "0 0 12px rgba(34,211,238,.35)" : "none"
         }),
         sCell: Object.assign({}, amtCellBase, {
+          flex: servLabel.length > 4 ? 1.3 : 1,
           borderBottom: "1px solid " + (mode === "s" ? "#22d3ee" : "rgba(34,211,238,.22)"),
           color: mode === "s" ? "#eaf5fb" : "#7b91a3",
           textShadow: mode === "s" ? "0 0 12px rgba(34,211,238,.35)" : "none"
@@ -1094,23 +1119,22 @@ class Component extends DCLogic {
         sStepR: Object.assign({}, stepR, { display: mode === "s" ? "flex" : "none" }),
         pickG: stopWith(() => setMode("g")),
         pickS: stopWith(() => { if (pg) setMode("s"); }),
-        gDown: stopWith(() => setQ(qty > 10 ? (Math.ceil(qty / 10) - 1) * 10 : 1)),
-        gUp: stopWith(() => setQ((Math.floor(qty / 10) + 1) * 10)),
-        // Servings step to whole ones, which is the moment the rounding happens.
-        sDown: stopWith(() => { if (pg) setQ(Math.max(1, Math.ceil(qty / pg) - 1) * pg); }),
-        sUp: stopWith(() => { if (pg) setQ((Math.floor(qty / pg) + 1) * pg); }),
+        gDown: stopWith(flip ? unitDown : tenDown),
+        gUp: stopWith(flip ? unitUp : tenUp),
+        sDown: stopWith(flip ? tenDown : unitDown),
+        sUp: stopWith(flip ? tenUp : unitUp),
         reset: stopWith(() => setQ(baseG))
       };
     };
     // Same stepper as the summary uses, minus the side-specific padding.
     const stepBase = {
-      flex: "none", width: "2.1rem", alignSelf: "stretch", padding: 0,
+      flex: "none", width: "1.85rem", alignSelf: "stretch", padding: 0,
       alignItems: "center",
       border: 0, borderRadius: 0, background: "transparent", cursor: "pointer",
       color: "#22d3ee", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.35rem",
       lineHeight: 1, transition: "color 140ms ease"
     };
-    // Each stepper keeps the whole 2.1rem as a target but sits its glyph against its own
+    // Each stepper keeps the whole 1.85rem as a target but sits its glyph against its own
     // edge of the cell, so the two of them read as the ends of the thing they change.
     const stepL = Object.assign({}, stepBase, { justifyContent: "flex-start", paddingLeft: ".2rem" });
     const stepR = Object.assign({}, stepBase, { justifyContent: "flex-end", paddingRight: ".2rem" });
@@ -1661,10 +1685,7 @@ class Component extends DCLogic {
       },
       // The two amounts are the same amount said twice, so an equals sign sits between them.
       mEquals: { flex: "none", color: "#4e6373", fontSize: "1rem" },
-      mServName: {
-        marginLeft: ".35rem", fontFamily: "var(--font-2)", fontSize: ".8rem",
-        letterSpacing: ".1em", color: "#7b91a3"
-      },
+
       // The open row's second line is the totals bar: same four cells, same type, same places.
       mExpandGrid: {
         display: "grid", gridTemplateColumns: "repeat(4,1fr)", alignItems: "center",
