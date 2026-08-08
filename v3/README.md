@@ -25,6 +25,11 @@ What is different from the root:
   about it is visible: no badge, no dot.
 - The everyday flag is an eleventh element on each food row, written by
   `tools/mark_common.py`; the root site reads ten and ignores it.
+- Opening a food on mobile shows the amount two ways: grams, and the same amount as
+  household servings ("1 MEDIUM", "1 SLICE", "1 TBSP"). Whichever side you tap takes the
+  − and + — grams move in tens, servings in whole servings — the macros follow, and the
+  plate inherits the amount when the food is added. `tools/add_portions.py` writes the
+  serving onto the food row as a twelfth and thirteenth element.
 
 The food libraries are **not** copied into this folder. `index.html` reads them from the
 site root via `const DATA = "../data/"`, so the two versions can never drift apart.

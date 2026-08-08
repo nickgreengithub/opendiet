@@ -18,9 +18,22 @@ USDA FoodData Central is public domain (17 U.S.C. §105).
  "foods": [["Broccoli, raw", 7, 34, 2.8, 6.6, 2.6, 0.4, 0.1, 1.7, 0]]}
 ```
 
-Each food is `[name, catIndex, kcal, protein, carb, fibre, fat, satFat, sugar, liquid]`.
+Each food is `[name, catIndex, kcal, protein, carb, fibre, fat, satFat, sugar, liquid]`,
+optionally followed by `everyday`, then `servingGrams, servingLabel`:
+
+```json
+["Apples, raw, with skin", 7, 52, 0.3, 13.8, 2.4, 0.2, 0, 10.4, 0, 1, 182, "MEDIUM"]
+```
+
 Grams per 100 g, except where `liquid` is `1` — those are per 100 ml. A food with no
 reported value for a nutrient carries `0`, which the table renders as `—`.
+
+`everyday` marks the entry a shopper means by the plain word — written by
+[`../tools/mark_common.py`](../tools/mark_common.py), used only to order search results.
+`servingGrams` and `servingLabel` are one household measure from FDC's portion tables,
+chosen by [`../tools/add_portions.py`](../tools/add_portions.py): 5,805 of SR Legacy's
+7,756 foods have one, and 8,164 of FNDDS's 8,661. A reader that stops at `liquid` is
+unaffected by any of them.
 
 Nutrients are FDC nutrient ids 1008 (energy, kcal), 1003 (protein), 1005 (carbohydrate
 by difference), 1079 (fibre), 1004 (total fat), 1258 (saturated fat), 2000 (total sugars).

@@ -282,11 +282,25 @@ option{background:#070b12;color:#d7e6ef}
             <span style="{{ r.mAddCell }}"><button onClick="{{ r.addRow }}" style="{{ mAddPlus }}" style-hover="background:rgba(34,211,238,.24)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:block;flex:none"><path d="M12 5v14M5 12h14"></path></svg></button></span>
           </div>
           <div style="{{ r.mExpand }}">
+            <span style="{{ mMeasureRow }}">
+              <span onClick="{{ r.pickG }}" style="{{ r.gCell }}">
+                <button data-step="l" onClick="{{ r.gDown }}" style="{{ r.gStep }}" style-hover="color:#22d3ee">−</button>
+                <span style="{{ mAmt }}">{{ r.gQty }}</span><span style="{{ sizeSuffix }}">{{ r.gUnit }}</span>
+                <button data-step="r" onClick="{{ r.gUp }}" style="{{ r.gStep }}" style-hover="color:#22d3ee">+</button>
+              </span>
+              <sc-if value="{{ r.hasServing }}" hint-placeholder-val="{{ true }}">
+                <span onClick="{{ r.pickS }}" style="{{ r.sCell }}">
+                  <button data-step="l" onClick="{{ r.sDown }}" style="{{ r.sStep }}" style-hover="color:#22d3ee">−</button>
+                  <span style="{{ mAmt }}">{{ r.servQty }}</span><span style="{{ mServName }}">{{ r.servName }}</span>
+                  <button data-step="r" onClick="{{ r.sUp }}" style="{{ r.sStep }}" style-hover="color:#22d3ee">+</button>
+                </span>
+              </sc-if>
+            </span>
             <span style="{{ mExpandGrid }}">
-              <span><span style="{{ mMacroTag }}">PROT</span> {{ r.v1 }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></span>
-              <span><span style="{{ mMacroTag }}">CARB</span> {{ r.v2 }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></span>
-              <span><span style="{{ mMacroTag }}">FAT</span> {{ r.v3 }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></span>
-              <span style="{{ mExpandVal }}">{{ r.mVal }}<span style="{{ unitSuffix }}">{{ mColUnit }}</span></span>
+              <span><span style="{{ mMacroTag }}">PROT</span> {{ r.xv.v1 }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></span>
+              <span><span style="{{ mMacroTag }}">CARB</span> {{ r.xv.v2 }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></span>
+              <span><span style="{{ mMacroTag }}">FAT</span> {{ r.xv.v3 }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></span>
+              <span style="{{ mExpandVal }}">{{ r.xv.col }}<span style="{{ unitSuffix }}">{{ mColUnit }}</span></span>
             </span>
           </div>
         </div>
@@ -522,6 +536,9 @@ class Component extends DCLogic {
           fo.w = fo.nl.split(/[^a-z0-9]+/).filter(Boolean);
           // The singular of every word, joined — so "berry" can reach "blueberries".
           fo.ns = fo.w.map(stemWord).join(" ");
+          // Twelfth and thirteenth: what one household serving of this food weighs, and
+          // what to call it — "182 g", "MEDIUM".
+          if (a[11]) { fo.pg = a[11]; fo.pn = a[12]; }
           return fo;
         });
         this.setState({ loadTick: (this.state.loadTick || 0) + 1 });
@@ -883,6 +900,14 @@ class Component extends DCLogic {
       fontSize: "1.04rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
     };
     const mCols = bare ? "minmax(0,1fr)" : "minmax(0,1fr) 7rem";
+    // Same stepper as the summary uses, minus the side-specific padding.
+    const stepBase = {
+      flex: "none", width: "2rem", alignSelf: "stretch", padding: 0,
+      alignItems: "center", justifyContent: "center",
+      border: 0, borderRadius: 0, background: "transparent", cursor: "pointer",
+      color: "#7b91a3", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.35rem",
+      lineHeight: 1, transition: "color 140ms ease"
+    };
     // One-way: once you have typed, the page never returns to the landing state.
     const landing = !!s.narrow && !s.typed;
     const vh = s.vvh || (typeof window !== "undefined" ? window.innerHeight : 800);
@@ -899,6 +924,12 @@ class Component extends DCLogic {
     // Mobile has no room for the macros beside the name, so a tap opens the food instead of
     // adding it: the row grows a second line carrying the macros, and adding becomes explicit.
     const openName = s.narrow && !bare ? s.mOpen : null;
+    // An open row carries its own amount, in grams, starting at whatever the header
+    // measures by. Either side of the control can drive it: grams move in tens, servings
+    // in whole servings, and the macros below follow whichever it is.
+    const openQty = s.mQty === undefined ? Math.round(unit.g) : s.mQty;
+    const openMode = s.mMode === "s" ? "s" : "g";
+    const setQty = q => this.setState({ mQty: Math.min(990, Math.max(1, Math.round(q))) });
     let rows = src.slice(0, ROW_CAP).map((fo, ri) => {
       const open = openName === fo.name;
       const r = mkRow(fo);
@@ -907,11 +938,12 @@ class Component extends DCLogic {
         finger: ri === 0 && rowHint && !!s.narrow,
         open: open,
         toggleRow: s.narrow
-          ? () => this.setState({ mOpen: open ? null : fo.name })
+          ? () => this.setState({ mOpen: open ? null : fo.name, mQty: Math.round(unit.g), mMode: "g" })
           : r.toggleRow,
         addRow: e => {
           if (e && e.stopPropagation) e.stopPropagation();
-          this.setState({ mOpen: null });
+          // The plate inherits the amount that was on screen, not a default 100 g.
+          this.setState(st => ({ mOpen: null, qty: Object.assign({}, st.qty, { [fo.name]: String(openQty) }) }));
           this.toggleSum(fo.name);
         },
         mRow: Object.assign({}, r.mRow, {
@@ -920,6 +952,37 @@ class Component extends DCLogic {
         }),
         mValCell: Object.assign({}, mColCellBase, { display: bare || open ? "none" : "flex" }),
         mAddCell: { display: open ? "flex" : "none", alignItems: "center", justifyContent: "flex-end", paddingRight: ".3rem" },
+        gCell: {
+          flex: 1, minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center",
+          height: "100%", cursor: "pointer",
+          color: openMode === "g" ? "#d7e6ef" : "#7b91a3",
+          transition: "color 160ms ease"
+        },
+        sCell: {
+          flex: 1, minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center",
+          height: "100%", cursor: "pointer",
+          color: openMode === "s" ? "#d7e6ef" : "#7b91a3",
+          transition: "color 160ms ease"
+        },
+        gStep: Object.assign({}, stepBase, { display: openMode === "g" ? "flex" : "none" }),
+        sStep: Object.assign({}, stepBase, { display: openMode === "s" ? "flex" : "none" }),
+        gQty: String(openQty), gUnit: fo.mu === "ml" ? "ml" : "g",
+        hasServing: !!fo.pg,
+        servName: fo.pn || "",
+        servQty: fo.pg ? (Math.abs(openQty / fo.pg - Math.round(openQty / fo.pg)) < 0.05
+          ? String(Math.round(openQty / fo.pg))
+          : (openQty / fo.pg).toFixed(1)) : "",
+        pickG: e => { if (e && e.stopPropagation) e.stopPropagation(); this.setState({ mMode: "g" }); },
+        // Switching to servings lands on a whole one, which is the point of switching.
+        pickS: e => {
+          if (e && e.stopPropagation) e.stopPropagation();
+          if (!fo.pg) return;
+          this.setState({ mMode: "s", mQty: Math.min(990, Math.max(1, Math.round(Math.max(1, Math.round(openQty / fo.pg)) * fo.pg))) });
+        },
+        gDown: e => { if (e && e.stopPropagation) e.stopPropagation(); setQty(openQty > 10 ? (Math.ceil(openQty / 10) - 1) * 10 : 1); },
+        gUp: e => { if (e && e.stopPropagation) e.stopPropagation(); setQty((Math.floor(openQty / 10) + 1) * 10); },
+        sDown: e => { if (e && e.stopPropagation) e.stopPropagation(); if (fo.pg) setQty(Math.max(1, Math.round(openQty / fo.pg) - 1) * fo.pg); },
+        sUp: e => { if (e && e.stopPropagation) e.stopPropagation(); if (fo.pg) setQty((Math.round(openQty / fo.pg) + 1) * fo.pg); },
         // Open, the name has the row to itself and can run onto a second line.
         mNameStyle: {
           display: "block", minWidth: 0, fontWeight: 300, fontSize: "1.02rem", color: "#d7e6ef",
@@ -928,9 +991,23 @@ class Component extends DCLogic {
           textOverflow: bare || open ? "clip" : "ellipsis",
           padding: bare || open ? ".35rem 0" : 0
         },
+        xv: (() => {
+          if (!open) return null;
+          const f = openQty / 100, mk2 = macroK(fo), ekc2 = kcalOf(fo), sc2 = scoreOf(fo);
+          const val = isPct
+            ? [r.v1, r.v2, r.v3]
+            : isKcalBasis
+              ? [String(Math.round(mk2[0] * f)), String(Math.round(mk2[1] * f)), String(Math.round(mk2[2] * f))]
+              : [this.fmt(fo.p * f), this.fmt(fo.c * f), this.fmt(fo.f * f)];
+          const col = mCol.k === "score" ? String(sc2)
+            : mCol.k === "kcal" ? String(Math.round(ekc2 * f))
+              : mCol.k === "dens" ? (fo.kcal / 100).toFixed(2)
+                : this.fmt(mCol.get(fo) * f);
+          return { v1: val[0], v2: val[1], v3: val[2], col: col };
+        })(),
         mExpand: {
           overflow: "hidden",
-          height: open ? "2.5rem" : "0px",
+          height: open ? "5rem" : "0px",
           opacity: open ? 1 : 0,
           borderBottom: open ? "1px solid rgba(34,211,238,.14)" : 0,
           transition: "height 260ms cubic-bezier(.22,1,.36,1), opacity 200ms ease"
@@ -1347,6 +1424,17 @@ class Component extends DCLogic {
       mNum: { display: bare ? "none" : "block", textAlign: "right", fontWeight: 300, fontSize: "1rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
       mColCell: Object.assign({}, mColCellBase, { display: bare ? "none" : "flex" }),
       mMacroTag: { fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".06em", color: "#7b91a3" },
+      mMeasureRow: {
+        display: "flex", alignItems: "center", height: "2.5rem",
+        borderBottom: "1px solid rgba(34,211,238,.14)",
+        fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.1rem",
+        fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
+      },
+      mAmt: { padding: "0 .1rem" },
+      mServName: {
+        marginLeft: ".35rem", fontFamily: "var(--font-2)", fontSize: ".8rem",
+        letterSpacing: ".1em", color: "#7b91a3"
+      },
       // The open row's second line is the totals bar: same four cells, same type, same places.
       mExpandGrid: {
         display: "grid", gridTemplateColumns: "repeat(4,1fr)", alignItems: "center",
