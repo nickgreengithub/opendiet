@@ -708,9 +708,11 @@ class Component extends DCLogic {
     return Math.max(0, Math.min(100, Math.round(t.p + t.c + t.f + t.fb + t.bk)));
   }
   catLabel(c) { const t = c.slice(0, 7); return t.charAt(0) + t.slice(1).toLowerCase(); }
-  pctFmt(v) { return v === 0 ? "\u2014" : v < 1 ? v.toFixed(1) : String(Math.round(v)); }
+  // Nothing of something is 0 of it, not a blank. The figure still greys out, so a row of
+  // zeroes reads as quietly as a row of dashes did.
+  pctFmt(v) { return v === 0 ? "0" : v < 1 ? v.toFixed(1) : String(Math.round(v)); }
   band(s) { return s >= 80 ? "A" : s >= 65 ? "B" : s >= 45 ? "C" : s >= 30 ? "D" : "F"; }
-  fmt(n) { return n === 0 ? "\u2014" : n < 1 ? n.toFixed(2) : n < 10 ? n.toFixed(1) : String(Math.round(n)); }
+  fmt(n) { return n === 0 ? "0" : n < 1 ? n.toFixed(2) : n < 10 ? n.toFixed(1) : String(Math.round(n)); }
   toggleSum(name) {
     // Taking a food off the plate is not instant: the row folds up where it stands, and only
     // once it has gone does the food actually leave, so it can rise back into the search list.
@@ -905,7 +907,7 @@ class Component extends DCLogic {
         cellK: Object.assign({}, numCell(null, false), { borderLeft: INNER }),
         cellScore: Object.assign({}, numCell(null, false), { borderLeft: EDGE, color: "#22d3ee" }),
         v1: vals[0], v2: vals[1], v3: vals[2],
-        cell1: numCell(HUE[0], vals[0] === "\u2014", true), cell2: numCell(HUE[1], vals[1] === "\u2014"), cell3: numCell(HUE[2], vals[2] === "\u2014"),
+        cell1: numCell(HUE[0], vals[0] === "0", true), cell2: numCell(HUE[1], vals[1] === "0"), cell3: numCell(HUE[2], vals[2] === "0"),
         cellFb: Object.assign({}, numCell(null, fo.fb === 0), { borderLeft: EDGE }),
         fbStyle: { display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300, fontSize: ".85rem", fontVariantNumeric: "tabular-nums", color: fo.fb === 0 ? "#7b91a3" : "#d7e6ef" },
         _sh: { s1: fo.p, s2: fo.c, s3: fo.f },
