@@ -374,7 +374,7 @@ const DATA = "../data/";
 const VH = typeof CSS !== "undefined" && CSS.supports && CSS.supports("height", "100dvh") ? "100dvh" : "100vh";
 
 class Component extends DCLogic {
-  state = { view: "results", q: "", cat: "ALL", catOpen: false, email: "", user: null, lib: "CORE", narrow: typeof window !== "undefined" && window.innerWidth < 700 };
+  state = { view: "results", q: "", cat: "ALL", catOpen: false, email: "", user: null, lib: "LEGACY", narrow: typeof window !== "undefined" && window.innerWidth < 700 };
   componentDidMount() {
     this.loadLib(this.state.lib);
     try {
@@ -507,7 +507,7 @@ class Component extends DCLogic {
   // The landing screen asks; it does not report. The count belongs on the docked bar.
   landingPrompt() { return "SEARCH FOODS"; }
   placeholderText() {
-    const s = this.state, libs = this.libraries(), lib = s.lib || "CORE";
+    const s = this.state, libs = this.libraries(), lib = s.lib || "LEGACY";
     const n = this.foods().filter(fo => s.cat === "ALL" || fo.cat === s.cat).length;
     return "SEARCH " + n.toLocaleString()
       + (s.narrow ? "" : " " + (libs.find(d => d.k === lib) || libs[0]).label.replace("USDA ", ""))
@@ -526,12 +526,11 @@ class Component extends DCLogic {
   }
   libraries() {
     return [
-      { k: "CORE", label: "USDA CORE", sub: "1,779", file: DATA + "core.json" },
       { k: "LEGACY", label: "USDA SR LEGACY", sub: "7,756", file: DATA + "legacy.json" },
       { k: "SURVEY", label: "USDA SURVEY FNDDS", sub: "8,661", file: DATA + "survey.json" }
     ];
   }
-  foods() { return (this._libs && this._libs[this.state.lib || "CORE"]) || []; }
+  foods() { return (this._libs && this._libs[this.state.lib || "LEGACY"]) || []; }
   // Bars scale to the largest value actually on screen, not the whole library.
   sortBy(k) {
     this.setState(s => s.sortKey === k ? { sortDir: s.sortDir === -1 ? 1 : -1 } : { sortKey: k, sortDir: -1 });
@@ -751,7 +750,13 @@ class Component extends DCLogic {
     // one of them into styles per keystroke is what makes the table feel dead.
     let src = this.foods();
     const q = s.q.trim().toLowerCase();
-    if (q) src = src.filter(fo => fo.name.toLowerCase().includes(q));
+    // Every word has to appear, but not in the order it was typed: USDA writes
+    // "Oil, olive, salad or cooking", and someone looking for it types "olive oil".
+    const qWords = q ? q.split(/\s+/).filter(Boolean) : [];
+    if (qWords.length) src = src.filter(fo => {
+      const n = fo.name.toLowerCase();
+      return qWords.every(w => n.includes(w));
+    });
     if (s.cat !== "ALL") src = src.filter(fo => fo.cat === s.cat);
     // On mobile an added food moves to the summary rather than sitting in both lists.
     if (s.narrow) src = src.filter(fo => !inSum(fo.name));
@@ -764,10 +769,10 @@ class Component extends DCLogic {
     // Searching is a different job from sorting. Under the default name sort a query
     // ranks by what was probably meant — the everyday entry first, then names that open
     // with the query, then alphabetically. Picking a column goes back to a plain sort.
-    const qLead = fo => fo.name.toLowerCase().startsWith(q) ? 0 : 1;
+    const qLead = fo => fo.name.toLowerCase().startsWith(qWords[0] || q) ? 0 : 1;
     src = src.slice().sort((a, b) =>
       key !== "name" ? dir * (sortNum(a) - sortNum(b))
-        : q ? (qLead(a) - qLead(b)) || ((b.cm || 0) - (a.cm || 0)) || dir * a.name.localeCompare(b.name)
+        : q ? ((b.cm || 0) - (a.cm || 0)) || (qLead(a) - qLead(b)) || dir * a.name.localeCompare(b.name)
           : dir * a.name.localeCompare(b.name));
     // Ambient onboarding, per session rather than per person: glow the search box until
     // something is typed, then glow the top result until a food is actually added. Both
@@ -875,7 +880,7 @@ class Component extends DCLogic {
       color: "#94a3b8"
     };
     const libs = this.libraries();
-    const lib = s.lib || "CORE";
+    const lib = s.lib || "LEGACY";
     const libOpts = libs.map((d, di) => ({
       label: d.label.replace("USDA ", ""), sub: d.sub,
       countStyle: { fontFamily: "var(--font-2)", fontSize: s.narrow ? ".95rem" : ".75rem", letterSpacing: ".12em", fontVariantNumeric: "tabular-nums", textAlign: "right", color: lib === d.k ? "#22d3ee" : "#7b91a3" },
