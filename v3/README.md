@@ -54,6 +54,16 @@ What is different from the root:
   amount moves off the header measure) puts it back, and ADD puts that amount on the plate.
   `tools/add_portions.py` writes the serving onto the food row as a twelfth and thirteenth
   element.
+- FULLNESS is checked against evidence rather than asserted. `tools/calibrate_fullness.py`
+  matches 33 of the 38 foods in Holt's 1995 satiety index — the only measured satiety data
+  there is — to SR Legacy and reports rank correlation, judged leave-one-out: fit on 32
+  foods, predict the 33rd. Refitting all six parameters scores 0.795 on the foods it was
+  fitted to and 0.530 on one it has not seen, which is overfitting, so the weights chosen by
+  judgement stand. One term survived the test on its own and is now in the score: sugar per
+  100 kcal at −0.5, which takes the correlation from 0.759 to 0.805. Water was tested too
+  and earns nothing — it correlates 0.96 with the bulk term and the fit sets its weight to
+  zero every time. The sugar term's known unfairness is that USDA reports total sugars, so
+  an apple is charged the same gram as a jellybean.
 - Plate rows open the same way, with a bin where ADD was, and edit the plate's own amount.
   Collapsed, a plate row just states its grams — the steppers live in the expansion.
 

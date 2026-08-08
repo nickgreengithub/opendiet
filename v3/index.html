@@ -688,7 +688,14 @@ class Component extends DCLogic {
       (s.cat === "ALL" || fo.cat === s.cat)
     );
   }
-  // Every term is per calorie: macro shares of energy, plus fibre per 100 kcal.
+  // Every term is per calorie: macro shares of energy, fibre and sugar per 100 kcal.
+  //
+  // The weights were guessed, then checked against the only measured satiety data there is
+  // — Holt 1995, 38 foods eaten in 1000 kJ servings and ranked against white bread. 33 of
+  // them are in SR Legacy. Refitting all of it scored better on those 33 and worse on a food
+  // it had not seen, which is overfitting rather than calibration, so the guessed weights
+  // stand. The one term that survived the test on its own is sugar: see
+  // tools/calibrate_fullness.py, which re-derives the number.
   fullness(fo, k) {
     const K = k || fo.kcal;
     const tot = fo.p * 4 + fo.c * 4 + fo.f * 9 || 1;
@@ -700,12 +707,16 @@ class Component extends DCLogic {
       c: 20 * (fo.c * 4 / tot),
       f: 5 * (fo.f * 9 / tot),
       fb: 2.6 * (fo.fb / K * 100),
-      bk: 30 * (1 - Math.exp(-bulk / 120))
+      bk: 30 * (1 - Math.exp(-bulk / 120)),
+      // Sweetness costs a food some of its fullness. USDA reports total sugars, so this
+      // charges an apple for the same gram it charges a jellybean — the one place the term
+      // is known to be unfair, and it still improves the ranking on every held-out food.
+      sg: -0.5 * (fo.sg / K * 100)
     };
   }
   score(fo, k) {
     const t = this.fullness(fo, k);
-    return Math.max(0, Math.min(100, Math.round(t.p + t.c + t.f + t.fb + t.bk)));
+    return Math.max(0, Math.min(100, Math.round(t.p + t.c + t.f + t.fb + t.bk + t.sg)));
   }
   catLabel(c) { const t = c.slice(0, 7); return t.charAt(0) + t.slice(1).toLowerCase(); }
   // Nothing of something is 0 of it, not a blank. The figure still greys out, so a row of
@@ -1324,7 +1335,7 @@ class Component extends DCLogic {
       s3: "The most energy-dense macronutrient at 9 kcal per gram. Needed to absorb vitamins A, D, E and K and to make hormones; some fatty acids are essential and can only come from food.",
       fb: "Carbohydrate that passes through the small intestine undigested. It adds bulk and slows digestion, so it contributes to fullness with little usable energy, and it feeds gut bacteria.",
       kcal: "Food energy, measured by the Atwater factors 4/4/9. Intake relative to expenditure is what moves body mass; the macro split shapes composition and satiety, not that balance.",
-      score: "An index used on this site, not an official measure. It weighs each macronutrient's share of a food's calories — protein highest, then carbohydrate, then fat — and adds a bonus for fibre per calorie."
+      score: "An index used on this site, not an official measure. It weighs each macronutrient's share of a food's calories — protein highest, then carbohydrate, then fat — adds a bonus for fibre and for the bulk a calorie buys, and takes something back for sugar. Checked against Holt's 1995 satiety index, the only measured data of its kind."
     };
     const tipStyle = {
       position: "absolute", top: "100%", right: 0, zIndex: 40, width: "20rem",
