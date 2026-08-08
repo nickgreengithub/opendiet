@@ -285,6 +285,7 @@ option{background:#070b12;color:#d7e6ef}
             </sc-if>
             <span style="{{ r.mNameStyle }}">{{ r.name }}</span>
             <span style="{{ r.mValCell }}">{{ r.mVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
+            <button onClick="{{ r.ctl.reset }}" style="{{ r.resetCell }}" style-hover="color:#22d3ee"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
           </div>
           <div style="{{ r.mExpand }}">
             <span style="{{ mExpandGrid }}">
@@ -306,7 +307,6 @@ option{background:#070b12;color:#d7e6ef}
                   <button data-step="r" onClick="{{ r.ctl.sUp }}" style="{{ r.ctl.sStep }}" style-hover="color:#22d3ee">+</button>
                 </span>
               </sc-if>
-              <button onClick="{{ r.ctl.reset }}" style="{{ r.ctl.resetStyle }}" style-hover="color:#22d3ee"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
               <button onClick="{{ r.addRow }}" style="{{ mAddBtn }}" style-hover="background:rgba(34,211,238,.26)">ADD</button>
             </span>
           </div>
@@ -323,7 +323,8 @@ option{background:#070b12;color:#d7e6ef}
             <span style="{{ r.sNameStyle }}">{{ r.name }}</span>
             <button onClick="{{ r.remove }}" style="{{ rowBinBtn }}" style-hover="color:#f08c7a"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 7h16"></path><path d="M10 11.5v5.5M14 11.5v5.5"></path><path d="M6.5 7l.9 12.1a1.4 1.4 0 0 0 1.4 1.3h6.4a1.4 1.4 0 0 0 1.4-1.3L17.5 7"></path><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"></path></svg></button>
             <span data-pulse="{{ r.stepPulse }}" style="{{ r.sQtyCell }}">{{ r.qty }}<span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
-            <span style="{{ mSumKcal }}">{{ r.mSumVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
+            <span style="{{ r.sKcalCell }}">{{ r.mSumVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
+            <button onClick="{{ r.ctl.reset }}" style="{{ r.resetCell }}" style-hover="color:#22d3ee"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
           </div>
           <div style="{{ r.sExpand }}">
             <span style="{{ mExpandGrid }}">
@@ -345,7 +346,6 @@ option{background:#070b12;color:#d7e6ef}
                   <button data-step="r" onClick="{{ r.ctl.sUp }}" style="{{ r.ctl.sStep }}" style-hover="color:#22d3ee">+</button>
                 </span>
               </sc-if>
-              <button onClick="{{ r.ctl.reset }}" style="{{ r.ctl.resetStyle }}" style-hover="color:#22d3ee"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
               <button onClick="{{ r.remove }}" style="{{ mBinBtn }}" style-hover="background:rgba(240,140,122,.26)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M4 7h16"></path><path d="M10 11.5v5.5M14 11.5v5.5"></path><path d="M6.5 7l.9 12.1a1.4 1.4 0 0 0 1.4 1.3h6.4a1.4 1.4 0 0 0 1.4-1.3L17.5 7"></path><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"></path></svg></button>
             </span>
           </div>
@@ -954,6 +954,12 @@ class Component extends DCLogic {
       height: "2rem", cursor: "pointer", borderRadius: 0,
       transition: "color 160ms ease, border-color 160ms ease, text-shadow 160ms ease"
     };
+    // The reset lives at the top right of an open food, level with its name.
+    const resetBase = {
+      alignItems: "center", justifyContent: "flex-end", alignSelf: "start",
+      height: "2.5rem", padding: "0 .25rem 0 0", border: 0, borderRadius: 0,
+      background: "transparent", cursor: "pointer", transition: "color 160ms ease"
+    };
     // One amount control, used by a results row before adding and by a plate row after. The
     // caller says where the number lives and how to change it; everything else is the same.
     const baseG = Math.round(unit.g);
@@ -987,14 +993,6 @@ class Component extends DCLogic {
         // Servings step to whole ones, which is the moment the rounding happens.
         sDown: stopWith(() => { if (pg) setQ(Math.max(1, Math.ceil(qty / pg) - 1) * pg); }),
         sUp: stopWith(() => { if (pg) setQ((Math.floor(qty / pg) + 1) * pg); }),
-        // Faint until the amount has moved off what the header measures by.
-        resetStyle: {
-          flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
-          width: "1.9rem", height: "2rem", padding: 0, border: 0, borderRadius: 0,
-          marginLeft: ".2rem", borderLeft: "1px solid rgba(34,211,238,.22)",
-          background: "transparent", cursor: "pointer",
-          color: qty === baseG ? "#26333e" : "#7b91a3", transition: "color 160ms ease"
-        },
         reset: stopWith(() => setQ(baseG))
       };
     };
@@ -1045,10 +1043,14 @@ class Component extends DCLogic {
           this.toggleSum(fo.name);
         },
         mRow: Object.assign({}, r.mRow, {
-          gridTemplateColumns: open ? "minmax(0,1fr)" : mCols,
+          gridTemplateColumns: open ? "minmax(0,1fr) 2.2rem" : mCols,
           borderBottom: open ? 0 : "1px solid rgba(34,211,238,.14)"
         }),
         mValCell: Object.assign({}, mColCellBase, { display: bare || open ? "none" : "flex" }),
+        resetCell: Object.assign({}, resetBase, {
+          display: open ? "flex" : "none",
+          color: openQty === baseG ? "#26333e" : "#7b91a3"
+        }),
         mAddCell: { display: open ? "flex" : "none", alignItems: "center", justifyContent: "flex-end", paddingRight: ".3rem" },
         ctl: open ? amountCtl(fo, openQty, q => this.setState({ mQty: clampG(q) }), openMode,
           m => this.setState({ mMode: m })) : null,
@@ -1266,8 +1268,13 @@ class Component extends DCLogic {
               q => this.setState(st => ({ qty: Object.assign({}, st.qty, { [fo.name]: String(clampG(q)) }) })),
               s.sMode === "s" ? "s" : "g", m => this.setState({ sMode: m }))
           : null,
+        sKcalCell: Object.assign({}, mColCellBase, { display: bin || sOpenName === fo.name ? "none" : "flex" }),
+        resetCell: Object.assign({}, resetBase, {
+          display: sOpenName === fo.name ? "flex" : "none",
+          color: Math.round(gramsOf(fo.name)) === baseG ? "#26333e" : "#7b91a3"
+        }),
         sQtyCell: {
-          display: bin ? "none" : "flex", alignItems: "center", justifyContent: "flex-end",
+          display: bin || sOpenName === fo.name ? "none" : "flex", alignItems: "center", justifyContent: "flex-end",
           paddingRight: ".2rem", fontWeight: 300, fontSize: "1.04rem",
           color: sOpenName === fo.name ? "#22d3ee" : "#d7e6ef",
           fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap",
@@ -1281,7 +1288,8 @@ class Component extends DCLogic {
           padding: sOpenName === fo.name ? ".3rem 0 .15rem" : 0
         },
         mSumRow: Object.assign({}, mSumRowBase, {
-          gridTemplateColumns: bin ? "minmax(0,1fr) 3rem" : "minmax(0,1fr) 4.6rem 4.2rem",
+          gridTemplateColumns: sOpenName === fo.name ? "minmax(0,1fr) 2.2rem"
+            : bin ? "minmax(0,1fr) 3rem" : "minmax(0,1fr) 4.6rem 4.2rem",
           borderBottom: sOpenName === fo.name ? 0 : "1px solid rgba(34,211,238,.14)"
         }),
         sExpand: {
@@ -1552,7 +1560,7 @@ class Component extends DCLogic {
         fontWeight: 300, fontSize: "1.08rem", color: "#d7e6ef",
         fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
       },
-      mExpandVal: { color: "#22d3ee" },
+      mExpandVal: { justifySelf: "end", paddingRight: ".3rem", color: "#22d3ee" },
       // The plate's version of ADD, in the colour of removal.
       mBinBtn: {
         flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
