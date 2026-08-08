@@ -371,6 +371,15 @@ option{background:#070b12;color:#d7e6ef}
 // this back to "data/".
 const DATA = "../data/";
 
+// Apples is apple. Enough of a stemmer for a shopping list: USDA pluralises the food and
+// people type the singular, or the other way round.
+function stemWord(w) {
+  return w.length > 4 && w.slice(-3) === "ies" ? w.slice(0, -3) + "y"
+    : w.length > 4 && (w.slice(-3) === "oes" || w.slice(-3) === "ses" || w.slice(-3) === "xes" || w.slice(-3) === "hes") ? w.slice(0, -2)
+      : w.length > 3 && w.slice(-1) === "s" && w.slice(-2) !== "ss" ? w.slice(0, -1)
+        : w;
+}
+
 const VH = typeof CSS !== "undefined" && CSS.supports && CSS.supports("height", "100dvh") ? "100dvh" : "100vh";
 
 class Component extends DCLogic {
@@ -497,6 +506,11 @@ class Component extends DCLogic {
           if (a[9]) fo.mu = "ml";
           // Eleventh element: this is the entry someone typing the plain word meant.
           if (a[10]) fo.cm = 1;
+          // Split once here rather than on every keystroke: search works word by word.
+          fo.nl = fo.name.toLowerCase();
+          fo.w = fo.nl.split(/[^a-z0-9]+/).filter(Boolean);
+          // The singular of every word, joined — so "berry" can reach "blueberries".
+          fo.ns = fo.w.map(stemWord).join(" ");
           return fo;
         });
         this.setState({ loadTick: (this.state.loadTick || 0) + 1 });
@@ -748,27 +762,40 @@ class Component extends DCLogic {
     // of a longer one, which beats a hit buried inside one ("berry" in "blueberries") —
     // and the everyday foods carry a bonus that nothing about the name can outweigh.
     const qWords = q ? q.split(/\s+/).filter(Boolean) : [];
-    const qPats = qWords.map(w => {
-      const e = w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      return {
-        whole: new RegExp("(?:^|[^a-z0-9])" + e + "(?![a-z0-9])"),
-        start: new RegExp("(?:^|[^a-z0-9])" + e)
-      };
-    });
-    // Points per word: a whole word beats the start of a longer one, which beats a hit
-    // buried inside one. Being on the everyday list, or being what the name opens with,
-    // add less than a tier — so a staple can break a tie but never outrank a better match
-    // ("steak" contains "tea", and a marked steak must not sit above a pot of tea).
-    const WHOLE_PTS = 4, START_PTS = 2, INSIDE_PTS = 1, COMMON_PTS = 2, LEAD_PTS = 1;
+    const stem = stemWord;
+    const qStems = qWords.map(stem);
+    // Points per word: a whole word (plural or not) beats the start of a longer one, which
+    // beats a hit buried inside one. Where in the name it landed counts too — the sixth word
+    // of a name is rarely what the food is. Being on the everyday list, or being what the
+    // name opens with, add less than a tier, so a staple can break a tie but never outrank a
+    // better match ("steak" contains "tea", and a marked steak is not a pot of tea).
+    const WHOLE_PTS = 4, START_PTS = 2, INSIDE_PTS = 1, COMMON_PTS = 3, LEAD_PTS = 1, NEAR_PTS = 3;
     if (qWords.length) src = src.filter(fo => {
-      const n = fo.name.toLowerCase();
-      let hit = 0;
+      const n = fo.nl, words = fo.w;
+      let hit = 0, near = 99;
       for (let i = 0; i < qWords.length; i++) {
-        if (n.indexOf(qWords[i]) < 0) return false;
-        hit += qPats[i].whole.test(n) ? WHOLE_PTS : qPats[i].start.test(n) ? START_PTS : INSIDE_PTS;
+        const tok = qWords[i], tokStem = qStems[i];
+        if (n.indexOf(tok) < 0 && fo.ns.indexOf(tokStem) < 0) return false;
+        let best = 0, bestAt = 99;
+        for (let j = 0; j < words.length; j++) {
+          const wd = words[j];
+          // Only a plural reads differently from its stem, so only plurals pay for one.
+          const wdStem = wd.charCodeAt(wd.length - 1) === 115 ? stem(wd) : wd;
+          let at = wd.indexOf(tok);
+          if (at < 0) at = wdStem.indexOf(tokStem);
+          if (at < 0) continue;
+          const pts = wdStem === tokStem ? WHOLE_PTS : at === 0 ? START_PTS : INSIDE_PTS;
+          if (pts > best) { best = pts; bestAt = j; }
+          else if (pts === best && j < bestAt) bestAt = j;
+          if (best === WHOLE_PTS && bestAt === 0) break;
+        }
+        // A token that straddles a break ("3.25") still counts, just weakly.
+        hit += best || INSIDE_PTS;
+        if (bestAt < near) near = bestAt;
       }
       if (fo.cm) hit += COMMON_PTS;
-      if (n.startsWith(qWords[0])) hit += LEAD_PTS;
+      if (n.indexOf(qWords[0]) === 0) hit += LEAD_PTS;
+      hit += Math.max(0, NEAR_PTS - near);
       // Scratch field, rewritten on every keystroke; only the sort below reads it.
       fo._hit = hit;
       return true;

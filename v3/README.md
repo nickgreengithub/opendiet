@@ -14,11 +14,13 @@ What is different from the root:
 - No CORE library. The everyday-food problem is solved in the search order rather than by
   filtering the data, so a long result list costs nothing. SR Legacy is the default; FNDDS
   is the other option. `data/core.json` stays for the root site, which still opens on it.
-- Search matches every word of the query, in any order, anywhere in the name. Results are
-  then scored — 4 for a whole word, 2 for the start of a longer one, 1 for a hit buried
-  inside one, +2 for being on the everyday list, +1 for the name opening with the query —
-  and ordered by that, then by the shorter name, then alphabetically. Nothing about it is
-  visible: no badge, no dot.
+- Search matches every word of the query, in any order, and treats a plural as its
+  singular in both directions — "apple" finds `Apples, raw`, "eggs" finds `Egg, whole, raw`,
+  "berry" reaches `Blueberries`. Results are then scored: 4 for a whole word, 2 for the
+  start of a longer one, 1 for a hit buried inside one, plus 3 for being on the everyday
+  list, 1 for the name opening with the query, and up to 3 for how early in the name the
+  match lands. Ordered by that, then by the shorter name, then alphabetically. Nothing
+  about it is visible: no badge, no dot.
 - The everyday flag is an eleventh element on each food row, written by
   `tools/mark_common.py`; the root site reads ten and ignores it.
 
