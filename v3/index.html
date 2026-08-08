@@ -187,14 +187,14 @@ option{background:#070b12;color:#d7e6ef}
       <span onMouseEnter="{{ openBasis.s3 }}" onMouseLeave="{{ closeBasis }}" onClick="{{ sortOn.s3 }}" style="{{ head3 }}"><span>FAT</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s3 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-2%</span></sc-if><sc-if value="{{ basisShow.s3 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></span></button></sc-for><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">FAT</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.s3 }}</span></span></span></span></sc-if></span>
       <span onMouseEnter="{{ tipOn.kcal }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.kcal }}" style="{{ headTotal }}"><span>KCAL</span><sc-if value="{{ sorted.kcal }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.kcal }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(34,211,238,.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="display:block;padding:0 .7rem .7rem"><span style="font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#94a3b8;text-wrap:pretty">Digestion costs 25% of protein calories, 8% of carbohydrate, 2% of fat. Always applied to KCAL; applied to the macro columns only when they show kcal contribution.</span></span><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">KCAL</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.kcal }}</span></span></span></span></sc-if></span>
       <span onMouseEnter="{{ openExtra }}" onMouseLeave="{{ closeExtra }}" onClick="{{ sortOn.extra }}" style="{{ headIsland }}"><span>{{ extraLabel }}</span><sc-if value="{{ sorted.extra }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ extraOpen }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ extraOpts }}" as="x" hint-placeholder-count="4"><button onClick="{{ x.onClick }}" style="{{ x.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ x.label }}</span><span style="{{ x.unitStyle }}">{{ x.unit }}</span></span><span style="{{ x.descStyle }}">{{ x.desc }}</span></button></sc-for></span></span></sc-if></span>
+      <span style="{{ dActHead }}"></span>
     </div>
     </div>
     <div style="{{ dBody }}">
     <div data-scroll="rows" style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box;display:flex;flex-direction:column">
     <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
-      <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="flex:none;display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
+      <div data-row data-new="{{ r.back }}" data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="flex:none;display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem 2.6rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
         <span style="display:flex;align-items:center;gap:.55rem;min-width:0">
-          <button onClick="{{ r.togglePlus }}" style="{{ r.starStyle }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="{{ r.starFill }}" stroke="currentColor" stroke-width="1.8" style="flex:none"><path d="M12 3.2l2.7 5.7 6 .9-4.35 4.4 1.03 6.2L12 17.5 6.62 20.4l1.03-6.2L3.3 9.8l6-.9L12 3.2z"></path></svg></button>
           <span style="flex:1;min-width:0;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span>
         </span>
         <span style="{{ measureCell }}">{{ r.measureVal }}<span style="{{ sizeSuffix }}">{{ r.measureUnit }}</span></span>
@@ -203,6 +203,7 @@ option{background:#070b12;color:#d7e6ef}
         <span style="{{ r.cell3 }}"><span style="{{ r.fill3 }}"></span><span style="{{ numWrap }}">{{ r.v3 }}</span></span>
         <span style="{{ r.cellK }}"><span style="{{ r.fillK }}"></span><span style="{{ numWrap }}">{{ r.kcalVal }}</span></span>
         <span style="{{ r.cellScore }}">{{ r.extraVal }}<span style="{{ extraSuffix }}">{{ extraUnit }}</span></span>
+        <span style="{{ dActCell }}"><button onClick="{{ r.togglePlus }}" style="{{ dAddBtn }}" style-hover="color:#8ff0fb"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:block"><path d="M12 5v14M5 12h14"></path></svg></button></span>
       </div>
     </sc-for>
     <div style="{{ gridFill }}"></div>
@@ -213,9 +214,8 @@ option{background:#070b12;color:#d7e6ef}
         <div style="position:relative;flex:1;min-height:0;display:flex;flex-direction:column">
         <div data-scroll style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box">
           <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
-            <div data-row onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
+            <div data-row data-new="{{ r.arrived }}" onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem 2.6rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
               <span style="display:flex;align-items:center;gap:.55rem;min-width:0">
-                <button onClick="{{ r.togglePlus }}" style="{{ r.starStyle }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" style="flex:none"><path d="M12 3.2l2.7 5.7 6 .9-4.35 4.4 1.03 6.2L12 17.5 6.62 20.4l1.03-6.2L3.3 9.8l6-.9L12 3.2z"></path></svg></button>
                 <span style="font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:color 140ms ease" style-hover="color:#a5f3fc">{{ r.name }}</span>
               </span>
               <span style="{{ sumSizeCell }}"><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
@@ -224,10 +224,11 @@ option{background:#070b12;color:#d7e6ef}
               <span style="{{ r.cell3 }}"><span style="{{ r.sfill3 }}"></span><span style="{{ numWrap }}">{{ r.v3 }}</span></span>
               <span style="{{ r.cellK }}"><span style="{{ r.sfillK }}"></span><span style="{{ numWrap }}">{{ r.sumKcal }}</span></span>
               <span style="{{ r.cellScore }}">{{ r.sumExtra }}<span style="{{ extraSuffix }}">{{ extraUnit }}</span></span>
+              <span style="{{ dActCell }}"><button onClick="{{ r.togglePlus }}" style="{{ dDropBtn }}" style-hover="color:#f6b3a5"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:block"><path d="M5 12h14"></path></svg></button></span>
             </div>
           </sc-for>
           <sc-if value="{{ never }}" hint-placeholder-val="{{ false }}">
-            <div style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14)">
+            <div style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem 2.6rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14)">
               <span></span>
               <span></span>
               <span style="{{ blankFaint }}"></span>
@@ -240,14 +241,15 @@ option{background:#070b12;color:#d7e6ef}
           </sc-if>
         </div>
         </div>
-        <div style="flex:none;margin-right:10px;display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-top:1px solid rgba(34,211,238,.55);font-size:.9rem;color:#d7e6ef">
-          <span style="display:flex;align-items:center;gap:.55rem;font-family:var(--font-2);font-size:.75rem;letter-spacing:.12em;color:#7b91a3"><svg width="14" height="14" viewBox="0 0 24 24" fill="#22d3ee" stroke="#22d3ee" stroke-width="1.8" style="flex:none"><path d="M12 3.2l2.7 5.7 6 .9-4.35 4.4 1.03 6.2L12 17.5 6.62 20.4l1.03-6.2L3.3 9.8l6-.9L12 3.2z"></path></svg>TOTAL</span>
+        <div style="flex:none;margin-right:10px;display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem 2.6rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-top:1px solid rgba(34,211,238,.55);font-size:.9rem;color:#d7e6ef">
+          <span style="display:flex;align-items:center;gap:.55rem;font-family:var(--font-2);font-size:.75rem;letter-spacing:.12em;color:#7b91a3">TOTAL</span>
           <span style="{{ measureCell }}">{{ tot.qty }}<span style="{{ sizeSuffix }}">{{ tot.qtyUnit }}</span></span>
           <span style="{{ tot.cell1 }}"><span style="{{ tot.fill1 }}"></span><span style="{{ numWrap }}">{{ tot.v1 }}</span></span>
           <span style="{{ tot.cell2 }}"><span style="{{ tot.fill2 }}"></span><span style="{{ numWrap }}">{{ tot.v2 }}</span></span>
           <span style="{{ tot.cell3 }}"><span style="{{ tot.fill3 }}"></span><span style="{{ numWrap }}">{{ tot.v3 }}</span></span>
           <span style="{{ tot.cellK }}"><span style="{{ tot.fillK }}"></span><span style="{{ numWrap }}">{{ tot.kcalVal }}</span></span>
           <span style="{{ tot.cellScore }}">{{ tot.extraVal }}<span style="{{ extraSuffix }}">{{ extraUnit }}</span></span>
+          <span style="{{ dActHead }}"></span>
         </div>
       </div>
     </sc-if>
@@ -279,7 +281,7 @@ option{background:#070b12;color:#d7e6ef}
     <div data-scroll="rows" style="{{ mListStyle }}">
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
         <div>
-          <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ r.mRow }}">
+          <div data-row data-new="{{ r.back }}" data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ r.mRow }}">
             <sc-if value="{{ r.finger }}" hint-placeholder-val="{{ false }}">
               <span data-finger><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span>
             </sc-if>
@@ -685,6 +687,10 @@ class Component extends DCLogic {
         this._addT = setTimeout(() => this.setState({ justAdded: null }), 1600);
         return { sum, starred: true, rowHint: false, sumHold: hold, justAdded: name };
       }
+      // Taking a food off the plate puts it back in the list, where it says so.
+      clearTimeout(this._backT);
+      this._backT = setTimeout(() => this.setState({ justBack: null }), 1600);
+      return { sum, starred: true, rowHint: false, sumHold: hold, justBack: name };
       return { sum, starred: true, rowHint: false, sumHold: hold };
     });
   }
@@ -896,8 +902,8 @@ class Component extends DCLogic {
       return true;
     });
     if (s.cat !== "ALL") src = src.filter(fo => fo.cat === s.cat);
-    // On mobile an added food moves to the summary rather than sitting in both lists.
-    if (s.narrow) src = src.filter(fo => !inSum(fo.name));
+    // An added food moves to the summary rather than sitting in both lists.
+    src = src.filter(fo => !inSum(fo.name));
     const matchCount = src.length;
     const key = sortKey, dir = key === "name" ? sortDir : -sortDir;
     const sortNum = fo => key === "extra"
@@ -1013,7 +1019,7 @@ class Component extends DCLogic {
     // 82px is the shell's top padding plus the tab bar; 54 is the tall landing row.
     const dLanding = !s.narrow && !s.typed && app === "search";
     const dDrop = Math.max(0, Math.round((vh - 54) / 2) - 82);
-    const dCols = "minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem";
+    const dCols = "minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem 2.6rem";
     const dHide = dLanding ? { display: "none" } : {};
     // The list is a leaderboard for the current sort; searching is how you reach the rest.
     const ROW_CAP = s.narrow ? 100 : 250;
@@ -1032,6 +1038,7 @@ class Component extends DCLogic {
       return Object.assign(r, {
         hint: ri === 0 && rowHint && !s.narrow ? "on" : "off",
         finger: ri === 0 && rowHint && !!s.narrow,
+        back: s.justBack === fo.name ? "on" : "off",
         open: open,
         toggleRow: s.narrow
           ? () => this.setState({ mOpen: open ? null : fo.name, mQty: Math.round(unit.g), mMode: "g" })
@@ -1373,17 +1380,18 @@ class Component extends DCLogic {
       // mid-page. Drawn rather than built, so it costs no rows and never lengthens the scroll.
       gridFill: {
         flex: "1 1 auto", minHeight: 0, pointerEvents: "none",
-        backgroundRepeat: "no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat",
+        backgroundRepeat: "no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat",
         backgroundImage:
           "linear-gradient(" + EDGE_C + "," + EDGE_C + ")," +
           "linear-gradient(" + INNER_C + "," + INNER_C + ")," +
           "linear-gradient(" + INNER_C + "," + INNER_C + ")," +
           "linear-gradient(" + INNER_C + "," + INNER_C + ")," +
           "linear-gradient(" + EDGE_C + "," + EDGE_C + ")," +
+          "linear-gradient(" + EDGE_C + "," + EDGE_C + ")," +
           "repeating-linear-gradient(to bottom, transparent 0, transparent 1.8rem, " + INNER_C + " 1.8rem, " + INNER_C + " calc(1.8rem + 1px))",
-        backgroundSize: "1px 100%, 1px 100%, 1px 100%, 1px 100%, 1px 100%, 100% calc(1.8rem + 1px)",
+        backgroundSize: "1px 100%, 1px 100%, 1px 100%, 1px 100%, 1px 100%, 2px 100%, 100% calc(1.8rem + 1px)",
         backgroundPosition:
-          "right 38.2rem top, right 30.45rem top, right 22.7rem top, right 14.95rem top, right 7.2rem top, left top"
+          "right 41.35rem top, right 33.6rem top, right 25.85rem top, right 18.1rem top, right 10.35rem top, right 2.6rem top, left top"
       },
       dHeadRow: {
         display: "grid", gridTemplateColumns: dLanding ? "minmax(0,1fr)" : dCols,
@@ -1561,6 +1569,20 @@ class Component extends DCLogic {
         fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
       },
       mExpandVal: { justifySelf: "end", paddingRight: ".3rem", color: "#22d3ee" },
+      // The last column is for doing rather than reading, so it is fenced off by a heavier
+      // rule than the ones between the figures.
+      dActHead: { borderLeft: "2px solid rgba(34,211,238,.55)" },
+      dActCell: { display: "flex", alignItems: "center", justifyContent: "center", borderLeft: "2px solid rgba(34,211,238,.55)" },
+      dAddBtn: {
+        display: "flex", alignItems: "center", justifyContent: "center",
+        width: "100%", height: "100%", padding: 0, border: 0, borderRadius: 0,
+        background: "transparent", cursor: "pointer", color: "#22d3ee", transition: "color 140ms ease"
+      },
+      dDropBtn: {
+        display: "flex", alignItems: "center", justifyContent: "center",
+        width: "100%", height: "100%", padding: 0, border: 0, borderRadius: 0,
+        background: "transparent", cursor: "pointer", color: "#f08c7a", transition: "color 140ms ease"
+      },
       // The plate's version of ADD, in the colour of removal.
       mBinBtn: {
         flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
