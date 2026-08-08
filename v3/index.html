@@ -181,7 +181,7 @@ option{background:#070b12;color:#d7e6ef}
       <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="flex:none;display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
         <span style="display:flex;align-items:center;gap:.55rem;min-width:0">
           <button onClick="{{ r.togglePlus }}" style="{{ r.starStyle }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="{{ r.starFill }}" stroke="currentColor" stroke-width="1.8" style="flex:none"><path d="M12 3.2l2.7 5.7 6 .9-4.35 4.4 1.03 6.2L12 17.5 6.62 20.4l1.03-6.2L3.3 9.8l6-.9L12 3.2z"></path></svg></button>
-          <span style="flex:1;min-width:0;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span style="{{ r.dotStyle }}"></span>{{ r.name }}</span>
+          <span style="flex:1;min-width:0;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span>
         </span>
         <span style="{{ measureCell }}">{{ r.measureVal }}<span style="{{ sizeSuffix }}">{{ r.measureUnit }}</span></span>
         <span style="{{ r.cell1 }}"><span style="{{ r.fill1 }}"></span><span style="{{ numWrap }}">{{ r.v1 }}</span></span>
@@ -269,7 +269,7 @@ option{background:#070b12;color:#d7e6ef}
             <sc-if value="{{ r.finger }}" hint-placeholder-val="{{ false }}">
               <span data-finger><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span>
             </sc-if>
-            <span style="{{ r.mNameStyle }}"><span style="{{ r.dotStyle }}"></span>{{ r.name }}</span>
+            <span style="{{ r.mNameStyle }}">{{ r.name }}</span>
             <span style="{{ r.mValCell }}">{{ r.mVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
             <span style="{{ r.mAddCell }}"><button onClick="{{ r.addRow }}" style="{{ mAddPlus }}" style-hover="background:rgba(34,211,238,.24)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:block;flex:none"><path d="M12 5v14M5 12h14"></path></svg></button></span>
           </div>
@@ -724,14 +724,6 @@ class Component extends DCLogic {
         cell1: numCell(HUE[0], vals[0] === "\u2014", true), cell2: numCell(HUE[1], vals[1] === "\u2014"), cell3: numCell(HUE[2], vals[2] === "\u2014"),
         cellFb: Object.assign({}, numCell(null, fo.fb === 0), { borderLeft: EDGE }),
         fbStyle: { display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300, fontSize: ".85rem", fontVariantNumeric: "tabular-nums", color: fo.fb === 0 ? "#7b91a3" : "#d7e6ef" },
-        common: !!fo.cm,
-        // A dot rather than a word: the slot is always there, so names stay in one column.
-        dotStyle: {
-          flex: "none", display: "inline-block", width: ".34rem", height: ".34rem", borderRadius: "50%",
-          marginRight: ".42rem", verticalAlign: "middle",
-          background: fo.cm ? "#22d3ee" : "transparent",
-          boxShadow: fo.cm ? "0 0 6px rgba(34,211,238,.65)" : "none"
-        },
         _sh: { s1: fo.p, s2: fo.c, s3: fo.f },
         togglePlus: e => { if (e && e.stopPropagation) e.stopPropagation(); this.toggleSum(fo.name); },
         toggleRow: () => this.toggleSum(fo.name),
@@ -752,10 +744,34 @@ class Component extends DCLogic {
     const q = s.q.trim().toLowerCase();
     // Every word has to appear, but not in the order it was typed: USDA writes
     // "Oil, olive, salad or cooking", and someone looking for it types "olive oil".
+    // Each match is then scored by how squarely it landed — a whole word beats the start
+    // of a longer one, which beats a hit buried inside one ("berry" in "blueberries") —
+    // and the everyday foods carry a bonus that nothing about the name can outweigh.
     const qWords = q ? q.split(/\s+/).filter(Boolean) : [];
+    const qPats = qWords.map(w => {
+      const e = w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return {
+        whole: new RegExp("(?:^|[^a-z0-9])" + e + "(?![a-z0-9])"),
+        start: new RegExp("(?:^|[^a-z0-9])" + e)
+      };
+    });
+    // Points per word: a whole word beats the start of a longer one, which beats a hit
+    // buried inside one. Being on the everyday list, or being what the name opens with,
+    // add less than a tier — so a staple can break a tie but never outrank a better match
+    // ("steak" contains "tea", and a marked steak must not sit above a pot of tea).
+    const WHOLE_PTS = 4, START_PTS = 2, INSIDE_PTS = 1, COMMON_PTS = 2, LEAD_PTS = 1;
     if (qWords.length) src = src.filter(fo => {
       const n = fo.name.toLowerCase();
-      return qWords.every(w => n.includes(w));
+      let hit = 0;
+      for (let i = 0; i < qWords.length; i++) {
+        if (n.indexOf(qWords[i]) < 0) return false;
+        hit += qPats[i].whole.test(n) ? WHOLE_PTS : qPats[i].start.test(n) ? START_PTS : INSIDE_PTS;
+      }
+      if (fo.cm) hit += COMMON_PTS;
+      if (n.startsWith(qWords[0])) hit += LEAD_PTS;
+      // Scratch field, rewritten on every keystroke; only the sort below reads it.
+      fo._hit = hit;
+      return true;
     });
     if (s.cat !== "ALL") src = src.filter(fo => fo.cat === s.cat);
     // On mobile an added food moves to the summary rather than sitting in both lists.
@@ -766,13 +782,12 @@ class Component extends DCLogic {
       ? (extra.k === "score" ? scoreOf(fo) : extra.k === "dens" ? fo.kcal / 100 : extra.get(fo))
       : key === "score" ? scoreOf(fo)
         : key === "s1" ? fo.p : key === "s2" ? fo.c : key === "s3" ? fo.f : fo[key];
-    // Searching is a different job from sorting. Under the default name sort a query
-    // ranks by what was probably meant — the everyday entry first, then names that open
-    // with the query, then alphabetically. Picking a column goes back to a plain sort.
-    const qLead = fo => fo.name.toLowerCase().startsWith(qWords[0] || q) ? 0 : 1;
+    // Searching is a different job from sorting: a query ranks by that score, ties go to
+    // the shorter name — USDA's qualifiers pile up on the far end of a food, so the plainer
+    // entry is the shorter one — and then to the alphabet. A column goes back to a sort.
     src = src.slice().sort((a, b) =>
       key !== "name" ? dir * (sortNum(a) - sortNum(b))
-        : q ? ((b.cm || 0) - (a.cm || 0)) || (qLead(a) - qLead(b)) || dir * a.name.localeCompare(b.name)
+        : q ? (b._hit - a._hit) || (a.name.length - b.name.length) || dir * a.name.localeCompare(b.name)
           : dir * a.name.localeCompare(b.name));
     // Ambient onboarding, per session rather than per person: glow the search box until
     // something is typed, then glow the top result until a food is actually added. Both
