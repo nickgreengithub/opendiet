@@ -74,6 +74,12 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
   45%{color:#8ff0fb;text-shadow:0 0 10px rgba(34,211,238,.95),0 0 26px rgba(34,211,238,.55);transform:scale(1.5)}
   70%{color:#22d3ee;text-shadow:0 0 8px rgba(34,211,238,.5);transform:scale(1.16)}}
 [data-pulse="on"]{animation:od-breathe 1200ms ease-in-out 4}
+/* The plate's amount says the same thing more quietly: it is text, not a button. */
+@keyframes od-breathe-soft{
+  0%,100%{color:#d7e6ef;text-shadow:none}
+  50%{color:#22d3ee;text-shadow:0 0 10px rgba(34,211,238,.55)}}
+[data-pulse="soft"]{animation:od-breathe-soft 1300ms ease-in-out 4}
+@media (prefers-reduced-motion:reduce){[data-pulse="soft"]{animation:none}}
 /* Grow away from the number, so the glyph swells in place rather than drifting. */
 [data-pulse="on"][data-step="l"]{transform-origin:100% 50%}
 [data-pulse="on"][data-step="r"]{transform-origin:0 50%}
@@ -282,18 +288,19 @@ option{background:#070b12;color:#d7e6ef}
           </div>
           <div style="{{ r.mExpand }}">
             <span style="{{ mMeasureRow }}">
-              <span onClick="{{ r.pickG }}" style="{{ r.gCell }}">
-                <button data-step="l" onClick="{{ r.gDown }}" style="{{ r.gStep }}" style-hover="color:#22d3ee">−</button>
-                <span style="{{ mAmt }}">{{ r.gQty }}</span><span style="{{ sizeSuffix }}">{{ r.gUnit }}</span>
-                <button data-step="r" onClick="{{ r.gUp }}" style="{{ r.gStep }}" style-hover="color:#22d3ee">+</button>
+              <span onClick="{{ r.ctl.pickG }}" style="{{ r.ctl.gCell }}">
+                <button data-step="l" onClick="{{ r.ctl.gDown }}" style="{{ r.ctl.gStep }}" style-hover="color:#22d3ee">−</button>
+                <span style="{{ mAmt }}">{{ r.ctl.gQty }}</span><span style="{{ sizeSuffix }}">{{ r.ctl.gUnit }}</span>
+                <button data-step="r" onClick="{{ r.ctl.gUp }}" style="{{ r.ctl.gStep }}" style-hover="color:#22d3ee">+</button>
               </span>
-              <sc-if value="{{ r.hasServing }}" hint-placeholder-val="{{ true }}">
-                <span onClick="{{ r.pickS }}" style="{{ r.sCell }}">
-                  <button data-step="l" onClick="{{ r.sDown }}" style="{{ r.sStep }}" style-hover="color:#22d3ee">−</button>
-                  <span style="{{ mAmt }}">{{ r.servQty }}</span><span style="{{ mServName }}">{{ r.servName }}</span>
-                  <button data-step="r" onClick="{{ r.sUp }}" style="{{ r.sStep }}" style-hover="color:#22d3ee">+</button>
+              <sc-if value="{{ r.ctl.hasServing }}" hint-placeholder-val="{{ true }}">
+                <span onClick="{{ r.ctl.pickS }}" style="{{ r.ctl.sCell }}">
+                  <button data-step="l" onClick="{{ r.ctl.sDown }}" style="{{ r.ctl.sStep }}" style-hover="color:#22d3ee">−</button>
+                  <span style="{{ mAmt }}">{{ r.ctl.servQty }}</span><span style="{{ mServName }}">{{ r.ctl.servName }}</span>
+                  <button data-step="r" onClick="{{ r.ctl.sUp }}" style="{{ r.ctl.sStep }}" style-hover="color:#22d3ee">+</button>
                 </span>
               </sc-if>
+              <button onClick="{{ r.ctl.reset }}" style="{{ r.ctl.resetStyle }}" style-hover="color:#22d3ee"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
               <button onClick="{{ r.addRow }}" style="{{ mAddBtn }}" style-hover="background:rgba(34,211,238,.26)">ADD</button>
             </span>
             <span style="{{ mExpandGrid }}">
@@ -311,11 +318,37 @@ option{background:#070b12;color:#d7e6ef}
       <div style="flex:none;display:flex;align-items:center;justify-content:space-between;min-height:2.3rem;padding:.15rem .3rem .15rem 0;font-family:var(--font-2);font-size:.9rem;letter-spacing:.14em;color:#7b91a3"><span style="flex:1;min-width:0">MY FOOD SUMMARY</span><span style="{{ mSumHeadQty }}">{{ sumQtyLabel }}</span><span style="{{ mSumHeadEnd }}"><sc-if value="{{ binMode }}" hint-placeholder-val="{{ false }}"><button onClick="{{ clearSum }}" style="{{ binAllBtn }}" style-hover="color:#f08c7a">CLEAR ALL</button><button onClick="{{ exitBin }}" style="{{ tickBtn }}" style-hover="color:#7ee0a8"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4.5 12.5l5 5 10-11"></path></svg></button></sc-if><sc-if value="{{ notBinMode }}" hint-placeholder-val="{{ true }}"><button onClick="{{ enterBin }}" style="{{ clearBtn }}" style-hover="color:#d7e6ef"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 7h16"></path><path d="M10 11.5v5.5M14 11.5v5.5"></path><path d="M6.5 7l.9 12.1a1.4 1.4 0 0 0 1.4 1.3h6.4a1.4 1.4 0 0 0 1.4-1.3L17.5 7"></path><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"></path></svg></button></sc-if></span></div>
       <div data-scroll="sum" style="flex:1;min-height:0;overflow-y:auto">
         <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
-          <div data-row data-new="{{ r.arrived }}" style="{{ mSumRow }}">
-            <span style="{{ mName }}">{{ r.name }}</span>
+          <div>
+          <div data-row data-new="{{ r.arrived }}" onClick="{{ r.sToggle }}" style="{{ r.mSumRow }}">
+            <span style="{{ r.sNameStyle }}">{{ r.name }}</span>
             <button onClick="{{ r.remove }}" style="{{ rowBinBtn }}" style-hover="color:#f08c7a"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 7h16"></path><path d="M10 11.5v5.5M14 11.5v5.5"></path><path d="M6.5 7l.9 12.1a1.4 1.4 0 0 0 1.4 1.3h6.4a1.4 1.4 0 0 0 1.4-1.3L17.5 7"></path><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"></path></svg></button>
-            <span style="{{ qtyCell }}"><button data-step="l" data-pulse="{{ r.stepPulse }}" onClick="{{ r.stepDown }}" style="{{ stepBtnL }}" style-hover="color:#22d3ee">−</button><span style="{{ r.qtyStyle }}">{{ r.qty }}</span><button data-step="r" data-pulse="{{ r.stepPulse }}" onClick="{{ r.stepUp }}" style="{{ stepBtnR }}" style-hover="color:#22d3ee">+</button></span>
+            <span data-pulse="{{ r.stepPulse }}" style="{{ r.sQtyCell }}">{{ r.qty }}<span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
             <span style="{{ mSumKcal }}">{{ r.mSumVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
+          </div>
+          <div style="{{ r.sExpand }}">
+            <span style="{{ mMeasureRow }}">
+              <span onClick="{{ r.ctl.pickG }}" style="{{ r.ctl.gCell }}">
+                <button data-step="l" onClick="{{ r.ctl.gDown }}" style="{{ r.ctl.gStep }}" style-hover="color:#22d3ee">−</button>
+                <span style="{{ mAmt }}">{{ r.ctl.gQty }}</span><span style="{{ sizeSuffix }}">{{ r.ctl.gUnit }}</span>
+                <button data-step="r" onClick="{{ r.ctl.gUp }}" style="{{ r.ctl.gStep }}" style-hover="color:#22d3ee">+</button>
+              </span>
+              <sc-if value="{{ r.ctl.hasServing }}" hint-placeholder-val="{{ true }}">
+                <span onClick="{{ r.ctl.pickS }}" style="{{ r.ctl.sCell }}">
+                  <button data-step="l" onClick="{{ r.ctl.sDown }}" style="{{ r.ctl.sStep }}" style-hover="color:#22d3ee">−</button>
+                  <span style="{{ mAmt }}">{{ r.ctl.servQty }}</span><span style="{{ mServName }}">{{ r.ctl.servName }}</span>
+                  <button data-step="r" onClick="{{ r.ctl.sUp }}" style="{{ r.ctl.sStep }}" style-hover="color:#22d3ee">+</button>
+                </span>
+              </sc-if>
+              <button onClick="{{ r.ctl.reset }}" style="{{ r.ctl.resetStyle }}" style-hover="color:#22d3ee"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
+              <button onClick="{{ r.remove }}" style="{{ mBinBtn }}" style-hover="background:rgba(240,140,122,.26)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M4 7h16"></path><path d="M10 11.5v5.5M14 11.5v5.5"></path><path d="M6.5 7l.9 12.1a1.4 1.4 0 0 0 1.4 1.3h6.4a1.4 1.4 0 0 0 1.4-1.3L17.5 7"></path><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"></path></svg></button>
+            </span>
+            <span style="{{ mExpandGrid }}">
+              <span><span style="{{ mMacroTag }}">PROT</span> {{ r.v1 }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></span>
+              <span><span style="{{ mMacroTag }}">CARB</span> {{ r.v2 }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></span>
+              <span><span style="{{ mMacroTag }}">FAT</span> {{ r.v3 }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></span>
+              <span style="{{ mExpandVal }}">{{ r.mSumVal }}<span style="{{ unitSuffix }}">{{ mColUnit }}</span></span>
+            </span>
+          </div>
           </div>
         </sc-for>
       </div>
@@ -912,6 +945,49 @@ class Component extends DCLogic {
       height: "2.1rem", cursor: "pointer", borderRadius: 0,
       transition: "color 160ms ease, border-color 160ms ease, background 160ms ease"
     };
+    // One amount control, used by a results row before adding and by a plate row after. The
+    // caller says where the number lives and how to change it; everything else is the same.
+    const baseG = Math.round(unit.g);
+    const clampG = v => Math.min(990, Math.max(1, Math.round(v)));
+    const stopWith = fn => e => { if (e && e.stopPropagation) e.stopPropagation(); fn(); };
+    const amountCtl = (fo, qty, setQ, mode, setMode) => {
+      const pg = fo.pg || 0;
+      const n = pg ? qty / pg : 0;
+      return {
+        gQty: String(qty), gUnit: fo.mu === "ml" ? "ml" : "g",
+        hasServing: !!pg, servName: fo.pn || "",
+        // Picking the servings side does not round: it keeps showing the conversion until
+        // one of the steppers is actually pressed.
+        servQty: pg ? (Math.abs(n - Math.round(n)) < 0.05 ? String(Math.round(n)) : n.toFixed(1)) : "",
+        gCell: Object.assign({}, amtCellBase, {
+          border: "1px solid " + (mode === "g" ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.22)"),
+          background: mode === "g" ? "rgba(34,211,238,.10)" : "transparent",
+          color: mode === "g" ? "#d7e6ef" : "#8fa6b6"
+        }),
+        sCell: Object.assign({}, amtCellBase, {
+          border: "1px solid " + (mode === "s" ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.22)"),
+          background: mode === "s" ? "rgba(34,211,238,.10)" : "transparent",
+          color: mode === "s" ? "#d7e6ef" : "#8fa6b6"
+        }),
+        gStep: Object.assign({}, stepBase, { display: mode === "g" ? "flex" : "none" }),
+        sStep: Object.assign({}, stepBase, { display: mode === "s" ? "flex" : "none" }),
+        pickG: stopWith(() => setMode("g")),
+        pickS: stopWith(() => { if (pg) setMode("s"); }),
+        gDown: stopWith(() => setQ(qty > 10 ? (Math.ceil(qty / 10) - 1) * 10 : 1)),
+        gUp: stopWith(() => setQ((Math.floor(qty / 10) + 1) * 10)),
+        // Servings step to whole ones, which is the moment the rounding happens.
+        sDown: stopWith(() => { if (pg) setQ(Math.max(1, Math.ceil(qty / pg) - 1) * pg); }),
+        sUp: stopWith(() => { if (pg) setQ((Math.floor(qty / pg) + 1) * pg); }),
+        // Faint until the amount has moved off what the header measures by.
+        resetStyle: {
+          flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
+          width: "1.9rem", height: "2.1rem", padding: 0, border: 0, borderRadius: 0,
+          background: "transparent", cursor: "pointer",
+          color: qty === baseG ? "#26333e" : "#7b91a3", transition: "color 160ms ease"
+        },
+        reset: stopWith(() => setQ(baseG))
+      };
+    };
     // Same stepper as the summary uses, minus the side-specific padding.
     const stepBase = {
       flex: "none", width: "2rem", alignSelf: "stretch", padding: 0,
@@ -964,35 +1040,8 @@ class Component extends DCLogic {
         }),
         mValCell: Object.assign({}, mColCellBase, { display: bare || open ? "none" : "flex" }),
         mAddCell: { display: open ? "flex" : "none", alignItems: "center", justifyContent: "flex-end", paddingRight: ".3rem" },
-        gCell: Object.assign({}, amtCellBase, {
-          border: "1px solid " + (openMode === "g" ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.22)"),
-          background: openMode === "g" ? "rgba(34,211,238,.10)" : "transparent",
-          color: openMode === "g" ? "#d7e6ef" : "#8fa6b6"
-        }),
-        sCell: Object.assign({}, amtCellBase, {
-          border: "1px solid " + (openMode === "s" ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.22)"),
-          background: openMode === "s" ? "rgba(34,211,238,.10)" : "transparent",
-          color: openMode === "s" ? "#d7e6ef" : "#8fa6b6"
-        }),
-        gStep: Object.assign({}, stepBase, { display: openMode === "g" ? "flex" : "none" }),
-        sStep: Object.assign({}, stepBase, { display: openMode === "s" ? "flex" : "none" }),
-        gQty: String(openQty), gUnit: fo.mu === "ml" ? "ml" : "g",
-        hasServing: !!fo.pg,
-        servName: fo.pn || "",
-        servQty: fo.pg ? (Math.abs(openQty / fo.pg - Math.round(openQty / fo.pg)) < 0.05
-          ? String(Math.round(openQty / fo.pg))
-          : (openQty / fo.pg).toFixed(1)) : "",
-        pickG: e => { if (e && e.stopPropagation) e.stopPropagation(); this.setState({ mMode: "g" }); },
-        // Switching to servings lands on a whole one, which is the point of switching.
-        pickS: e => {
-          if (e && e.stopPropagation) e.stopPropagation();
-          if (!fo.pg) return;
-          this.setState({ mMode: "s", mQty: Math.min(990, Math.max(1, Math.round(Math.max(1, Math.round(openQty / fo.pg)) * fo.pg))) });
-        },
-        gDown: e => { if (e && e.stopPropagation) e.stopPropagation(); setQty(openQty > 10 ? (Math.ceil(openQty / 10) - 1) * 10 : 1); },
-        gUp: e => { if (e && e.stopPropagation) e.stopPropagation(); setQty((Math.floor(openQty / 10) + 1) * 10); },
-        sDown: e => { if (e && e.stopPropagation) e.stopPropagation(); if (fo.pg) setQty(Math.max(1, Math.round(openQty / fo.pg) - 1) * fo.pg); },
-        sUp: e => { if (e && e.stopPropagation) e.stopPropagation(); if (fo.pg) setQty((Math.round(openQty / fo.pg) + 1) * fo.pg); },
+        ctl: open ? amountCtl(fo, openQty, q => this.setState({ mQty: clampG(q) }), openMode,
+          m => this.setState({ mMode: m })) : null,
         // Open, the name has the row to itself and can run onto a second line.
         mNameStyle: {
           display: "block", minWidth: 0, fontWeight: 300, fontSize: "1.02rem", color: "#d7e6ef",
@@ -1167,6 +1216,14 @@ class Component extends DCLogic {
       color: "#d7e6ef", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1.1rem" : ".875rem",
       fontVariantNumeric: "tabular-nums", transition: "border-color 140ms ease"
     };
+    const mSumRowBase = {
+      display: "grid", cursor: "pointer",
+      columnGap: ".4rem", alignItems: "center", minHeight: "2.5rem",
+      borderLeft: "2px solid transparent",
+      borderBottom: "1px solid rgba(34,211,238,.14)", transition: "background 140ms ease"
+    };
+    // Only one plate row is open at a time, and never while the bin mode is on.
+    const sOpenName = s.narrow && !bin ? s.sOpen : null;
     const sumRows = sumFoods.map(fo => {
       const g = gramsOf(fo.name) / 100;
       const rmk = macroK(fo);
@@ -1189,8 +1246,41 @@ class Component extends DCLogic {
         qtyStyle: s.narrow
           ? Object.assign({}, qtyStyle, { width: "3.4ch", height: "auto", lineHeight: 1 })
           : qtyStyle,
-        stepPulse: s.qtyHint && !!s.narrow ? "on" : "off",
+        stepPulse: s.qtyHint && !!s.narrow ? "soft" : "off",
         arrived: s.justAdded === fo.name ? "on" : "off",
+        // A plate row opens the same way a search row does; the amount it edits is the
+        // plate's own, so every change lands straight in the totals.
+        sToggle: () => this.setState({ sOpen: sOpenName === fo.name ? null : fo.name, sMode: "g" }),
+        ctl: sOpenName === fo.name
+          ? amountCtl(fo, Math.round(gramsOf(fo.name)),
+              q => this.setState(st => ({ qty: Object.assign({}, st.qty, { [fo.name]: String(clampG(q)) }) })),
+              s.sMode === "s" ? "s" : "g", m => this.setState({ sMode: m }))
+          : null,
+        sQtyCell: {
+          display: bin ? "none" : "flex", alignItems: "center", justifyContent: "flex-end",
+          paddingRight: ".2rem", fontWeight: 300, fontSize: "1.04rem",
+          color: sOpenName === fo.name ? "#22d3ee" : "#d7e6ef",
+          fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap",
+          transition: "color 160ms ease"
+        },
+        sNameStyle: {
+          display: "block", minWidth: 0, fontWeight: 300, fontSize: "1.02rem", color: "#d7e6ef",
+          whiteSpace: sOpenName === fo.name ? "normal" : "nowrap",
+          overflow: sOpenName === fo.name ? "visible" : "hidden",
+          textOverflow: sOpenName === fo.name ? "clip" : "ellipsis",
+          padding: sOpenName === fo.name ? ".35rem 0" : 0
+        },
+        mSumRow: Object.assign({}, mSumRowBase, {
+          gridTemplateColumns: bin ? "minmax(0,1fr) 3rem" : "minmax(0,1fr) 4.6rem 4.2rem",
+          borderBottom: sOpenName === fo.name ? 0 : "1px solid rgba(34,211,238,.14)"
+        }),
+        sExpand: {
+          overflow: "hidden",
+          height: sOpenName === fo.name ? "5.3rem" : "0px",
+          opacity: sOpenName === fo.name ? 1 : 0,
+          borderBottom: sOpenName === fo.name ? "1px solid rgba(34,211,238,.14)" : 0,
+          transition: "height 260ms cubic-bezier(.22,1,.36,1), opacity 200ms ease"
+        },
         fb: this.fmt(fo.fb * g),
         sumKcal: String(Math.round(kcalOf(fo) * g)),
         sumExtra: extra.k === "score" ? String(scoreOf(fo)) : extra.k === "dens" ? (fo.kcal / 100).toFixed(2) : this.fmt(extra.get(fo) * g),
@@ -1454,6 +1544,13 @@ class Component extends DCLogic {
         fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
       },
       mExpandVal: { color: "#22d3ee" },
+      // The plate's version of ADD: same box, opposite intent.
+      mBinBtn: {
+        flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
+        width: "2.6rem", height: "2.1rem", padding: 0, borderRadius: 0,
+        border: "1px solid rgba(240,140,122,.75)", background: "rgba(240,140,122,.12)",
+        cursor: "pointer", color: "#f08c7a", transition: "background 140ms ease"
+      },
       // Said in a word, on the same line as the amount it will add.
       mAddBtn: {
         flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
@@ -1595,16 +1692,10 @@ class Component extends DCLogic {
       // Same track as the row's size cell, so the header sits over its own column.
       mSumHeadQty: {
         display: bin ? "none" : "flex", alignItems: "center", justifyContent: "center",
-        width: "6.2rem", flex: "none"
+        width: "4.6rem", flex: "none"
       },
       mSumHeadEnd: { display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".9rem", width: bin ? "auto" : "4.2rem", flex: "none" },
-      mSumRow: {
-        display: "grid",
-        gridTemplateColumns: bin ? "minmax(0,1fr) 3rem" : "minmax(0,1fr) 6.2rem 4.2rem",
-        columnGap: ".4rem", alignItems: "center", minHeight: "2.5rem",
-        borderLeft: "2px solid transparent",
-        borderBottom: "1px solid rgba(34,211,238,.14)", transition: "background 140ms ease"
-      },
+      mSumRow: mSumRowBase,
       qtyCell: { position: "relative", display: bin ? "none" : "flex", alignItems: "center", justifyContent: "flex-end" },
       mSumKcal: Object.assign({}, mColCellBase, { display: bin ? "none" : "flex" }),
       rowBinBtn: {

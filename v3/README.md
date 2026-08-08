@@ -29,9 +29,13 @@ What is different from the root:
   `tools/mark_common.py`; the root site reads ten and ignores it.
 - Opening a food on mobile shows the amount two ways: grams, and the same amount as
   household servings ("1 MEDIUM", "1 SLICE", "1 TBSP"). Whichever side you tap takes the
-  − and + — grams move in tens, servings in whole servings — the macros follow, and ADD,
-  on the same line, puts that amount on the plate. `tools/add_portions.py` writes the
-  serving onto the food row as a twelfth and thirteenth element.
+  − and + — grams move in tens, servings in whole servings, and picking a side does not
+  round until a stepper is pressed. The macros follow, a reset arrow (faint until the
+  amount moves off the header measure) puts it back, and ADD puts that amount on the plate.
+  `tools/add_portions.py` writes the serving onto the food row as a twelfth and thirteenth
+  element.
+- Plate rows open the same way, with a bin where ADD was, and edit the plate's own amount.
+  Collapsed, a plate row just states its grams — the steppers live in the expansion.
 
 The food libraries are **not** copied into this folder. `index.html` reads them from the
 site root via `const DATA = "../data/"`, so the two versions can never drift apart.
