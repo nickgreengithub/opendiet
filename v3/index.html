@@ -951,8 +951,8 @@ class Component extends DCLogic {
     // pair to choose between — a box each, the chosen one lit.
     const amtCellBase = {
       flex: 1, minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center",
-      height: "2.1rem", cursor: "pointer", borderRadius: 0,
-      transition: "color 160ms ease, border-color 160ms ease, background 160ms ease"
+      height: "2rem", cursor: "pointer", borderRadius: 0,
+      transition: "color 160ms ease, border-color 160ms ease, text-shadow 160ms ease"
     };
     // One amount control, used by a results row before adding and by a plate row after. The
     // caller says where the number lives and how to change it; everything else is the same.
@@ -969,14 +969,14 @@ class Component extends DCLogic {
         // one of the steppers is actually pressed.
         servQty: pg ? (Math.abs(n - Math.round(n)) < 0.05 ? String(Math.round(n)) : n.toFixed(1)) : "",
         gCell: Object.assign({}, amtCellBase, {
-          border: "1px solid " + (mode === "g" ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.22)"),
-          background: mode === "g" ? "rgba(34,211,238,.10)" : "transparent",
-          color: mode === "g" ? "#d7e6ef" : "#8fa6b6"
+          borderBottom: "1px solid " + (mode === "g" ? "#22d3ee" : "rgba(34,211,238,.22)"),
+          color: mode === "g" ? "#eaf5fb" : "#7b91a3",
+          textShadow: mode === "g" ? "0 0 12px rgba(34,211,238,.35)" : "none"
         }),
         sCell: Object.assign({}, amtCellBase, {
-          border: "1px solid " + (mode === "s" ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.22)"),
-          background: mode === "s" ? "rgba(34,211,238,.10)" : "transparent",
-          color: mode === "s" ? "#d7e6ef" : "#8fa6b6"
+          borderBottom: "1px solid " + (mode === "s" ? "#22d3ee" : "rgba(34,211,238,.22)"),
+          color: mode === "s" ? "#eaf5fb" : "#7b91a3",
+          textShadow: mode === "s" ? "0 0 12px rgba(34,211,238,.35)" : "none"
         }),
         gStep: Object.assign({}, stepBase, { display: mode === "g" ? "flex" : "none" }),
         sStep: Object.assign({}, stepBase, { display: mode === "s" ? "flex" : "none" }),
@@ -990,7 +990,8 @@ class Component extends DCLogic {
         // Faint until the amount has moved off what the header measures by.
         resetStyle: {
           flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
-          width: "1.9rem", height: "2.1rem", padding: 0, border: 0, borderRadius: 0,
+          width: "1.9rem", height: "2rem", padding: 0, border: 0, borderRadius: 0,
+          marginLeft: ".2rem", borderLeft: "1px solid rgba(34,211,238,.22)",
           background: "transparent", cursor: "pointer",
           color: qty === baseG ? "#26333e" : "#7b91a3", transition: "color 160ms ease"
         },
@@ -1002,7 +1003,7 @@ class Component extends DCLogic {
       flex: "none", width: "2rem", alignSelf: "stretch", padding: 0,
       alignItems: "center", justifyContent: "center",
       border: 0, borderRadius: 0, background: "transparent", cursor: "pointer",
-      color: "#7b91a3", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.35rem",
+      color: "#22d3ee", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.35rem",
       lineHeight: 1, transition: "color 140ms ease"
     };
     // One-way: once you have typed, the page never returns to the landing state.
@@ -1534,7 +1535,7 @@ class Component extends DCLogic {
       mColCell: Object.assign({}, mColCellBase, { display: bare ? "none" : "flex" }),
       mMacroTag: { fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".06em", color: "#7b91a3" },
       mMeasureRow: {
-        display: "flex", alignItems: "center", gap: ".35rem", height: "2.8rem",
+        display: "flex", alignItems: "center", gap: ".5rem", height: "2.8rem",
         padding: "0 .3rem", boxSizing: "border-box",
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.1rem",
         fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
@@ -1552,21 +1553,20 @@ class Component extends DCLogic {
         fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
       },
       mExpandVal: { color: "#22d3ee" },
-      // The plate's version of ADD: same box, opposite intent.
+      // The plate's version of ADD, in the colour of removal.
       mBinBtn: {
         flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
-        width: "2.6rem", height: "2.1rem", padding: 0, borderRadius: 0,
-        border: "1px solid rgba(240,140,122,.75)", background: "rgba(240,140,122,.12)",
-        cursor: "pointer", color: "#f08c7a", transition: "background 140ms ease"
+        width: "2.4rem", height: "2rem", padding: 0, border: 0, borderRadius: 0,
+        background: "transparent", cursor: "pointer", color: "#f08c7a",
+        transition: "color 140ms ease"
       },
-      // Said in a word, on the same line as the amount it will add.
+      // A word rather than a button: the same voice as CLEAR ALL, lit like a chosen tab.
       mAddBtn: {
         flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
-        width: "3.4rem", height: "2.1rem", padding: 0, borderRadius: 0,
-        border: "1px solid #22d3ee", background: "rgba(34,211,238,.14)",
-        cursor: "pointer", color: "#22d3ee",
-        fontFamily: "var(--font-2)", fontSize: ".78rem", letterSpacing: ".12em",
-        transition: "background 140ms ease"
+        height: "2rem", padding: "0 .5rem 0 .35rem", border: 0, borderRadius: 0,
+        background: "transparent", cursor: "pointer", color: "#22d3ee",
+        fontFamily: "var(--font-2)", fontSize: ".82rem", letterSpacing: ".14em",
+        textShadow: "0 0 12px rgba(34,211,238,.45)", transition: "text-shadow 140ms ease"
       },
       appHome: app === "home",
       appSoon: !!appDef && !live(app),
