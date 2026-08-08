@@ -937,12 +937,14 @@ class Component extends DCLogic {
     // gap between those tiers is wider than every bonus put together, so "appl" ranks Apples
     // above Pineapple however everyday pineapple is.
     const WHOLE_PTS = 20, START_PTS = 12, INSIDE_PTS = 4;
-    // Bonuses only settle foods that landed the same way, and stay well inside a tier: being
-    // the everyday one, being the whole head of the name before USDA's qualifiers start
-    // ("Apples," rather than "Apple juice,"), opening the name, landing in its first words,
-    // and how much of the word the query spelled — "appl" is most of "apples" and not much
-    // of "applebee's".
-    const COMMON_PTS = 7, LEAD_PTS = 1, NEAR_PTS = 3, CLOSE_PTS = 3, HEAD_PTS = 4;
+    // The rest settle foods that landed the same way. The largest is for being the whole
+    // head of the name, all of it, before USDA's qualifiers start: "Cheese," is cheese and
+    // "Cheese food," is something else, so it outweighs even being the everyday one. It can
+    // only apply where every word of the query filled a word of the name, so it never lifts
+    // a weaker match over a better one. Then: being the everyday one, opening the name,
+    // landing in its first words, and how much of the word the query spelled — "appl" is
+    // most of "apples" and not much of "applebee's".
+    const COMMON_PTS = 7, LEAD_PTS = 1, NEAR_PTS = 3, CLOSE_PTS = 3, HEAD_PTS = 10;
     // Not being a brand is worth a whole tier, and it is the one bonus that is: a plain food
     // matched at the start of a word ranks with a restaurant's matched square on.
     const PLAIN_PTS = 8;
