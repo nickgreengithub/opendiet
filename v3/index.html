@@ -84,22 +84,27 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
 [data-pulse="on"][data-step="l"]{transform-origin:100% 50%}
 [data-pulse="on"][data-step="r"]{transform-origin:0 50%}
 @media (prefers-reduced-motion:reduce){[data-pulse="on"]{animation:none;color:#22d3ee}}
-/* A food arriving on the plate. It opens its own height at the foot of the list, so the
-   rows already there are lifted by it rather than sitting still while it fades in, and it
-   settles out of a cyan wash.
+/* A food arriving on the plate. It joins at the head of the list, where a slot opens to the
+   row's height and the row itself drops down into it out of a cyan wash.
 
-   The height is driven from a wrapper, because the rows carry a min-height and min-height
-   beats max-height — a row can never animate up from nothing. --od-row is that layout's
-   collapsed row height, so the opening spends its whole time growing to the size the row
-   actually is; the last stretch lifts the ceiling out of the way so a taller row is never
-   left clipped. (A 0fr -> 1fr grid track would size itself, but neither Chrome nor Safari
-   will interpolate below a track's content floor, so it simply snaps.) */
+   The slot is a wrapper, because the rows carry a min-height and min-height beats max-height
+   — a row can never animate up from nothing. --od-row is that layout's collapsed row height,
+   so the opening spends its whole time growing to the size the row actually is; the last
+   stretch lifts the ceiling out of the way so a taller row is never left clipped. (A 0fr ->
+   1fr grid track would size itself, but neither Chrome nor Safari will interpolate below a
+   track's content floor, so it simply snaps.) The row is held to the foot of the slot and
+   given its own fall, so it reads as coming down from above rather than being uncovered. */
 @keyframes od-arrive{
-  0%{max-height:0;opacity:.15;background:rgba(34,211,238,.26);animation-timing-function:cubic-bezier(.2,.72,.32,1)}
-  78%{max-height:var(--od-row,2rem);opacity:1;background:rgba(34,211,238,.13)}
-  100%{max-height:40rem;opacity:1;background:transparent}}
-[data-new="on"]{--od-row:1.9rem;overflow:hidden;animation:od-arrive 440ms linear}
+  0%{max-height:0;background:rgba(34,211,238,.26);animation-timing-function:cubic-bezier(.2,.72,.32,1)}
+  78%{max-height:var(--od-row,2rem);background:rgba(34,211,238,.13)}
+  100%{max-height:40rem;background:transparent}}
+@keyframes od-drop{
+  0%{transform:translateY(-15px);opacity:.1}
+  65%{opacity:1}
+  100%{transform:none;opacity:1}}
+[data-new="on"]{--od-row:1.9rem;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;animation:od-arrive 440ms linear}
 [data-new="on"][data-lift="m"]{--od-row:2.6rem}
+[data-new="on"]>*{animation:od-drop 440ms cubic-bezier(.2,.72,.32,1)}
 /* A food coming back to the search list once it leaves the plate: no height to open, it
    simply drops into the gap that reopened for it. */
 @keyframes od-return{
@@ -107,9 +112,9 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
   60%{opacity:1;transform:translateY(0);background:rgba(34,211,238,.12)}
   100%{opacity:1;transform:none;background:transparent}}
 [data-back="on"]{animation:od-return 520ms cubic-bezier(.22,1,.36,1)}
-@media (prefers-reduced-motion:reduce){[data-new="on"],[data-back="on"]{animation:none}}
+@media (prefers-reduced-motion:reduce){[data-new="on"],[data-new="on"]>*,[data-back="on"]{animation:none}}
 @media (hover:none){
-  [data-row][data-row]:hover{background:transparent!important}
+  [data-row][data-row]:not([data-sel="on"]):hover{background:transparent!important}
   [data-row][data-row]:active{background:rgba(34,211,238,.22)!important}}
 input::placeholder{color:#7b91a3;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:1}
 /* Without this, reaching the end of a table hands the gesture to the page: iOS rubber-bands
@@ -299,7 +304,7 @@ option{background:#070b12;color:#d7e6ef}
     <div data-scroll="rows" style="{{ mListStyle }}">
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
         <div>
-          <div data-row data-back="{{ r.back }}" data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ r.mRow }}">
+          <div data-row data-sel="{{ r.selOn }}" data-back="{{ r.back }}" data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ r.mRow }}">
             <sc-if value="{{ r.finger }}" hint-placeholder-val="{{ false }}">
               <span data-finger><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span>
             </sc-if>
@@ -456,6 +461,9 @@ function stemWord(w) {
 }
 
 const VH = typeof CSS !== "undefined" && CSS.supports && CSS.supports("height", "100dvh") ? "100dvh" : "100vh";
+// The food you have opened in the search list. Teal-dark, so it reads as picked out of the
+// page without being mistaken for the plate below, which is the blue-dark #090f18.
+const PICKED_BG = "#0b1a20";
 
 class Component extends DCLogic {
   state = { view: "results", q: "", cat: "ALL", catOpen: false, email: "", user: null, lib: "LEGACY", narrow: typeof window !== "undefined" && window.innerWidth < 700 };
@@ -1067,9 +1075,11 @@ class Component extends DCLogic {
           this.setState(st => ({ mOpen: null, qty: Object.assign({}, st.qty, { [fo.name]: String(openQty) }) }));
           this.toggleSum(fo.name);
         },
+        selOn: open ? "on" : "off",
         mRow: Object.assign({}, r.mRow, {
           gridTemplateColumns: open ? "minmax(0,1fr) 2.2rem" : mCols,
-          borderBottom: open ? 0 : "1px solid rgba(34,211,238,.14)"
+          borderBottom: open ? 0 : "1px solid rgba(34,211,238,.14)",
+          background: open ? PICKED_BG : "transparent"
         }),
         mValCell: Object.assign({}, mColCellBase, { display: bare || open ? "none" : "flex" }),
         resetCell: Object.assign({}, resetBase, {
@@ -1105,8 +1115,9 @@ class Component extends DCLogic {
           overflow: "hidden",
           height: open ? "4.85rem" : "0px",
           opacity: open ? 1 : 0,
+          background: open ? PICKED_BG : "transparent",
           borderBottom: open ? "1px solid rgba(34,211,238,.14)" : 0,
-          transition: "height 260ms cubic-bezier(.22,1,.36,1), opacity 200ms ease"
+          transition: "height 260ms cubic-bezier(.22,1,.36,1), opacity 200ms ease, background 200ms ease"
         }
       });
     });
@@ -1224,7 +1235,8 @@ class Component extends DCLogic {
     const tipBody = { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".85rem", lineHeight: 1.65, color: "#d7e6ef", textWrap: "pretty" };
     const hd = s.tip || "";
     const tipOn = { s1: () => this.setState({ tip: "s1" }), s2: () => this.setState({ tip: "s2" }), s3: () => this.setState({ tip: "s3" }), fb: () => this.setState({ tip: "fb" }), kcal: () => this.setState({ tip: "kcal" }), score: () => this.setState({ tip: "score" }) };
-    const sumFoods = (s.sum || []).map(n => this.foods().find(fo => fo.name === n)).filter(Boolean);
+    // Newest first, so a food always joins the plate at the top row and drops in from above.
+    const sumFoods = (s.sum || []).map(n => this.foods().find(fo => fo.name === n)).filter(Boolean).reverse();
     // Each summary row carries its own quantity; macros and totals scale off it.
     const QTY_MAX = 990;
     const qtyOf = name => { const v = (s.qty || {})[name]; return v === undefined ? "100" : v; };
@@ -1240,8 +1252,6 @@ class Component extends DCLogic {
     const sumKcalMax = Math.max.apply(null, sumFoods.map(fo => kcalOf(fo) * (gramsOf(fo.name) / 100)).concat([1]));
     const sumGramMax = Math.max.apply(null, sumFoods.map(fo => { const g = gramsOf(fo.name) / 100; return Math.max(fo.p, fo.c, fo.f) * g; }).concat([1]));
     const sumMacroMax = Math.max.apply(null, sumFoods.map(fo => { const g = gramsOf(fo.name) / 100, r = fo.p * 4 + fo.c * 4 + fo.f * 9 || 1, k = fo.kcal / r; return Math.max(fo.p * 4, fo.c * 4, fo.f * 9) * k * g; }).concat([1]));
-    // The plate is in the order things were put on it: the newest food is the last row, so
-    // it always arrives at the bottom and lifts the others as it opens.
     const qtyStyle = {
       width: s.narrow ? "2.8rem" : "2.9rem", textAlign: "right", background: "transparent", border: 0,
       borderRadius: 0, padding: s.narrow ? "0 .25rem" : "0 0 .1rem",
