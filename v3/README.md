@@ -10,7 +10,9 @@ What is different from the root:
   the built one; CALORIE CALC, RECIPE BUILDER and FOOD COMPARE are placeholders.
 - Desktop switches app with tabs across the top. Mobile gets a back button to the launcher.
 - Both layouts open on the search line alone, centred, and lift it to the header on the first
-  keystroke.
+  keystroke. Reaching for the search box, or typing a different query, returns the list to
+  the top; a food added on mobile slides into the summary out of a cyan wash, and the
+  summary scrolls to meet it.
 - No CORE library. The everyday-food problem is solved in the search order rather than by
   filtering the data, so a long result list costs nothing. SR Legacy is the default; FNDDS
   is the other option. `data/core.json` stays for the root site, which still opens on it.
