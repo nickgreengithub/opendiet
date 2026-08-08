@@ -21,9 +21,12 @@ What is different from the root:
   "berry" reaches `Blueberries`. Results are then scored by how the query landed: 20 for a
   whole word, 12 for the start of a longer one, 4 for a hit buried inside one. Those tiers
   are further apart than every bonus put together, so nothing outranks a better match.
-  Bonuses only settle foods that landed the same way: 3 for the everyday list, 1 for opening
-  the name, up to 3 for landing in the name's first words, up to 3 for how much of the word
-  the query spelled. Ties go to the shorter name, then the alphabet. Nothing about it is
+  Bonuses only settle foods that landed the same way: 7 for the everyday list, 4 for being
+  the whole head of the name before USDA's qualifiers start (`Apples,` rather than
+  `Apple juice,`), 1 for opening the name, up to 3 for landing in the name's first words,
+  up to 3 for how much of the word the query spelled — measured on the singular, so a plural
+  is not a worse match than its own singular. Ties go to the shorter name, then the
+  alphabet. Nothing about it is
   visible: no badge, no dot.
 - The everyday flag is an eleventh element on each food row, written by
   `tools/mark_common.py`; the root site reads ten and ignores it.

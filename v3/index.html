@@ -569,6 +569,9 @@ class Component extends DCLogic {
           fo.w = fo.nl.split(/[^a-z0-9]+/).filter(Boolean);
           // The singular of every word, joined — so "berry" can reach "blueberries".
           fo.ns = fo.w.map(stemWord).join(" ");
+          // And the head of the name on its own: "Apples, raw, with skin" is an apple,
+          // "Apple juice, canned or bottled" is a juice.
+          fo.h1 = fo.nl.split(",")[0].split(/[^a-z0-9]+/).filter(Boolean).map(stemWord).join(" ");
           // Twelfth and thirteenth: what one household serving of this food weighs, and
           // what to call it — "182 g", "MEDIUM".
           if (a[11]) { fo.pg = a[11]; fo.pn = a[12]; }
@@ -850,10 +853,14 @@ class Component extends DCLogic {
     // gap between those tiers is wider than every bonus put together, so "appl" ranks Apples
     // above Pineapple however everyday pineapple is.
     const WHOLE_PTS = 20, START_PTS = 12, INSIDE_PTS = 4;
-    // Bonuses only settle foods that landed the same way: on the everyday list, opening the
-    // name, landing in its first words, and how much of the word the query actually spelled
-    // — "appl" is most of "apples" and not much of "applebee's".
-    const COMMON_PTS = 3, LEAD_PTS = 1, NEAR_PTS = 3, CLOSE_PTS = 3;
+    // Bonuses only settle foods that landed the same way, and stay well inside a tier: being
+    // the everyday one, being the whole head of the name before USDA's qualifiers start
+    // ("Apples," rather than "Apple juice,"), opening the name, landing in its first words,
+    // and how much of the word the query spelled — "appl" is most of "apples" and not much
+    // of "applebee's".
+    const COMMON_PTS = 7, LEAD_PTS = 1, NEAR_PTS = 3, CLOSE_PTS = 3, HEAD_PTS = 4;
+    // What the food is called, before USDA starts qualifying it.
+    const qHead = qStems.join(" ");
     if (qWords.length) src = src.filter(fo => {
       const n = fo.nl, words = fo.w;
       let hit = 0, near = 99, spare = 99;
@@ -869,7 +876,7 @@ class Component extends DCLogic {
           if (at < 0) at = wdStem.indexOf(tokStem);
           if (at < 0) continue;
           const pts = wdStem === tokStem ? WHOLE_PTS : at === 0 ? START_PTS : INSIDE_PTS;
-          const left = wd.length - tok.length;
+          const left = wdStem.length - tokStem.length;
           if (pts > best || (pts === best && j < bestAt)) { best = pts; bestAt = j; bestSpare = left; }
           if (best === WHOLE_PTS && bestAt === 0) break;
         }
@@ -882,6 +889,8 @@ class Component extends DCLogic {
       if (n.indexOf(qWords[0]) === 0) hit += LEAD_PTS;
       hit += Math.max(0, NEAR_PTS - near);
       hit += Math.max(0, CLOSE_PTS - spare);
+      // The whole of the name's head, and nothing else: an apple rather than an apple juice.
+      if (fo.h1 === qHead) hit += HEAD_PTS;
       // Scratch field, rewritten on every keystroke; only the sort below reads it.
       fo._hit = hit;
       return true;
