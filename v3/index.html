@@ -279,7 +279,6 @@ option{background:#070b12;color:#d7e6ef}
             </sc-if>
             <span style="{{ r.mNameStyle }}">{{ r.name }}</span>
             <span style="{{ r.mValCell }}">{{ r.mVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
-            <span style="{{ r.mAddCell }}"><button onClick="{{ r.addRow }}" style="{{ mAddPlus }}" style-hover="background:rgba(34,211,238,.24)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:block;flex:none"><path d="M12 5v14M5 12h14"></path></svg></button></span>
           </div>
           <div style="{{ r.mExpand }}">
             <span style="{{ mMeasureRow }}">
@@ -295,6 +294,7 @@ option{background:#070b12;color:#d7e6ef}
                   <button data-step="r" onClick="{{ r.sUp }}" style="{{ r.sStep }}" style-hover="color:#22d3ee">+</button>
                 </span>
               </sc-if>
+              <button onClick="{{ r.addRow }}" style="{{ mAddBtn }}" style-hover="background:rgba(34,211,238,.26)">ADD</button>
             </span>
             <span style="{{ mExpandGrid }}">
               <span><span style="{{ mMacroTag }}">PROT</span> {{ r.xv.v1 }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></span>
@@ -812,19 +812,22 @@ class Component extends DCLogic {
     const qWords = q ? q.split(/\s+/).filter(Boolean) : [];
     const stem = stemWord;
     const qStems = qWords.map(stem);
-    // Points per word: a whole word (plural or not) beats the start of a longer one, which
-    // beats a hit buried inside one. Where in the name it landed counts too — the sixth word
-    // of a name is rarely what the food is. Being on the everyday list, or being what the
-    // name opens with, add less than a tier, so a staple can break a tie but never outrank a
-    // better match ("steak" contains "tea", and a marked steak is not a pot of tea).
-    const WHOLE_PTS = 4, START_PTS = 2, INSIDE_PTS = 1, COMMON_PTS = 3, LEAD_PTS = 1, NEAR_PTS = 3;
+    // How the query landed decides the order, and nothing else can overturn it: a whole word
+    // (plural or not), then the start of a longer word, then a hit buried inside one. The
+    // gap between those tiers is wider than every bonus put together, so "appl" ranks Apples
+    // above Pineapple however everyday pineapple is.
+    const WHOLE_PTS = 20, START_PTS = 12, INSIDE_PTS = 4;
+    // Bonuses only settle foods that landed the same way: on the everyday list, opening the
+    // name, landing in its first words, and how much of the word the query actually spelled
+    // — "appl" is most of "apples" and not much of "applebee's".
+    const COMMON_PTS = 3, LEAD_PTS = 1, NEAR_PTS = 3, CLOSE_PTS = 3;
     if (qWords.length) src = src.filter(fo => {
       const n = fo.nl, words = fo.w;
-      let hit = 0, near = 99;
+      let hit = 0, near = 99, spare = 99;
       for (let i = 0; i < qWords.length; i++) {
         const tok = qWords[i], tokStem = qStems[i];
         if (n.indexOf(tok) < 0 && fo.ns.indexOf(tokStem) < 0) return false;
-        let best = 0, bestAt = 99;
+        let best = 0, bestAt = 99, bestSpare = 99;
         for (let j = 0; j < words.length; j++) {
           const wd = words[j];
           // Only a plural reads differently from its stem, so only plurals pay for one.
@@ -833,17 +836,19 @@ class Component extends DCLogic {
           if (at < 0) at = wdStem.indexOf(tokStem);
           if (at < 0) continue;
           const pts = wdStem === tokStem ? WHOLE_PTS : at === 0 ? START_PTS : INSIDE_PTS;
-          if (pts > best) { best = pts; bestAt = j; }
-          else if (pts === best && j < bestAt) bestAt = j;
+          const left = wd.length - tok.length;
+          if (pts > best || (pts === best && j < bestAt)) { best = pts; bestAt = j; bestSpare = left; }
           if (best === WHOLE_PTS && bestAt === 0) break;
         }
         // A token that straddles a break ("3.25") still counts, just weakly.
         hit += best || INSIDE_PTS;
         if (bestAt < near) near = bestAt;
+        if (bestSpare < spare) spare = bestSpare;
       }
       if (fo.cm) hit += COMMON_PTS;
       if (n.indexOf(qWords[0]) === 0) hit += LEAD_PTS;
       hit += Math.max(0, NEAR_PTS - near);
+      hit += Math.max(0, CLOSE_PTS - spare);
       // Scratch field, rewritten on every keystroke; only the sort below reads it.
       fo._hit = hit;
       return true;
@@ -900,6 +905,13 @@ class Component extends DCLogic {
       fontSize: "1.04rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
     };
     const mCols = bare ? "minmax(0,1fr)" : "minmax(0,1fr) 7rem";
+    // Grams and servings are two ways of saying the same amount, so they are drawn as a
+    // pair to choose between — a box each, the chosen one lit.
+    const amtCellBase = {
+      flex: 1, minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center",
+      height: "2.1rem", cursor: "pointer", borderRadius: 0,
+      transition: "color 160ms ease, border-color 160ms ease, background 160ms ease"
+    };
     // Same stepper as the summary uses, minus the side-specific padding.
     const stepBase = {
       flex: "none", width: "2rem", alignSelf: "stretch", padding: 0,
@@ -947,23 +959,21 @@ class Component extends DCLogic {
           this.toggleSum(fo.name);
         },
         mRow: Object.assign({}, r.mRow, {
-          gridTemplateColumns: open ? "minmax(0,1fr) 3.1rem" : mCols,
+          gridTemplateColumns: open ? "minmax(0,1fr)" : mCols,
           borderBottom: open ? 0 : "1px solid rgba(34,211,238,.14)"
         }),
         mValCell: Object.assign({}, mColCellBase, { display: bare || open ? "none" : "flex" }),
         mAddCell: { display: open ? "flex" : "none", alignItems: "center", justifyContent: "flex-end", paddingRight: ".3rem" },
-        gCell: {
-          flex: 1, minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center",
-          height: "100%", cursor: "pointer",
-          color: openMode === "g" ? "#d7e6ef" : "#7b91a3",
-          transition: "color 160ms ease"
-        },
-        sCell: {
-          flex: 1, minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center",
-          height: "100%", cursor: "pointer",
-          color: openMode === "s" ? "#d7e6ef" : "#7b91a3",
-          transition: "color 160ms ease"
-        },
+        gCell: Object.assign({}, amtCellBase, {
+          border: "1px solid " + (openMode === "g" ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.22)"),
+          background: openMode === "g" ? "rgba(34,211,238,.10)" : "transparent",
+          color: openMode === "g" ? "#d7e6ef" : "#8fa6b6"
+        }),
+        sCell: Object.assign({}, amtCellBase, {
+          border: "1px solid " + (openMode === "s" ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.22)"),
+          background: openMode === "s" ? "rgba(34,211,238,.10)" : "transparent",
+          color: openMode === "s" ? "#d7e6ef" : "#8fa6b6"
+        }),
         gStep: Object.assign({}, stepBase, { display: openMode === "g" ? "flex" : "none" }),
         sStep: Object.assign({}, stepBase, { display: openMode === "s" ? "flex" : "none" }),
         gQty: String(openQty), gUnit: fo.mu === "ml" ? "ml" : "g",
@@ -1007,7 +1017,7 @@ class Component extends DCLogic {
         })(),
         mExpand: {
           overflow: "hidden",
-          height: open ? "5rem" : "0px",
+          height: open ? "5.3rem" : "0px",
           opacity: open ? 1 : 0,
           borderBottom: open ? "1px solid rgba(34,211,238,.14)" : 0,
           transition: "height 260ms cubic-bezier(.22,1,.36,1), opacity 200ms ease"
@@ -1425,7 +1435,8 @@ class Component extends DCLogic {
       mColCell: Object.assign({}, mColCellBase, { display: bare ? "none" : "flex" }),
       mMacroTag: { fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".06em", color: "#7b91a3" },
       mMeasureRow: {
-        display: "flex", alignItems: "center", height: "2.5rem",
+        display: "flex", alignItems: "center", gap: ".35rem", height: "2.8rem",
+        padding: "0 .3rem", boxSizing: "border-box",
         borderBottom: "1px solid rgba(34,211,238,.14)",
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.1rem",
         fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
@@ -1443,14 +1454,13 @@ class Component extends DCLogic {
         fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
       },
       mExpandVal: { color: "#22d3ee" },
-      // Adding is a plus, not a word — the label was eating width the food names needed.
-      // It keeps a box so it still reads as something to press.
-      mAddPlus: {
+      // Said in a word, on the same line as the amount it will add.
+      mAddBtn: {
         flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
-        width: "2.4rem", height: "2rem", padding: 0, borderRadius: 0,
-        border: "1px solid #22d3ee", background: "rgba(34,211,238,.10)",
+        width: "3.4rem", height: "2.1rem", padding: 0, borderRadius: 0,
+        border: "1px solid #22d3ee", background: "rgba(34,211,238,.14)",
         cursor: "pointer", color: "#22d3ee",
-        // Drawn rather than typed: a text + rides high on its own line box.
+        fontFamily: "var(--font-2)", fontSize: ".78rem", letterSpacing: ".12em",
         transition: "background 140ms ease"
       },
       appHome: app === "home",

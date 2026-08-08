@@ -18,17 +18,19 @@ What is different from the root:
   is the other option. `data/core.json` stays for the root site, which still opens on it.
 - Search matches every word of the query, in any order, and treats a plural as its
   singular in both directions — "apple" finds `Apples, raw`, "eggs" finds `Egg, whole, raw`,
-  "berry" reaches `Blueberries`. Results are then scored: 4 for a whole word, 2 for the
-  start of a longer one, 1 for a hit buried inside one, plus 3 for being on the everyday
-  list, 1 for the name opening with the query, and up to 3 for how early in the name the
-  match lands. Ordered by that, then by the shorter name, then alphabetically. Nothing
-  about it is visible: no badge, no dot.
+  "berry" reaches `Blueberries`. Results are then scored by how the query landed: 20 for a
+  whole word, 12 for the start of a longer one, 4 for a hit buried inside one. Those tiers
+  are further apart than every bonus put together, so nothing outranks a better match.
+  Bonuses only settle foods that landed the same way: 3 for the everyday list, 1 for opening
+  the name, up to 3 for landing in the name's first words, up to 3 for how much of the word
+  the query spelled. Ties go to the shorter name, then the alphabet. Nothing about it is
+  visible: no badge, no dot.
 - The everyday flag is an eleventh element on each food row, written by
   `tools/mark_common.py`; the root site reads ten and ignores it.
 - Opening a food on mobile shows the amount two ways: grams, and the same amount as
   household servings ("1 MEDIUM", "1 SLICE", "1 TBSP"). Whichever side you tap takes the
-  − and + — grams move in tens, servings in whole servings — the macros follow, and the
-  plate inherits the amount when the food is added. `tools/add_portions.py` writes the
+  − and + — grams move in tens, servings in whole servings — the macros follow, and ADD,
+  on the same line, puts that amount on the plate. `tools/add_portions.py` writes the
   serving onto the food row as a twelfth and thirteenth element.
 
 The food libraries are **not** copied into this folder. `index.html` reads them from the
