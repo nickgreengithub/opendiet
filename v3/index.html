@@ -84,14 +84,30 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
 [data-pulse="on"][data-step="l"]{transform-origin:100% 50%}
 [data-pulse="on"][data-step="r"]{transform-origin:0 50%}
 @media (prefers-reduced-motion:reduce){[data-pulse="on"]{animation:none;color:#22d3ee}}
-/* A food arriving on the plate: it slides its own height open and settles out of a cyan
-   wash, so the eye follows it down from the list rather than finding it already there. */
+/* A food arriving on the plate. It opens its own height at the foot of the list, so the
+   rows already there are lifted by it rather than sitting still while it fades in, and it
+   settles out of a cyan wash.
+
+   The height is driven from a wrapper, because the rows carry a min-height and min-height
+   beats max-height — a row can never animate up from nothing. --od-row is that layout's
+   collapsed row height, so the opening spends its whole time growing to the size the row
+   actually is; the last stretch lifts the ceiling out of the way so a taller row is never
+   left clipped. (A 0fr -> 1fr grid track would size itself, but neither Chrome nor Safari
+   will interpolate below a track's content floor, so it simply snaps.) */
 @keyframes od-arrive{
+  0%{max-height:0;opacity:.15;background:rgba(34,211,238,.26);animation-timing-function:cubic-bezier(.2,.72,.32,1)}
+  78%{max-height:var(--od-row,2rem);opacity:1;background:rgba(34,211,238,.13)}
+  100%{max-height:40rem;opacity:1;background:transparent}}
+[data-new="on"]{--od-row:1.9rem;overflow:hidden;animation:od-arrive 440ms linear}
+[data-new="on"][data-lift="m"]{--od-row:2.6rem}
+/* A food coming back to the search list once it leaves the plate: no height to open, it
+   simply drops into the gap that reopened for it. */
+@keyframes od-return{
   0%{opacity:0;transform:translateY(-10px);background:rgba(34,211,238,.22)}
   60%{opacity:1;transform:translateY(0);background:rgba(34,211,238,.12)}
   100%{opacity:1;transform:none;background:transparent}}
-[data-new="on"]{animation:od-arrive 520ms cubic-bezier(.22,1,.36,1)}
-@media (prefers-reduced-motion:reduce){[data-new="on"]{animation:none}}
+[data-back="on"]{animation:od-return 520ms cubic-bezier(.22,1,.36,1)}
+@media (prefers-reduced-motion:reduce){[data-new="on"],[data-back="on"]{animation:none}}
 @media (hover:none){
   [data-row][data-row]:hover{background:transparent!important}
   [data-row][data-row]:active{background:rgba(34,211,238,.22)!important}}
@@ -193,7 +209,7 @@ option{background:#070b12;color:#d7e6ef}
     <div style="{{ dBody }}">
     <div data-scroll="rows" style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box;display:flex;flex-direction:column">
     <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
-      <div data-row data-new="{{ r.back }}" data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="flex:none;display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem 2.6rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
+      <div data-row data-back="{{ r.back }}" data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="flex:none;display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem 2.6rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
         <span style="display:flex;align-items:center;gap:.55rem;min-width:0">
           <span style="flex:1;min-width:0;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span>
         </span>
@@ -214,17 +230,19 @@ option{background:#070b12;color:#d7e6ef}
         <div style="position:relative;flex:1;min-height:0;display:flex;flex-direction:column">
         <div data-scroll style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box">
           <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
-            <div data-row data-new="{{ r.arrived }}" onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem 2.6rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
-              <span style="display:flex;align-items:center;gap:.55rem;min-width:0">
-                <span style="font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:color 140ms ease" style-hover="color:#a5f3fc">{{ r.name }}</span>
-              </span>
-              <span style="{{ sumSizeCell }}"><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
-              <span style="{{ r.cell1 }}"><span style="{{ r.sfill1 }}"></span><span style="{{ numWrap }}">{{ r.v1 }}</span></span>
-              <span style="{{ r.cell2 }}"><span style="{{ r.sfill2 }}"></span><span style="{{ numWrap }}">{{ r.v2 }}</span></span>
-              <span style="{{ r.cell3 }}"><span style="{{ r.sfill3 }}"></span><span style="{{ numWrap }}">{{ r.v3 }}</span></span>
-              <span style="{{ r.cellK }}"><span style="{{ r.sfillK }}"></span><span style="{{ numWrap }}">{{ r.sumKcal }}</span></span>
-              <span style="{{ r.cellScore }}">{{ r.sumExtra }}<span style="{{ extraSuffix }}">{{ extraUnit }}</span></span>
-              <span style="{{ dActCell }}"><button onClick="{{ r.togglePlus }}" style="{{ dDropBtn }}" style-hover="color:#f6b3a5"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:block"><path d="M5 12h14"></path></svg></button></span>
+            <div data-new="{{ r.arrived }}">
+              <div data-row onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem 2.6rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
+                <span style="display:flex;align-items:center;gap:.55rem;min-width:0">
+                  <span style="font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:color 140ms ease" style-hover="color:#a5f3fc">{{ r.name }}</span>
+                </span>
+                <span style="{{ sumSizeCell }}"><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
+                <span style="{{ r.cell1 }}"><span style="{{ r.sfill1 }}"></span><span style="{{ numWrap }}">{{ r.v1 }}</span></span>
+                <span style="{{ r.cell2 }}"><span style="{{ r.sfill2 }}"></span><span style="{{ numWrap }}">{{ r.v2 }}</span></span>
+                <span style="{{ r.cell3 }}"><span style="{{ r.sfill3 }}"></span><span style="{{ numWrap }}">{{ r.v3 }}</span></span>
+                <span style="{{ r.cellK }}"><span style="{{ r.sfillK }}"></span><span style="{{ numWrap }}">{{ r.sumKcal }}</span></span>
+                <span style="{{ r.cellScore }}">{{ r.sumExtra }}<span style="{{ extraSuffix }}">{{ extraUnit }}</span></span>
+                <span style="{{ dActCell }}"><button onClick="{{ r.togglePlus }}" style="{{ dDropBtn }}" style-hover="color:#f6b3a5"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:block"><path d="M5 12h14"></path></svg></button></span>
+              </div>
             </div>
           </sc-for>
           <sc-if value="{{ never }}" hint-placeholder-val="{{ false }}">
@@ -281,7 +299,7 @@ option{background:#070b12;color:#d7e6ef}
     <div data-scroll="rows" style="{{ mListStyle }}">
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
         <div>
-          <div data-row data-new="{{ r.back }}" data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ r.mRow }}">
+          <div data-row data-back="{{ r.back }}" data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ r.mRow }}">
             <sc-if value="{{ r.finger }}" hint-placeholder-val="{{ false }}">
               <span data-finger><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span>
             </sc-if>
@@ -320,8 +338,8 @@ option{background:#070b12;color:#d7e6ef}
       <div style="flex:none;display:flex;align-items:center;justify-content:space-between;min-height:2.3rem;padding:.15rem .3rem .15rem 0;font-family:var(--font-2);font-size:.9rem;letter-spacing:.14em;color:#7b91a3"><span style="flex:1;min-width:0">MY FOOD SUMMARY</span><span style="{{ mSumHeadQty }}">{{ sumQtyLabel }}</span><span style="{{ mSumHeadEnd }}"><sc-if value="{{ binMode }}" hint-placeholder-val="{{ false }}"><button onClick="{{ clearSum }}" style="{{ binAllBtn }}" style-hover="color:#f08c7a">CLEAR ALL</button><button onClick="{{ exitBin }}" style="{{ tickBtn }}" style-hover="color:#7ee0a8"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4.5 12.5l5 5 10-11"></path></svg></button></sc-if><sc-if value="{{ notBinMode }}" hint-placeholder-val="{{ true }}"><button onClick="{{ enterBin }}" style="{{ clearBtn }}" style-hover="color:#d7e6ef"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 7h16"></path><path d="M10 11.5v5.5M14 11.5v5.5"></path><path d="M6.5 7l.9 12.1a1.4 1.4 0 0 0 1.4 1.3h6.4a1.4 1.4 0 0 0 1.4-1.3L17.5 7"></path><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"></path></svg></button></sc-if></span></div>
       <div data-scroll="sum" style="flex:1;min-height:0;overflow-y:auto">
         <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
-          <div>
-          <div data-row data-new="{{ r.arrived }}" onClick="{{ r.sToggle }}" style="{{ r.mSumRow }}">
+          <div data-new="{{ r.arrived }}" data-lift="m">
+          <div data-row onClick="{{ r.sToggle }}" style="{{ r.mSumRow }}">
             <span style="{{ r.sNameStyle }}">{{ r.name }}</span>
             <button onClick="{{ r.remove }}" style="{{ rowBinBtn }}" style-hover="color:#f08c7a"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 7h16"></path><path d="M10 11.5v5.5M14 11.5v5.5"></path><path d="M6.5 7l.9 12.1a1.4 1.4 0 0 0 1.4 1.3h6.4a1.4 1.4 0 0 0 1.4-1.3L17.5 7"></path><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"></path></svg></button>
             <span data-pulse="{{ r.stepPulse }}" style="{{ r.sQtyCell }}">{{ r.qty }}<span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
@@ -1222,12 +1240,8 @@ class Component extends DCLogic {
     const sumKcalMax = Math.max.apply(null, sumFoods.map(fo => kcalOf(fo) * (gramsOf(fo.name) / 100)).concat([1]));
     const sumGramMax = Math.max.apply(null, sumFoods.map(fo => { const g = gramsOf(fo.name) / 100; return Math.max(fo.p, fo.c, fo.f) * g; }).concat([1]));
     const sumMacroMax = Math.max.apply(null, sumFoods.map(fo => { const g = gramsOf(fo.name) / 100, r = fo.p * 4 + fo.c * 4 + fo.f * 9 || 1, k = fo.kcal / r; return Math.max(fo.p * 4, fo.c * 4, fo.f * 9) * k * g; }).concat([1]));
-    sumFoods.sort((a, b) => {
-      if (sortKey === "name") return sortDir * a.name.localeCompare(b.name);
-      const va = sortKey === "extra" ? (extra.k === "score" ? scoreOf(a) : extra.k === "dens" ? a.kcal / 100 : extra.get(a)) : this.sortVal(a, sortKey);
-      const vb = sortKey === "extra" ? (extra.k === "score" ? scoreOf(b) : extra.k === "dens" ? b.kcal / 100 : extra.get(b)) : this.sortVal(b, sortKey);
-      return -sortDir * (va - vb);
-    });
+    // The plate is in the order things were put on it: the newest food is the last row, so
+    // it always arrives at the bottom and lifts the others as it opens.
     const qtyStyle = {
       width: s.narrow ? "2.8rem" : "2.9rem", textAlign: "right", background: "transparent", border: 0,
       borderRadius: 0, padding: s.narrow ? "0 .25rem" : "0 0 .1rem",
