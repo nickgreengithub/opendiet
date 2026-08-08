@@ -32,7 +32,10 @@ What is different from the root:
   name, all of it, before USDA's qualifiers start — `Cheese,` is cheese and `Cheese food,`
   is something else, so it outweighs even being an everyday food, and it can only apply
   where every query word already filled a word of the name. Then 7 for the everyday list,
-  1 for opening the name, up to 3 for landing in the name's first words,
+  up to 3 for landing in the name's first words,
+  and 1 for opening the name — or 9 for opening it when the query was a fragment rather than
+  a whole word, since a fragment says nothing else at all: typing "j" is a request for foods
+  called J-something, not for `Orange juice` however everyday orange juice is.
   up to 3 for how much of the word the query spelled — measured on the singular, so a plural
   is not a worse match than its own singular. The exception is 8 for not being a brand,
   which is a whole tier: nobody searching for a food means a restaurant's version of it

@@ -959,7 +959,11 @@ class Component extends DCLogic {
     // a weaker match over a better one. Then: being the everyday one, opening the name,
     // landing in its first words, and how much of the word the query spelled — "appl" is
     // most of "apples" and not much of "applebee's".
-    const COMMON_PTS = 7, LEAD_PTS = 1, NEAR_PTS = 3, CLOSE_PTS = 3, HEAD_PTS = 10;
+    // Opening the name is worth almost nothing when the query was a whole word — the word
+    // itself already says which food it is — and a great deal when it was a fragment, which
+    // says nothing else at all. Typing "j" is a request for foods called J-something, not
+    // for orange juice, however everyday orange juice is.
+    const COMMON_PTS = 7, LEAD_PTS = 1, PART_LEAD_PTS = 9, NEAR_PTS = 3, CLOSE_PTS = 3, HEAD_PTS = 10;
     // Not being a brand is worth a whole tier, and it is the one bonus that is: a plain food
     // matched at the start of a word ranks with a restaurant's matched square on.
     const PLAIN_PTS = 8;
@@ -967,7 +971,7 @@ class Component extends DCLogic {
     const qHead = qStems.join(" ");
     if (qWords.length) src = src.filter(fo => {
       const n = fo.nl, words = fo.w;
-      let hit = 0, near = 99, spare = 99;
+      let hit = 0, near = 99, spare = 99, firstTier = 0;
       for (let i = 0; i < qWords.length; i++) {
         const tok = qWords[i], tokStem = qStems[i];
         if (n.indexOf(tok) < 0 && fo.ns.indexOf(tokStem) < 0) return false;
@@ -989,12 +993,13 @@ class Component extends DCLogic {
         }
         // A token that straddles a break ("3.25") still counts, just weakly.
         hit += best || INSIDE_PTS;
+        if (i === 0) firstTier = best || INSIDE_PTS;
         if (bestAt < near) near = bestAt;
         if (bestSpare < spare) spare = bestSpare;
       }
       if (fo.cm) hit += COMMON_PTS;
       if (!fo.br) hit += PLAIN_PTS;
-      if (n.indexOf(qWords[0]) === 0) hit += LEAD_PTS;
+      if (n.indexOf(qWords[0]) === 0) hit += firstTier === WHOLE_PTS ? LEAD_PTS : PART_LEAD_PTS;
       hit += Math.max(0, NEAR_PTS - near);
       hit += Math.max(0, CLOSE_PTS - spare);
       // The whole of the name's head, and nothing else: an apple rather than an apple juice.
