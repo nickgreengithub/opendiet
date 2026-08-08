@@ -344,13 +344,14 @@ option{background:#070b12;color:#d7e6ef}
             <span style="{{ mMeasureRow }}">
               <span onClick="{{ r.ctl.pickG }}" style="{{ r.ctl.gCell }}">
                 <button data-step="l" onClick="{{ r.ctl.gDown }}" style="{{ r.ctl.gStepL }}" style-hover="color:#22d3ee">−</button>
-                <span style="{{ mAmt }}">{{ r.ctl.gQty }}<span style="{{ sizeSuffix }}">{{ r.ctl.gUnit }}</span></span>
+                <span style="{{ r.ctl.gAmt }}">{{ r.ctl.gQty }}<span style="{{ sizeSuffix }}">{{ r.ctl.gUnit }}</span></span>
                 <button data-step="r" onClick="{{ r.ctl.gUp }}" style="{{ r.ctl.gStepR }}" style-hover="color:#22d3ee">+</button>
               </span>
               <sc-if value="{{ r.ctl.hasServing }}" hint-placeholder-val="{{ true }}">
+                <span style="{{ mEquals }}">=</span>
                 <span onClick="{{ r.ctl.pickS }}" style="{{ r.ctl.sCell }}">
                   <button data-step="l" onClick="{{ r.ctl.sDown }}" style="{{ r.ctl.sStepL }}" style-hover="color:#22d3ee">−</button>
-                  <span style="{{ mAmt }}">{{ r.ctl.servQty }}<span style="{{ mServName }}">{{ r.ctl.servName }}</span></span>
+                  <span style="{{ r.ctl.sAmt }}">{{ r.ctl.servQty }}<span style="{{ mServName }}">{{ r.ctl.servName }}</span></span>
                   <button data-step="r" onClick="{{ r.ctl.sUp }}" style="{{ r.ctl.sStepR }}" style-hover="color:#22d3ee">+</button>
                 </span>
               </sc-if>
@@ -383,13 +384,14 @@ option{background:#070b12;color:#d7e6ef}
             <span style="{{ mMeasureRow }}">
               <span onClick="{{ r.ctl.pickG }}" style="{{ r.ctl.gCell }}">
                 <button data-step="l" onClick="{{ r.ctl.gDown }}" style="{{ r.ctl.gStepL }}" style-hover="color:#22d3ee">−</button>
-                <span style="{{ mAmt }}">{{ r.ctl.gQty }}<span style="{{ sizeSuffix }}">{{ r.ctl.gUnit }}</span></span>
+                <span style="{{ r.ctl.gAmt }}">{{ r.ctl.gQty }}<span style="{{ sizeSuffix }}">{{ r.ctl.gUnit }}</span></span>
                 <button data-step="r" onClick="{{ r.ctl.gUp }}" style="{{ r.ctl.gStepR }}" style-hover="color:#22d3ee">+</button>
               </span>
               <sc-if value="{{ r.ctl.hasServing }}" hint-placeholder-val="{{ true }}">
+                <span style="{{ mEquals }}">=</span>
                 <span onClick="{{ r.ctl.pickS }}" style="{{ r.ctl.sCell }}">
                   <button data-step="l" onClick="{{ r.ctl.sDown }}" style="{{ r.ctl.sStepL }}" style-hover="color:#22d3ee">−</button>
-                  <span style="{{ mAmt }}">{{ r.ctl.servQty }}<span style="{{ mServName }}">{{ r.ctl.servName }}</span></span>
+                  <span style="{{ r.ctl.sAmt }}">{{ r.ctl.servQty }}<span style="{{ mServName }}">{{ r.ctl.servName }}</span></span>
                   <button data-step="r" onClick="{{ r.ctl.sUp }}" style="{{ r.ctl.sStepR }}" style-hover="color:#22d3ee">+</button>
                 </span>
               </sc-if>
@@ -1042,6 +1044,7 @@ class Component extends DCLogic {
     const mCols = bare ? "minmax(0,1fr)" : "minmax(0,1fr) 7rem";
     // Grams and servings are two ways of saying the same amount, so they are drawn as a
     // pair to choose between — a box each, the chosen one lit.
+    const amtNumBase = { flex: 1, minWidth: 0, textAlign: "center", padding: "0 .1rem" };
     const amtCellBase = {
       flex: 1, minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center",
       height: "2rem", cursor: "pointer", borderRadius: 0,
@@ -1067,6 +1070,12 @@ class Component extends DCLogic {
         // Picking the servings side does not round: it keeps showing the conversion until
         // one of the steppers is actually pressed.
         servQty: pg ? (Math.abs(n - Math.round(n)) < 0.05 ? String(Math.round(n)) : n.toFixed(1)) : "",
+        // The amount fills the middle of its cell, which leaves the two steppers pinned to
+        // the cell's edges instead of drifting with the width of the number. The number of
+        // the side you are not using stays readable — it is the same amount, not a disabled
+        // control — while its unit dims with the rest of the cell.
+        gAmt: Object.assign({}, amtNumBase, { color: mode === "g" ? "#eaf5fb" : "#b3c7d4" }),
+        sAmt: Object.assign({}, amtNumBase, { color: mode === "s" ? "#eaf5fb" : "#b3c7d4" }),
         gCell: Object.assign({}, amtCellBase, {
           borderBottom: "1px solid " + (mode === "g" ? "#22d3ee" : "rgba(34,211,238,.22)"),
           color: mode === "g" ? "#eaf5fb" : "#7b91a3",
@@ -1648,9 +1657,8 @@ class Component extends DCLogic {
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.1rem",
         fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
       },
-      // The amount fills the middle of its cell, which leaves the two steppers pinned to
-      // the cell's edges instead of drifting with the width of the number.
-      mAmt: { flex: 1, minWidth: 0, textAlign: "center", padding: "0 .1rem" },
+      // The two amounts are the same amount said twice, so an equals sign sits between them.
+      mEquals: { flex: "none", color: "#4e6373", fontSize: "1rem" },
       mServName: {
         marginLeft: ".35rem", fontFamily: "var(--font-2)", fontSize: ".8rem",
         letterSpacing: ".1em", color: "#7b91a3"
