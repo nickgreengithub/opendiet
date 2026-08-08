@@ -363,13 +363,13 @@ option{background:#070b12;color:#d7e6ef}
     </div>
     <sc-if value="{{ hasSummary }}" hint-placeholder-val="{{ false }}">
     <div data-rise style="{{ mSumPanel }}">
-      <div style="flex:none;display:flex;align-items:center;justify-content:space-between;min-height:2.3rem;padding:.15rem .3rem .15rem 0;font-family:var(--font-2);font-size:.9rem;letter-spacing:.14em;color:#7b91a3"><span style="flex:1;min-width:0">MY FOOD SUMMARY</span><span style="{{ mSumHeadQty }}">{{ sumQtyLabel }}</span><span style="{{ mSumHeadEnd }}"><sc-if value="{{ binMode }}" hint-placeholder-val="{{ false }}"><button onClick="{{ clearSum }}" style="{{ binAllBtn }}" style-hover="color:#f08c7a">CLEAR ALL</button><button onClick="{{ exitBin }}" style="{{ tickBtn }}" style-hover="color:#7ee0a8"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4.5 12.5l5 5 10-11"></path></svg></button></sc-if><sc-if value="{{ notBinMode }}" hint-placeholder-val="{{ true }}"><button onClick="{{ enterBin }}" style="{{ clearBtn }}" style-hover="color:#d7e6ef"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 7h16"></path><path d="M10 11.5v5.5M14 11.5v5.5"></path><path d="M6.5 7l.9 12.1a1.4 1.4 0 0 0 1.4 1.3h6.4a1.4 1.4 0 0 0 1.4-1.3L17.5 7"></path><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"></path></svg></button></sc-if></span></div>
+      <div style="flex:none;display:flex;align-items:center;justify-content:space-between;min-height:2.3rem;padding:.15rem .3rem .15rem 0;font-family:var(--font-2);font-size:.9rem;letter-spacing:.14em;color:#7b91a3"><span style="flex:1;min-width:0">MY FOOD SUMMARY</span><span style="{{ mSumHeadEnd }}"><button onClick="{{ copyPlate }}" style="{{ copyBtn }}" style-hover="color:#d7e6ef"><sc-if value="{{ copied }}" hint-placeholder-val="{{ false }}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#7ee0a8" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M4.5 12.5l5 5 10-11"></path></svg></sc-if><sc-if value="{{ notCopied }}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><rect x="9" y="9" width="11" height="11" rx="1.6"></rect><path d="M6 15H5a1.6 1.6 0 0 1-1.6-1.6V5A1.6 1.6 0 0 1 5 3.4h8.4A1.6 1.6 0 0 1 15 5v1"></path></svg></sc-if></button></span></div>
       <div data-scroll="sum" style="flex:1;min-height:0;overflow-y:auto">
         <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
           <div data-new="{{ r.arrived }}" data-gone="{{ r.leaving }}" data-lift="m">
           <div data-row onClick="{{ r.sToggle }}" style="{{ r.mSumRow }}">
             <span style="{{ r.sNameStyle }}">{{ r.name }}</span>
-            <button onClick="{{ r.remove }}" style="{{ rowBinBtn }}" style-hover="color:#f08c7a"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 7h16"></path><path d="M10 11.5v5.5M14 11.5v5.5"></path><path d="M6.5 7l.9 12.1a1.4 1.4 0 0 0 1.4 1.3h6.4a1.4 1.4 0 0 0 1.4-1.3L17.5 7"></path><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"></path></svg></button>
+            
             <span data-pulse="{{ r.stepPulse }}" style="{{ r.sQtyCell }}">{{ r.qty }}<span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
             <span style="{{ r.sKcalCell }}">{{ r.mSumVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
             <button onClick="{{ r.ctl.reset }}" style="{{ r.resetCell }}" style-hover="color:#22d3ee"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
@@ -402,11 +402,14 @@ option{background:#070b12;color:#d7e6ef}
         </sc-for>
       </div>
       <div style="flex:none;display:flex;align-items:center;gap:.7rem;min-height:2.2rem;padding:.5rem 0 calc(.8rem + env(safe-area-inset-bottom, 0px))">
-        <span style="flex:1;min-width:0;display:grid;grid-template-columns:repeat(4,1fr);align-items:baseline;justify-items:center;text-align:center;font-weight:300;font-size:1.08rem;color:#d7e6ef;font-variant-numeric:tabular-nums;white-space:nowrap">
-          <span><span style="{{ mMacroTag }}">PROT</span> {{ tot.v1 }}<span style="{{ unitSuffix }}">{{ tot.u3 }}</span></span>
-          <span><span style="{{ mMacroTag }}">CARB</span> {{ tot.v2 }}<span style="{{ unitSuffix }}">{{ tot.u3 }}</span></span>
-          <span><span style="{{ mMacroTag }}">FAT</span> {{ tot.v3 }}<span style="{{ unitSuffix }}">{{ tot.u3 }}</span></span>
-          <span style="color:#22d3ee">{{ tot.mTotVal }}<span style="{{ unitSuffix }}">{{ mColUnit }}</span></span>
+        <span style="{{ mTotRow }}">
+          <span style="{{ mTotMacros }}">
+            <span><span style="{{ mTotTag }}">PROT</span> {{ tot.v1 }}<span style="{{ mTotUnit }}">{{ tot.u3 }}</span></span>
+            <span><span style="{{ mTotTag }}">CARB</span> {{ tot.v2 }}<span style="{{ mTotUnit }}">{{ tot.u3 }}</span></span>
+            <span><span style="{{ mTotTag }}">FAT</span> {{ tot.v3 }}<span style="{{ mTotUnit }}">{{ tot.u3 }}</span></span>
+          </span>
+          <span style="{{ mTotQty }}">{{ tot.qty }}<span style="{{ sizeSuffix }}">{{ tot.qtyUnit }}</span></span>
+          <span style="{{ mTotVal }}">{{ tot.mTotVal }}<span style="{{ unitSuffix }}">{{ mColUnit }}</span></span>
         </span>
       </div>
     </div>
@@ -756,7 +759,6 @@ class Component extends DCLogic {
       const sum = (s.sum || []).includes(name) ? (s.sum || []).filter(n => n !== name) : (s.sum || []).concat(name);
       try { localStorage.setItem("nutri-search-sum", JSON.stringify(sum)); } catch (e) {}
       // An emptied plate leaves removal mode, so the next one does not open in it.
-      if (!sum.length && s.binMode) return { sum, starred: true, rowHint: false, binMode: false };
       // Adding a food answers the "tap a row" hint, so retire it for this session.
       // The first add also earns one run of the step-button hint.
       if (sum.length > (s.sum || []).length) {
@@ -773,6 +775,34 @@ class Component extends DCLogic {
       return { sum, starred: true, rowHint: false, sumHold: hold };
     });
   }
+  // Put the plate on the clipboard. The async API is the one to use and the one iOS is
+  // fussiest about, so a failure falls back to the old selection trick rather than nothing.
+  copyPlate(text) {
+    const done = () => {
+      clearTimeout(this._copyT);
+      this.setState({ copied: true });
+      this._copyT = setTimeout(() => this.setState({ copied: false }), 1400);
+    };
+    const old = () => {
+      try {
+        const t = document.createElement("textarea");
+        t.value = text;
+        t.setAttribute("readonly", "");
+        t.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+        document.body.appendChild(t);
+        t.select();
+        t.setSelectionRange(0, text.length);
+        const ok = document.execCommand("copy");
+        document.body.removeChild(t);
+        if (ok) done();
+      } catch (e) {}
+    };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, old);
+      } else old();
+    } catch (e) { old(); }
+  }
   // The second half of a removal, once the plate row has finished folding up.
   dropFromSum(name) {
     this.setState(s => {
@@ -781,10 +811,7 @@ class Component extends DCLogic {
       // The food is back in the search list, where it says so for a moment.
       clearTimeout(this._backT);
       this._backT = setTimeout(() => this.setState({ justBack: null }), 1600);
-      const out = { sum, leaving: null, starred: true, rowHint: false, justBack: name };
-      // An emptied plate leaves removal mode, so the next one does not open in it.
-      if (!sum.length && s.binMode) out.binMode = false;
-      return out;
+      return { sum, leaving: null, starred: true, rowHint: false, justBack: name };
     });
   }
   toTop() {
@@ -1031,7 +1058,6 @@ class Component extends DCLogic {
     // Searching is a name-matching job, so while the keyboard is up the macro columns stand
     // down and the food name takes the full width — at a phone's width they were competing.
     const bare = !!(s.narrow && s.kb);
-    const bin = !!s.binMode;
     // v0.3 turns the site into a set of small apps. Only FOOD SEARCH is built; the rest are
     // placeholders so the shell around them can be judged before anything is written.
     const APPS = [
@@ -1377,14 +1403,17 @@ class Component extends DCLogic {
       color: "#d7e6ef", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1.1rem" : ".875rem",
       fontVariantNumeric: "tabular-nums", transition: "border-color 140ms ease"
     };
+    // Name, then amount, then the chosen measure. The totals line uses the same tracks, so
+    // every figure lands under the column it is the total of.
+    const SUM_COLS = "minmax(0,1fr) 4.2rem 4.2rem";
     const mSumRowBase = {
       display: "grid", cursor: "pointer",
       columnGap: ".4rem", alignItems: "center", minHeight: "2.5rem",
       borderLeft: "2px solid transparent",
       borderBottom: "1px solid rgba(34,211,238,.14)", transition: "background 140ms ease"
     };
-    // Only one plate row is open at a time, and never while the bin mode is on.
-    const sOpenName = s.narrow && !bin ? s.sOpen : null;
+    // Only one plate row is open at a time.
+    const sOpenName = s.narrow ? s.sOpen : null;
     const sumRows = sumFoods.map(fo => {
       const g = gramsOf(fo.name) / 100;
       const rmk = macroK(fo);
@@ -1418,13 +1447,13 @@ class Component extends DCLogic {
               q => this.setState(st => ({ qty: Object.assign({}, st.qty, { [fo.name]: String(clampG(q)) }) })),
               s.sMode === "s" ? "s" : "g", m => this.setState({ sMode: m }))
           : null,
-        sKcalCell: Object.assign({}, mColCellBase, { display: bin || sOpenName === fo.name ? "none" : "flex" }),
+        sKcalCell: Object.assign({}, mColCellBase, { display: sOpenName === fo.name ? "none" : "flex" }),
         resetCell: Object.assign({}, resetBase, {
           display: sOpenName === fo.name ? "flex" : "none",
           color: Math.round(gramsOf(fo.name)) === baseG ? "#26333e" : "#7b91a3"
         }),
         sQtyCell: {
-          display: bin || sOpenName === fo.name ? "none" : "flex", alignItems: "center", justifyContent: "flex-end",
+          display: sOpenName === fo.name ? "none" : "flex", alignItems: "center", justifyContent: "flex-end",
           paddingRight: ".2rem", fontWeight: 300, fontSize: "1.04rem",
           color: sOpenName === fo.name ? "#22d3ee" : "#d7e6ef",
           fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap",
@@ -1439,7 +1468,7 @@ class Component extends DCLogic {
         },
         mSumRow: Object.assign({}, mSumRowBase, {
           gridTemplateColumns: sOpenName === fo.name ? "minmax(0,1fr) 2.2rem"
-            : bin ? "minmax(0,1fr) 3rem" : "minmax(0,1fr) 4.6rem 4.2rem",
+            : SUM_COLS,
           borderBottom: sOpenName === fo.name ? 0 : "1px solid rgba(34,211,238,.14)"
         }),
         sExpand: {
@@ -1507,10 +1536,26 @@ class Component extends DCLogic {
       // Mixed solids + liquids fall back to G, matching USDA's gram basis.
       qtyUnit: sumFoods.length && sumFoods.every(fo => fo.mu === "ml") ? "ml" : "g"
     };
-    // The mobile summary names its size column once in the header instead of repeating the
-    // unit on every row — a plate of both solids and liquids says so with G/ML.
-    const sumHasMl = sumFoods.some(fo => fo.mu === "ml"), sumHasG = sumFoods.some(fo => fo.mu !== "ml");
-    const sumQtyLabel = sumHasMl && sumHasG ? "G/ML" : sumHasMl ? "ML" : "G";
+    // What the copy button puts on the clipboard: the plate as a table, tab separated, so it
+    // pastes into a spreadsheet as columns and still reads as a list anywhere else. Each food
+    // carries both ways of saying its amount, because the second one is the one you can
+    // picture, and the totals are the ones on screen rather than a second calculation.
+    const plateText = [["FOOD", "AMOUNT", "MEASURE", mCol.label + (mCol.unit ? " (" + mCol.unit + ")" : "")].join("\t")]
+      .concat(sumFoods.map(fo => {
+        const g = Math.round(gramsOf(fo.name)), u = fo.mu === "ml" ? "ml" : "g";
+        const n = fo.pg ? g / fo.pg : 0;
+        const alt = fo.pg ? (Math.abs(n - Math.round(n)) < 0.05 ? String(Math.round(n)) : n.toFixed(1)) + " " + fo.pn : "";
+        const val = mCol.k === "score" ? String(scoreOf(fo))
+          : mCol.k === "kcal" ? String(Math.round(kcalOf(fo) * (g / 100)))
+            : mCol.k === "dens" ? (fo.kcal / 100).toFixed(2)
+              : this.fmt(mCol.get(fo) * (g / 100));
+        return [fo.name, g + " " + u, alt, val].join("\t");
+      }))
+      .concat([
+        ["TOTAL", tot.qty + " " + tot.qtyUnit, "", tot.mTotVal].join("\t"),
+        ["PROT " + tot.v1 + " " + tot.u3, "CARB " + tot.v2 + " " + tot.u3, "FAT " + tot.v3 + " " + tot.u3].join("\t")
+      ])
+      .join("\n");
     const signOut = () => { try { localStorage.removeItem("nutri-search-user"); } catch (e) {} this.setState({ user: null, view: "results" }); };
 
     return {
@@ -1863,33 +1908,36 @@ class Component extends DCLogic {
         transition: "max-height 220ms cubic-bezier(.22,1,.36,1)"
       },
       mListStyle: { flex: 1, minHeight: 0, overflowY: "auto" },
-      // Removal mode swaps the row's numbers for a single bin, and the name takes the width.
-      binMode: !!bin, notBinMode: !bin,
-      enterBin: () => this.setState({ binMode: true }),
-      exitBin: () => this.setState({ binMode: false }),
-      sumQtyLabel: bin ? "" : sumQtyLabel,
-      // Same track as the row's size cell, so the header sits over its own column.
-      mSumHeadQty: {
-        display: bin ? "none" : "flex", alignItems: "center", justifyContent: "center",
-        width: "4.6rem", flex: "none"
-      },
-      mSumHeadEnd: { display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".9rem", width: bin ? "auto" : "4.2rem", flex: "none" },
+      mSumHeadEnd: { display: "flex", alignItems: "center", justifyContent: "flex-end", width: "2.6rem", flex: "none" },
       mSumRow: mSumRowBase,
-      qtyCell: { position: "relative", display: bin ? "none" : "flex", alignItems: "center", justifyContent: "flex-end" },
-      mSumKcal: Object.assign({}, mColCellBase, { display: bin ? "none" : "flex" }),
-      rowBinBtn: {
-        display: bin ? "flex" : "none", alignItems: "center", justifyContent: "center",
-        alignSelf: "stretch", width: "3rem", padding: 0, border: 0, borderRadius: 0,
-        background: "transparent", cursor: "pointer", color: "#7b91a3", transition: "color 140ms ease"
+      qtyCell: { position: "relative", display: "flex", alignItems: "center", justifyContent: "flex-end" },
+      mSumKcal: mColCellBase,
+      // The totals line rides the row grid, so the amount and the measure sit under their
+      // own columns rather than in a row of four evenly spaced figures.
+      mTotRow: {
+        flex: 1, minWidth: 0, display: "grid", gridTemplateColumns: SUM_COLS,
+        columnGap: ".4rem", alignItems: "baseline",
+        fontWeight: 300, fontSize: "1.08rem", color: "#d7e6ef",
+        fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
       },
-      binAllBtn: {
-        padding: 0, border: 0, background: "transparent", cursor: "pointer", color: "#7b91a3",
-        fontFamily: "var(--font-2)", fontSize: ".9rem", letterSpacing: ".14em",
-        transition: "color 140ms ease"
+      // Three figures now share the name's track rather than the whole line, so they give a
+      // little type back to keep clear of each other.
+      mTotMacros: {
+        minWidth: 0, display: "grid", gridTemplateColumns: "repeat(3,1fr)",
+        alignItems: "baseline", justifyItems: "center", textAlign: "center", fontSize: ".9rem"
       },
-      tickBtn: {
-        display: "flex", alignItems: "center", justifyContent: "center", padding: 0,
-        border: 0, background: "transparent", cursor: "pointer", color: "#22d3ee",
+      // The tag and the unit are the parts that can afford to shrink; the figures are what
+      // the line is for. Without this the three collide on a 360px phone.
+      mTotTag: { fontFamily: "var(--font-2)", fontSize: ".68rem", letterSpacing: 0, color: "#7b91a3" },
+      mTotUnit: { marginLeft: ".08rem", fontFamily: "var(--font-2)", fontSize: ".66rem", color: "#7b91a3" },
+      mTotQty: { display: "flex", alignItems: "baseline", justifyContent: "flex-end", paddingRight: ".2rem" },
+      mTotVal: { display: "flex", alignItems: "baseline", justifyContent: "flex-end", paddingRight: ".3rem", color: "#22d3ee" },
+      copied: !!s.copied, notCopied: !s.copied,
+      copyPlate: () => this.copyPlate(plateText),
+      copyBtn: {
+        display: "flex", alignItems: "center", justifyContent: "flex-end",
+        height: "100%", width: "2.6rem", padding: 0, border: 0, borderRadius: 0,
+        background: "transparent", cursor: "pointer", color: "#7b91a3",
         transition: "color 140ms ease"
       },
       // The glyphs sit toward the number rather than centred in their targets, so they read
@@ -1943,17 +1991,6 @@ class Component extends DCLogic {
         transform: landing ? "translateY(14px)" : "none",
         pointerEvents: landing ? "none" : "auto",
         transition: "opacity 420ms ease 120ms, transform 620ms cubic-bezier(.22,1,.36,1)"
-      },
-      clearSum: () => {
-        try { localStorage.setItem("nutri-search-sum", "[]"); } catch (e) {}
-        clearTimeout(this._goneT);
-        this.setState({ sum: [], binMode: false, leaving: null });
-      },
-      clearBtn: {
-        display: "flex", alignItems: "center", justifyContent: "flex-end",
-        height: "100%", width: "2.6rem", padding: 0, border: 0, borderRadius: 0,
-        background: "transparent", cursor: "pointer", color: "#7b91a3",
-        transition: "color 140ms ease"
       },
       q: s.q, onQ: e => {
         const v = e.target.value;

@@ -69,6 +69,13 @@ What is different from the root:
   an apple is charged the same gram as a jellybean.
 - Plate rows open the same way, with a bin where ADD was, and edit the plate's own amount.
   Collapsed, a plate row just states its grams — the steppers live in the expansion.
+- The plate's totals line rides the same three tracks as its rows, so the amount and the
+  chosen measure sit under the columns they are totals of rather than in a row of evenly
+  spaced figures. Its header carries one control: copy, which puts the plate on the
+  clipboard as a tab-separated table — every food with its grams, the same amount as its own
+  household measure, and the chosen column — so it pastes into a spreadsheet as columns and
+  reads as a list anywhere else. Removal mode is gone with the bin that opened it; a food
+  leaves from the bin in its own expansion.
 
 The food libraries are **not** copied into this folder. `index.html` reads them from the
 site root via `const DATA = "../data/"`, so the two versions can never drift apart.
