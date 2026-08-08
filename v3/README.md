@@ -11,23 +11,34 @@ What is different from the root:
 - Desktop switches app with tabs across the top. Mobile gets a back button to the launcher.
 - Both layouts open on the search line alone, centred, and lift it to the header on the first
   keystroke. Reaching for the search box, or typing a different query, returns the list to
-  the top; a food added on mobile slides into the summary out of a cyan wash, and the
-  summary scrolls to meet it.
+  the top.
+- The plate reads newest first. A food joins at the top row: a slot opens to the row's
+  height and the row drops into it from above, out of a cyan wash. Taking one off reverses
+  it — the row lifts out and the slot folds shut, and only then does the food actually leave,
+  so it can rise back into the search list from below through a slot of its own. The slots
+  are wrappers around each row, because the rows carry a `min-height` and `min-height` beats
+  `max-height`; `--od-row` tells each slot the height it is opening to, since a phone's rows
+  are taller than a desktop's.
 - No CORE library. The everyday-food problem is solved in the search order rather than by
   filtering the data, so a long result list costs nothing. SR Legacy is the default; FNDDS
   is the other option. `data/core.json` stays for the root site, which still opens on it.
 - Search matches every word of the query, in any order, and treats a plural as its
   singular in both directions — "apple" finds `Apples, raw`, "eggs" finds `Egg, whole, raw`,
   "berry" reaches `Blueberries`. Results are then scored by how the query landed: 20 for a
-  whole word, 12 for the start of a longer one, 4 for a hit buried inside one. Those tiers
-  are further apart than every bonus put together, so nothing outranks a better match.
-  Bonuses only settle foods that landed the same way: 7 for the everyday list, 4 for being
+  whole word, 12 for the start of a longer one, 4 for a hit buried inside one. Filling a
+  whole word only reaches the top tier if the query was three characters or more — "t" fills
+  the "t" of `t-bone steak` exactly and means nothing by doing so.
+  Bonuses mostly settle foods that landed the same way: 7 for the everyday list, 4 for being
   the whole head of the name before USDA's qualifiers start (`Apples,` rather than
   `Apple juice,`), 1 for opening the name, up to 3 for landing in the name's first words,
   up to 3 for how much of the word the query spelled — measured on the singular, so a plural
-  is not a worse match than its own singular. Ties go to the shorter name, then the
-  alphabet. Nothing about it is
-  visible: no badge, no dot.
+  is not a worse match than its own singular. The exception is 8 for not being a brand,
+  which is a whole tier: nobody searching for a food means a restaurant's version of it
+  first, so `T.G.I. FRIDAY'S` loses "t" to `Tomatoes` and `Tofu`. A brand is USDA shouting
+  in capitals (`QUAKER`, `MEAD JOHNSON`, `KFC`) or a possessive (`McDonald's`) — which
+  catches SR Legacy well and FNDDS barely, since FNDDS keeps its brands inside parentheses
+  that generic foods use too (`(Alaska Native)`). Ties go to the shorter name, then the
+  alphabet. Nothing about any of it is visible: no badge, no dot.
 - The everyday flag is an eleventh element on each food row, written by
   `tools/mark_common.py`; the root site reads ten and ignores it.
 - Opening a food on mobile shows the amount two ways: grams, and the same amount as
