@@ -335,19 +335,15 @@ option{background:#070b12;color:#d7e6ef}
             <button onClick="{{ r.ctl.reset }}" style="{{ r.resetCell }}" style-hover="color:#22d3ee"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
           </div>
           <div style="{{ r.mExpand }}">
-            <span style="{{ mBars }}">
-              <span style="{{ mBarLine }}">
-                <span style="{{ mBarTrack }}"><sc-for list="{{ r.bars.bar1 }}" as="b" hint-placeholder-count="4"><span style="{{ b.style }}"></span></sc-for></span>
-                <span style="{{ mBarKeys }}"><sc-for list="{{ r.bars.key1 }}" as="k" hint-placeholder-count="2"><span style="{{ k.style }}"><span style="{{ k.tagStyle }}">{{ k.label }}</span>{{ k.val }}<span style="{{ unitSuffix }}">g</span></span></sc-for><span style="{{ mBarVal }}">{{ r.xv.col }}<span style="{{ unitSuffix }}">{{ mColUnit }}</span></span></span>
-              </span>
-              <span style="{{ mBarLine }}">
-                <span style="{{ mBarTrack }}"><sc-for list="{{ r.bars.bar2 }}" as="b" hint-placeholder-count="3"><span style="{{ b.style }}"></span></sc-for></span>
-                <span style="{{ mBarKeys }}"><sc-for list="{{ r.bars.key2 }}" as="k" hint-placeholder-count="3"><button onClick="{{ k.onClick }}" style="{{ k.style }}"><span style="{{ k.tagStyle }}">{{ k.label }}</span>{{ k.val }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></button></sc-for></span>
-              </span>
-              <span style="{{ r.bars.partLine }}">
-                <span style="{{ mBarTrack }}"><sc-for list="{{ r.bars.bar3 }}" as="b" hint-placeholder-count="3"><span style="{{ b.style }}"></span></sc-for></span>
-                <span style="{{ mBarKeys }}"><sc-for list="{{ r.bars.key3 }}" as="k" hint-placeholder-count="3"><span style="{{ k.style }}"><span style="{{ k.tagStyle }}">{{ k.label }}</span>{{ k.val }}<span style="{{ unitSuffix }}">g</span></span></sc-for></span>
-              </span>
+            <span style="{{ r.bars.rowStyle }}">
+              <sc-for list="{{ r.bars.cells }}" as="c" hint-placeholder-count="3">
+                <button onClick="{{ c.onClick }}" style="{{ c.style }}"><span style="{{ mMacroTag }}">{{ c.tag }}</span> {{ c.val }}<span style="{{ unitSuffix }}">{{ c.unit }}</span></button>
+              </sc-for>
+              <button onClick="{{ r.bars.endClick }}" style="{{ r.bars.endStyle }}">{{ r.bars.endLabel }}<span style="{{ unitSuffix }}">{{ r.bars.endUnit }}</span></button>
+            </span>
+            <span style="{{ mBarRow }}">
+              <span style="{{ mBarTrack }}"><sc-for list="{{ r.bars.segs }}" as="b" hint-placeholder-count="3"><span style="{{ b.style }}"></span></sc-for></span>
+              <span style="{{ mBarNote }}">{{ r.bars.note }}</span>
             </span>
             <span style="{{ mMeasureRow }}">
               <span onClick="{{ r.ctl.pickG }}" style="{{ r.ctl.gCell }}">
@@ -383,19 +379,15 @@ option{background:#070b12;color:#d7e6ef}
             <button onClick="{{ r.ctl.reset }}" style="{{ r.resetCell }}" style-hover="color:#22d3ee"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
           </div>
           <div style="{{ r.sExpand }}">
-            <span style="{{ mBars }}">
-              <span style="{{ mBarLine }}">
-                <span style="{{ mBarTrack }}"><sc-for list="{{ r.bars.bar1 }}" as="b" hint-placeholder-count="4"><span style="{{ b.style }}"></span></sc-for></span>
-                <span style="{{ mBarKeys }}"><sc-for list="{{ r.bars.key1 }}" as="k" hint-placeholder-count="2"><span style="{{ k.style }}"><span style="{{ k.tagStyle }}">{{ k.label }}</span>{{ k.val }}<span style="{{ unitSuffix }}">g</span></span></sc-for><span style="{{ mBarVal }}">{{ r.mSumVal }}<span style="{{ unitSuffix }}">{{ mColUnit }}</span></span></span>
-              </span>
-              <span style="{{ mBarLine }}">
-                <span style="{{ mBarTrack }}"><sc-for list="{{ r.bars.bar2 }}" as="b" hint-placeholder-count="3"><span style="{{ b.style }}"></span></sc-for></span>
-                <span style="{{ mBarKeys }}"><sc-for list="{{ r.bars.key2 }}" as="k" hint-placeholder-count="3"><button onClick="{{ k.onClick }}" style="{{ k.style }}"><span style="{{ k.tagStyle }}">{{ k.label }}</span>{{ k.val }}<span style="{{ unitSuffix }}">{{ basisUnit }}</span></button></sc-for></span>
-              </span>
-              <span style="{{ r.bars.partLine }}">
-                <span style="{{ mBarTrack }}"><sc-for list="{{ r.bars.bar3 }}" as="b" hint-placeholder-count="3"><span style="{{ b.style }}"></span></sc-for></span>
-                <span style="{{ mBarKeys }}"><sc-for list="{{ r.bars.key3 }}" as="k" hint-placeholder-count="3"><span style="{{ k.style }}"><span style="{{ k.tagStyle }}">{{ k.label }}</span>{{ k.val }}<span style="{{ unitSuffix }}">g</span></span></sc-for></span>
-              </span>
+            <span style="{{ r.bars.rowStyle }}">
+              <sc-for list="{{ r.bars.cells }}" as="c" hint-placeholder-count="3">
+                <button onClick="{{ c.onClick }}" style="{{ c.style }}"><span style="{{ mMacroTag }}">{{ c.tag }}</span> {{ c.val }}<span style="{{ unitSuffix }}">{{ c.unit }}</span></button>
+              </sc-for>
+              <button onClick="{{ r.bars.endClick }}" style="{{ r.bars.endStyle }}">{{ r.bars.endLabel }}<span style="{{ unitSuffix }}">{{ r.bars.endUnit }}</span></button>
+            </span>
+            <span style="{{ mBarRow }}">
+              <span style="{{ mBarTrack }}"><sc-for list="{{ r.bars.segs }}" as="b" hint-placeholder-count="3"><span style="{{ b.style }}"></span></sc-for></span>
+              <span style="{{ mBarNote }}">{{ r.bars.note }}</span>
             </span>
             <span style="{{ mMeasureRow }}">
               <span onClick="{{ r.ctl.pickG }}" style="{{ r.ctl.gCell }}">
@@ -1208,13 +1200,18 @@ class Component extends DCLogic {
     // median one in SR Legacy is 64% — and the second is the readable one, because at that
     // scale watermelon's protein is half a pixel. A third appears when a macro is asked to
     // account for itself.
-    const WATER_HUE = "#2f4a5a", OTHER_HUE = "#22323c", ALC_HUE = "#a58ee0";
+    const ALC_HUE = "#a58ee0";
     // Shades of the macro they belong to, brightest for the part worth noticing. A segment
     // can be as dark as it likes against the track; a word cannot, so the tag under a dark
     // segment is lifted until it is readable.
     const CARB_HUES = ["#a7f0c8", "#5fb98c", "#3f8a6d"];
     const FAT_HUES = ["#f08c7a", "#c07b68", "#96685a", "#5f4039"];
-    const WATER_TAG = "#7593a6";
+    // What a food is besides its macros, said as a fact rather than drawn. Drawn, it is one
+    // long slab of water on almost everything — the median food here is 64% water — which is
+    // the least discriminating thing that could occupy the most space.
+    const noteFor = fo => (fo.al || 0) > 1
+      ? Math.round(fo.al) + "% ALCOHOL"
+      : fo.wa === undefined ? "" : Math.round(fo.wa) + "% WATER";
     const barSeg = (hue, pct) => ({
       style: { width: pct + "%", background: hue, flex: "none", transition: "width 240ms ease" }
     });
@@ -1225,77 +1222,108 @@ class Component extends DCLogic {
       const sum = rows.reduce((a, r) => a + Math.max(0, r[1]), 0) || 1;
       return rows.filter(r => r[1] > 0).map(r => barSeg(r[0], (100 * r[1] / sum).toFixed(2)));
     };
-    const keyStyle = { flex: "none", fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".04em", color: "#7b91a3" };
-    const barKey = (label, val, hue) => ({
-      label: label, val: val,
-      // Buttons here have to read as text: the affordance is the colour of the tag, not a box.
-      style: {
-        flex: "none", display: "flex", alignItems: "baseline", gap: ".28rem",
-        padding: 0, border: 0, borderRadius: 0, background: "transparent",
-        fontFamily: "inherit", fontWeight: 300, fontSize: "inherit", color: "#d7e6ef",
-        fontVariantNumeric: "tabular-nums", cursor: "pointer"
-      },
-      // The label takes the segment's colour, which is the only thing tying the two together.
-      tagStyle: Object.assign({}, keyStyle, { color: hue })
+    // The four figures, on the same grid as the table's own columns. A tappable one carries a
+    // hairline in its colour: quiet enough to ignore, enough to say there is more here.
+    // Every property that can differ between two renders is named in both of them. The
+    // template engine writes the style it is given without clearing what the last one set, so
+    // a rule that is merely absent stays on screen — a hairline under a word that is no longer
+    // a control, a cyan cross where a green one was asked for.
+    const cellBase = {
+      display: "flex", alignItems: "baseline", justifyContent: "center", gap: ".3rem",
+      padding: 0, border: 0, borderRadius: 0, background: "transparent",
+      borderBottom: "1px solid transparent", paddingBottom: ".12rem", cursor: "default",
+      fontFamily: "inherit", fontWeight: 300, fontSize: "inherit", color: "#d7e6ef",
+      fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
+    };
+    const cell = (tag, val, unit, hue, onClick) => ({
+      tag: tag, val: val, unit: unit, onClick: onClick,
+      style: Object.assign({}, cellBase, hue
+        ? { cursor: "pointer", borderBottom: "1px solid " + hue + "59" }
+        : {})
     });
-    const partLineStyle = open => ({
-      display: "flex", flexDirection: "column", gap: ".22rem", overflow: "hidden",
-      height: open ? "1.62rem" : "0px", opacity: open ? 1 : 0,
-      justifyContent: "center",
-      transition: "height 220ms cubic-bezier(.22,1,.36,1), opacity 180ms ease"
+    const NO_BARS = { rowStyle: { display: "none" }, cells: [], segs: [], note: "",
+      endLabel: "", endUnit: "", endClick: null, endStyle: { display: "none" } };
+    // The bar answers to the same basis as the figures above it: grams of each when the table
+    // is in grams, calories from each when it is in calories or in percent of them. A bar that
+    // measured mass under a heading that read percent of energy would be a lie.
+    const barBasisUnit = isPct ? "%" : isKcalBasis ? "kcal" : "g";
+    // The macro line sits on the table's own four columns, so each figure lands under the
+    // column it came from. A macro's parts have no columns to answer to — they are a detail,
+    // not a row of the table — so they take the width their words need instead.
+    const figuresBase = {
+      alignItems: "center", height: "2.2rem",
+      fontWeight: 300, color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
+    };
+    const FIG_COLS = Object.assign({}, figuresBase, {
+      display: "grid", gridTemplateColumns: "repeat(4,1fr)", justifyItems: "center",
+      textAlign: "center", fontSize: "1.08rem"
     });
-    const NO_BARS = { bar1: [], key1: [], bar2: [], key2: [], bar3: [], key3: [], partLine: partLineStyle(false) };
-    // The macros bar answers to the same basis as the figures beneath it: grams of each when
-    // the table is in grams, calories from each when it is in calories or in percent of them.
-    // A bar that measured mass under a heading that read percent of energy would be a lie.
+    const FIG_FLEX = Object.assign({}, figuresBase, {
+      display: "flex", justifyContent: "space-between", gap: ".3rem",
+      padding: "0 .2rem 0 .5rem", fontSize: ".88rem"
+    });
     const macroSplit = fo => isGrams
       ? [fo.p, fo.c, fo.f, (fo.al || 0)]
       : macroK(fo).concat([(fo.al || 0) * 7]);
-    const barsFor = (fo, grams, vals, part, setPart) => {
+    const barsFor = (fo, grams, vals, colVal, part, setPart) => {
       const f = grams / 100, g1 = n => this.fmt((n || 0) * f);
-      const macro = (fo.p + fo.c + fo.f + (fo.al || 0)) * f;
-      const water = (fo.wa || 0) * f, other = (fo.ah || 0) * f;
-      const k1 = [barKey("MACROS", this.fmt(macro), "#8ba6b8"), barKey("WATER", this.fmt(water), WATER_TAG)];
-      // Ash is a sliver on almost everything and the whole bar on salt, so it is named only
-      // when there is something to name.
-      if (other >= 1) k1.push(barKey("OTHER", this.fmt(other), "#6b7f8c"));
-      const tap = k => e => { if (e && e.stopPropagation) e.stopPropagation(); setPart(part === k ? null : k); };
       const stop = e => { if (e && e.stopPropagation) e.stopPropagation(); };
-      // A macro that can account for itself says so by underlining in its own colour once it
-      // has been asked to. Protein cannot: FDC's amino acids reach only two thirds of the
-      // library, and nobody is asking a food how much leucine it has.
-      const asked = (k, hue) => k === part
-        ? { borderBottom: "1px solid " + hue, paddingBottom: ".1rem", marginBottom: "-.1rem" } : {};
-      // A macro with none of itself has nothing to break down, so it is not a target: an
-      // opened line of three zeroes over an empty track reads as broken rather than as none.
-      const k2 = [
-        Object.assign(barKey("PROT", vals[0], HUE[0]), { onClick: stop }),
-        Object.assign(barKey("CARB", vals[1], HUE[1]), { onClick: fo.c > 0 ? tap("c") : stop }),
-        Object.assign(barKey("FAT", vals[2], HUE[2]), { onClick: fo.f > 0 ? tap("f") : stop })
-      ];
-      k2[1].style = Object.assign({}, k2[1].style, asked("c", HUE[1]));
-      k2[2].style = Object.assign({}, k2[2].style, asked("f", HUE[2]));
-      if ((fo.al || 0) > 0) k2.push(barKey("ALC", this.fmt(fo.al * f), ALC_HUE));
-      // Sugars and fibre are both inside carbohydrate; what is left is starch and the rest.
-      const rest = k => Math.max(0, k);
-      const three = part === "c"
-        ? { rows: [[CARB_HUES[0], fo.sg], [CARB_HUES[1], fo.fb], [CARB_HUES[2], rest(fo.c - fo.sg - fo.fb)]],
-            keys: [barKey("SUGARS", g1(fo.sg), CARB_HUES[0]), barKey("FIBRE", g1(fo.fb), CARB_HUES[1]),
-                   barKey("STARCH", g1(rest(fo.c - fo.sg - fo.fb)), CARB_HUES[2])] }
+      const tap = k => e => { stop(e); setPart(part === k ? null : k); };
+      const rest = n => Math.max(0, n);
+      const endBase = {
+        display: "flex", alignItems: "baseline", justifyContent: "flex-end", gap: ".2rem",
+        padding: 0, border: 0, borderRadius: 0, background: "transparent",
+        paddingRight: ".3rem", fontFamily: "inherit", fontWeight: 300,
+        fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap",
+        width: "auto", minWidth: 0, fontSize: "inherit"
+      };
+      // Drilled into a macro, the three figures become its parts and the fourth column becomes
+      // the way back, named after where you are. The block never grows a line to do it.
+      const inside = part === "c"
+        ? { hue: HUE[1], name: "CARB",
+            segs: [[CARB_HUES[0], fo.sg], [CARB_HUES[1], fo.fb], [CARB_HUES[2], rest(fo.c - fo.sg - fo.fb)]],
+            cells: [cell("SUGARS", g1(fo.sg), ""), cell("FIBRE", g1(fo.fb), ""),
+                    cell("STARCH", g1(rest(fo.c - fo.sg - fo.fb)), "")] }
         : part === "f"
-          ? { rows: [[FAT_HUES[0], fo.sf], [FAT_HUES[1], fo.mo || 0], [FAT_HUES[2], fo.po || 0],
+          ? { hue: HUE[2], name: "FAT",
+              segs: [[FAT_HUES[0], fo.sf], [FAT_HUES[1], fo.mo || 0], [FAT_HUES[2], fo.po || 0],
                      [FAT_HUES[3], rest(fo.f - fo.sf - (fo.mo || 0) - (fo.po || 0))]],
-              keys: [barKey("SAT", g1(fo.sf), FAT_HUES[0]), barKey("MONO", g1(fo.mo), FAT_HUES[1]),
-                     barKey("POLY", g1(fo.po), FAT_HUES[2])] }
-          : { rows: [], keys: [] };
+              cells: [cell("SAT", g1(fo.sf), ""), cell("MONO", g1(fo.mo), ""),
+                      cell("POLY", g1(fo.po), "")] }
+          : null;
+      if (inside) {
+        inside.cells.forEach(c => { c.onClick = stop; });
+        return {
+          rowStyle: FIG_FLEX,
+          cells: inside.cells, segs: barOf(inside.segs),
+          // While you are inside a macro the caption says which one, which is worth more here
+          // than the water is and costs nothing: the way out only has to be a cross.
+          // The parts are all grams and there is no room to say so three times on a 320px
+          // phone, so the caption says it once for all of them.
+          note: "OF " + inside.name + ", GRAMS",
+          endLabel: "\u00d7", endUnit: "", endClick: tap(part),
+          endStyle: Object.assign({}, endBase, {
+            width: "auto", minWidth: "1.5rem", fontSize: "1.1rem",
+            color: inside.hue, cursor: "pointer"
+          })
+        };
+      }
+      const cells = [
+        cell("PROT", vals[0], barBasisUnit, null, stop),
+        cell("CARB", vals[1], barBasisUnit, fo.c > 0 ? HUE[1] : null, fo.c > 0 ? tap("c") : stop),
+        cell("FAT", vals[2], barBasisUnit, fo.f > 0 ? HUE[2] : null, fo.f > 0 ? tap("f") : stop)
+      ];
       return {
-        bar1: barOf([[HUE[0], fo.p], [HUE[1], fo.c], [HUE[2], fo.f], [ALC_HUE, fo.al || 0],
-                   [WATER_HUE, fo.wa || 0], [OTHER_HUE, fo.ah || 0]]),
-        key1: k1,
-        bar2: barOf(macroSplit(fo).map((v, i) => [[HUE[0], HUE[1], HUE[2], ALC_HUE][i], v])),
-        key2: k2,
-        bar3: barOf(three.rows), key3: three.keys,
-        partLine: partLineStyle(!!three.rows.length)
+        rowStyle: FIG_COLS,
+        cells: cells,
+        segs: barOf(macroSplit(fo).map((v, i) => [[HUE[0], HUE[1], HUE[2], ALC_HUE][i], v])),
+        note: noteFor(fo),
+        endLabel: colVal, endUnit: mCol.unit, endClick: stop,
+        // In the four-column layout the chip fills its column so it right-aligns with the
+        // table's own last column; in the flex one it takes only the room it needs.
+        endStyle: Object.assign({}, endBase, {
+          width: "100%", minWidth: 0, fontSize: "inherit", color: "#22d3ee", cursor: "default"
+        })
       };
     };
     // One-way: once you have typed, the page never returns to the landing state.
@@ -1375,11 +1403,11 @@ class Component extends DCLogic {
           padding: bare || open ? ".3rem 0 .15rem" : 0
         },
         xv: xv,
-        bars: open ? barsFor(fo, openQty, [xv.v1, xv.v2, xv.v3], s.mPart,
+        bars: open ? barsFor(fo, openQty, [xv.v1, xv.v2, xv.v3], xv.col, s.mPart,
           k => this.setState({ mPart: k })) : NO_BARS,
         mExpand: {
           overflow: "hidden",
-          height: open ? (s.mPart ? "8.2rem" : "6.55rem") : "0px",
+          height: open ? "6.65rem" : "0px",
           opacity: open ? 1 : 0,
           background: open ? PICKED_BG : "transparent",
           borderBottom: open ? "1px solid rgba(34,211,238,.14)" : 0,
@@ -1536,6 +1564,14 @@ class Component extends DCLogic {
     };
     // Only one plate row is open at a time.
     const sOpenName = s.narrow ? s.sOpen : null;
+    // The chosen column's figure for a plate row, wanted in two places now.
+    const mSumValOf = fo => {
+      const g = gramsOf(fo.name) / 100;
+      return mCol.k === "score" ? String(scoreOf(fo))
+        : mCol.k === "kcal" ? String(Math.round(kcalOf(fo) * g))
+          : mCol.k === "dens" ? (fo.kcal / 100).toFixed(2)
+            : this.fmt(mCol.get(fo) * g);
+    };
     const sumRows = sumFoods.map(fo => {
       const g = gramsOf(fo.name) / 100;
       const rmk = macroK(fo);
@@ -1553,7 +1589,7 @@ class Component extends DCLogic {
       return Object.assign({}, mkRow(fo), {
         v1: sv[0], v2: sv[1], v3: sv[2],
         bars: sOpenName === fo.name
-          ? barsFor(fo, gramsOf(fo.name), sv, s.sPart, k => this.setState({ sPart: k }))
+          ? barsFor(fo, gramsOf(fo.name), sv, mSumValOf(fo), s.sPart, k => this.setState({ sPart: k }))
           : NO_BARS,
         qty: qtyOf(fo.name), qtyUnit: fo.mu === "ml" ? "ml" : "g",
         // Mobile reads the size rather than editing it — the steppers are the whole input.
@@ -1598,7 +1634,7 @@ class Component extends DCLogic {
         }),
         sExpand: {
           overflow: "hidden",
-          height: sOpenName === fo.name ? (s.sPart ? "8.2rem" : "6.55rem") : "0px",
+          height: sOpenName === fo.name ? "6.65rem" : "0px",
           opacity: sOpenName === fo.name ? 1 : 0,
           borderBottom: sOpenName === fo.name ? "1px solid rgba(34,211,238,.14)" : 0,
           transition: "height 260ms cubic-bezier(.22,1,.36,1), opacity 200ms ease"
@@ -1606,7 +1642,7 @@ class Component extends DCLogic {
         fb: this.fmt(fo.fb * g),
         sumKcal: String(Math.round(kcalOf(fo) * g)),
         sumExtra: extra.k === "score" ? String(scoreOf(fo)) : extra.k === "dens" ? (fo.kcal / 100).toFixed(2) : this.fmt(extra.get(fo) * g),
-        mSumVal: mCol.k === "score" ? String(scoreOf(fo)) : mCol.k === "kcal" ? String(Math.round(kcalOf(fo) * g)) : mCol.k === "dens" ? (fo.kcal / 100).toFixed(2) : this.fmt(mCol.get(fo) * g),
+        mSumVal: mSumValOf(fo),
         sfill1: sumFillOf(sfv[0], sfvMax), sfill2: sumFillOf(sfv[1], sfvMax), sfill3: sumFillOf(sfv[2], sfvMax),
         sfillK: sumFillOf(kcalOf(fo) * g, sumKcalMax),
         onQty: e => {
@@ -1763,7 +1799,7 @@ class Component extends DCLogic {
       mTipPop: { position: "absolute", top: "100%", right: 0, zIndex: 40, width: "16rem", display: "flex", flexDirection: "column", gap: ".35rem", padding: ".7rem .85rem", background: "#070b12", border: "1px solid rgba(34,211,238,.55)", boxShadow: "0 0 28px rgba(34,211,238,.12)", textAlign: "left", textTransform: "none", letterSpacing: 0, whiteSpace: "normal", cursor: "default" },
       mExtra: () => this.setState({ extraOpen: !s.extraOpen, libOpen: false, unitOpen: false, catOpen: false }),
       mColLabel: mCol.label === "FULLNESS" ? "FULLN" : mCol.label, mColUnit: mCol.unit,
-      basisUnit: isPct ? "%" : isKcalBasis ? "kcal" : "g",
+      basisUnit: barBasisUnit,
       sortOn: {
         name: () => this.sortBy("name"), s1: () => this.sortBy("s1"), s2: () => this.sortBy("s2"),
         s3: () => this.sortBy("s3"), kcal: () => this.sortBy("kcal"), extra: () => this.sortBy("extra")
@@ -1873,20 +1909,25 @@ class Component extends DCLogic {
       mEquals: { flex: "none", color: "#4e6373", fontSize: "1rem" },
 
       // The open row's second line is the totals bar: same four cells, same type, same places.
-      mBars: { display: "flex", flexDirection: "column", padding: "0 .3rem 0 .1rem" },
-      mBarLine: { display: "flex", flexDirection: "column", gap: ".22rem", height: "1.62rem", justifyContent: "center" },
-      // A thin rule made of the food itself. The segments carry no labels — at a tenth of a
-      // phone's width there is no room for one — so the reading is done by the line beneath.
+      // The figures come first and are the answer; the bar under them is a footnote about how
+      // they divide. Four columns, so each figure sits under the table column it came from.
+
+      // The bar takes the three macro columns and stops there. Reaching the edges is what
+      // made it read as a divider on a page whose dividers all reach the edges; stopping
+      // short, and being thick and round-ended, is what makes it read as a quantity.
+      mBarRow: {
+        display: "grid", gridTemplateColumns: "repeat(4,1fr)", columnGap: ".4rem",
+        alignItems: "center", height: "1.15rem"
+      },
       mBarTrack: {
-        display: "flex", height: ".3rem", width: "100%", overflow: "hidden",
-        background: "rgba(34,211,238,.07)"
+        gridColumn: "1 / 4", margin: "0 .35rem 0 .55rem",
+        display: "flex", gap: "1px", height: ".4rem",
+        borderRadius: "999px", overflow: "hidden", background: "rgba(34,211,238,.09)"
       },
-      mBarKeys: {
-        display: "flex", alignItems: "baseline", gap: ".7rem", minWidth: 0,
-        fontWeight: 300, fontSize: ".92rem", color: "#d7e6ef",
-        fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
+      mBarNote: {
+        justifySelf: "end", paddingRight: ".3rem", fontFamily: "var(--font-2)",
+        fontSize: ".68rem", letterSpacing: ".06em", color: "#5c7383", whiteSpace: "nowrap"
       },
-      mBarVal: { marginLeft: "auto", color: "#22d3ee", fontSize: "1rem" },
       // The last column is for doing rather than reading, so it is fenced off by a heavier
       // rule than the ones between the figures.
       dActHead: { borderLeft: "2px solid rgba(34,211,238,.55)" },
