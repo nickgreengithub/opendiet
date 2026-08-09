@@ -19,10 +19,12 @@ USDA FoodData Central is public domain (17 U.S.C. §105).
 ```
 
 Each food is `[name, catIndex, kcal, protein, carb, fibre, fat, satFat, sugar, liquid]`,
-optionally followed by `everyday`, then `servingGrams, servingLabel`:
+optionally followed by `everyday`, then `servingGrams, servingLabel`, then
+`water, ash, mufa, pufa, alcohol`:
 
 ```json
-["Apples, raw, with skin", 7, 52, 0.3, 13.8, 2.4, 0.2, 0, 10.4, 0, 1, 182, "MEDIUM"]
+["Apples, raw, with skin", 7, 52, 0.3, 13.8, 2.4, 0.2, 0, 10.4, 0, 1, 182, "MEDIUM",
+ 85.6, 0.2, 0, 0.1, 0]
 ```
 
 Grams per 100 g, except where `liquid` is `1` — those are per 100 ml. A food with no
@@ -30,6 +32,15 @@ reported value for a nutrient carries `0`, and the table shows it as `0`.
 
 `everyday` marks the entry a shopper means by the plain word — written by
 [`../tools/mark_common.py`](../tools/mark_common.py), used only to order search results.
+`water` and `ash` are the rest of 100 g, and `mufa` and `pufa` the two fats that break the
+fat figure down — all four written by
+[`../tools/add_composition.py`](../tools/add_composition.py). Because FDC reports carbohydrate
+*by difference*, `water + protein + carb + fat + ash + alcohol` is 100 g by construction, so
+a food can be drawn as a bar rather than only listed. FDC's own figures miss 100 g by more
+than 1.5 g on 219 of SR Legacy's 7,756, which is why the site draws each part as a share of
+what they add up to rather than of 100. FNDDS does not publish ash, so there it is what is
+left once everything else is counted.
+
 `servingGrams` and `servingLabel` are a second way of reading the amount, written by
 [`../tools/add_portions.py`](../tools/add_portions.py). Where FDC publishes a household
 measure it is used — `182 g = 1 MEDIUM`, `29 g = 1 SLICE` — which covers 5,805 of SR
