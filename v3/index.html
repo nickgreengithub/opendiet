@@ -335,12 +335,16 @@ option{background:#070b12;color:#d7e6ef}
             <button onClick="{{ r.ctl.reset }}" style="{{ r.resetCell }}" style-hover="color:#22d3ee"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
           </div>
           <div style="{{ r.mExpand }}">
-            <span style="{{ r.bars.rowStyle }}">
-              <sc-for list="{{ r.bars.cells }}" as="c" hint-placeholder-count="3">
-                <button onClick="{{ c.onClick }}" style="{{ c.style }}"><span style="{{ mFigTag }}">{{ c.tag }}</span>{{ c.val }}<span style="{{ unitSuffix }}">{{ c.unit }}</span></button>
+            <span style="{{ mMacroBlock }}">
+              <sc-for list="{{ r.bars.rows }}" as="mb" hint-placeholder-count="3">
+                <span style="{{ mMacroRow }}">
+                  <span style="{{ mMacroLbl }}"><span style="{{ mFigTag }}">{{ mb.tag }}</span>{{ mb.val }}<span style="{{ unitSuffix }}">{{ mb.unit }}</span></span>
+                  <span style="{{ mMacroTrack }}"><span style="{{ mb.fill }}"><sc-for list="{{ mb.segs }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.style }}"></span></sc-for></span></span>
+                  <span style="{{ mMacroEnd }}"><span style="{{ mb.endTxt }}">{{ mb.end }}<span style="{{ unitSuffix }}">{{ mb.endUnit }}</span></span><button onClick="{{ r.bars.xToggle }}" style="{{ mb.endBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ r.bars.chev }}"><path d="M5 9l7 7 7-7"></path></svg></button></span>
+                </span>
+                <span style="{{ mb.subStyle }}"><sc-for list="{{ mb.subs }}" as="sp" hint-placeholder-count="3"><span style="{{ mSubPair }}"><span style="{{ mFigTag }}">{{ sp.tag }}</span>{{ sp.v }}<span style="{{ unitSuffix }}">g</span></span></sc-for></span>
               </sc-for>
-              <button onClick="{{ r.bars.endClick }}" style="{{ r.bars.endStyle }}">{{ r.bars.endLabel }}<span style="{{ unitSuffix }}">{{ r.bars.endUnit }}</span></button>
-              <span style="{{ mFigRule }}"><sc-for list="{{ r.bars.segs }}" as="b" hint-placeholder-count="3"><span style="{{ b.style }}"></span></sc-for></span>
+              <span style="{{ r.bars.compStyle }}"><sc-for list="{{ r.bars.comps }}" as="sp" hint-placeholder-count="2"><span style="{{ mSubPair }}"><span style="{{ mFigTag }}">{{ sp.tag }}</span>{{ sp.v }}<span style="{{ unitSuffix }}">g</span></span></sc-for></span>
             </span>
             <span style="{{ mMeasureRow }}">
               <span onClick="{{ r.ctl.pickG }}" style="{{ r.ctl.gCell }}">
@@ -376,12 +380,16 @@ option{background:#070b12;color:#d7e6ef}
             <button onClick="{{ r.ctl.reset }}" style="{{ r.resetCell }}" style-hover="color:#22d3ee"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
           </div>
           <div style="{{ r.sExpand }}">
-            <span style="{{ r.bars.rowStyle }}">
-              <sc-for list="{{ r.bars.cells }}" as="c" hint-placeholder-count="3">
-                <button onClick="{{ c.onClick }}" style="{{ c.style }}"><span style="{{ mFigTag }}">{{ c.tag }}</span>{{ c.val }}<span style="{{ unitSuffix }}">{{ c.unit }}</span></button>
+            <span style="{{ mMacroBlock }}">
+              <sc-for list="{{ r.bars.rows }}" as="mb" hint-placeholder-count="3">
+                <span style="{{ mMacroRow }}">
+                  <span style="{{ mMacroLbl }}"><span style="{{ mFigTag }}">{{ mb.tag }}</span>{{ mb.val }}<span style="{{ unitSuffix }}">{{ mb.unit }}</span></span>
+                  <span style="{{ mMacroTrack }}"><span style="{{ mb.fill }}"><sc-for list="{{ mb.segs }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.style }}"></span></sc-for></span></span>
+                  <span style="{{ mMacroEnd }}"><span style="{{ mb.endTxt }}">{{ mb.end }}<span style="{{ unitSuffix }}">{{ mb.endUnit }}</span></span><button onClick="{{ r.bars.xToggle }}" style="{{ mb.endBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ r.bars.chev }}"><path d="M5 9l7 7 7-7"></path></svg></button></span>
+                </span>
+                <span style="{{ mb.subStyle }}"><sc-for list="{{ mb.subs }}" as="sp" hint-placeholder-count="3"><span style="{{ mSubPair }}"><span style="{{ mFigTag }}">{{ sp.tag }}</span>{{ sp.v }}<span style="{{ unitSuffix }}">g</span></span></sc-for></span>
               </sc-for>
-              <button onClick="{{ r.bars.endClick }}" style="{{ r.bars.endStyle }}">{{ r.bars.endLabel }}<span style="{{ unitSuffix }}">{{ r.bars.endUnit }}</span></button>
-              <span style="{{ mFigRule }}"><sc-for list="{{ r.bars.segs }}" as="b" hint-placeholder-count="3"><span style="{{ b.style }}"></span></sc-for></span>
+              <span style="{{ r.bars.compStyle }}"><sc-for list="{{ r.bars.comps }}" as="sp" hint-placeholder-count="2"><span style="{{ mSubPair }}"><span style="{{ mFigTag }}">{{ sp.tag }}</span>{{ sp.v }}<span style="{{ unitSuffix }}">g</span></span></sc-for></span>
             </span>
             <span style="{{ mMeasureRow }}">
               <span onClick="{{ r.ctl.pickG }}" style="{{ r.ctl.gCell }}">
@@ -1197,84 +1205,83 @@ class Component extends DCLogic {
     // Enough colour to say which macro you are inside; the figures themselves stay in the
     // list's own greys, because the app has one accent and spending it on three hues at once
     // is what made this block louder than everything around it.
-    // Every property that can differ between two renders is named in both of them. The
-    // template engine writes the style it is given without clearing what the last one set, so
-    // a rule that is merely absent stays on screen.
-    const figBase = {
-      position: "relative", overflow: "hidden",
-      display: "flex", alignItems: "baseline", justifyContent: "center", gap: ".3rem",
-      padding: 0, border: 0, borderRadius: 0, background: "transparent",
-      fontFamily: "inherit", fontWeight: 300, fontSize: "inherit", color: "#d7e6ef",
-      fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", cursor: "default"
-    };
-    const figCell = (tag, val, unit, onClick, can) => ({
-      tag: tag, val: val, unit: unit, onClick: onClick,
-      style: Object.assign({}, figBase, { cursor: can ? "pointer" : "default" })
-    });
     // Trailing zeros are noise on a figure this small: 0.9, not 0.90.
     const figNum = n => String(Math.abs(n) >= 10 ? Math.round(n) : Math.round(n * 10) / 10);
     const figTrim = v => (/^-?\d+\.\d*0$/.test(v) ? String(parseFloat(v)) : v);
-    // One accent at three strengths. Three hues at once is what made this block shout.
-    const RULE = ["rgba(34,211,238,.62)", "rgba(34,211,238,.34)", "rgba(34,211,238,.17)"];
-    const ruleOf = vs => {
-      const sum = vs.reduce((a, v) => a + Math.max(0, v), 0) || 1;
-      return vs.map((v, i) => ({ style: {
-        width: (100 * Math.max(0, v) / sum).toFixed(2) + "%",
-        background: RULE[i], flex: "none", transition: "width 200ms ease"
-      } })).filter((x, i) => vs[i] > 0);
-    };
-    const NO_BARS = { rowStyle: { display: "none" }, cells: [], segs: [],
-      endLabel: "", endUnit: "", endClick: null, endStyle: { display: "none" } };
     const barBasisUnit = isPct ? "%" : isKcalBasis ? "kcal" : "g";
-    // The macro fills answer to the same basis as the figures: grams of each when the table is
-    // in grams, calories from each when it is in calories or in percent of them.
+    // Bar lengths answer to the same basis as the figures beside them: grams of each when the
+    // table is in grams, calories from each when it is in calories or in percent of them.
     const macroSplit = fo => isGrams ? [fo.p, fo.c, fo.f] : macroK(fo);
-    const figuresRow = {
-      position: "relative",
-      display: "grid", gridTemplateColumns: "repeat(4,1fr)", alignItems: "center",
-      height: "2.5rem", fontWeight: 300, fontSize: "1.02rem", color: "#d7e6ef",
-      fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
-    };
+    const NO_BARS = { rows: [], comps: [], compStyle: { display: "none" }, xToggle: null, chev: {} };
+    // An open food shows one bar per macro, all on the same scale, so which of the three the
+    // food mostly is can be read without reading. Carbohydrate and fat are drawn as their
+    // parts — shades of the macro's own hue, brightest first — but the parts stay unlabelled
+    // shapes until the chevron asks them to be numbers, and then water, ash and alcohol get a
+    // line at the foot, because that is everything else 100 g is.
     const barsFor = (fo, grams, vals, colVal, part, setPart) => {
       const f = grams / 100, g1 = n => figNum((n || 0) * f);
       const stop = e => { if (e && e.stopPropagation) e.stopPropagation(); };
-      const tap = k => e => { stop(e); setPart(part === k ? null : k); };
       const rest = n => Math.max(0, n);
-      const endBase = {
-        display: "flex", alignItems: "baseline", justifyContent: "flex-end", gap: ".2rem",
-        padding: 0, border: 0, borderRadius: 0, background: "transparent",
-        paddingRight: ".3rem", fontFamily: "inherit", fontWeight: 300,
-        fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap",
-        width: "100%", fontSize: "inherit"
+      const split = macroSplit(fo);
+      const top = Math.max.apply(null, split.concat([1e-9]));
+      const tone = (rgb, a) => "rgba(" + rgb + "," + a + ")";
+      const segsOf = (rgb, parts) => {
+        const sum = parts.reduce((a2, v) => a2 + rest(v), 0);
+        const alphas = [.85, .5, .28, .13];
+        if (!sum) return [{ style: { flex: "none", width: "100%", height: "100%", background: tone(rgb, .8) } }];
+        return parts.map((v, i) => ({ style: {
+          flex: "none", width: (100 * rest(v) / sum).toFixed(2) + "%", height: "100%",
+          background: tone(rgb, alphas[i])
+        } })).filter((x, i) => rest(parts[i]) > 0);
       };
-      // Drilled into a macro, the three figures become its parts and the last column becomes
-      // the way back. The block never grows a line to do it.
-      const inside = part === "c"
-        ? { vs: [fo.sg, fo.fb, rest(fo.c - fo.sg - fo.fb)], tags: ["SUGARS", "FIBRE", "STARCH"] }
-        : part === "f"
-          ? { vs: [fo.sf, fo.mo || 0, fo.po || 0], tags: ["SAT", "MONO", "POLY"] }
-          : null;
-      if (inside) {
-        return {
-          // A macro's parts are longer words than PROT and CARB, and they have the same four
-          // columns to live in, so they give a little type back rather than crowd each other.
-          rowStyle: Object.assign({}, figuresRow, { fontSize: ".88rem" }), segs: ruleOf(inside.vs),
-          // No unit on the parts: they are all grams, the figure they came from said so, and
-          // three more "g"s is what pushes them into each other on a 320px phone.
-          cells: inside.vs.map((v, i) => figCell(inside.tags[i], g1(v), "", stop, false)),
-          endLabel: "\u00d7", endUnit: "", endClick: tap(part),
-          endStyle: Object.assign({}, endBase, { fontSize: "1.15rem", color: "#7b91a3", cursor: "pointer" })
-        };
-      }
+      // The same three hues the desktop table names its columns with.
+      const CY = "34,211,238", GR = "126,224,168", SA = "240,140,122";
+      const defs = [
+        { tag: "PROT", rgb: CY },
+        { tag: "CARB", rgb: GR, parts: [fo.sg, fo.fb, rest(fo.c - fo.sg - fo.fb)],
+          subs: [["SUGARS", fo.sg], ["FIBRE", fo.fb], ["STARCH", rest(fo.c - fo.sg - fo.fb)]] },
+        { tag: "FAT", rgb: SA, parts: [fo.sf, fo.mo || 0, fo.po || 0, rest(fo.f - fo.sf - (fo.mo || 0) - (fo.po || 0))],
+          subs: [["SAT", fo.sf], ["MONO", fo.mo], ["POLY", fo.po]] }
+      ];
+      const subLine = has => ({
+        display: "flex", alignItems: "center", gap: "1.1rem", paddingLeft: ".15rem",
+        height: part && has ? "1.05rem" : "0px", opacity: part && has ? 1 : 0, overflow: "hidden",
+        transition: "height 220ms cubic-bezier(.22,1,.36,1), opacity 180ms ease"
+      });
+      const rows = defs.map((d, i) => ({
+        tag: d.tag, val: figTrim(vals[i]), unit: barBasisUnit,
+        fill: {
+          display: "flex", width: (100 * rest(split[i]) / top).toFixed(2) + "%", height: "100%",
+          borderRadius: "999px", overflow: "hidden", transition: "width 200ms ease"
+        },
+        segs: d.parts ? segsOf(d.rgb, d.parts)
+          : [{ style: { flex: "none", width: "100%", height: "100%", background: tone(d.rgb, .8) } }],
+        // The chosen column's figure keeps the top right; the chevron takes the bottom right.
+        end: i === 0 ? colVal : "", endUnit: i === 0 ? mCol.unit : "",
+        endTxt: { display: i === 0 ? "flex" : "none", alignItems: "baseline", gap: ".2rem", color: "#22d3ee", fontSize: "1rem" },
+        endBtn: {
+          display: i === 2 ? "flex" : "none", alignItems: "center", justifyContent: "flex-end",
+          width: "2rem", height: "100%", padding: 0, border: 0, borderRadius: 0,
+          background: "transparent", color: "#7b91a3", cursor: "pointer"
+        },
+        subs: (d.subs || []).map(x => ({ tag: x[0], v: g1(x[1]) })),
+        subStyle: subLine(!!d.subs)
+      }));
+      const comps = [["WATER", fo.wa], ["ASH", fo.ah]]
+        .concat((fo.al || 0) > 0 ? [["ALC", fo.al]] : [])
+        .map(x => ({ tag: x[0], v: g1(x[1]) }));
       return {
-        rowStyle: figuresRow, segs: ruleOf(macroSplit(fo)),
-        cells: [
-          figCell("PROT", figTrim(vals[0]), barBasisUnit, stop, false),
-          figCell("CARB", figTrim(vals[1]), barBasisUnit, fo.c > 0 ? tap("c") : stop, fo.c > 0),
-          figCell("FAT", figTrim(vals[2]), barBasisUnit, fo.f > 0 ? tap("f") : stop, fo.f > 0)
-        ],
-        endLabel: colVal, endUnit: mCol.unit, endClick: stop,
-        endStyle: Object.assign({}, endBase, { fontSize: "inherit", color: "#22d3ee", cursor: "default" })
+        rows: rows, comps: comps,
+        compStyle: {
+          display: "flex", alignItems: "center", gap: "1.1rem", paddingLeft: ".15rem",
+          height: part ? "1.45rem" : "0px", opacity: part ? 1 : 0, overflow: "hidden",
+          transition: "height 220ms cubic-bezier(.22,1,.36,1), opacity 180ms ease"
+        },
+        xToggle: e => { stop(e); setPart(!part); },
+        chev: {
+          display: "block", flex: "none", transition: "transform 220ms ease",
+          transform: part ? "rotate(180deg)" : "none"
+        }
       };
     };
     // One-way: once you have typed, the page never returns to the landing state.
@@ -1358,7 +1365,7 @@ class Component extends DCLogic {
           k => this.setState({ mPart: k })) : NO_BARS,
         mExpand: {
           overflow: "hidden",
-          height: open ? "5.8rem" : "0px",
+          height: open ? (s.mPart ? "10.9rem" : "7.35rem") : "0px",
           opacity: open ? 1 : 0,
           background: open ? PICKED_BG : "transparent",
           borderBottom: open ? "1px solid rgba(34,211,238,.14)" : 0,
@@ -1585,7 +1592,7 @@ class Component extends DCLogic {
         }),
         sExpand: {
           overflow: "hidden",
-          height: sOpenName === fo.name ? "5.8rem" : "0px",
+          height: sOpenName === fo.name ? (s.sPart ? "10.9rem" : "7.35rem") : "0px",
           opacity: sOpenName === fo.name ? 1 : 0,
           borderBottom: sOpenName === fo.name ? "1px solid rgba(34,211,238,.14)" : 0,
           transition: "height 260ms cubic-bezier(.22,1,.36,1), opacity 200ms ease"
@@ -1866,12 +1873,22 @@ class Component extends DCLogic {
       // The figures line is a row of the list, not a panel bolted into it: the same two type
       // sizes the rows use, the same colours, and the same height, so an open food reads as
       // the list continuing rather than as something else pasted in.
-      // The split is not a new object in the block: it is the line that would have sat under
-      // these figures anyway, made of them. Two pixels, one accent at three strengths, under
-      // the three macro columns and no further.
-      mFigRule: {
-        position: "absolute", left: ".55rem", right: "calc(25% + .35rem)", bottom: 0,
-        display: "flex", height: "2px", overflow: "hidden"
+      mMacroBlock: { display: "flex", flexDirection: "column", padding: "0 .3rem 0 .55rem" },
+      mMacroRow: {
+        display: "grid", gridTemplateColumns: "6.4rem minmax(0,1fr) 4.1rem", columnGap: ".6rem",
+        alignItems: "center", height: "1.35rem",
+        fontWeight: 300, fontSize: ".95rem", color: "#d7e6ef",
+        fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
+      },
+      mMacroLbl: { display: "flex", alignItems: "baseline", gap: ".3rem", minWidth: 0 },
+      mMacroTrack: {
+        display: "flex", height: ".3rem", borderRadius: "999px", overflow: "hidden",
+        background: "rgba(215,230,239,.07)"
+      },
+      mMacroEnd: { display: "flex", alignItems: "center", justifyContent: "flex-end", height: "100%" },
+      mSubPair: {
+        display: "flex", alignItems: "baseline", gap: ".25rem", fontWeight: 300,
+        fontSize: ".82rem", color: "#b6c9d6", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
       },
       mFigTag: {
         fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".12em", color: "#7b91a3"

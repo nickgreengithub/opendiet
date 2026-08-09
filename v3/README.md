@@ -67,19 +67,18 @@ What is different from the root:
   and earns nothing — it correlates 0.96 with the bulk term and the fit sets its weight to
   zero every time. The sugar term's known unfairness is that USDA reports total sugars, so
   an apple is charged the same gram as a jellybean.
-- An open food is three lines and no more: its name, its four figures on the table's own
-  columns, and its amount. The figures use the two type sizes and the colours the list rows
-  use, so an open food reads as the list continuing rather than as a panel bolted into it.
-  The macro split is not a fourth element — it is the two-pixel line that would have sat under
-  those figures anyway, made of them, in one accent at three strengths under the three macro
-  columns and no further. Earlier attempts put stacked bars on their own lines and they read
-  as dividers, because every divider on this page is a thin full-bleed rule.
-- Tapping CARB or FAT replaces the figures with that macro's parts in place — sugars, fibre
-  and starch; saturated, mono and poly — and the last column becomes the way back. The block
-  never grows a line to do it. This is where fibre shows itself without being taken out of the
-  carb figure. Protein has no parts: FDC's amino acids reach two thirds of the library and
-  nobody is asking. Nor does a macro with none of itself. The parts give a little type back
-  and drop their units, or their longer words crowd each other on a 320px phone.
+- An open food shows one bar per macro — PROT, CARB, FAT down the left with their figures,
+  a bar beside each, all three on the same scale so which of them the food mostly is can be
+  read without reading. Each bar has its macro's hue, the same three the desktop table names
+  its columns with. Carbohydrate and fat are drawn as their parts — shades of the bar's own
+  hue, brightest first: sugars, fibre, starch; saturated, mono, poly, and the unaccounted
+  rest — but the parts stay unlabelled shapes until asked. The chosen column's figure keeps
+  the top right; a chevron sits at the bottom right.
+- The chevron expands the whole block at once: a small line of figures opens under the carb
+  bar and the fat bar naming their parts, and a line at the foot gives water, ash and (when
+  there is any) alcohol — which is everything else 100 g is. This is where fibre shows itself
+  without being taken out of the carb figure. Protein has no parts line: FDC's amino acids
+  reach two thirds of the library and nobody is asking.
 - Plate rows open the same way, with a bin where ADD was, and edit the plate's own amount.
   Collapsed, a plate row just states its grams — the steppers live in the expansion.
 - The plate's totals line rides the same three tracks as its rows, so the amount and the
