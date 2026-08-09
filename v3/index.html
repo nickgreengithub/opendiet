@@ -337,13 +337,10 @@ option{background:#070b12;color:#d7e6ef}
           <div style="{{ r.mExpand }}">
             <span style="{{ r.bars.rowStyle }}">
               <sc-for list="{{ r.bars.cells }}" as="c" hint-placeholder-count="3">
-                <button onClick="{{ c.onClick }}" style="{{ c.style }}"><span style="{{ mMacroTag }}">{{ c.tag }}</span> {{ c.val }}<span style="{{ unitSuffix }}">{{ c.unit }}</span></button>
+                <button onClick="{{ c.onClick }}" style="{{ c.style }}"><span style="{{ mFigTag }}">{{ c.tag }}</span>{{ c.val }}<span style="{{ unitSuffix }}">{{ c.unit }}</span></button>
               </sc-for>
               <button onClick="{{ r.bars.endClick }}" style="{{ r.bars.endStyle }}">{{ r.bars.endLabel }}<span style="{{ unitSuffix }}">{{ r.bars.endUnit }}</span></button>
-            </span>
-            <span style="{{ mBarRow }}">
-              <span style="{{ mBarTrack }}"><sc-for list="{{ r.bars.segs }}" as="b" hint-placeholder-count="3"><span style="{{ b.style }}"></span></sc-for></span>
-              <span style="{{ mBarNote }}">{{ r.bars.note }}</span>
+              <span style="{{ mFigRule }}"><sc-for list="{{ r.bars.segs }}" as="b" hint-placeholder-count="3"><span style="{{ b.style }}"></span></sc-for></span>
             </span>
             <span style="{{ mMeasureRow }}">
               <span onClick="{{ r.ctl.pickG }}" style="{{ r.ctl.gCell }}">
@@ -381,13 +378,10 @@ option{background:#070b12;color:#d7e6ef}
           <div style="{{ r.sExpand }}">
             <span style="{{ r.bars.rowStyle }}">
               <sc-for list="{{ r.bars.cells }}" as="c" hint-placeholder-count="3">
-                <button onClick="{{ c.onClick }}" style="{{ c.style }}"><span style="{{ mMacroTag }}">{{ c.tag }}</span> {{ c.val }}<span style="{{ unitSuffix }}">{{ c.unit }}</span></button>
+                <button onClick="{{ c.onClick }}" style="{{ c.style }}"><span style="{{ mFigTag }}">{{ c.tag }}</span>{{ c.val }}<span style="{{ unitSuffix }}">{{ c.unit }}</span></button>
               </sc-for>
               <button onClick="{{ r.bars.endClick }}" style="{{ r.bars.endStyle }}">{{ r.bars.endLabel }}<span style="{{ unitSuffix }}">{{ r.bars.endUnit }}</span></button>
-            </span>
-            <span style="{{ mBarRow }}">
-              <span style="{{ mBarTrack }}"><sc-for list="{{ r.bars.segs }}" as="b" hint-placeholder-count="3"><span style="{{ b.style }}"></span></sc-for></span>
-              <span style="{{ mBarNote }}">{{ r.bars.note }}</span>
+              <span style="{{ mFigRule }}"><sc-for list="{{ r.bars.segs }}" as="b" hint-placeholder-count="3"><span style="{{ b.style }}"></span></sc-for></span>
             </span>
             <span style="{{ mMeasureRow }}">
               <span onClick="{{ r.ctl.pickG }}" style="{{ r.ctl.gCell }}">
@@ -1200,73 +1194,49 @@ class Component extends DCLogic {
     // median one in SR Legacy is 64% — and the second is the readable one, because at that
     // scale watermelon's protein is half a pixel. A third appears when a macro is asked to
     // account for itself.
-    const ALC_HUE = "#a58ee0";
-    // Shades of the macro they belong to, brightest for the part worth noticing. A segment
-    // can be as dark as it likes against the track; a word cannot, so the tag under a dark
-    // segment is lifted until it is readable.
-    const CARB_HUES = ["#a7f0c8", "#5fb98c", "#3f8a6d"];
-    const FAT_HUES = ["#f08c7a", "#c07b68", "#96685a", "#5f4039"];
-    // What a food is besides its macros, said as a fact rather than drawn. Drawn, it is one
-    // long slab of water on almost everything — the median food here is 64% water — which is
-    // the least discriminating thing that could occupy the most space.
-    const noteFor = fo => (fo.al || 0) > 1
-      ? Math.round(fo.al) + "% ALCOHOL"
-      : fo.wa === undefined ? "" : Math.round(fo.wa) + "% WATER";
-    const barSeg = (hue, pct) => ({
-      style: { width: pct + "%", background: hue, flex: "none", transition: "width 240ms ease" }
-    });
-    // Widths are shares of what the parts actually add up to, not of 100: FDC's own figures
-    // miss 100 g by more than 1.5 g on 219 of the 7,756, and a bar with a hole in it would
-    // read as missing data rather than as rounding.
-    const barOf = rows => {
-      const sum = rows.reduce((a, r) => a + Math.max(0, r[1]), 0) || 1;
-      return rows.filter(r => r[1] > 0).map(r => barSeg(r[0], (100 * r[1] / sum).toFixed(2)));
-    };
-    // The four figures, on the same grid as the table's own columns. A tappable one carries a
-    // hairline in its colour: quiet enough to ignore, enough to say there is more here.
+    // Enough colour to say which macro you are inside; the figures themselves stay in the
+    // list's own greys, because the app has one accent and spending it on three hues at once
+    // is what made this block louder than everything around it.
     // Every property that can differ between two renders is named in both of them. The
     // template engine writes the style it is given without clearing what the last one set, so
-    // a rule that is merely absent stays on screen — a hairline under a word that is no longer
-    // a control, a cyan cross where a green one was asked for.
-    const cellBase = {
+    // a rule that is merely absent stays on screen.
+    const figBase = {
+      position: "relative", overflow: "hidden",
       display: "flex", alignItems: "baseline", justifyContent: "center", gap: ".3rem",
       padding: 0, border: 0, borderRadius: 0, background: "transparent",
-      borderBottom: "1px solid transparent", paddingBottom: ".12rem", cursor: "default",
       fontFamily: "inherit", fontWeight: 300, fontSize: "inherit", color: "#d7e6ef",
+      fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", cursor: "default"
+    };
+    const figCell = (tag, val, unit, onClick, can) => ({
+      tag: tag, val: val, unit: unit, onClick: onClick,
+      style: Object.assign({}, figBase, { cursor: can ? "pointer" : "default" })
+    });
+    // Trailing zeros are noise on a figure this small: 0.9, not 0.90.
+    const figNum = n => String(Math.abs(n) >= 10 ? Math.round(n) : Math.round(n * 10) / 10);
+    const figTrim = v => (/^-?\d+\.\d*0$/.test(v) ? String(parseFloat(v)) : v);
+    // One accent at three strengths. Three hues at once is what made this block shout.
+    const RULE = ["rgba(34,211,238,.62)", "rgba(34,211,238,.34)", "rgba(34,211,238,.17)"];
+    const ruleOf = vs => {
+      const sum = vs.reduce((a, v) => a + Math.max(0, v), 0) || 1;
+      return vs.map((v, i) => ({ style: {
+        width: (100 * Math.max(0, v) / sum).toFixed(2) + "%",
+        background: RULE[i], flex: "none", transition: "width 200ms ease"
+      } })).filter((x, i) => vs[i] > 0);
+    };
+    const NO_BARS = { rowStyle: { display: "none" }, cells: [], segs: [],
+      endLabel: "", endUnit: "", endClick: null, endStyle: { display: "none" } };
+    const barBasisUnit = isPct ? "%" : isKcalBasis ? "kcal" : "g";
+    // The macro fills answer to the same basis as the figures: grams of each when the table is
+    // in grams, calories from each when it is in calories or in percent of them.
+    const macroSplit = fo => isGrams ? [fo.p, fo.c, fo.f] : macroK(fo);
+    const figuresRow = {
+      position: "relative",
+      display: "grid", gridTemplateColumns: "repeat(4,1fr)", alignItems: "center",
+      height: "2.5rem", fontWeight: 300, fontSize: "1.02rem", color: "#d7e6ef",
       fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
     };
-    const cell = (tag, val, unit, hue, onClick) => ({
-      tag: tag, val: val, unit: unit, onClick: onClick,
-      style: Object.assign({}, cellBase, hue
-        ? { cursor: "pointer", borderBottom: "1px solid " + hue + "59" }
-        : {})
-    });
-    const NO_BARS = { rowStyle: { display: "none" }, cells: [], segs: [], note: "",
-      endLabel: "", endUnit: "", endClick: null, endStyle: { display: "none" } };
-    // The bar answers to the same basis as the figures above it: grams of each when the table
-    // is in grams, calories from each when it is in calories or in percent of them. A bar that
-    // measured mass under a heading that read percent of energy would be a lie.
-    const barBasisUnit = isPct ? "%" : isKcalBasis ? "kcal" : "g";
-    // The macro line sits on the table's own four columns, so each figure lands under the
-    // column it came from. A macro's parts have no columns to answer to — they are a detail,
-    // not a row of the table — so they take the width their words need instead.
-    const figuresBase = {
-      alignItems: "center", height: "2.2rem",
-      fontWeight: 300, color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
-    };
-    const FIG_COLS = Object.assign({}, figuresBase, {
-      display: "grid", gridTemplateColumns: "repeat(4,1fr)", justifyItems: "center",
-      textAlign: "center", fontSize: "1.08rem"
-    });
-    const FIG_FLEX = Object.assign({}, figuresBase, {
-      display: "flex", justifyContent: "space-between", gap: ".3rem",
-      padding: "0 .2rem 0 .5rem", fontSize: ".88rem"
-    });
-    const macroSplit = fo => isGrams
-      ? [fo.p, fo.c, fo.f, (fo.al || 0)]
-      : macroK(fo).concat([(fo.al || 0) * 7]);
     const barsFor = (fo, grams, vals, colVal, part, setPart) => {
-      const f = grams / 100, g1 = n => this.fmt((n || 0) * f);
+      const f = grams / 100, g1 = n => figNum((n || 0) * f);
       const stop = e => { if (e && e.stopPropagation) e.stopPropagation(); };
       const tap = k => e => { stop(e); setPart(part === k ? null : k); };
       const rest = n => Math.max(0, n);
@@ -1275,55 +1245,36 @@ class Component extends DCLogic {
         padding: 0, border: 0, borderRadius: 0, background: "transparent",
         paddingRight: ".3rem", fontFamily: "inherit", fontWeight: 300,
         fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap",
-        width: "auto", minWidth: 0, fontSize: "inherit"
+        width: "100%", fontSize: "inherit"
       };
-      // Drilled into a macro, the three figures become its parts and the fourth column becomes
-      // the way back, named after where you are. The block never grows a line to do it.
+      // Drilled into a macro, the three figures become its parts and the last column becomes
+      // the way back. The block never grows a line to do it.
       const inside = part === "c"
-        ? { hue: HUE[1], name: "CARB",
-            segs: [[CARB_HUES[0], fo.sg], [CARB_HUES[1], fo.fb], [CARB_HUES[2], rest(fo.c - fo.sg - fo.fb)]],
-            cells: [cell("SUGARS", g1(fo.sg), ""), cell("FIBRE", g1(fo.fb), ""),
-                    cell("STARCH", g1(rest(fo.c - fo.sg - fo.fb)), "")] }
+        ? { vs: [fo.sg, fo.fb, rest(fo.c - fo.sg - fo.fb)], tags: ["SUGARS", "FIBRE", "STARCH"] }
         : part === "f"
-          ? { hue: HUE[2], name: "FAT",
-              segs: [[FAT_HUES[0], fo.sf], [FAT_HUES[1], fo.mo || 0], [FAT_HUES[2], fo.po || 0],
-                     [FAT_HUES[3], rest(fo.f - fo.sf - (fo.mo || 0) - (fo.po || 0))]],
-              cells: [cell("SAT", g1(fo.sf), ""), cell("MONO", g1(fo.mo), ""),
-                      cell("POLY", g1(fo.po), "")] }
+          ? { vs: [fo.sf, fo.mo || 0, fo.po || 0], tags: ["SAT", "MONO", "POLY"] }
           : null;
       if (inside) {
-        inside.cells.forEach(c => { c.onClick = stop; });
         return {
-          rowStyle: FIG_FLEX,
-          cells: inside.cells, segs: barOf(inside.segs),
-          // While you are inside a macro the caption says which one, which is worth more here
-          // than the water is and costs nothing: the way out only has to be a cross.
-          // The parts are all grams and there is no room to say so three times on a 320px
-          // phone, so the caption says it once for all of them.
-          note: "OF " + inside.name + ", GRAMS",
+          // A macro's parts are longer words than PROT and CARB, and they have the same four
+          // columns to live in, so they give a little type back rather than crowd each other.
+          rowStyle: Object.assign({}, figuresRow, { fontSize: ".88rem" }), segs: ruleOf(inside.vs),
+          // No unit on the parts: they are all grams, the figure they came from said so, and
+          // three more "g"s is what pushes them into each other on a 320px phone.
+          cells: inside.vs.map((v, i) => figCell(inside.tags[i], g1(v), "", stop, false)),
           endLabel: "\u00d7", endUnit: "", endClick: tap(part),
-          endStyle: Object.assign({}, endBase, {
-            width: "auto", minWidth: "1.5rem", fontSize: "1.1rem",
-            color: inside.hue, cursor: "pointer"
-          })
+          endStyle: Object.assign({}, endBase, { fontSize: "1.15rem", color: "#7b91a3", cursor: "pointer" })
         };
       }
-      const cells = [
-        cell("PROT", vals[0], barBasisUnit, null, stop),
-        cell("CARB", vals[1], barBasisUnit, fo.c > 0 ? HUE[1] : null, fo.c > 0 ? tap("c") : stop),
-        cell("FAT", vals[2], barBasisUnit, fo.f > 0 ? HUE[2] : null, fo.f > 0 ? tap("f") : stop)
-      ];
       return {
-        rowStyle: FIG_COLS,
-        cells: cells,
-        segs: barOf(macroSplit(fo).map((v, i) => [[HUE[0], HUE[1], HUE[2], ALC_HUE][i], v])),
-        note: noteFor(fo),
+        rowStyle: figuresRow, segs: ruleOf(macroSplit(fo)),
+        cells: [
+          figCell("PROT", figTrim(vals[0]), barBasisUnit, stop, false),
+          figCell("CARB", figTrim(vals[1]), barBasisUnit, fo.c > 0 ? tap("c") : stop, fo.c > 0),
+          figCell("FAT", figTrim(vals[2]), barBasisUnit, fo.f > 0 ? tap("f") : stop, fo.f > 0)
+        ],
         endLabel: colVal, endUnit: mCol.unit, endClick: stop,
-        // In the four-column layout the chip fills its column so it right-aligns with the
-        // table's own last column; in the flex one it takes only the room it needs.
-        endStyle: Object.assign({}, endBase, {
-          width: "100%", minWidth: 0, fontSize: "inherit", color: "#22d3ee", cursor: "default"
-        })
+        endStyle: Object.assign({}, endBase, { fontSize: "inherit", color: "#22d3ee", cursor: "default" })
       };
     };
     // One-way: once you have typed, the page never returns to the landing state.
@@ -1407,7 +1358,7 @@ class Component extends DCLogic {
           k => this.setState({ mPart: k })) : NO_BARS,
         mExpand: {
           overflow: "hidden",
-          height: open ? "6.65rem" : "0px",
+          height: open ? "5.8rem" : "0px",
           opacity: open ? 1 : 0,
           background: open ? PICKED_BG : "transparent",
           borderBottom: open ? "1px solid rgba(34,211,238,.14)" : 0,
@@ -1634,7 +1585,7 @@ class Component extends DCLogic {
         }),
         sExpand: {
           overflow: "hidden",
-          height: sOpenName === fo.name ? "6.65rem" : "0px",
+          height: sOpenName === fo.name ? "5.8rem" : "0px",
           opacity: sOpenName === fo.name ? 1 : 0,
           borderBottom: sOpenName === fo.name ? "1px solid rgba(34,211,238,.14)" : 0,
           transition: "height 260ms cubic-bezier(.22,1,.36,1), opacity 200ms ease"
@@ -1912,21 +1863,18 @@ class Component extends DCLogic {
       // The figures come first and are the answer; the bar under them is a footnote about how
       // they divide. Four columns, so each figure sits under the table column it came from.
 
-      // The bar takes the three macro columns and stops there. Reaching the edges is what
-      // made it read as a divider on a page whose dividers all reach the edges; stopping
-      // short, and being thick and round-ended, is what makes it read as a quantity.
-      mBarRow: {
-        display: "grid", gridTemplateColumns: "repeat(4,1fr)", columnGap: ".4rem",
-        alignItems: "center", height: "1.15rem"
+      // The figures line is a row of the list, not a panel bolted into it: the same two type
+      // sizes the rows use, the same colours, and the same height, so an open food reads as
+      // the list continuing rather than as something else pasted in.
+      // The split is not a new object in the block: it is the line that would have sat under
+      // these figures anyway, made of them. Two pixels, one accent at three strengths, under
+      // the three macro columns and no further.
+      mFigRule: {
+        position: "absolute", left: ".55rem", right: "calc(25% + .35rem)", bottom: 0,
+        display: "flex", height: "2px", overflow: "hidden"
       },
-      mBarTrack: {
-        gridColumn: "1 / 4", margin: "0 .35rem 0 .55rem",
-        display: "flex", gap: "1px", height: ".4rem",
-        borderRadius: "999px", overflow: "hidden", background: "rgba(34,211,238,.09)"
-      },
-      mBarNote: {
-        justifySelf: "end", paddingRight: ".3rem", fontFamily: "var(--font-2)",
-        fontSize: ".68rem", letterSpacing: ".06em", color: "#5c7383", whiteSpace: "nowrap"
+      mFigTag: {
+        fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".12em", color: "#7b91a3"
       },
       // The last column is for doing rather than reading, so it is fenced off by a heavier
       // rule than the ones between the figures.

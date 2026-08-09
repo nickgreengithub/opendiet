@@ -67,22 +67,19 @@ What is different from the root:
   and earns nothing — it correlates 0.96 with the bulk term and the fit sets its weight to
   zero every time. The sugar term's known unfairness is that USDA reports total sugars, so
   an apple is charged the same gram as a jellybean.
-- An open food keeps its four figures on the table's own columns — the answer comes first —
-  and adds one bar under the three macro ones showing how they divide. The bar takes those
-  three columns and stops, is thick and round-ended, and is inset from both edges: a hairline
-  reaching the edges is what a divider looks like on this page, and there are already enough
-  of those. Water is a fact rather than a picture — `95% WATER` at the end of the bar's line —
-  because drawn it is one long slab on almost everything, the median food here being 64%
-  water, which is the least discriminating thing that could take the most room.
-- Tapping CARB or FAT replaces the figures with that macro's parts in place: sugars, fibre
-  and starch; saturated, mono and poly. The block never grows a line to do it, the caption
-  becomes `OF CARB, GRAMS`, and the fourth column becomes the way back. This is where fibre
-  shows itself without being taken out of the carb figure. A tappable figure carries a
-  hairline in its own colour. Protein has none: FDC's amino acids reach two thirds of the
-  library and nobody is asking. Nor does a macro with none of itself.
-- The parts line drops the four-column grid, because a macro's parts are a detail rather than
-  a row of the table and their words are longer: `STARCH 0.10` and a way out do not fit three
-  centred columns on a 320px phone.
+- An open food is three lines and no more: its name, its four figures on the table's own
+  columns, and its amount. The figures use the two type sizes and the colours the list rows
+  use, so an open food reads as the list continuing rather than as a panel bolted into it.
+  The macro split is not a fourth element — it is the two-pixel line that would have sat under
+  those figures anyway, made of them, in one accent at three strengths under the three macro
+  columns and no further. Earlier attempts put stacked bars on their own lines and they read
+  as dividers, because every divider on this page is a thin full-bleed rule.
+- Tapping CARB or FAT replaces the figures with that macro's parts in place — sugars, fibre
+  and starch; saturated, mono and poly — and the last column becomes the way back. The block
+  never grows a line to do it. This is where fibre shows itself without being taken out of the
+  carb figure. Protein has no parts: FDC's amino acids reach two thirds of the library and
+  nobody is asking. Nor does a macro with none of itself. The parts give a little type back
+  and drop their units, or their longer words crowd each other on a 320px phone.
 - Plate rows open the same way, with a bin where ADD was, and edit the plate's own amount.
   Collapsed, a plate row just states its grams — the steppers live in the expansion.
 - The plate's totals line rides the same three tracks as its rows, so the amount and the
