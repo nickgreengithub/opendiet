@@ -1,0 +1,3 @@
+# Python leaves these behind whenever a script in tools/ is imported rather than run.
+__pycache__/
+*.pyc
