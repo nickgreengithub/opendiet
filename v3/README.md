@@ -91,7 +91,10 @@ What is different from the root:
   holding no height and a zero-width border until their macro is pressed, so opening is a
   height transition the rows below ride along with — inside a bracket drawn in the
   drawing's own pixels, possible because every row height and the table's right-hugging
-  width are fixed. A tap anywhere on the drawing folds it back — the ringed − on the open row says
+  width are fixed. The open macro's rows lean forward and the rest lean back, the same
+  quarter-step the donut takes. Under the ring, the macro is placed among its own kind —
+  "85% of DAIRY has less fat" — because 28 g of fat means one thing in a cheese and
+  another in a soup; the categories are USDA's, already on every food row. A tap anywhere on the drawing folds it back — the ringed − on the open row says
   so — and the other macro's + presses through and switches directly. Ash stays a top-level part rather
   than a macro, because it is the mineral residue — matter with no energy in it — and the
   macros figure is the food's energy-bearing weight. A whole ring is drawn as two semicircles rather than a 359.8° arc,

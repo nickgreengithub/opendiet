@@ -362,6 +362,9 @@ option{background:#070b12;color:#d7e6ef}
                 </svg>
                 <span style="{{ vHole }}"><span style="{{ vHoleA }}">{{ r.viz.holeA }}</span><span style="{{ r.viz.holeSepS }}">/</span><span style="{{ r.viz.holeBS }}">{{ r.viz.holeB }}</span><span style="{{ r.viz.holeUS }}">g</span></span>
               </span>
+              <sc-if value="{{ r.viz.pctOn }}" hint-placeholder-val="{{ false }}">
+                <span style="{{ vPct }}"><span style="{{ r.viz.pctValS }}">{{ r.viz.pctVal }}</span><span style="{{ vPctCap }}">{{ r.viz.pctCap }}</span></span>
+              </sc-if>
 
               </span>
               <span style="{{ vTable }}">
@@ -436,6 +439,9 @@ option{background:#070b12;color:#d7e6ef}
                 </svg>
                 <span style="{{ vHole }}"><span style="{{ vHoleA }}">{{ r.viz.holeA }}</span><span style="{{ r.viz.holeSepS }}">/</span><span style="{{ r.viz.holeBS }}">{{ r.viz.holeB }}</span><span style="{{ r.viz.holeUS }}">g</span></span>
               </span>
+              <sc-if value="{{ r.viz.pctOn }}" hint-placeholder-val="{{ false }}">
+                <span style="{{ vPct }}"><span style="{{ r.viz.pctValS }}">{{ r.viz.pctVal }}</span><span style="{{ vPctCap }}">{{ r.viz.pctCap }}</span></span>
+              </sc-if>
 
               </span>
               <span style="{{ vTable }}">
@@ -1279,7 +1285,8 @@ class Component extends DCLogic {
     const NO_SLOT = { d: "", col: "transparent", st: {} };
     const NO_SWEEP = { opacity: 0 };
     const NO_VIZ = { holeA: "", holeB: "", rows: [], brk: "", swF: NO_SWEEP, swC: NO_SWEEP,
-      holeSepS: { display: "none" }, holeBS: {}, holeUS: { display: "none" } };
+      holeSepS: { display: "none" }, holeBS: {}, holeUS: { display: "none" },
+      pctOn: false, pctVal: "", pctCap: "", pctValS: {} };
     for (let i = 0; i < 7; i++) NO_VIZ["s" + i] = NO_SLOT;
     for (let i = 0; i < 4; i++) NO_VIZ["f" + i] = NO_SLOT;
     for (let i = 0; i < 3; i++) NO_VIZ["c" + i] = NO_SLOT;
@@ -1334,11 +1341,15 @@ class Component extends DCLogic {
         });
       };
       // A sub row is always in the table, holding no height until its macro is open, so
-      // opening and closing is a slide the rows below ride along with.
-      const row = (tag, val, col, ind, o) => ({
+      // opening and closing is a slide the rows below ride along with. While a macro is
+      // open, its rows lean forward and the rest lean back.
+      const row = (tag, val, col, ind, o) => {
+        const lit = !!(zm && o && (o.sub === zm || o.exp === zm));
+        const dim = !!(zm && !lit);
+        return {
         row: (o && o.sub) ? {
           display: "flex", alignItems: "stretch", overflow: "hidden",
-          height: zm === o.sub ? "27px" : "0px",
+          height: zm === o.sub ? "30px" : "0px",
           paddingLeft: (ind * 16) + "px",
           borderTop: zm === o.sub ? "1px solid rgba(215,230,239,.08)"
             : "0px solid rgba(215,230,239,0)",
@@ -1347,15 +1358,18 @@ class Component extends DCLogic {
             ? "height 350ms cubic-bezier(.22,1,.36,1), opacity 250ms ease 120ms, border-top-width 350ms ease, border-top-color 350ms ease"
             : "height 350ms cubic-bezier(.22,1,.36,1), opacity 180ms ease, border-top-width 350ms ease, border-top-color 350ms ease",
           cursor: "default"
-        } : { display: "flex", alignItems: "stretch", height: "27px",
+        } : { display: "flex", alignItems: "stretch", height: "30px",
           paddingLeft: (ind * 16) + "px",
           borderTop: (o && o.first) ? "0" : "1px solid rgba(215,230,239,.08)",
           cursor: (o && o.exp && zm !== o.exp) ? "pointer" : "default" },
         dot: { flex: "none", alignSelf: "center", width: "7px", height: "7px",
-          borderRadius: "50%", background: col, marginRight: "9px" },
+          borderRadius: "50%", background: col, marginRight: "9px",
+          opacity: dim ? .55 : 1, transition: "opacity 250ms ease" },
         tagS: { alignSelf: "center", fontFamily: "var(--font-2)", fontSize: ".78rem",
-          letterSpacing: ".08em", color: ind ? "#9fb3c1" : "#c7d6e0",
-          whiteSpace: "nowrap" },
+          letterSpacing: ".08em",
+          color: lit ? (ind ? "#d3e0e8" : "#e2ecf2")
+            : dim ? "#5f7484" : ind ? "#9fb3c1" : "#c7d6e0",
+          transition: "color 250ms ease", whiteSpace: "nowrap" },
         // The ringed +, pinned against the gram column; the open macro's is a −.
         chev: (o && o.exp) ? { flex: "none", alignSelf: "center", width: "16px",
           height: "16px", marginLeft: "auto", marginRight: ".55rem",
@@ -1367,8 +1381,10 @@ class Component extends DCLogic {
           display: "flex", alignItems: "center", justifyContent: "flex-end",
           borderLeft: "1px solid rgba(215,230,239,.08)", paddingLeft: ".5rem" },
         valIn: { display: "flex", alignItems: "baseline", gap: ".25rem", fontWeight: 300,
-          fontSize: "1rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums",
-          whiteSpace: "nowrap" },
+          fontSize: "1rem",
+          color: lit ? "#f2f7fa" : dim ? "#8ba0ad" : "#d7e6ef",
+          transition: "color 250ms ease",
+          fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
         // Its own − bubbles to the drawing and folds everything; the other macro's +
         // presses through and switches directly.
         tap: (o && o.exp) ? e => {
@@ -1377,7 +1393,7 @@ class Component extends DCLogic {
           onMacro(o.exp);
         } : NOOP,
         tag: tag, val: val
-      });
+      }; };
       const WATER_C = "#5787a8", ASH_C = "#465865", ALC_C = "#a58ee0", MAC_C = "#b9cbd8";
       const CORAL = a2 => "rgba(240,140,122," + a2 + ")";
       const GRN = a2 => "rgba(126,224,168," + a2 + ")";
@@ -1448,6 +1464,23 @@ class Component extends DCLogic {
         row("FIBRE", g1(fo.fb), GRN(.5), 2, { sub: "c" }),
         row("STARCH", g1(starch), GRN(.28), 2, { sub: "c" }));
       const mm = total1 ? Math.round(100 * macros / total1) : 0;
+      // Under the ring, the open macro is placed among its own kind: what share of the
+      // food's category carries less of it per 100 g. 28 g of fat means one thing in a
+      // cheese and another in a soup.
+      let pctOn = false, pctVal = "", pctCap = "", pctValS = {};
+      if (zm) {
+        const key = zm === "f" ? "f" : "c";
+        const peers = this.foods().filter(x2 => x2.cat === fo.cat);
+        if (peers.length > 2) {
+          const mine = fo[key];
+          const pct = Math.round(100 * peers.filter(x2 => x2[key] < mine).length / peers.length);
+          pctOn = true;
+          pctVal = pct + "%";
+          pctCap = "of " + fo.cat + " has less " + (zm === "f" ? "fat" : "carbs");
+          pctValS = { fontWeight: 300, fontSize: "1.45rem",
+            color: zm === "f" ? HUE[2] : HUE[1], fontVariantNumeric: "tabular-nums" };
+        }
+      }
       // At rest the hole is the split; with a macro open it is that macro's grams, in
       // that macro's colour.
       const zG = zm === "f" ? fo.f : zm === "c" ? fo.c : 0;
@@ -1458,6 +1491,7 @@ class Component extends DCLogic {
         holeBS: zm ? { color: zm === "f" ? HUE[2] : HUE[1] } : { color: "#e6eef4" },
         holeUS: zm ? { marginLeft: ".15rem", fontFamily: "var(--font-2)",
           fontSize: ".8rem", letterSpacing: ".04em", color: "#5f7f8e" } : HID,
+        pctOn: pctOn, pctVal: pctVal, pctCap: pctCap, pctValS: pctValS,
         rows: rows, brk: "",
         swF: sweepC(fo.p, fo.f, zm === "f"),
         swC: sweepC(fo.p + fo.f, fo.c, zm === "c") };
@@ -1468,7 +1502,7 @@ class Component extends DCLogic {
         const vw2 = Math.min(typeof window !== "undefined" ? window.innerWidth : 390, 640);
         const tableW = Math.min(220.8, vw2 - 7.2 - 164 - 10.4);
         const bx = vw2 - 3.2 - tableW - 7;
-        const rh = rows.map((x2, k) => x2.row.height === "0px" ? 0 : k ? 28 : 27);
+        const rh = rows.map((x2, k) => x2.row.height === "0px" ? 0 : k ? 31 : 30);
         const rowY = k => 8 + rh.slice(0, k).reduce((a2, b2) => a2 + b2, 0);
         const i0 = zm === "f" ? iFat : iCarb;
         const yTop = rowY(i0) + 2, yBot = rowY(i0 + 4) - 2;
@@ -1583,8 +1617,8 @@ class Component extends DCLogic {
         vizTap: () => { if (open && zoomed) this.setState({ vizZoom: null, vizMacro: null }); },
         mExpand: {
           overflow: "hidden",
-          height: open ? (zoomed && s.vizMacro ? ((fo.al || 0) > 0 ? "23.7rem" : "21.9rem")
-            : ((fo.al || 0) > 0 ? "16.7rem" : "14.9rem")) : "0px",
+          height: open ? (zoomed && s.vizMacro ? ((fo.al || 0) > 0 ? "23.8rem" : "21.8rem")
+            : ((fo.al || 0) > 0 ? "18rem" : "16rem")) : "0px",
           opacity: open ? 1 : 0,
           background: open ? PICKED_BG : "transparent",
           borderBottom: open ? "1px solid rgba(34,211,238,.14)" : 0,
@@ -1821,8 +1855,8 @@ class Component extends DCLogic {
         sExpand: {
           overflow: "hidden",
           height: sOpenName === fo.name ? (s.vizZoom === fo.name && s.vizMacro
-            ? ((fo.al || 0) > 0 ? "23.7rem" : "21.9rem")
-            : ((fo.al || 0) > 0 ? "16.7rem" : "14.9rem")) : "0px",
+            ? ((fo.al || 0) > 0 ? "23.8rem" : "21.8rem")
+            : ((fo.al || 0) > 0 ? "18rem" : "16rem")) : "0px",
           opacity: sOpenName === fo.name ? 1 : 0,
           borderBottom: sOpenName === fo.name ? "1px solid rgba(34,211,238,.14)" : 0,
           transition: "height 430ms cubic-bezier(.22,1,.36,1), opacity 320ms ease"
@@ -2123,6 +2157,11 @@ class Component extends DCLogic {
         justifyContent: "center", fontWeight: 300, fontSize: "1.05rem",
         fontVariantNumeric: "tabular-nums", pointerEvents: "none" },
       vHoleA: { color: "#8fa6b4" },
+      vPct: { display: "flex", alignItems: "baseline", gap: ".45rem",
+        padding: "6px 2px 0" },
+      vPctCap: { flex: 1, minWidth: 0, fontFamily: "var(--font-1)", fontWeight: 300,
+        fontSize: ".8rem", lineHeight: 1.4, color: "#7b91a3", whiteSpace: "normal",
+        textWrap: "pretty" },
       vTable: { flex: 1, minWidth: 0, maxWidth: "13.8rem", marginLeft: "auto",
         display: "flex", flexDirection: "column" },
       // The last column is for doing rather than reading, so it is fenced off by a heavier
