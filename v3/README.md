@@ -79,8 +79,10 @@ What is different from the root:
   hairlines between rows and before the gram column, no outer border — dot, name, grams,
   with the macro rows indented under MACROS. Fat and carbs are the two slices with more
   to say, so those rows wear a ringed +, pinned against the gram column. Pressing one
-  plays the move rather than cutting to it: the slice slides in from the outer ring and
-  sweeps the inner one like a clock hand until the macro owns the whole circle, while its
+  plays the move rather than cutting to it: the slice first flares bright where it
+  stands, then slides in from the outer ring and sweeps the inner one like a clock hand
+  until the macro owns the whole circle — the hole handing its split over to that
+  macro's grams, in that macro's colour — while its
   own parts fade up on the ring it vacated — saturated, mono, poly for fat; sugars,
   fibre, starch for carbs — and the rest of the donut steps back to quarter strength.
   The sweep is a stroke-dasharray on a pathLength-100 circle, which CSS can animate where

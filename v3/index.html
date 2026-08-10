@@ -28,6 +28,8 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
 /* Ambient onboarding: a light sweeps through whatever the user should touch next.
    Purely decorative — it never blocks a tap, and it stops the moment the step is done. */
 @keyframes od-sweep{0%{background-position:190% 0}70%{background-position:-90% 0}100%{background-position:-90% 0}}
+/* The pressed slice announces itself before it moves. */
+@keyframes od-flare{0%,30%{filter:brightness(1.8)}100%{filter:brightness(1)}}
 @keyframes od-ring{0%,100%{box-shadow:inset 0 0 0 1px rgba(34,211,238,.22)}50%{box-shadow:inset 0 0 0 1px rgba(34,211,238,.9), 0 0 18px rgba(34,211,238,.22)}}
 @keyframes od-edge{0%,100%{border-left-color:rgba(34,211,238,.12)}50%{border-left-color:rgba(34,211,238,.95)}}
 [data-hint="on"]{
@@ -358,7 +360,7 @@ option{background:#070b12;color:#d7e6ef}
                   <circle cx="82" cy="82" r="70" pathLength="100" style="{{ r.viz.swF }}" fill="none" stroke="#f08c7a" stroke-width="21"></circle>
                   <circle cx="82" cy="82" r="70" pathLength="100" style="{{ r.viz.swC }}" fill="none" stroke="#7ee0a8" stroke-width="21"></circle>
                 </svg>
-                <span style="{{ vHole }}"><span style="{{ vHoleA }}">{{ r.viz.holeA }}</span><span style="{{ vHoleSep }}">/</span><span style="{{ vHoleB }}">{{ r.viz.holeB }}</span></span>
+                <span style="{{ vHole }}"><span style="{{ vHoleA }}">{{ r.viz.holeA }}</span><span style="{{ r.viz.holeSepS }}">/</span><span style="{{ r.viz.holeBS }}">{{ r.viz.holeB }}</span><span style="{{ r.viz.holeUS }}">g</span></span>
               </span>
 
               </span>
@@ -432,7 +434,7 @@ option{background:#070b12;color:#d7e6ef}
                   <circle cx="82" cy="82" r="70" pathLength="100" style="{{ r.viz.swF }}" fill="none" stroke="#f08c7a" stroke-width="21"></circle>
                   <circle cx="82" cy="82" r="70" pathLength="100" style="{{ r.viz.swC }}" fill="none" stroke="#7ee0a8" stroke-width="21"></circle>
                 </svg>
-                <span style="{{ vHole }}"><span style="{{ vHoleA }}">{{ r.viz.holeA }}</span><span style="{{ vHoleSep }}">/</span><span style="{{ vHoleB }}">{{ r.viz.holeB }}</span></span>
+                <span style="{{ vHole }}"><span style="{{ vHoleA }}">{{ r.viz.holeA }}</span><span style="{{ r.viz.holeSepS }}">/</span><span style="{{ r.viz.holeBS }}">{{ r.viz.holeB }}</span><span style="{{ r.viz.holeUS }}">g</span></span>
               </span>
 
               </span>
@@ -1276,7 +1278,8 @@ class Component extends DCLogic {
     const macroSplit = fo => isGrams ? [fo.p, fo.c, fo.f] : macroK(fo);
     const NO_SLOT = { d: "", col: "transparent", st: {} };
     const NO_SWEEP = { opacity: 0 };
-    const NO_VIZ = { holeA: "", holeB: "", rows: [], brk: "", swF: NO_SWEEP, swC: NO_SWEEP };
+    const NO_VIZ = { holeA: "", holeB: "", rows: [], brk: "", swF: NO_SWEEP, swC: NO_SWEEP,
+      holeSepS: { display: "none" }, holeBS: {}, holeUS: { display: "none" } };
     for (let i = 0; i < 7; i++) NO_VIZ["s" + i] = NO_SLOT;
     for (let i = 0; i < 4; i++) NO_VIZ["f" + i] = NO_SLOT;
     for (let i = 0; i < 3; i++) NO_VIZ["c" + i] = NO_SLOT;
@@ -1388,7 +1391,7 @@ class Component extends DCLogic {
       // Each macro's own parts, drawn on the outer ring as a whole circle of their own,
       // waiting invisible until their macro is pressed.
       const subSt = on => ({ opacity: on ? 1 : 0,
-        transition: on ? "opacity 300ms ease 380ms" : "opacity 180ms ease" });
+        transition: on ? "opacity 300ms ease 620ms" : "opacity 180ms ease" });
       const fSlots = ring(70, [[CORAL(.9), fo.sf || 0], [CORAL(.55), fo.mo || 0],
         [CORAL(.3), fo.po || 0], [CORAL(.12), fRest]], 0, fo.f, subSt(zm === "f"));
       const cSlots = ring(70, [[GRN(.85), fo.sg || 0], [GRN(.5), fo.fb || 0],
@@ -1404,8 +1407,11 @@ class Component extends DCLogic {
         transform: "rotate(" + (start + startG * perG - 90).toFixed(1) + "deg)",
         transformOrigin: "82px 82px",
         opacity: on ? 1 : 0,
+        // Pressed, the slice first flares bright where it stands, and only then slides
+        // and sweeps; released, it moves at once and lets go of its opacity last.
+        animation: on ? "od-flare 950ms ease" : "none",
         transition: on
-          ? "r 650ms " + EASE + ", stroke-dasharray 650ms " + EASE + ", opacity 120ms ease"
+          ? "r 650ms " + EASE + " 280ms, stroke-dasharray 650ms " + EASE + " 280ms, opacity 120ms ease"
           : "r 650ms " + EASE + ", stroke-dasharray 650ms " + EASE + ", opacity 200ms ease 500ms"
       });
       const rows = [
@@ -1429,8 +1435,17 @@ class Component extends DCLogic {
         row("FIBRE", g1(fo.fb), GRN(.5), 2, null),
         row("STARCH", g1(starch), GRN(.28), 2, null));
       const mm = total1 ? Math.round(100 * macros / total1) : 0;
-      const viz = { holeA: total1 ? String(100 - mm) : "",
-        holeB: total1 ? String(mm) : "", rows: rows, brk: "",
+      // At rest the hole is the split; with a macro open it is that macro's grams, in
+      // that macro's colour.
+      const zG = zm === "f" ? fo.f : zm === "c" ? fo.c : 0;
+      const viz = {
+        holeA: zm || !total1 ? "" : String(100 - mm),
+        holeSepS: zm ? HID : { padding: "0 .14rem", fontSize: ".9rem", color: "#58707f" },
+        holeB: zm ? g1(zG) : total1 ? String(mm) : "",
+        holeBS: zm ? { color: zm === "f" ? HUE[2] : HUE[1] } : { color: "#e6eef4" },
+        holeUS: zm ? { marginLeft: ".15rem", fontFamily: "var(--font-2)",
+          fontSize: ".8rem", letterSpacing: ".04em", color: "#5f7f8e" } : HID,
+        rows: rows, brk: "",
         swF: sweepC(fo.p, fo.f, zm === "f"),
         swC: sweepC(fo.p + fo.f, fo.c, zm === "c") };
       if (zm) {
@@ -2099,8 +2114,6 @@ class Component extends DCLogic {
         justifyContent: "center", fontWeight: 300, fontSize: "1.05rem",
         fontVariantNumeric: "tabular-nums", pointerEvents: "none" },
       vHoleA: { color: "#8fa6b4" },
-      vHoleSep: { padding: "0 .14rem", fontSize: ".9rem", color: "#58707f" },
-      vHoleB: { color: "#e6eef4" },
       vTable: { flex: 1, minWidth: 0, maxWidth: "13.8rem", marginLeft: "auto",
         display: "flex", flexDirection: "column" },
       // The last column is for doing rather than reading, so it is fenced off by a heavier
