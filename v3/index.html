@@ -335,6 +335,7 @@ option{background:#070b12;color:#d7e6ef}
           </div>
           <div style="{{ r.mExpand }}">
             <span style="{{ mVizBox }}">
+              <span style="{{ vLeft }}">
               <span style="{{ vRing }}">
                 <svg width="164" height="164" viewBox="0 0 164 164" style="{{ vSvg }}">
                   <path d="{{ r.viz.s0.d }}" fill="none" stroke="{{ r.viz.s0.col }}" stroke-width="21"></path>
@@ -353,6 +354,10 @@ option{background:#070b12;color:#d7e6ef}
                   <path d="{{ r.viz.s13.d }}" fill="none" stroke="{{ r.viz.s13.col }}" stroke-width="13"></path>
                 </svg>
                 <span style="{{ vHole }}"><span style="{{ vHoleA }}">{{ r.viz.holeA }}</span><span style="{{ vHoleSep }}">/</span><span style="{{ vHoleB }}">{{ r.viz.holeB }}</span></span>
+              </span>
+              <sc-for list="{{ r.viz.meas }}" as="mr" hint-placeholder-count="3">
+                <span style="{{ mrRow }}"><span style="{{ mrTag }}">{{ mr.tag }}</span><span style="{{ mrSub }}">{{ mr.sub }}</span><span style="{{ mrVal }}">{{ mr.val }}<span style="{{ unitSuffix }}">kcal</span></span></span>
+              </sc-for>
               </span>
               <span style="{{ vTable }}">
                 <sc-for list="{{ r.viz.rows }}" as="vr" hint-placeholder-count="7">
@@ -401,6 +406,7 @@ option{background:#070b12;color:#d7e6ef}
           </div>
           <div style="{{ r.sExpand }}">
             <span style="{{ mVizBox }}">
+              <span style="{{ vLeft }}">
               <span style="{{ vRing }}">
                 <svg width="164" height="164" viewBox="0 0 164 164" style="{{ vSvg }}">
                   <path d="{{ r.viz.s0.d }}" fill="none" stroke="{{ r.viz.s0.col }}" stroke-width="21"></path>
@@ -419,6 +425,10 @@ option{background:#070b12;color:#d7e6ef}
                   <path d="{{ r.viz.s13.d }}" fill="none" stroke="{{ r.viz.s13.col }}" stroke-width="13"></path>
                 </svg>
                 <span style="{{ vHole }}"><span style="{{ vHoleA }}">{{ r.viz.holeA }}</span><span style="{{ vHoleSep }}">/</span><span style="{{ vHoleB }}">{{ r.viz.holeB }}</span></span>
+              </span>
+              <sc-for list="{{ r.viz.meas }}" as="mr" hint-placeholder-count="3">
+                <span style="{{ mrRow }}"><span style="{{ mrTag }}">{{ mr.tag }}</span><span style="{{ mrSub }}">{{ mr.sub }}</span><span style="{{ mrVal }}">{{ mr.val }}<span style="{{ unitSuffix }}">kcal</span></span></span>
+              </sc-for>
               </span>
               <span style="{{ vTable }}">
                 <sc-for list="{{ r.viz.rows }}" as="vr" hint-placeholder-count="7">
@@ -1253,7 +1263,7 @@ class Component extends DCLogic {
     // table is in grams, calories from each when it is in calories or in percent of them.
     const macroSplit = fo => isGrams ? [fo.p, fo.c, fo.f] : macroK(fo);
     const NO_SLOT = { d: "", col: "transparent" };
-    const NO_VIZ = { holeA: "", holeB: "", rows: [] };
+    const NO_VIZ = { holeA: "", holeB: "", rows: [], meas: [] };
     for (let i = 0; i < 14; i++) NO_VIZ["s" + i] = NO_SLOT;
     // An open food is one ring, and a second tier it can grow. The ring is all of 100 g —
     // protein, fat and carbs each in their own colour, then water, ash, alcohol when there
@@ -1310,11 +1320,13 @@ class Component extends DCLogic {
         tagS: { alignSelf: "center", fontFamily: "var(--font-2)", fontSize: ".78rem",
           letterSpacing: ".08em", color: ind ? "#9fb3c1" : "#c7d6e0",
           whiteSpace: "nowrap" },
-        chev: (o && o.zoomRow) ? { flex: "none", alignSelf: "center", width: "7px",
-          height: "7px", marginLeft: ".55rem", marginTop: zoom ? "4px" : "-4px",
-          borderRight: "1.5px solid #7b91a3", borderBottom: "1.5px solid #7b91a3",
-          transform: zoom ? "rotate(-135deg)" : "rotate(45deg)",
-          transition: "transform 300ms ease" } : HID,
+        // A ringed + is the promise of more; zoomed, its bar-only twin promises less.
+        chev: (o && o.zoomRow) ? { flex: "none", alignSelf: "center", width: "16px",
+          height: "16px", marginLeft: ".55rem", borderRadius: "50%",
+          boxSizing: "border-box", border: "1px solid #66808f",
+          background: zoom
+            ? "linear-gradient(#c7d6e0,#c7d6e0) center/8px 1.3px no-repeat"
+            : "linear-gradient(#c7d6e0,#c7d6e0) center/8px 1.3px no-repeat, linear-gradient(#c7d6e0,#c7d6e0) center/1.3px 8px no-repeat" } : HID,
         valS: { marginLeft: "auto", flex: "none", width: "4.9rem", display: "flex",
           alignItems: "center", justifyContent: "flex-end",
           borderLeft: "1px solid rgba(215,230,239,.08)", paddingLeft: ".5rem" },
@@ -1365,9 +1377,31 @@ class Component extends DCLogic {
         row("SUGARS", g1(fo.sg), GRN(.85), 2, null),
         row("FIBRE", g1(fo.fb), GRN(.5), 2, null),
         row("STARCH", g1(starch), GRN(.28), 2, null));
+      // The way back out cannot be a secret: zoomed, the table leads with CLOSE and a
+      // ringed − in the accent, top right where closing things live.
+      if (zoom) rows.unshift({
+        row: { display: "flex", alignItems: "center", justifyContent: "flex-end",
+          height: "26px", cursor: "pointer", borderTop: "0" },
+        dot: HID,
+        tagS: { fontFamily: "var(--font-2)", fontSize: ".68rem", letterSpacing: ".12em",
+          color: "#7b91a3", marginRight: ".5rem" },
+        chev: { flex: "none", width: "18px", height: "18px", borderRadius: "50%",
+          boxSizing: "border-box", border: "1px solid rgba(34,211,238,.6)",
+          background: "linear-gradient(#22d3ee,#22d3ee) center/9px 1.4px no-repeat" },
+        valS: HID, valIn: HID, tap: onZoom, tag: "CLOSE", val: ""
+      });
       const mm = total1 ? Math.round(100 * macros / total1) : 0;
+      // Zoomed, a little table under the ring prices every measure the food has.
+      const meas = [];
+      if (zoom) {
+        meas.push({ tag: fo.mu === "ml" ? "100 ML" : "100 G", sub: "",
+          val: figNum(kcalOf(fo)) });
+        meas.push({ tag: "1 OUNCE", sub: "28 g", val: figNum(kcalOf(fo) * .2835) });
+        if (fo.pg && fo.pn !== "OUNCES") meas.push({ tag: "1 " + fo.pn,
+          sub: Math.round(fo.pg) + " g", val: figNum(kcalOf(fo) * fo.pg / 100) });
+      }
       const viz = { holeA: total1 ? String(100 - mm) : "",
-        holeB: total1 ? String(mm) : "", rows: rows };
+        holeB: total1 ? String(mm) : "", rows: rows, meas: meas };
       for (let i = 0; i < 14; i++) viz["s" + i] = slots[i] || NO_SLOT;
       return viz;
     };
@@ -1421,7 +1455,7 @@ class Component extends DCLogic {
         back: s.justBack === fo.name ? "on" : "off",
         open: open,
         toggleRow: s.narrow
-          ? () => this.setState({ mOpen: open ? null : fo.name, mQty: Math.round(unit.g), mMode: "g" })
+          ? () => this.setState({ mOpen: open ? null : fo.name, mQty: Math.round(unit.g), mMode: "g", vizZoom: null })
           : r.toggleRow,
         addRow: e => {
           if (e && e.stopPropagation) e.stopPropagation();
@@ -1465,10 +1499,16 @@ class Component extends DCLogic {
         },
         xv: xv,
         viz: open ? vizFor(fo, openQty, zoomed,
-          () => this.setState({ vizZoom: zoomed ? null : fo.name })) : NO_VIZ,
+          () => {
+            this.setState({ vizZoom: zoomed ? null : fo.name });
+            if (!zoomed) setTimeout(() => {
+              const el = document.querySelector('[data-scroll="rows"] [data-sel="on"]');
+              if (el && el.parentElement) el.parentElement.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 60);
+          }) : NO_VIZ,
         mExpand: {
           overflow: "hidden",
-          height: open ? (zoomed ? ((fo.al || 0) > 0 ? "40.3rem" : "38.5rem")
+          height: open ? (zoomed ? ((fo.al || 0) > 0 ? "28.8rem" : "27rem")
             : ((fo.al || 0) > 0 ? "16.7rem" : "14.9rem")) : "0px",
           opacity: open ? 1 : 0,
           background: open ? PICKED_BG : "transparent",
@@ -1627,6 +1667,9 @@ class Component extends DCLogic {
     // Only one plate row is open at a time.
     const sOpenName = s.narrow ? s.sOpen : null;
     const vZoom = !!(s.vizZoom && (s.vizZoom === openName || s.vizZoom === sOpenName));
+    // A zoomed search food takes the screen: the search line and the column header fold
+    // away above it, and the row is scrolled to the top so nothing needs scrolling to.
+    const vZoomS = !!(openName && s.vizZoom === openName);
     // The chosen column's figure for a plate row, wanted in two places now.
     const mSumValOf = fo => {
       const g = gramsOf(fo.name) / 100;
@@ -1666,7 +1709,7 @@ class Component extends DCLogic {
         leaving: s.leaving === fo.name ? "on" : "off",
         // A plate row opens the same way a search row does; the amount it edits is the
         // plate's own, so every change lands straight in the totals.
-        sToggle: () => this.setState({ sOpen: sOpenName === fo.name ? null : fo.name, sMode: "g" }),
+        sToggle: () => this.setState({ sOpen: sOpenName === fo.name ? null : fo.name, sMode: "g", vizZoom: null }),
         ctl: sOpenName === fo.name
           ? amountCtl(fo, Math.round(gramsOf(fo.name)),
               q => this.setState(st => ({ qty: Object.assign({}, st.qty, { [fo.name]: String(clampG(q)) }) })),
@@ -1705,7 +1748,7 @@ class Component extends DCLogic {
         sExpand: {
           overflow: "hidden",
           height: sOpenName === fo.name ? (s.vizZoom === fo.name
-            ? ((fo.al || 0) > 0 ? "40.3rem" : "38.5rem")
+            ? ((fo.al || 0) > 0 ? "28.8rem" : "27rem")
             : ((fo.al || 0) > 0 ? "16.7rem" : "14.9rem")) : "0px",
           opacity: sOpenName === fo.name ? 1 : 0,
           borderBottom: sOpenName === fo.name ? "1px solid rgba(34,211,238,.14)" : 0,
@@ -1960,8 +2003,11 @@ class Component extends DCLogic {
       },
       mHeadRow: {
         flex: "none", position: "relative", zIndex: 20, display: "block",
-        height: "2.4rem",
-        borderTop: "1px solid rgba(34,211,238,.28)", borderBottom: "1px solid rgba(34,211,238,.55)",
+        height: vZoomS ? "0" : "2.4rem",
+        overflow: vZoomS ? "hidden" : "visible",
+        borderTop: "1px solid rgba(34,211,238," + (vZoomS ? "0" : ".28") + ")",
+        borderBottom: "1px solid rgba(34,211,238," + (vZoomS ? "0" : ".55") + ")",
+        transition: "height 430ms cubic-bezier(.22,1,.36,1), border-color 430ms ease",
         fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".08em",
         color: "#c3d6e2", textTransform: "uppercase"
       },
@@ -1989,14 +2035,21 @@ class Component extends DCLogic {
       // The figures line is a row of the list, not a panel bolted into it: the same two type
       // sizes the rows use, the same colours, and the same height, so an open food reads as
       // the list continuing rather than as something else pasted in.
-      mVizBox: vZoom
-        ? { display: "flex", flexDirection: "column", alignItems: "center", gap: ".55rem",
-          padding: "10px .2rem 10px .25rem" }
-        : { display: "flex", alignItems: "center", gap: ".65rem",
-          padding: "8px .2rem 10px .25rem" },
-      vRing: { flex: "none", position: "relative",
-        width: vZoom ? "200px" : "164px", height: vZoom ? "200px" : "164px" },
+      mVizBox: { display: "flex", alignItems: vZoom ? "flex-start" : "center",
+        gap: ".65rem", padding: "8px .2rem 10px .25rem" },
+      vLeft: { flex: "none", display: "flex", flexDirection: "column", gap: ".55rem",
+        width: "164px" },
+      vRing: { flex: "none", position: "relative", width: "164px", height: "164px" },
       vSvg: { display: "block", width: "100%", height: "100%" },
+      mrRow: { display: "flex", alignItems: "baseline", gap: ".4rem", height: "22px",
+        padding: "0 2px" },
+      mrTag: { fontFamily: "var(--font-2)", fontSize: ".68rem", letterSpacing: ".08em",
+        color: "#9fb3c1", whiteSpace: "nowrap" },
+      mrSub: { fontFamily: "var(--font-2)", fontSize: ".64rem", color: "#647d8c",
+        whiteSpace: "nowrap" },
+      mrVal: { marginLeft: "auto", display: "flex", alignItems: "baseline", gap: ".25rem",
+        fontWeight: 300, fontSize: ".9rem", color: "#d7e6ef",
+        fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
       // The hole's own flex baseline-aligns the two figures around their slash; the
       // translate centres the pair in the ring, since the container is only as tall as
       // its text.
@@ -2007,11 +2060,8 @@ class Component extends DCLogic {
       vHoleA: { color: "#8fa6b4" },
       vHoleSep: { padding: "0 .14rem", fontSize: ".9rem", color: "#58707f" },
       vHoleB: { color: "#e6eef4" },
-      vTable: vZoom
-        ? { alignSelf: "stretch", display: "flex", flexDirection: "column",
-          padding: "0 .1rem" }
-        : { flex: 1, minWidth: 0, maxWidth: "13.8rem", marginLeft: "auto",
-          display: "flex", flexDirection: "column" },
+      vTable: { flex: 1, minWidth: 0, maxWidth: "13.8rem", marginLeft: "auto",
+        display: "flex", flexDirection: "column" },
       // The last column is for doing rather than reading, so it is fenced off by a heavier
       // rule than the ones between the figures.
       dActHead: { borderLeft: "2px solid rgba(34,211,238,.55)" },
@@ -2133,7 +2183,8 @@ class Component extends DCLogic {
       mSearchRow: {
         flex: "none", position: "relative", display: "flex", alignItems: "center",
         gap: landing ? ".9rem" : ".6rem",
-        height: landing ? "3.6rem" : "2.9rem",
+        height: vZoomS ? "0" : landing ? "3.6rem" : "2.9rem",
+        overflow: vZoomS ? "hidden" : "visible",
         padding: landing ? "0 1.9rem" : "0 .55rem 0 .6rem",
         fontFamily: "var(--font-2)", zIndex: 30,
         transform: landing ? "translateY(" + landingDrop + "px)" : "none",

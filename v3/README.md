@@ -77,10 +77,17 @@ What is different from the root:
   sits against the right edge on a subtle interior grid — hairlines between rows and before
   the gram column, no outer border — dot, name, grams, with the macro rows indented under
   MACROS, whose dot is a three-colour pie because that slice of the ring is not one colour
-  either. MACROS wears the chevron: tapping it centres a larger ring, grows an outer tier
-  riding each macro's own arc — saturated, mono and poly over fat; sugars, fibre and starch
-  over carbs — and adds the matching indented rows, the chevron turning up to say the same
-  tap folds it back. A whole ring is drawn as two semicircles rather than a 359.8° arc,
+  either. MACROS wears a ringed +: tapping it gives the food the screen. The search line
+  and the column header fold away, the row scrolls to the top, and nothing moves that did
+  not have to — the ring keeps its place and size while an outer tier grows on it, riding
+  each macro's own arc (saturated, mono and poly over fat; sugars, fibre and starch over
+  carbs), the table keeps its right edge and just grows the matching indented rows, and a
+  little table appears under the ring pricing every measure the food has — 100 g, an
+  ounce, its own serving — in calories. The way back out cannot be a secret: the table
+  leads with CLOSE and a ringed − in the accent, top right where closing things live, and
+  the + on MACROS is now a − saying the same. Ash stays a top-level part rather than a
+  macro, because it is the mineral residue — matter with no energy in it — and the macros
+  figure is the food's energy-bearing weight. A whole ring is drawn as two semicircles rather than a 359.8° arc,
   whose butt caps would meet in a hairline seam. The SVG holds geometry only (the template
   engine wraps interpolated text in spans, which SVG will not paint); the hole's figures
   and the table are HTML. The chosen column's figure keeps the row's top right corner; the
