@@ -334,14 +334,31 @@ option{background:#070b12;color:#d7e6ef}
             <span style="{{ r.mValCell }}">{{ r.mVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
           </div>
           <div style="{{ r.mExpand }}">
-            <span style="{{ mMacroBlock }}">
-              <sc-for list="{{ r.bars.rows }}" as="mb" hint-placeholder-count="3">
-                <span style="{{ mMacroRow }}">
-                  <span style="{{ mb.lbl }}"><span style="{{ mFigTag }}">{{ mb.tag }}</span>{{ mb.val }}<span style="{{ unitSuffix }}">{{ mb.unit }}</span></span>
-                  <span style="{{ mMacroTrack }}"><span style="{{ mb.fill }}"><sc-for list="{{ mb.segs }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.style }}"></span></sc-for></span></span>
-                  <button onClick="{{ r.bars.xToggle }}" style="{{ mb.endBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ r.bars.chev }}"><path d="M5 9l7 7 7-7"></path></svg></button>
-                </span>
+            <span style="{{ mVizBox }}">
+              <svg width="160" height="296" viewBox="0 0 160 296" style="{{ vSvg }}">
+              <circle cx="84" cy="66" r="40" fill="none" stroke="rgba(215,230,239,.07)" stroke-width="17"></circle>
+              <circle cx="84" cy="218" r="40" fill="none" stroke="rgba(215,230,239,.07)" stroke-width="17"></circle>
+              <path d="{{ r.viz.link }}" fill="none" stroke="rgba(139,166,184,.4)" stroke-width="1.2" stroke-dasharray="2.5 3.5"></path>
+              <path d="{{ r.viz.s0.d }}" fill="none" stroke="{{ r.viz.s0.col }}" stroke-width="17"></path>
+              <polyline points="{{ r.viz.s0.pts }}" fill="none" stroke="rgba(139,166,184,.35)" stroke-width="1"></polyline>
+              <path d="{{ r.viz.s1.d }}" fill="none" stroke="{{ r.viz.s1.col }}" stroke-width="17"></path>
+              <polyline points="{{ r.viz.s1.pts }}" fill="none" stroke="rgba(139,166,184,.35)" stroke-width="1"></polyline>
+              <path d="{{ r.viz.s2.d }}" fill="none" stroke="{{ r.viz.s2.col }}" stroke-width="17"></path>
+              <polyline points="{{ r.viz.s2.pts }}" fill="none" stroke="rgba(139,166,184,.35)" stroke-width="1"></polyline>
+              <path d="{{ r.viz.s3.d }}" fill="none" stroke="{{ r.viz.s3.col }}" stroke-width="17"></path>
+              <polyline points="{{ r.viz.s3.pts }}" fill="none" stroke="rgba(139,166,184,.35)" stroke-width="1"></polyline>
+              <path d="{{ r.viz.s4.d }}" fill="none" stroke="{{ r.viz.s4.col }}" stroke-width="17"></path>
+              <polyline points="{{ r.viz.s4.pts }}" fill="none" stroke="rgba(139,166,184,.35)" stroke-width="1"></polyline>
+              <path d="{{ r.viz.s5.d }}" fill="none" stroke="{{ r.viz.s5.col }}" stroke-width="17"></path>
+              <polyline points="{{ r.viz.s5.pts }}" fill="none" stroke="rgba(139,166,184,.35)" stroke-width="1"></polyline>
+              <path d="{{ r.viz.s6.d }}" fill="none" stroke="{{ r.viz.s6.col }}" stroke-width="17"></path>
+              <polyline points="{{ r.viz.s6.pts }}" fill="none" stroke="rgba(139,166,184,.35)" stroke-width="1"></polyline>
+              </svg>
+              <sc-for list="{{ r.viz.labels }}" as="vl" hint-placeholder-count="6">
+                <span style="{{ vl.row }}"><span style="{{ vl.dot }}"></span><span style="{{ vTagH }}">{{ vl.tag }}</span><span style="{{ vValH }}">{{ vl.val }}<span style="{{ unitSuffix }}">g</span></span></span>
               </sc-for>
+              <span style="{{ vHole1 }}">{{ r.viz.h1 }}</span>
+              <span style="{{ vHole2 }}">{{ r.viz.h2 }}</span>
             </span>
             <span style="{{ mMeasureRow }}">
               <button onClick="{{ r.ctl.reset }}" style="{{ r.resetCtl }}" style-hover="color:#22d3ee"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
@@ -366,8 +383,8 @@ option{background:#070b12;color:#d7e6ef}
     </div>
     <sc-if value="{{ hasSummary }}" hint-placeholder-val="{{ false }}">
     <div data-rise style="{{ mSumPanel }}">
-      <div style="flex:none;display:flex;align-items:center;justify-content:space-between;min-height:2.3rem;padding:.15rem .3rem .15rem 0;font-family:var(--font-2);font-size:.9rem;letter-spacing:.14em;color:#7b91a3"><span style="flex:1;min-width:0">MY FOOD SUMMARY</span><span style="{{ mSumHeadEnd }}"><button onClick="{{ copyPlate }}" style="{{ copyBtn }}" style-hover="color:#d7e6ef"><sc-if value="{{ copied }}" hint-placeholder-val="{{ false }}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#7ee0a8" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M4.5 12.5l5 5 10-11"></path></svg></sc-if><sc-if value="{{ notCopied }}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><rect x="9" y="9" width="11" height="11" rx="1.6"></rect><path d="M6 15H5a1.6 1.6 0 0 1-1.6-1.6V5A1.6 1.6 0 0 1 5 3.4h8.4A1.6 1.6 0 0 1 15 5v1"></path></svg></sc-if></button></span></div>
-      <div data-scroll="sum" style="flex:1;min-height:0;overflow-y:auto">
+      <div style="flex:none;display:flex;align-items:center;justify-content:space-between;min-height:2.3rem;padding:.15rem .3rem .15rem 0;font-family:var(--font-2);font-size:.9rem;letter-spacing:.14em;color:#7b91a3"><span style="flex:1;min-width:0">MY FOOD SUMMARY</span><span style="{{ mSumPeek }}">{{ tot.mTotVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span><span style="{{ mSumHeadEnd }}"><button onClick="{{ sumRestore }}" style="{{ upBtn }}" style-hover="color:#d7e6ef"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M5 15l7-7 7 7"></path></svg></button><button onClick="{{ copyPlate }}" style="{{ copyBtn }}" style-hover="color:#d7e6ef"><sc-if value="{{ copied }}" hint-placeholder-val="{{ false }}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#7ee0a8" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M4.5 12.5l5 5 10-11"></path></svg></sc-if><sc-if value="{{ notCopied }}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><rect x="9" y="9" width="11" height="11" rx="1.6"></rect><path d="M6 15H5a1.6 1.6 0 0 1-1.6-1.6V5A1.6 1.6 0 0 1 5 3.4h8.4A1.6 1.6 0 0 1 15 5v1"></path></svg></sc-if></button></span></div>
+      <div data-scroll="sum" style="{{ mSumScroll }}">
         <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
           <div data-new="{{ r.arrived }}" data-gone="{{ r.leaving }}" data-lift="m">
           <div data-row onClick="{{ r.sToggle }}" style="{{ r.mSumRow }}">
@@ -377,14 +394,31 @@ option{background:#070b12;color:#d7e6ef}
             <span style="{{ r.sKcalCell }}">{{ r.mSumVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
           </div>
           <div style="{{ r.sExpand }}">
-            <span style="{{ mMacroBlock }}">
-              <sc-for list="{{ r.bars.rows }}" as="mb" hint-placeholder-count="3">
-                <span style="{{ mMacroRow }}">
-                  <span style="{{ mb.lbl }}"><span style="{{ mFigTag }}">{{ mb.tag }}</span>{{ mb.val }}<span style="{{ unitSuffix }}">{{ mb.unit }}</span></span>
-                  <span style="{{ mMacroTrack }}"><span style="{{ mb.fill }}"><sc-for list="{{ mb.segs }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.style }}"></span></sc-for></span></span>
-                  <button onClick="{{ r.bars.xToggle }}" style="{{ mb.endBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ r.bars.chev }}"><path d="M5 9l7 7 7-7"></path></svg></button>
-                </span>
+            <span style="{{ mVizBox }}">
+              <svg width="160" height="296" viewBox="0 0 160 296" style="{{ vSvg }}">
+              <circle cx="84" cy="66" r="40" fill="none" stroke="rgba(215,230,239,.07)" stroke-width="17"></circle>
+              <circle cx="84" cy="218" r="40" fill="none" stroke="rgba(215,230,239,.07)" stroke-width="17"></circle>
+              <path d="{{ r.viz.link }}" fill="none" stroke="rgba(139,166,184,.4)" stroke-width="1.2" stroke-dasharray="2.5 3.5"></path>
+              <path d="{{ r.viz.s0.d }}" fill="none" stroke="{{ r.viz.s0.col }}" stroke-width="17"></path>
+              <polyline points="{{ r.viz.s0.pts }}" fill="none" stroke="rgba(139,166,184,.35)" stroke-width="1"></polyline>
+              <path d="{{ r.viz.s1.d }}" fill="none" stroke="{{ r.viz.s1.col }}" stroke-width="17"></path>
+              <polyline points="{{ r.viz.s1.pts }}" fill="none" stroke="rgba(139,166,184,.35)" stroke-width="1"></polyline>
+              <path d="{{ r.viz.s2.d }}" fill="none" stroke="{{ r.viz.s2.col }}" stroke-width="17"></path>
+              <polyline points="{{ r.viz.s2.pts }}" fill="none" stroke="rgba(139,166,184,.35)" stroke-width="1"></polyline>
+              <path d="{{ r.viz.s3.d }}" fill="none" stroke="{{ r.viz.s3.col }}" stroke-width="17"></path>
+              <polyline points="{{ r.viz.s3.pts }}" fill="none" stroke="rgba(139,166,184,.35)" stroke-width="1"></polyline>
+              <path d="{{ r.viz.s4.d }}" fill="none" stroke="{{ r.viz.s4.col }}" stroke-width="17"></path>
+              <polyline points="{{ r.viz.s4.pts }}" fill="none" stroke="rgba(139,166,184,.35)" stroke-width="1"></polyline>
+              <path d="{{ r.viz.s5.d }}" fill="none" stroke="{{ r.viz.s5.col }}" stroke-width="17"></path>
+              <polyline points="{{ r.viz.s5.pts }}" fill="none" stroke="rgba(139,166,184,.35)" stroke-width="1"></polyline>
+              <path d="{{ r.viz.s6.d }}" fill="none" stroke="{{ r.viz.s6.col }}" stroke-width="17"></path>
+              <polyline points="{{ r.viz.s6.pts }}" fill="none" stroke="rgba(139,166,184,.35)" stroke-width="1"></polyline>
+              </svg>
+              <sc-for list="{{ r.viz.labels }}" as="vl" hint-placeholder-count="6">
+                <span style="{{ vl.row }}"><span style="{{ vl.dot }}"></span><span style="{{ vTagH }}">{{ vl.tag }}</span><span style="{{ vValH }}">{{ vl.val }}<span style="{{ unitSuffix }}">g</span></span></span>
               </sc-for>
+              <span style="{{ vHole1 }}">{{ r.viz.h1 }}</span>
+              <span style="{{ vHole2 }}">{{ r.viz.h2 }}</span>
             </span>
             <span style="{{ mMeasureRow }}">
               <button onClick="{{ r.ctl.reset }}" style="{{ r.resetCtl }}" style-hover="color:#22d3ee"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
@@ -407,7 +441,7 @@ option{background:#070b12;color:#d7e6ef}
           </div>
         </sc-for>
       </div>
-      <div style="flex:none;display:flex;align-items:center;gap:.7rem;min-height:2.2rem;padding:.5rem 0 calc(.8rem + env(safe-area-inset-bottom, 0px))">
+      <div style="{{ mSumTotRow }}">
         <span style="{{ mTotRow }}">
           <span style="{{ mTotMacros }}">
             <span><span style="{{ mTotTag }}">PROT</span> {{ tot.v1 }}<span style="{{ mTotUnit }}">{{ tot.u3 }}</span></span>
@@ -1202,74 +1236,79 @@ class Component extends DCLogic {
     // is what made this block louder than everything around it.
     // Trailing zeros are noise on a figure this small: 0.9, not 0.90.
     const figNum = n => String(Math.abs(n) >= 10 ? Math.round(n) : Math.round(n * 10) / 10);
-    const figTrim = v => (/^-?\d+\.\d*0$/.test(v) ? String(parseFloat(v)) : v);
     const barBasisUnit = isPct ? "%" : isKcalBasis ? "kcal" : "g";
     // Bar lengths answer to the same basis as the figures beside them: grams of each when the
     // table is in grams, calories from each when it is in calories or in percent of them.
     const macroSplit = fo => isGrams ? [fo.p, fo.c, fo.f] : macroK(fo);
-    const NO_BARS = { rows: [], xToggle: null, chev: {} };
-    // Every bar is the grams of the thing against the grams on the scale: full width is all
-    // of it. That keeps the three macros comparable from food to food — chicken breast's
-    // short bars ARE the food, which is mostly water — and it means the expanded list shares
-    // one ruler, so water's long bar next to protein's is the food telling the truth.
-    const barsFor = (fo, grams, vals, part, setPart) => {
+    const EMPTY_SLOT = { d: "", pts: "", col: "transparent" };
+    const NO_VIZ = { link: "", h1: "", h2: "", labels: [], s0: EMPTY_SLOT, s1: EMPTY_SLOT,
+      s2: EMPTY_SLOT, s3: EMPTY_SLOT, s4: EMPTY_SLOT, s5: EMPTY_SLOT, s6: EMPTY_SLOT };
+    // An open food is drawn as two rings. The first is all of 100 g — macros, water, ash,
+    // alcohol — and its macros slice, pinned to the bottom of the ring, hands a line down to
+    // the second ring, which is those macros on their own: protein, carbohydrate, fat. The
+    // labels stand in a column to the right, stacked in the order the slices pass the eye so
+    // no callout line ever crosses another. The drawing is fixed-pixel, because the labels
+    // are HTML laid beside the SVG and the two can only agree on where things are if nothing
+    // scales — the framework wraps interpolated text in spans, which SVG will not paint, so
+    // the SVG holds only geometry.
+    const vizFor = (fo, grams) => {
       const f = grams / 100, g1 = n => figNum((n || 0) * f);
-      const stop = e => { if (e && e.stopPropagation) e.stopPropagation(); };
-      const rest = n => Math.max(0, n);
-      const tone = (rgb, a) => "rgba(" + rgb + "," + a + ")";
-      const CY = "34,211,238", GR = "126,224,168", SA = "240,140,122", BL = "139,166,184", VI = "165,142,224";
-      const starch = rest(fo.c - fo.sg - fo.fb);
-      const fatRest = rest(fo.f - fo.sf - (fo.mo || 0) - (fo.po || 0));
-      const solid = (rgb, a) => [{ style: { flex: "none", width: "100%", height: "100%", background: tone(rgb, a) } }];
-      const stacked = (rgb, parts) => {
-        const sum = parts.reduce((a2, v) => a2 + rest(v), 0);
-        if (!sum) return solid(rgb, .8);
-        return parts.map((v, i) => ({ style: {
-          flex: "none", width: (100 * rest(v) / sum).toFixed(2) + "%", height: "100%",
-          background: tone(rgb, [.85, .5, .28, .13][i])
-        } })).filter((x, i) => rest(parts[i]) > 0);
+      const polar = (cx, cy, r, deg) => {
+        const a = (deg - 90) * Math.PI / 180;
+        return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
       };
-      const row = (tag, val, unit, per100, segs, sub) => ({
-        tag: tag, val: val, unit: unit, segs: segs,
-        lbl: { display: "flex", alignItems: "baseline", gap: ".3rem", minWidth: 0, paddingLeft: sub ? ".7rem" : "0" },
-        fill: {
-          display: "flex", width: Math.min(100, Math.max(0, per100)).toFixed(2) + "%",
-          height: "100%", overflow: "hidden", transition: "width 200ms ease"
-        },
-        endBtn: { display: "none" }
-      });
-      const rows = [
-        row("PROTIN", figTrim(vals[0]), barBasisUnit, fo.p, solid(CY, .8)),
-        row("CARBS", figTrim(vals[1]), barBasisUnit, fo.c, stacked(GR, [fo.sg, fo.fb, starch]))
-      ];
-      if (part) {
-        rows.push(row("SUGARS", g1(fo.sg), "g", fo.sg, solid(GR, .85), true));
-        rows.push(row("FIBRE", g1(fo.fb), "g", fo.fb, solid(GR, .5), true));
-        rows.push(row("STARCH", g1(starch), "g", starch, solid(GR, .28), true));
-      }
-      rows.push(row("FAT", figTrim(vals[2]), barBasisUnit, fo.f, stacked(SA, [fo.sf, fo.mo || 0, fo.po || 0, fatRest])));
-      if (part) {
-        rows.push(row("SAT", g1(fo.sf), "g", fo.sf, solid(SA, .85), true));
-        rows.push(row("MONO", g1(fo.mo), "g", fo.mo || 0, solid(SA, .5), true));
-        rows.push(row("POLY", g1(fo.po), "g", fo.po || 0, solid(SA, .28), true));
-        rows.push(row("WATER", g1(fo.wa), "g", fo.wa || 0, solid(BL, .5)));
-        rows.push(row("ASH", g1(fo.ah), "g", fo.ah || 0, solid(BL, .22)));
-        if ((fo.al || 0) > 0) rows.push(row("ALC", g1(fo.al), "g", fo.al, solid(VI, .7)));
-      }
-      rows[rows.length - 1].endBtn = {
-        display: "flex", alignItems: "center", justifyContent: "flex-end",
-        width: "100%", height: "100%", padding: 0, border: 0, borderRadius: 0,
-        background: "transparent", color: "#7b91a3", cursor: "pointer"
+      const arc = (cy0, a0, a1) => {
+        const sweep = Math.min(a1 - a0, 359.8);
+        const p0 = polar(84, cy0, 40, a0), p1 = polar(84, cy0, 40, a0 + sweep);
+        return "M" + p0[0].toFixed(1) + " " + p0[1].toFixed(1) +
+          " A40 40 0 " + (sweep > 180 ? 1 : 0) + " 1 " + p1[0].toFixed(1) + " " + p1[1].toFixed(1);
       };
-      return {
-        rows: rows,
-        xToggle: e => { stop(e); setPart(!part); },
-        chev: {
-          display: "block", flex: "none", transition: "transform 220ms ease",
-          transform: part ? "rotate(180deg)" : "none"
-        }
+      // One ring: slices clockwise from the given angle, callout labels stacked from yTop.
+      const ring = (cy0, parts, startDeg, yTop) => {
+        const total = parts.reduce((a2, x) => a2 + x[1], 0);
+        let cur = startDeg;
+        const out = parts.map(x => {
+          const sweep = total ? 360 * x[1] / total : 0;
+          const gap = parts.length > 1 ? 2.4 : 0;
+          const a0 = cur + gap / 2, a1 = cur + sweep - gap / 2;
+          const mid = polar(84, cy0, 51, cur + sweep / 2);
+          cur += sweep;
+          return { tag: x[0], col: x[2], v: x[1], mid: mid,
+            d: sweep > 3 && a1 > a0 ? arc(cy0, a0, a1) : "" };
+        });
+        const drawn = out.filter(x => x.d).sort((a2, b2) => a2.mid[1] - b2.mid[1]);
+        return drawn.concat(out.filter(x => !x.d)).map((x, i) => {
+          const ly = yTop + i * 28;
+          return {
+            slot: { col: x.col, d: x.d,
+              pts: x.d ? x.mid[0].toFixed(1) + "," + x.mid[1].toFixed(1) + " 158," + ly : "" },
+            label: {
+              tag: x.tag, val: g1(x.v),
+              row: { position: "absolute", left: "170px", right: "4px", top: (ly - 11) + "px",
+                height: "22px", display: "flex", alignItems: "center", gap: ".45rem" },
+              dot: { flex: "none", width: "7px", height: "7px", borderRadius: "50%",
+                background: x.col, opacity: x.d ? 1 : .35 }
+            }
+          };
+        });
       };
+      const macros = fo.p + fo.c + fo.f;
+      const top1 = [["MACROS", macros, "#b9cbd8"], ["WATER", fo.wa || 0, "#5787a8"]];
+      if ((fo.ah || 0) >= .5) top1.push(["ASH", fo.ah, "#465865"]);
+      if ((fo.al || 0) > 0) top1.push(["ALC", fo.al, "#a58ee0"]);
+      const total1 = top1.reduce((a2, x) => a2 + x[1], 0);
+      // Macros centred at six o'clock, so the hand-down line is always plumb.
+      const rows = ring(66, top1, 180 - (total1 ? 360 * macros / total1 : 0) / 2, 24)
+        .concat(ring(218, [["PROTIN", fo.p, HUE[0]], ["CARBS", fo.c, HUE[1]], ["FAT", fo.f, HUE[2]]], 0, 176));
+      const viz = { link: macros > 0 ? "M84 117 L84 166.5" : "",
+        h1: figNum(grams) + " g", h2: g1(macros) + " g",
+        labels: rows.map(x => x.label) };
+      for (let i = 0; i < 7; i++) viz["s" + i] = rows[i] ? rows[i].slot : EMPTY_SLOT;
+      return viz;
     };
+    // A search food being open borrows the plate's height: the summary folds to its header
+    // line, keeps its total on show, and the copy button gives way to the way back up.
+    const sumTucked = !!(s.narrow && s.mOpen);
     // One-way: once you have typed, the page never returns to the landing state.
     const landing = !!s.narrow && !s.typed;
     const vh = s.vvh || (typeof window !== "undefined" ? window.innerHeight : 800);
@@ -1316,7 +1355,7 @@ class Component extends DCLogic {
         back: s.justBack === fo.name ? "on" : "off",
         open: open,
         toggleRow: s.narrow
-          ? () => this.setState({ mOpen: open ? null : fo.name, mQty: Math.round(unit.g), mMode: "g", mPart: null })
+          ? () => this.setState({ mOpen: open ? null : fo.name, mQty: Math.round(unit.g), mMode: "g" })
           : r.toggleRow,
         addRow: e => {
           if (e && e.stopPropagation) e.stopPropagation();
@@ -1359,11 +1398,10 @@ class Component extends DCLogic {
           padding: bare || open ? ".3rem 0 .15rem" : 0
         },
         xv: xv,
-        bars: open ? barsFor(fo, openQty, [xv.v1, xv.v2, xv.v3], s.mPart,
-          k => this.setState({ mPart: k })) : NO_BARS,
+        viz: open ? vizFor(fo, openQty) : NO_VIZ,
         mExpand: {
           overflow: "hidden",
-          height: open ? (s.mPart ? ((fo.al || 0) > 0 ? "22.5rem" : "20.9rem") : "8.1rem") : "0px",
+          height: open ? "21.9rem" : "0px",
           opacity: open ? 1 : 0,
           background: open ? PICKED_BG : "transparent",
           borderBottom: open ? "1px solid rgba(34,211,238,.14)" : 0,
@@ -1544,9 +1582,9 @@ class Component extends DCLogic {
           : [this.fmt(fo.p * g), this.fmt(fo.c * g), this.fmt(fo.f * g)];
       return Object.assign({}, mkRow(fo), {
         v1: sv[0], v2: sv[1], v3: sv[2],
-        bars: sOpenName === fo.name
-          ? barsFor(fo, gramsOf(fo.name), sv, s.sPart, k => this.setState({ sPart: k }))
-          : NO_BARS,
+        viz: sOpenName === fo.name
+          ? vizFor(fo, gramsOf(fo.name))
+          : NO_VIZ,
         qty: qtyOf(fo.name), qtyUnit: fo.mu === "ml" ? "ml" : "g",
         // Mobile reads the size rather than editing it — the steppers are the whole input.
         // Fixed width for three digits, so the + and − stay in a column down the table.
@@ -1558,7 +1596,7 @@ class Component extends DCLogic {
         leaving: s.leaving === fo.name ? "on" : "off",
         // A plate row opens the same way a search row does; the amount it edits is the
         // plate's own, so every change lands straight in the totals.
-        sToggle: () => this.setState({ sOpen: sOpenName === fo.name ? null : fo.name, sMode: "g", sPart: null }),
+        sToggle: () => this.setState({ sOpen: sOpenName === fo.name ? null : fo.name, sMode: "g" }),
         ctl: sOpenName === fo.name
           ? amountCtl(fo, Math.round(gramsOf(fo.name)),
               q => this.setState(st => ({ qty: Object.assign({}, st.qty, { [fo.name]: String(clampG(q)) }) })),
@@ -1596,7 +1634,7 @@ class Component extends DCLogic {
         }),
         sExpand: {
           overflow: "hidden",
-          height: sOpenName === fo.name ? (s.sPart ? ((fo.al || 0) > 0 ? "22.5rem" : "20.9rem") : "8.1rem") : "0px",
+          height: sOpenName === fo.name ? "21.9rem" : "0px",
           opacity: sOpenName === fo.name ? 1 : 0,
           borderBottom: sOpenName === fo.name ? "1px solid rgba(34,211,238,.14)" : 0,
           transition: "height 260ms cubic-bezier(.22,1,.36,1), opacity 200ms ease"
@@ -1877,18 +1915,23 @@ class Component extends DCLogic {
       // The figures line is a row of the list, not a panel bolted into it: the same two type
       // sizes the rows use, the same colours, and the same height, so an open food reads as
       // the list continuing rather than as something else pasted in.
-      mMacroBlock: { display: "flex", flexDirection: "column", padding: "0 .3rem 0 .55rem" },
-      // Labels get more of the line than the bars do: the words are what is read, the bar is
-      // the glance. Squared ends, because a pill reads as a control on this page.
-      mMacroRow: {
-        display: "grid", gridTemplateColumns: "10.2rem minmax(0,1fr) 1.9rem", columnGap: ".55rem",
-        alignItems: "center", height: "1.6rem",
-        fontWeight: 300, fontSize: ".95rem", color: "#d7e6ef",
+      mVizBox: { position: "relative", display: "block", height: "296px", margin: "0 .1rem" },
+      vSvg: { display: "block" },
+      vTagH: { fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".08em", color: "#7b91a3", whiteSpace: "nowrap" },
+      vValH: {
+        marginLeft: "auto", display: "flex", alignItems: "baseline", gap: ".25rem",
+        fontWeight: 300, fontSize: ".97rem", color: "#d7e6ef",
         fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
       },
-      mMacroTrack: { display: "flex", height: ".5rem", overflow: "hidden", background: "rgba(215,230,239,.06)" },
-      mFigTag: {
-        fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".12em", color: "#7b91a3"
+      vHole1: {
+        position: "absolute", left: "84px", top: "66px", transform: "translate(-50%,-50%)",
+        fontWeight: 300, fontSize: ".92rem", color: "#d7e6ef",
+        fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
+      },
+      vHole2: {
+        position: "absolute", left: "84px", top: "218px", transform: "translate(-50%,-50%)",
+        fontWeight: 300, fontSize: ".92rem", color: "#d7e6ef",
+        fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
       },
       // The last column is for doing rather than reading, so it is fenced off by a heavier
       // rule than the ones between the figures.
@@ -2037,9 +2080,11 @@ class Component extends DCLogic {
         width: "1.9rem", height: "100%", flex: "none", cursor: "pointer", color: "#7b91a3"
       },
       mSumPanel: {
-        flex: "none", maxHeight: "72%",
+        flex: "none", maxHeight: sumTucked ? "2.7rem" : "72%",
         display: "flex", flexDirection: "column", background: "#0d1522",
         borderTop: "1px solid rgba(34,211,238,.55)",
+        paddingBottom: sumTucked ? "calc(.3rem + env(safe-area-inset-bottom, 0px))" : 0,
+        overflow: "hidden",
         transition: "max-height 220ms cubic-bezier(.22,1,.36,1)"
       },
       mListStyle: { flex: 1, minHeight: 0, overflowY: "auto" },
@@ -2070,10 +2115,27 @@ class Component extends DCLogic {
       copied: !!s.copied, notCopied: !s.copied,
       copyPlate: () => this.copyPlate(plateText),
       copyBtn: {
-        display: "flex", alignItems: "center", justifyContent: "flex-end",
+        display: sumTucked ? "none" : "flex", alignItems: "center", justifyContent: "flex-end",
         height: "100%", width: "2.6rem", padding: 0, border: 0, borderRadius: 0,
         background: "transparent", cursor: "pointer", color: "#7b91a3",
         transition: "color 140ms ease"
+      },
+      upBtn: {
+        display: sumTucked ? "flex" : "none", alignItems: "center", justifyContent: "flex-end",
+        height: "100%", width: "2.6rem", padding: 0, border: 0, borderRadius: 0,
+        background: "transparent", cursor: "pointer", color: "#7b91a3",
+        transition: "color 140ms ease"
+      },
+      sumRestore: () => this.setState({ mOpen: null }),
+      mSumPeek: {
+        display: sumTucked ? "flex" : "none", alignItems: "baseline", gap: ".2rem",
+        marginRight: ".55rem", color: "#22d3ee", fontFamily: "var(--font-1)", fontWeight: 300,
+        fontSize: "1.02rem", letterSpacing: 0, fontVariantNumeric: "tabular-nums"
+      },
+      mSumScroll: { flex: 1, minHeight: 0, overflowY: "auto", display: sumTucked ? "none" : "block" },
+      mSumTotRow: {
+        flex: "none", display: sumTucked ? "none" : "flex", alignItems: "center", gap: ".7rem",
+        minHeight: "2.2rem", padding: ".5rem 0 calc(.8rem + env(safe-area-inset-bottom, 0px))"
       },
       // The glyphs sit toward the number rather than centred in their targets, so they read
       // as attached to it while keeping a 32px area to hit.

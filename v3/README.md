@@ -69,19 +69,19 @@ What is different from the root:
   and earns nothing — it correlates 0.96 with the bulk term and the fit sets its weight to
   zero every time. The sugar term's known unfairness is that USDA reports total sugars, so
   an apple is charged the same gram as a jellybean.
-- An open food shows one bar per macro — PROTIN, CARBS, FAT down the left with their
-  figures, a bar beside each. Every bar is the grams of the thing against the grams on the
-  scale: full width is all of it, so the bars are comparable from food to food, and chicken
-  breast's short bars are the food, which is mostly water. Bars are squared and thick;
-  labels get more of the line than the bars, because the words are what is read and the bar
-  is the glance. Carbohydrate and fat are drawn as their parts — shades of the bar's own
-  hue, brightest first — but unlabelled until asked. The chosen column's figure sits in the
-  row's top right corner, where the reset used to be; the reset now opens the controls row.
-- A chevron on the last bar expands the block into the full list, everything as bars on the
-  same ruler: sugars, fibre and starch under carbs; saturated, mono and poly under fat; then
-  water, ash and (when there is any) alcohol — which is everything else 100 g is. This is
-  where fibre shows itself without being taken out of the carb figure. Protein has no parts:
-  FDC's amino acids reach two thirds of the library and nobody is asking.
+- An open food is drawn as two rings. The first is all of 100 g — macros, water, ash,
+  alcohol when there is any — with the amount in its hole; its macros slice is pinned to six
+  o'clock and hands a dashed line down to the second ring, which is those macros on their
+  own: protein, carbohydrate, fat, with their total in its hole. Labels stand in a column to
+  the right — dot, name, grams — stacked in the order the slices pass the eye, so no callout
+  line ever crosses another. The drawing is fixed-pixel: the labels are HTML beside the SVG,
+  and the two can only agree on where things are if nothing scales (the template engine
+  wraps interpolated text in spans, which SVG will not paint, so the SVG holds geometry
+  only). The chosen column's figure keeps the row's top right corner; the reset opens the
+  controls row.
+- While a search food is open, the plate lends it the height: the summary folds to its
+  header line, keeps its total on show, and the copy button gives way to an up chevron that
+  closes the food and brings the plate back.
 - Plate rows open the same way, with a bin where ADD was, and edit the plate's own amount.
   Collapsed, a plate row just states its grams — the steppers live in the expansion.
 - The plate's totals line rides the same three tracks as its rows, so the amount and the
