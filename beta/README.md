@@ -92,9 +92,14 @@ What is different from the root:
   height transition the rows below ride along with — inside a bracket drawn in the
   drawing's own pixels, possible because every row height and the table's right-hugging
   width are fixed. The open macro's rows lean forward and the rest lean back, the same
-  quarter-step the donut takes. Under the ring, the macro is placed among its own kind —
-  "85% of DAIRY has less fat" — because 28 g of fat means one thing in a cheese and
-  another in a soup; the categories are USDA's, already on every food row. A tap anywhere on the drawing folds it back — the ringed − on the open row says
+  quarter-step the donut takes. Under the ring, the open macro is priced against the
+  2,000-kcal day: of its parts with an FDA reference amount (fat 78 g, saturated 20 g,
+  carbohydrate 275 g, fibre 28 g, sugars against the 50 g added-sugar line), the one
+  whose share of the day is largest, at the amount on screen — "21% FIBRE DAILY VALUE" —
+  with a small ? that explains itself in place. Beside it, the food's own category passes
+  judgement — a Very High / High / Typical amount for vegetables — from where the food
+  ranks among its USDA category's peers, and below Typical it holds its tongue, because
+  the same saturated fat is remarkable in a vegetable and unremarkable in an oil. A tap anywhere on the drawing folds it back — the ringed − on the open row says
   so — and the other macro's + presses through and switches directly. Ash stays a top-level part rather
   than a macro, because it is the mineral residue — matter with no energy in it — and the
   macros figure is the food's energy-bearing weight. A whole ring is drawn as two semicircles rather than a 359.8° arc,
