@@ -1,6 +1,6 @@
-# v0.3 preview
+# beta
 
-Served at **opendiet.org/v3/**. A copy of the live site, used to try changes without
+Served at **opendiet.org/beta/**. A copy of the live site, used to try changes without
 touching the version at the root. It is `noindex`, carries no social cards, and nothing
 links to it.
 
@@ -123,4 +123,4 @@ What is different from the root:
 The food libraries are **not** copied into this folder. `index.html` reads them from the
 site root via `const DATA = "../data/"`, so the two versions can never drift apart.
 
-Promoting v3 to the root means moving these files up and setting `DATA` back to `"data/"`.
+Promoting the beta to the root means moving these files up and setting `DATA` back to `"data/"`.
