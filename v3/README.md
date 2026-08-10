@@ -69,18 +69,18 @@ What is different from the root:
   and earns nothing — it correlates 0.96 with the bulk term and the fit sets its weight to
   zero every time. The sugar term's known unfairness is that USDA reports total sugars, so
   an apple is charged the same gram as a jellybean.
-- An open food is drawn as a hierarchy of bars, each level indented under the segment it
-  breaks open. TOTAL WEIGHT is all of 100 g — water, ash, alcohol when there is any, and
-  the macros as one light segment; MACROS sits indented beneath with its own bar of fat,
-  protein and carbohydrate; CARBS indents once more into sugars, fibre and starch — three
-  shades of the one green, since they are three answers to what the carbohydrate is rather
-  than three different things. Starch is really carbs-minus-the-others, USDA not reporting
-  starch as such. Each sub-level's header wears a corner glyph (a CSS border L) pointing
-  back at its parent, every bar runs on the same faint track, and every gram figure sits on
-  one right-hand column, headers and components alike. The scale is per-level: a bar shows
-  its parts against their own sum, so a food that is mostly water still shows its macros
-  legibly. The chosen column's figure keeps the row's top right corner; the reset opens the
-  controls row.
+- An open food is one donut in two tiers. The inner ring is all of 100 g — macros, water,
+  ash, alcohol when there is any — with the amount in its hole; the outer ring rides only
+  the macros segment's arc, breaking it into protein, fat and carbs, so the subset sits
+  directly against the slice it is a subset of. The macros slice is centred at three
+  o'clock, facing a table that names every segment — dot, name, grams on one right-hand
+  column, the macro rows indented under MACROS — so nothing is read off an angled leader
+  line. In the outer tier fat sits between protein and carbs, because cyan and green are
+  the pair a tritan eye loses. A whole ring is drawn as two semicircles rather than a
+  359.8° arc, whose butt caps would meet in a hairline seam. The SVG holds geometry only
+  (the template engine wraps interpolated text in spans, which SVG will not paint); the
+  hole's amount and the table are HTML. The chosen column's figure keeps the row's top
+  right corner; the reset opens the controls row.
 - While a search food is open, the plate lends it the height: the summary folds to its
   header line, keeps its total on show, and the copy button gives way to an up chevron.
   The fold is also the user's to work: tapping the header of an open summary folds it (and
