@@ -1454,14 +1454,15 @@ class Component extends DCLogic {
         row("MACROS", g1(macros), MAC_C, 0, null),
         row("PROTIN", g1(fo.p), HUE[0], 1, null));
       const iFat = rows.length;
+      // A macro under 1 g per 100 has nothing worth opening: no ring, no promise.
       rows.push(
-        row("FAT", g1(fo.f), HUE[2], 1, { exp: "f" }),
+        row("FAT", g1(fo.f), HUE[2], 1, fo.f >= 1 ? { exp: "f" } : null),
         row("SAT", g1(fo.sf), CORAL(.9), 2, { sub: "f" }),
         row("MUFA", g1(fo.mo), CORAL(.55), 2, { sub: "f" }),
         row("PUFA", g1(fo.po), CORAL(.3), 2, { sub: "f" }));
       const iCarb = rows.length;
       rows.push(
-        row("CARBS", g1(fo.c), HUE[1], 1, { exp: "c" }),
+        row("CARBS", g1(fo.c), HUE[1], 1, fo.c >= 1 ? { exp: "c" } : null),
         row("SUGARS", g1(fo.sg), GRN(.85), 2, { sub: "c" }),
         row("FIBRE", g1(fo.fb), GRN(.5), 2, { sub: "c" }),
         row("STARCH", g1(starch), GRN(.28), 2, { sub: "c" }));

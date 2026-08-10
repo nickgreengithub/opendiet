@@ -78,7 +78,9 @@ What is different from the root:
   92/8, parmesan 30/70. The table sits against the right edge on a subtle interior grid —
   hairlines between rows and before the gram column, no outer border — dot, name, grams,
   with the macro rows indented under MACROS. Fat and carbs are the two slices with more
-  to say, so those rows wear a ringed +, pinned against the gram column. Pressing one
+  to say, so those rows wear a ringed +, pinned against the gram column — unless the
+  macro is under 1 g per 100, where there is nothing worth opening and no ring to
+  promise it. Pressing one
   plays the move rather than cutting to it: the slice first flares bright where it
   stands, then slides in from the outer ring and sweeps the inner one like a clock hand
   until the macro owns the whole circle — the hole handing its split over to that
