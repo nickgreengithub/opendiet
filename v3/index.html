@@ -332,21 +332,19 @@ option{background:#070b12;color:#d7e6ef}
             </sc-if>
             <span style="{{ r.mNameStyle }}">{{ r.name }}</span>
             <span style="{{ r.mValCell }}">{{ r.mVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
-            <button onClick="{{ r.ctl.reset }}" style="{{ r.resetCell }}" style-hover="color:#22d3ee"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
           </div>
           <div style="{{ r.mExpand }}">
             <span style="{{ mMacroBlock }}">
               <sc-for list="{{ r.bars.rows }}" as="mb" hint-placeholder-count="3">
                 <span style="{{ mMacroRow }}">
-                  <span style="{{ mMacroLbl }}"><span style="{{ mFigTag }}">{{ mb.tag }}</span>{{ mb.val }}<span style="{{ unitSuffix }}">{{ mb.unit }}</span></span>
+                  <span style="{{ mb.lbl }}"><span style="{{ mFigTag }}">{{ mb.tag }}</span>{{ mb.val }}<span style="{{ unitSuffix }}">{{ mb.unit }}</span></span>
                   <span style="{{ mMacroTrack }}"><span style="{{ mb.fill }}"><sc-for list="{{ mb.segs }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.style }}"></span></sc-for></span></span>
-                  <span style="{{ mMacroEnd }}"><span style="{{ mb.endTxt }}">{{ mb.end }}<span style="{{ unitSuffix }}">{{ mb.endUnit }}</span></span><button onClick="{{ r.bars.xToggle }}" style="{{ mb.endBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ r.bars.chev }}"><path d="M5 9l7 7 7-7"></path></svg></button></span>
+                  <button onClick="{{ r.bars.xToggle }}" style="{{ mb.endBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ r.bars.chev }}"><path d="M5 9l7 7 7-7"></path></svg></button>
                 </span>
-                <span style="{{ mb.subStyle }}"><sc-for list="{{ mb.subs }}" as="sp" hint-placeholder-count="3"><span style="{{ mSubPair }}"><span style="{{ mFigTag }}">{{ sp.tag }}</span>{{ sp.v }}<span style="{{ unitSuffix }}">g</span></span></sc-for></span>
               </sc-for>
-              <span style="{{ r.bars.compStyle }}"><sc-for list="{{ r.bars.comps }}" as="sp" hint-placeholder-count="2"><span style="{{ mSubPair }}"><span style="{{ mFigTag }}">{{ sp.tag }}</span>{{ sp.v }}<span style="{{ unitSuffix }}">g</span></span></sc-for></span>
             </span>
             <span style="{{ mMeasureRow }}">
+              <button onClick="{{ r.ctl.reset }}" style="{{ r.resetCtl }}" style-hover="color:#22d3ee"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
               <span onClick="{{ r.ctl.pickG }}" style="{{ r.ctl.gCell }}">
                 <button data-step="l" onClick="{{ r.ctl.gDown }}" style="{{ r.ctl.gStepL }}" style-hover="color:#22d3ee">−</button>
                 <span style="{{ r.ctl.gAmt }}">{{ r.ctl.gQty }}<span style="{{ sizeSuffix }}">{{ r.ctl.gUnit }}</span></span>
@@ -377,21 +375,19 @@ option{background:#070b12;color:#d7e6ef}
             
             <span data-pulse="{{ r.stepPulse }}" style="{{ r.sQtyCell }}">{{ r.qty }}<span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
             <span style="{{ r.sKcalCell }}">{{ r.mSumVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
-            <button onClick="{{ r.ctl.reset }}" style="{{ r.resetCell }}" style-hover="color:#22d3ee"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
           </div>
           <div style="{{ r.sExpand }}">
             <span style="{{ mMacroBlock }}">
               <sc-for list="{{ r.bars.rows }}" as="mb" hint-placeholder-count="3">
                 <span style="{{ mMacroRow }}">
-                  <span style="{{ mMacroLbl }}"><span style="{{ mFigTag }}">{{ mb.tag }}</span>{{ mb.val }}<span style="{{ unitSuffix }}">{{ mb.unit }}</span></span>
+                  <span style="{{ mb.lbl }}"><span style="{{ mFigTag }}">{{ mb.tag }}</span>{{ mb.val }}<span style="{{ unitSuffix }}">{{ mb.unit }}</span></span>
                   <span style="{{ mMacroTrack }}"><span style="{{ mb.fill }}"><sc-for list="{{ mb.segs }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.style }}"></span></sc-for></span></span>
-                  <span style="{{ mMacroEnd }}"><span style="{{ mb.endTxt }}">{{ mb.end }}<span style="{{ unitSuffix }}">{{ mb.endUnit }}</span></span><button onClick="{{ r.bars.xToggle }}" style="{{ mb.endBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ r.bars.chev }}"><path d="M5 9l7 7 7-7"></path></svg></button></span>
+                  <button onClick="{{ r.bars.xToggle }}" style="{{ mb.endBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ r.bars.chev }}"><path d="M5 9l7 7 7-7"></path></svg></button>
                 </span>
-                <span style="{{ mb.subStyle }}"><sc-for list="{{ mb.subs }}" as="sp" hint-placeholder-count="3"><span style="{{ mSubPair }}"><span style="{{ mFigTag }}">{{ sp.tag }}</span>{{ sp.v }}<span style="{{ unitSuffix }}">g</span></span></sc-for></span>
               </sc-for>
-              <span style="{{ r.bars.compStyle }}"><sc-for list="{{ r.bars.comps }}" as="sp" hint-placeholder-count="2"><span style="{{ mSubPair }}"><span style="{{ mFigTag }}">{{ sp.tag }}</span>{{ sp.v }}<span style="{{ unitSuffix }}">g</span></span></sc-for></span>
             </span>
             <span style="{{ mMeasureRow }}">
+              <button onClick="{{ r.ctl.reset }}" style="{{ r.resetCtl }}" style-hover="color:#22d3ee"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
               <span onClick="{{ r.ctl.pickG }}" style="{{ r.ctl.gCell }}">
                 <button data-step="l" onClick="{{ r.ctl.gDown }}" style="{{ r.ctl.gStepL }}" style-hover="color:#22d3ee">−</button>
                 <span style="{{ r.ctl.gAmt }}">{{ r.ctl.gQty }}<span style="{{ sizeSuffix }}">{{ r.ctl.gUnit }}</span></span>
@@ -1125,12 +1121,6 @@ class Component extends DCLogic {
       height: "2rem", cursor: "pointer", borderRadius: 0,
       transition: "color 160ms ease, border-color 160ms ease, text-shadow 160ms ease"
     };
-    // The reset lives at the top right of an open food, level with its name.
-    const resetBase = {
-      alignItems: "center", justifyContent: "flex-end", alignSelf: "start",
-      height: "2.5rem", padding: "0 .6rem 0 0", border: 0, borderRadius: 0,
-      background: "transparent", cursor: "pointer", transition: "color 160ms ease"
-    };
     // One amount control, used by a results row before adding and by a plate row after. The
     // caller says where the number lives and how to change it; everything else is the same.
     const baseG = Math.round(unit.g);
@@ -1217,71 +1207,62 @@ class Component extends DCLogic {
     // Bar lengths answer to the same basis as the figures beside them: grams of each when the
     // table is in grams, calories from each when it is in calories or in percent of them.
     const macroSplit = fo => isGrams ? [fo.p, fo.c, fo.f] : macroK(fo);
-    const NO_BARS = { rows: [], comps: [], compStyle: { display: "none" }, xToggle: null, chev: {} };
-    // An open food shows one bar per macro, all on the same scale, so which of the three the
-    // food mostly is can be read without reading. Carbohydrate and fat are drawn as their
-    // parts — shades of the macro's own hue, brightest first — but the parts stay unlabelled
-    // shapes until the chevron asks them to be numbers, and then water, ash and alcohol get a
-    // line at the foot, because that is everything else 100 g is.
-    const barsFor = (fo, grams, vals, colVal, part, setPart) => {
+    const NO_BARS = { rows: [], xToggle: null, chev: {} };
+    // Every bar is the grams of the thing against the grams on the scale: full width is all
+    // of it. That keeps the three macros comparable from food to food — chicken breast's
+    // short bars ARE the food, which is mostly water — and it means the expanded list shares
+    // one ruler, so water's long bar next to protein's is the food telling the truth.
+    const barsFor = (fo, grams, vals, part, setPart) => {
       const f = grams / 100, g1 = n => figNum((n || 0) * f);
       const stop = e => { if (e && e.stopPropagation) e.stopPropagation(); };
       const rest = n => Math.max(0, n);
-      const split = macroSplit(fo);
-      const top = Math.max.apply(null, split.concat([1e-9]));
       const tone = (rgb, a) => "rgba(" + rgb + "," + a + ")";
-      const segsOf = (rgb, parts) => {
+      const CY = "34,211,238", GR = "126,224,168", SA = "240,140,122", BL = "139,166,184", VI = "165,142,224";
+      const starch = rest(fo.c - fo.sg - fo.fb);
+      const fatRest = rest(fo.f - fo.sf - (fo.mo || 0) - (fo.po || 0));
+      const solid = (rgb, a) => [{ style: { flex: "none", width: "100%", height: "100%", background: tone(rgb, a) } }];
+      const stacked = (rgb, parts) => {
         const sum = parts.reduce((a2, v) => a2 + rest(v), 0);
-        const alphas = [.85, .5, .28, .13];
-        if (!sum) return [{ style: { flex: "none", width: "100%", height: "100%", background: tone(rgb, .8) } }];
+        if (!sum) return solid(rgb, .8);
         return parts.map((v, i) => ({ style: {
           flex: "none", width: (100 * rest(v) / sum).toFixed(2) + "%", height: "100%",
-          background: tone(rgb, alphas[i])
+          background: tone(rgb, [.85, .5, .28, .13][i])
         } })).filter((x, i) => rest(parts[i]) > 0);
       };
-      // The same three hues the desktop table names its columns with.
-      const CY = "34,211,238", GR = "126,224,168", SA = "240,140,122";
-      const defs = [
-        { tag: "PRO", rgb: CY },
-        { tag: "CAR", rgb: GR, parts: [fo.sg, fo.fb, rest(fo.c - fo.sg - fo.fb)],
-          subs: [["SUGARS", fo.sg], ["FIBRE", fo.fb], ["STARCH", rest(fo.c - fo.sg - fo.fb)]] },
-        { tag: "FAT", rgb: SA, parts: [fo.sf, fo.mo || 0, fo.po || 0, rest(fo.f - fo.sf - (fo.mo || 0) - (fo.po || 0))],
-          subs: [["SAT", fo.sf], ["MONO", fo.mo], ["POLY", fo.po]] }
-      ];
-      const subLine = has => ({
-        display: "flex", alignItems: "center", gap: "1.1rem", paddingLeft: ".15rem",
-        height: part && has ? "1.05rem" : "0px", opacity: part && has ? 1 : 0, overflow: "hidden",
-        transition: "height 220ms cubic-bezier(.22,1,.36,1), opacity 180ms ease"
-      });
-      const rows = defs.map((d, i) => ({
-        tag: d.tag, val: figTrim(vals[i]), unit: barBasisUnit,
+      const row = (tag, val, unit, per100, segs, sub) => ({
+        tag: tag, val: val, unit: unit, segs: segs,
+        lbl: { display: "flex", alignItems: "baseline", gap: ".3rem", minWidth: 0, paddingLeft: sub ? ".7rem" : "0" },
         fill: {
-          display: "flex", width: (100 * rest(split[i]) / top).toFixed(2) + "%", height: "100%",
-          borderRadius: "999px", overflow: "hidden", transition: "width 200ms ease"
+          display: "flex", width: Math.min(100, Math.max(0, per100)).toFixed(2) + "%",
+          height: "100%", overflow: "hidden", transition: "width 200ms ease"
         },
-        segs: d.parts ? segsOf(d.rgb, d.parts)
-          : [{ style: { flex: "none", width: "100%", height: "100%", background: tone(d.rgb, .8) } }],
-        // The chosen column's figure keeps the top right; the chevron takes the bottom right.
-        end: i === 0 ? colVal : "", endUnit: i === 0 ? mCol.unit : "",
-        endTxt: { display: i === 0 ? "flex" : "none", alignItems: "baseline", gap: ".2rem", color: "#22d3ee", fontSize: "1rem" },
-        endBtn: {
-          display: i === 2 ? "flex" : "none", alignItems: "center", justifyContent: "flex-end",
-          width: "2rem", height: "100%", padding: 0, border: 0, borderRadius: 0,
-          background: "transparent", color: "#7b91a3", cursor: "pointer"
-        },
-        subs: (d.subs || []).map(x => ({ tag: x[0], v: g1(x[1]) })),
-        subStyle: subLine(!!d.subs)
-      }));
-      const comps = [["WATER", fo.wa], ["ASH", fo.ah]]
-        .concat((fo.al || 0) > 0 ? [["ALC", fo.al]] : [])
-        .map(x => ({ tag: x[0], v: g1(x[1]) }));
+        endBtn: { display: "none" }
+      });
+      const rows = [
+        row("PROTIN", figTrim(vals[0]), barBasisUnit, fo.p, solid(CY, .8)),
+        row("CARBS", figTrim(vals[1]), barBasisUnit, fo.c, stacked(GR, [fo.sg, fo.fb, starch]))
+      ];
+      if (part) {
+        rows.push(row("SUGARS", g1(fo.sg), "g", fo.sg, solid(GR, .85), true));
+        rows.push(row("FIBRE", g1(fo.fb), "g", fo.fb, solid(GR, .5), true));
+        rows.push(row("STARCH", g1(starch), "g", starch, solid(GR, .28), true));
+      }
+      rows.push(row("FAT", figTrim(vals[2]), barBasisUnit, fo.f, stacked(SA, [fo.sf, fo.mo || 0, fo.po || 0, fatRest])));
+      if (part) {
+        rows.push(row("SAT", g1(fo.sf), "g", fo.sf, solid(SA, .85), true));
+        rows.push(row("MONO", g1(fo.mo), "g", fo.mo || 0, solid(SA, .5), true));
+        rows.push(row("POLY", g1(fo.po), "g", fo.po || 0, solid(SA, .28), true));
+        rows.push(row("WATER", g1(fo.wa), "g", fo.wa || 0, solid(BL, .5)));
+        rows.push(row("ASH", g1(fo.ah), "g", fo.ah || 0, solid(BL, .22)));
+        if ((fo.al || 0) > 0) rows.push(row("ALC", g1(fo.al), "g", fo.al, solid(VI, .7)));
+      }
+      rows[rows.length - 1].endBtn = {
+        display: "flex", alignItems: "center", justifyContent: "flex-end",
+        width: "100%", height: "100%", padding: 0, border: 0, borderRadius: 0,
+        background: "transparent", color: "#7b91a3", cursor: "pointer"
+      };
       return {
-        rows: rows, comps: comps,
-        compStyle: {
-          display: "flex", alignItems: "center", gap: "1.1rem", paddingLeft: ".15rem",
-          height: part ? "1.45rem" : "0px", opacity: part ? 1 : 0, overflow: "hidden",
-          transition: "height 220ms cubic-bezier(.22,1,.36,1), opacity 180ms ease"
-        },
+        rows: rows,
         xToggle: e => { stop(e); setPart(!part); },
         chev: {
           display: "block", flex: "none", transition: "transform 220ms ease",
@@ -1345,15 +1326,27 @@ class Component extends DCLogic {
         },
         selOn: open ? "on" : "off",
         mRow: Object.assign({}, r.mRow, {
-          gridTemplateColumns: open ? "minmax(0,1fr) 2.2rem" : mCols,
+          gridTemplateColumns: mCols,
           borderBottom: open ? 0 : "1px solid rgba(34,211,238,.14)",
           background: open ? PICKED_BG : "transparent"
         }),
-        mValCell: Object.assign({}, mColCellBase, { display: bare || open ? "none" : "flex" }),
-        resetCell: Object.assign({}, resetBase, {
-          display: open ? "flex" : "none",
-          color: openQty === baseG ? "#26333e" : "#7b91a3"
+        // Open, the corner keeps the same cell and turns to the amount on screen: the value
+        // in cyan where the reset used to be, top right, level with the first line of a name
+        // that may now wrap.
+        mVal: open && xv ? xv.col : r.mVal,
+        mValCell: Object.assign({}, mColCellBase, {
+          display: bare ? "none" : "flex",
+          color: open ? "#22d3ee" : "#d7e6ef",
+          alignSelf: open ? "start" : "center",
+          paddingTop: open ? ".5rem" : 0,
+          transition: "color 160ms ease"
         }),
+        resetCtl: {
+          flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
+          width: "1.9rem", alignSelf: "stretch", padding: 0, border: 0, borderRadius: 0,
+          background: "transparent", cursor: "pointer", transition: "color 160ms ease",
+          color: openQty === baseG ? "#26333e" : "#7b91a3"
+        },
         mAddCell: { display: open ? "flex" : "none", alignItems: "center", justifyContent: "flex-end", paddingRight: ".3rem" },
         ctl: open ? amountCtl(fo, openQty, q => this.setState({ mQty: clampG(q) }), openMode,
           m => this.setState({ mMode: m })) : null,
@@ -1366,11 +1359,11 @@ class Component extends DCLogic {
           padding: bare || open ? ".3rem 0 .15rem" : 0
         },
         xv: xv,
-        bars: open ? barsFor(fo, openQty, [xv.v1, xv.v2, xv.v3], xv.col, s.mPart,
+        bars: open ? barsFor(fo, openQty, [xv.v1, xv.v2, xv.v3], s.mPart,
           k => this.setState({ mPart: k })) : NO_BARS,
         mExpand: {
           overflow: "hidden",
-          height: open ? (s.mPart ? "11.35rem" : "7.8rem") : "0px",
+          height: open ? (s.mPart ? ((fo.al || 0) > 0 ? "22.5rem" : "20.9rem") : "8.1rem") : "0px",
           opacity: open ? 1 : 0,
           background: open ? PICKED_BG : "transparent",
           borderBottom: open ? "1px solid rgba(34,211,238,.14)" : 0,
@@ -1552,7 +1545,7 @@ class Component extends DCLogic {
       return Object.assign({}, mkRow(fo), {
         v1: sv[0], v2: sv[1], v3: sv[2],
         bars: sOpenName === fo.name
-          ? barsFor(fo, gramsOf(fo.name), sv, mSumValOf(fo), s.sPart, k => this.setState({ sPart: k }))
+          ? barsFor(fo, gramsOf(fo.name), sv, s.sPart, k => this.setState({ sPart: k }))
           : NO_BARS,
         qty: qtyOf(fo.name), qtyUnit: fo.mu === "ml" ? "ml" : "g",
         // Mobile reads the size rather than editing it — the steppers are the whole input.
@@ -1571,11 +1564,18 @@ class Component extends DCLogic {
               q => this.setState(st => ({ qty: Object.assign({}, st.qty, { [fo.name]: String(clampG(q)) }) })),
               s.sMode === "s" ? "s" : "g", m => this.setState({ sMode: m }))
           : null,
-        sKcalCell: Object.assign({}, mColCellBase, { display: sOpenName === fo.name ? "none" : "flex" }),
-        resetCell: Object.assign({}, resetBase, {
-          display: sOpenName === fo.name ? "flex" : "none",
-          color: Math.round(gramsOf(fo.name)) === baseG ? "#26333e" : "#7b91a3"
+        sKcalCell: Object.assign({}, mColCellBase, {
+          color: sOpenName === fo.name ? "#22d3ee" : "#d7e6ef",
+          alignSelf: sOpenName === fo.name ? "start" : "center",
+          paddingTop: sOpenName === fo.name ? ".55rem" : 0,
+          transition: "color 160ms ease"
         }),
+        resetCtl: {
+          flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
+          width: "1.9rem", alignSelf: "stretch", padding: 0, border: 0, borderRadius: 0,
+          background: "transparent", cursor: "pointer", transition: "color 160ms ease",
+          color: Math.round(gramsOf(fo.name)) === baseG ? "#26333e" : "#7b91a3"
+        },
         sQtyCell: {
           display: sOpenName === fo.name ? "none" : "flex", alignItems: "center", justifyContent: "flex-end",
           paddingRight: ".2rem", fontWeight: 300, fontSize: "1.04rem",
@@ -1591,13 +1591,12 @@ class Component extends DCLogic {
           padding: sOpenName === fo.name ? ".3rem 0 .15rem" : 0
         },
         mSumRow: Object.assign({}, mSumRowBase, {
-          gridTemplateColumns: sOpenName === fo.name ? "minmax(0,1fr) 2.2rem"
-            : SUM_COLS,
+          gridTemplateColumns: sOpenName === fo.name ? "minmax(0,1fr) 4.2rem" : SUM_COLS,
           borderBottom: sOpenName === fo.name ? 0 : "1px solid rgba(34,211,238,.14)"
         }),
         sExpand: {
           overflow: "hidden",
-          height: sOpenName === fo.name ? (s.sPart ? "11.35rem" : "7.8rem") : "0px",
+          height: sOpenName === fo.name ? (s.sPart ? ((fo.al || 0) > 0 ? "22.5rem" : "20.9rem") : "8.1rem") : "0px",
           opacity: sOpenName === fo.name ? 1 : 0,
           borderBottom: sOpenName === fo.name ? "1px solid rgba(34,211,238,.14)" : 0,
           transition: "height 260ms cubic-bezier(.22,1,.36,1), opacity 200ms ease"
@@ -1864,7 +1863,7 @@ class Component extends DCLogic {
       mMacroTag: { fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".06em", color: "#7b91a3" },
       mMeasureRow: {
         display: "flex", alignItems: "center", gap: ".8rem", height: "3.3rem",
-        padding: "0 .3rem 1rem .55rem", boxSizing: "border-box",
+        padding: "0 .3rem 1rem .1rem", boxSizing: "border-box",
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.1rem",
         fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
       },
@@ -1879,22 +1878,15 @@ class Component extends DCLogic {
       // sizes the rows use, the same colours, and the same height, so an open food reads as
       // the list continuing rather than as something else pasted in.
       mMacroBlock: { display: "flex", flexDirection: "column", padding: "0 .3rem 0 .55rem" },
+      // Labels get more of the line than the bars do: the words are what is read, the bar is
+      // the glance. Squared ends, because a pill reads as a control on this page.
       mMacroRow: {
-        display: "grid", gridTemplateColumns: "5.9rem minmax(0,1fr) 4.1rem", columnGap: ".6rem",
-        alignItems: "center", height: "1.5rem",
+        display: "grid", gridTemplateColumns: "10.2rem minmax(0,1fr) 1.9rem", columnGap: ".55rem",
+        alignItems: "center", height: "1.6rem",
         fontWeight: 300, fontSize: ".95rem", color: "#d7e6ef",
         fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
       },
-      mMacroLbl: { display: "flex", alignItems: "baseline", gap: ".3rem", minWidth: 0 },
-      mMacroTrack: {
-        display: "flex", height: ".45rem", borderRadius: "999px", overflow: "hidden",
-        background: "rgba(215,230,239,.07)"
-      },
-      mMacroEnd: { display: "flex", alignItems: "center", justifyContent: "flex-end", height: "100%" },
-      mSubPair: {
-        display: "flex", alignItems: "baseline", gap: ".25rem", fontWeight: 300,
-        fontSize: ".82rem", color: "#b6c9d6", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
-      },
+      mMacroTrack: { display: "flex", height: ".5rem", overflow: "hidden", background: "rgba(215,230,239,.06)" },
       mFigTag: {
         fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".12em", color: "#7b91a3"
       },
