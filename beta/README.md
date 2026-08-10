@@ -87,24 +87,21 @@ What is different from the root:
   macro's grams, in that macro's colour — while its
   own parts fade up on the ring it vacated — saturated, mono, poly for fat; sugars,
   fibre, starch for carbs — and the rest of the donut steps back to quarter strength.
-  The sweep is a stroke-dasharray on a pathLength-100 circle, which CSS can animate where
-  an arc path cannot; the slide is the circle's own r. The row scrolls to the top, and
-  that macro's table rows slide open beneath their parent — they are always in the table,
-  holding no height and a zero-width border until their macro is pressed, so opening is a
-  height transition the rows below ride along with — inside a bracket drawn in the
-  drawing's own pixels, possible because every row height and the table's right-hugging
-  width are fixed. The open macro's rows lean forward and the rest lean back, the same
-  quarter-step the donut takes. Under the ring, one light sentence prices the open macro
-  against the 2,000-kcal day: of its parts with an FDA reference amount (fat 78 g,
-  saturated 20 g, carbohydrate 275 g, fibre 28 g, sugars against the 50 g added-sugar
-  line), the one whose share of the day is largest, at the amount on screen — "Contains
-  21% Fibre Daily Value, a High amount for Baked Goods." The judgement is the food's own
-  category talking, from its rank among USDA category peers, and below Typical the
-  sentence ends early, because the same saturated fat is remarkable in a vegetable and
-  unremarkable in an oil. The ? floats a tooltip over the drawing rather than reflowing
-  it — the ring's position is a constant that nothing beneath it may move — and the
-  expansion's height is computed from what the taller column actually needs, table rows
-  or ring-plus-sentence, so a long band never clips and a short one never leaves a hole. A tap anywhere on the drawing folds it back — the ringed − on the open row says
+  The outer ring and both sub-rings are dash patterns on pathLength-100 circles rather
+  than arc paths, because a dash can wind and an arc cannot. Opening a macro, its
+  neighbours wind out, the slice flares, slides in (the circle's own r) and sweeps the
+  inner ring like a clock hand, and its own parts wind in on the ring it left; closing
+  runs the film backwards — the parts wind up first, the sweep retraces, and the resting
+  ring winds back in, in that order. The row scrolls to the top, and that macro's table
+  rows slide open beneath their parent — they are always in the table, holding no height
+  and a zero-width border until their macro is pressed, so opening is a height transition
+  the rows below ride along with — inside a bracket drawn in the drawing's own pixels,
+  possible because every row height and the table's right-hugging width are fixed. The
+  open macro's rows lean forward and the rest lean back, the same quarter-step the donut
+  takes. Tapping any other row is a pick: its slice brightens above a receding ring and
+  its name and figure do the same in the table, on a 200ms answer that never waits for
+  the choreography's clock. The ring's position is a constant that nothing beneath it
+  may move, and the expansion's height is computed from what the table actually needs. A tap anywhere on the drawing folds it back — the ringed − on the open row says
   so — and the other macro's + presses through and switches directly. Ash stays a top-level part rather
   than a macro, because it is the mineral residue — matter with no energy in it — and the
   macros figure is the food's energy-bearing weight. A whole ring is drawn as two semicircles rather than a 359.8° arc,
