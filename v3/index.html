@@ -334,7 +334,7 @@ option{background:#070b12;color:#d7e6ef}
             <span style="{{ r.mValCell }}">{{ r.mVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
           </div>
           <div style="{{ r.mExpand }}">
-            <span style="{{ mVizBox }}">
+            <span onClick="{{ r.vizTap }}" style="{{ mVizBox }}">
               <span style="{{ vLeft }}">
               <span style="{{ vRing }}">
                 <svg width="164" height="164" viewBox="0 0 164 164" style="{{ vSvg }}">
@@ -344,24 +344,23 @@ option{background:#070b12;color:#d7e6ef}
                   <path d="{{ r.viz.s3.d }}" fill="none" stroke="{{ r.viz.s3.col }}" stroke-width="21"></path>
                   <path d="{{ r.viz.s4.d }}" fill="none" stroke="{{ r.viz.s4.col }}" stroke-width="21"></path>
                   <path d="{{ r.viz.s5.d }}" fill="none" stroke="{{ r.viz.s5.col }}" stroke-width="21"></path>
-                  <path d="{{ r.viz.s6.d }}" fill="none" stroke="{{ r.viz.s6.col }}" stroke-width="13"></path>
-                  <path d="{{ r.viz.s7.d }}" fill="none" stroke="{{ r.viz.s7.col }}" stroke-width="13"></path>
-                  <path d="{{ r.viz.s8.d }}" fill="none" stroke="{{ r.viz.s8.col }}" stroke-width="13"></path>
-                  <path d="{{ r.viz.s9.d }}" fill="none" stroke="{{ r.viz.s9.col }}" stroke-width="13"></path>
-                  <path d="{{ r.viz.s10.d }}" fill="none" stroke="{{ r.viz.s10.col }}" stroke-width="13"></path>
-                  <path d="{{ r.viz.s11.d }}" fill="none" stroke="{{ r.viz.s11.col }}" stroke-width="13"></path>
-                  <path d="{{ r.viz.s12.d }}" fill="none" stroke="{{ r.viz.s12.col }}" stroke-width="13"></path>
-                  <path d="{{ r.viz.s13.d }}" fill="none" stroke="{{ r.viz.s13.col }}" stroke-width="13"></path>
+                  <path d="{{ r.viz.s6.d }}" fill="none" stroke="{{ r.viz.s6.col }}" stroke-width="21"></path>
+                  <path d="{{ r.viz.s7.d }}" fill="none" stroke="{{ r.viz.s7.col }}" stroke-width="21"></path>
+                  <path d="{{ r.viz.s8.d }}" fill="none" stroke="{{ r.viz.s8.col }}" stroke-width="21"></path>
+                  <path d="{{ r.viz.s9.d }}" fill="none" stroke="{{ r.viz.s9.col }}" stroke-width="21"></path>
+                  <path d="{{ r.viz.s10.d }}" fill="none" stroke="{{ r.viz.s10.col }}" stroke-width="21"></path>
+                  <path d="{{ r.viz.s11.d }}" fill="none" stroke="{{ r.viz.s11.col }}" stroke-width="21"></path>
                 </svg>
                 <span style="{{ vHole }}"><span style="{{ vHoleA }}">{{ r.viz.holeA }}</span><span style="{{ vHoleSep }}">/</span><span style="{{ vHoleB }}">{{ r.viz.holeB }}</span></span>
               </span>
-              <sc-for list="{{ r.viz.meas }}" as="mr" hint-placeholder-count="3">
-                <span style="{{ mrRow }}"><span style="{{ mrTag }}">{{ mr.tag }}</span><span style="{{ mrSub }}">{{ mr.sub }}</span><span style="{{ mrVal }}">{{ mr.val }}<span style="{{ unitSuffix }}">kcal</span></span></span>
-              </sc-for>
+              <sc-if value="{{ r.viz.fullOn }}" hint-placeholder-val="{{ false }}">
+                <span style="{{ vFullRow }}"><span style="{{ vFullTag }}">FULLNESS</span><span style="{{ vFullVal }}">{{ r.viz.fullScore }}<span style="{{ unitSuffix }}">/100</span></span></span>
+                <span style="{{ vFullCap }}">How filling this food should be for its calories. Protein, fibre and sheer bulk raise it; sugar lowers it. Checked against measured satiety.</span>
+              </sc-if>
               </span>
               <span style="{{ vTable }}">
                 <sc-for list="{{ r.viz.rows }}" as="vr" hint-placeholder-count="7">
-                  <span onClick="{{ vr.tap }}" style="{{ vr.row }}">
+                  <span style="{{ vr.row }}">
                     <span style="{{ vr.dot }}"></span>
                     <span style="{{ vr.tagS }}">{{ vr.tag }}</span>
                     <span style="{{ vr.chev }}"></span>
@@ -405,7 +404,7 @@ option{background:#070b12;color:#d7e6ef}
             <span style="{{ r.sKcalCell }}">{{ r.mSumVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
           </div>
           <div style="{{ r.sExpand }}">
-            <span style="{{ mVizBox }}">
+            <span onClick="{{ r.vizTap }}" style="{{ mVizBox }}">
               <span style="{{ vLeft }}">
               <span style="{{ vRing }}">
                 <svg width="164" height="164" viewBox="0 0 164 164" style="{{ vSvg }}">
@@ -415,24 +414,23 @@ option{background:#070b12;color:#d7e6ef}
                   <path d="{{ r.viz.s3.d }}" fill="none" stroke="{{ r.viz.s3.col }}" stroke-width="21"></path>
                   <path d="{{ r.viz.s4.d }}" fill="none" stroke="{{ r.viz.s4.col }}" stroke-width="21"></path>
                   <path d="{{ r.viz.s5.d }}" fill="none" stroke="{{ r.viz.s5.col }}" stroke-width="21"></path>
-                  <path d="{{ r.viz.s6.d }}" fill="none" stroke="{{ r.viz.s6.col }}" stroke-width="13"></path>
-                  <path d="{{ r.viz.s7.d }}" fill="none" stroke="{{ r.viz.s7.col }}" stroke-width="13"></path>
-                  <path d="{{ r.viz.s8.d }}" fill="none" stroke="{{ r.viz.s8.col }}" stroke-width="13"></path>
-                  <path d="{{ r.viz.s9.d }}" fill="none" stroke="{{ r.viz.s9.col }}" stroke-width="13"></path>
-                  <path d="{{ r.viz.s10.d }}" fill="none" stroke="{{ r.viz.s10.col }}" stroke-width="13"></path>
-                  <path d="{{ r.viz.s11.d }}" fill="none" stroke="{{ r.viz.s11.col }}" stroke-width="13"></path>
-                  <path d="{{ r.viz.s12.d }}" fill="none" stroke="{{ r.viz.s12.col }}" stroke-width="13"></path>
-                  <path d="{{ r.viz.s13.d }}" fill="none" stroke="{{ r.viz.s13.col }}" stroke-width="13"></path>
+                  <path d="{{ r.viz.s6.d }}" fill="none" stroke="{{ r.viz.s6.col }}" stroke-width="21"></path>
+                  <path d="{{ r.viz.s7.d }}" fill="none" stroke="{{ r.viz.s7.col }}" stroke-width="21"></path>
+                  <path d="{{ r.viz.s8.d }}" fill="none" stroke="{{ r.viz.s8.col }}" stroke-width="21"></path>
+                  <path d="{{ r.viz.s9.d }}" fill="none" stroke="{{ r.viz.s9.col }}" stroke-width="21"></path>
+                  <path d="{{ r.viz.s10.d }}" fill="none" stroke="{{ r.viz.s10.col }}" stroke-width="21"></path>
+                  <path d="{{ r.viz.s11.d }}" fill="none" stroke="{{ r.viz.s11.col }}" stroke-width="21"></path>
                 </svg>
                 <span style="{{ vHole }}"><span style="{{ vHoleA }}">{{ r.viz.holeA }}</span><span style="{{ vHoleSep }}">/</span><span style="{{ vHoleB }}">{{ r.viz.holeB }}</span></span>
               </span>
-              <sc-for list="{{ r.viz.meas }}" as="mr" hint-placeholder-count="3">
-                <span style="{{ mrRow }}"><span style="{{ mrTag }}">{{ mr.tag }}</span><span style="{{ mrSub }}">{{ mr.sub }}</span><span style="{{ mrVal }}">{{ mr.val }}<span style="{{ unitSuffix }}">kcal</span></span></span>
-              </sc-for>
+              <sc-if value="{{ r.viz.fullOn }}" hint-placeholder-val="{{ false }}">
+                <span style="{{ vFullRow }}"><span style="{{ vFullTag }}">FULLNESS</span><span style="{{ vFullVal }}">{{ r.viz.fullScore }}<span style="{{ unitSuffix }}">/100</span></span></span>
+                <span style="{{ vFullCap }}">How filling this food should be for its calories. Protein, fibre and sheer bulk raise it; sugar lowers it. Checked against measured satiety.</span>
+              </sc-if>
               </span>
               <span style="{{ vTable }}">
                 <sc-for list="{{ r.viz.rows }}" as="vr" hint-placeholder-count="7">
-                  <span onClick="{{ vr.tap }}" style="{{ vr.row }}">
+                  <span style="{{ vr.row }}">
                     <span style="{{ vr.dot }}"></span>
                     <span style="{{ vr.tagS }}">{{ vr.tag }}</span>
                     <span style="{{ vr.chev }}"></span>
@@ -922,21 +920,27 @@ class Component extends DCLogic {
     // Fullness already prices in digestion cost through its macro weights, so it stays on gross kcal.
     const scoreOf = fo => this.score(fo);
     // One user-chosen island column: the fullness index or a raw nutrient.
+    // Ordered as the expanded donut reads them: fat's part, then carb's parts, then water.
     const EXTRAS = [
       { k: "score", label: "FULLNESS", unit: "/100", get: fo => scoreOf(fo), sum: false },
-      { k: "fb", label: "FIBRE", unit: "g", get: fo => fo.fb, sum: true },
       { k: "sf", label: "SAT FAT", unit: "g", get: fo => fo.sf || 0, sum: true },
       { k: "sg", label: "SUGAR", unit: "g", get: fo => fo.sg || 0, sum: true },
-      { k: "dens", label: "DENSITY", unit: "kcal/g", get: fo => fo.kcal / 100, sum: false }
+      { k: "fb", label: "FIBRE", unit: "g", get: fo => fo.fb, sum: true },
+      { k: "wa", label: "WATER", unit: "g", get: fo => fo.wa || 0, sum: true }
     ];
     const extra = EXTRAS.find(x => x.k === (s.extra || "score")) || EXTRAS[0];
     // Mobile's last column does double duty: kcal by default, or one chosen nutrient.
     const MCOLS = [
       { k: "kcal", label: "CALORIES", unit: "kcal", get: fo => kcalOf(fo) },
+      { k: "score", label: "FULLNESS SCORE", unit: "/100", get: fo => scoreOf(fo) },
       { k: "p", label: "PROTEIN", unit: "g", get: fo => fo.p },
+      { k: "f", label: "FAT", unit: "g", get: fo => fo.f },
+      { k: "sf", label: "SATURATED FAT", unit: "g", get: fo => fo.sf || 0 },
       { k: "c", label: "CARBS", unit: "g", get: fo => fo.c },
-      { k: "f", label: "FAT", unit: "g", get: fo => fo.f }
-    ].concat(EXTRAS.map(x => ({ k: x.k, label: x.k === "score" ? "FULLNESS SCORE" : x.k === "fb" ? "FIBRE" : x.k === "sf" ? "SATURATED FAT" : x.k === "sg" ? "SUGAR" : "CALORIE DENSITY", unit: x.unit, get: x.get })));
+      { k: "sg", label: "SUGAR", unit: "g", get: fo => fo.sg || 0 },
+      { k: "fb", label: "FIBRE", unit: "g", get: fo => fo.fb },
+      { k: "wa", label: "WATER", unit: "g", get: fo => fo.wa || 0 }
+    ];
     const mCol = MCOLS.find(x => x.k === (s.mCol || "kcal")) || MCOLS[0];
     const units = [
       { k: "TSP", label: "TSP", grams: "5", g: 5, foot: "PER TSP \u00b7 5 G/ML" },
@@ -1005,8 +1009,8 @@ class Component extends DCLogic {
         score: String(sc), band: bd,
         kcalVal: String(Math.round(ekc * uf)),
         measureVal: String(unit.k === "100G" ? 100 : unit.grams), measureUnit: mu,
-        extraVal: extra.k === "score" ? String(sc) : extra.k === "dens" ? (fo.kcal / 100).toFixed(2) : this.fmt(extra.get(fo) * uf),
-        mVal: mCol.k === "score" ? String(sc) : mCol.k === "kcal" ? String(Math.round(ekc * uf)) : mCol.k === "dens" ? (fo.kcal / 100).toFixed(2) : this.fmt(mCol.get(fo) * uf),
+        extraVal: extra.k === "score" ? String(sc) : this.fmt(extra.get(fo) * uf),
+        mVal: mCol.k === "score" ? String(sc) : mCol.k === "kcal" ? String(Math.round(ekc * uf)) : this.fmt(mCol.get(fo) * uf),
         starStyle: { display: "flex", alignItems: "center", justifyContent: "center", padding: 0, border: 0, borderRadius: 0, background: "transparent", cursor: "pointer", color: inSum(fo.name) ? "#22d3ee" : "#3f5364", transition: "color 140ms ease" },
         starFill: inSum(fo.name) ? "currentColor" : "none",
         fill1: fillOf(fv[0], fvMax), fill2: fillOf(fv[1], fvMax), fill3: fillOf(fv[2], fvMax),
@@ -1027,7 +1031,7 @@ class Component extends DCLogic {
           borderBottom: "1px solid rgba(34,211,238,.14)",
           borderLeft: "2px solid transparent", background: "transparent"
         },
-        _raw: fo, _score: sc, _extraSort: extra.k === "score" ? sc : extra.k === "dens" ? fo.kcal / 100 : extra.get(fo)
+        _raw: fo, _score: sc, _extraSort: extra.k === "score" ? sc : extra.get(fo)
       };
     };
     // Filter and sort the plain foods first, then build row objects for the slice that
@@ -1115,7 +1119,7 @@ class Component extends DCLogic {
     const matchCount = src.length;
     const key = sortKey, dir = key === "name" ? sortDir : -sortDir;
     const sortNum = fo => key === "extra"
-      ? (extra.k === "score" ? scoreOf(fo) : extra.k === "dens" ? fo.kcal / 100 : extra.get(fo))
+      ? (extra.k === "score" ? scoreOf(fo) : extra.get(fo))
       : key === "score" ? scoreOf(fo)
         : key === "s1" ? fo.p : key === "s2" ? fo.c : key === "s3" ? fo.f : fo[key];
     // Searching is a different job from sorting: a query ranks by that score, ties go to
@@ -1263,8 +1267,8 @@ class Component extends DCLogic {
     // table is in grams, calories from each when it is in calories or in percent of them.
     const macroSplit = fo => isGrams ? [fo.p, fo.c, fo.f] : macroK(fo);
     const NO_SLOT = { d: "", col: "transparent" };
-    const NO_VIZ = { holeA: "", holeB: "", rows: [], meas: [] };
-    for (let i = 0; i < 14; i++) NO_VIZ["s" + i] = NO_SLOT;
+    const NO_VIZ = { holeA: "", holeB: "", rows: [], fullOn: false, fullScore: "" };
+    for (let i = 0; i < 12; i++) NO_VIZ["s" + i] = NO_SLOT;
     // An open food is one ring, and a second tier it can grow. The ring is all of 100 g —
     // protein, fat and carbs each in their own colour, then water, ash, alcohol when there
     // is any — with the macros run centred at three o'clock, facing the table. The hole
@@ -1277,7 +1281,7 @@ class Component extends DCLogic {
     // will not paint.
     const vizFor = (fo, grams, zoom, onZoom) => {
       const f = grams / 100, g1 = n => figNum((n || 0) * f);
-      const HID = { display: "none" }, NOOP = () => {};
+      const HID = { display: "none" };
       const polar = (r, deg) => {
         const a = (deg - 90) * Math.PI / 180;
         return [82 + r * Math.cos(a), 82 + r * Math.sin(a)];
@@ -1333,39 +1337,45 @@ class Component extends DCLogic {
         valIn: { display: "flex", alignItems: "baseline", gap: ".25rem", fontWeight: 300,
           fontSize: "1rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums",
           whiteSpace: "nowrap" },
-        tap: (o && o.zoomRow) ? onZoom : NOOP,
         tag: tag, val: val
       });
-      const WATER_C = "#5787a8", ASH_C = "#465865", ALC_C = "#a58ee0";
+      const WATER_C = "#5787a8", ASH_C = "#465865", ALC_C = "#a58ee0", MAC_C = "#b9cbd8";
       const CORAL = a2 => "rgba(240,140,122," + a2 + ")";
       const GRN = a2 => "rgba(126,224,168," + a2 + ")";
       const macros = fo.p + fo.c + fo.f;
       const starch = Math.max(0, fo.c - (fo.sg || 0) - (fo.fb || 0));
       const fRest = Math.max(0, fo.f - (fo.sf || 0) - (fo.mo || 0) - (fo.po || 0));
-      // The macros run is itself in the macros' colours — protein, fat, carbs, with fat
-      // between the two because cyan and green are the pair a tritan eye loses. Water,
-      // ash and alcohol complete the circle.
-      const inner = [[HUE[0], fo.p], [HUE[2], fo.f], [HUE[1], fo.c],
-        [WATER_C, fo.wa || 0], [ASH_C, fo.ah || 0], [ALC_C, fo.al || 0]];
-      const total1 = inner.reduce((a2, x) => a2 + x[1], 0);
-      const mSweep = total1 ? 360 * macros / total1 : 0;
-      const start = 90 - mSweep / 2;
-      // The outer tier exists only zoomed: each macro's own parts, riding its arc.
-      const outer = zoom ? ring(68, [[HUE[0], fo.p],
-        [CORAL(.9), fo.sf || 0], [CORAL(.55), fo.mo || 0], [CORAL(.3), fo.po || 0],
-        [CORAL(.12), fRest],
-        [GRN(.85), fo.sg || 0], [GRN(.5), fo.fb || 0], [GRN(.28), starch]], start,
-        mSweep > 0 ? macros * 360 / mSweep : 0)
-        : [];
-      const slots = ring(48, inner, start, total1).concat(outer);
+      const MACRO3 = [[HUE[0], fo.p], [HUE[2], fo.f], [HUE[1], fo.c]];
+      let slots;
+      if (!zoom) {
+        // The whole food: 100 g inside, and the macros slice broken open alongside —
+        // protein, fat, carbs riding exactly its arc, centred at three o'clock to face
+        // the table. Fat between the two, because cyan and green are the pair a tritan
+        // eye loses.
+        const inner = [[MAC_C, macros], [WATER_C, fo.wa || 0], [ASH_C, fo.ah || 0],
+          [ALC_C, fo.al || 0]];
+        const total1 = inner.reduce((a2, x) => a2 + x[1], 0);
+        const mSweep = total1 ? 360 * macros / total1 : 0;
+        const start = 90 - mSweep / 2;
+        slots = ring(46, inner, start, total1).concat(
+          ring(70, MACRO3, start, mSweep > 0 ? macros * 360 / mSweep : 0));
+      } else {
+        // Zoomed, the macros alone: the three of them fill the inner ring, and each one's
+        // own parts ride its arc outside — protein whole, fat as saturated, mono, poly,
+        // carbs as sugars, fibre, starch.
+        slots = ring(46, MACRO3, 0, macros).concat(
+          ring(70, [[HUE[0], fo.p],
+            [CORAL(.9), fo.sf || 0], [CORAL(.55), fo.mo || 0], [CORAL(.3), fo.po || 0],
+            [CORAL(.12), fRest],
+            [GRN(.85), fo.sg || 0], [GRN(.5), fo.fb || 0], [GRN(.28), starch]], 0, macros));
+      }
       const rows = [
         row("WATER", g1(fo.wa), WATER_C, 0, { first: true }),
         row("ASH", g1(fo.ah), ASH_C, 0, null)
       ];
       if ((fo.al || 0) > 0) rows.push(row("ALC", g1(fo.al), ALC_C, 0, null));
       rows.push(
-        row("MACROS", g1(macros),
-          "conic-gradient(#22d3ee 0 120deg,#f08c7a 0 240deg,#7ee0a8 0)", 0, { zoomRow: true }),
+        row("MACROS", g1(macros), MAC_C, 0, { zoomRow: true }),
         row("PROTIN", g1(fo.p), HUE[0], 1, null),
         row("FAT", g1(fo.f), HUE[2], 1, null));
       if (zoom) rows.push(
@@ -1377,32 +1387,12 @@ class Component extends DCLogic {
         row("SUGARS", g1(fo.sg), GRN(.85), 2, null),
         row("FIBRE", g1(fo.fb), GRN(.5), 2, null),
         row("STARCH", g1(starch), GRN(.28), 2, null));
-      // The way back out cannot be a secret: zoomed, the table leads with CLOSE and a
-      // ringed − in the accent, top right where closing things live.
-      if (zoom) rows.unshift({
-        row: { display: "flex", alignItems: "center", justifyContent: "flex-end",
-          height: "26px", cursor: "pointer", borderTop: "0" },
-        dot: HID,
-        tagS: { fontFamily: "var(--font-2)", fontSize: ".68rem", letterSpacing: ".12em",
-          color: "#7b91a3", marginRight: ".5rem" },
-        chev: { flex: "none", width: "18px", height: "18px", borderRadius: "50%",
-          boxSizing: "border-box", border: "1px solid rgba(34,211,238,.6)",
-          background: "linear-gradient(#22d3ee,#22d3ee) center/9px 1.4px no-repeat" },
-        valS: HID, valIn: HID, tap: onZoom, tag: "CLOSE", val: ""
-      });
-      const mm = total1 ? Math.round(100 * macros / total1) : 0;
-      // Zoomed, a little table under the ring prices every measure the food has.
-      const meas = [];
-      if (zoom) {
-        meas.push({ tag: fo.mu === "ml" ? "100 ML" : "100 G", sub: "",
-          val: figNum(kcalOf(fo)) });
-        meas.push({ tag: "1 OUNCE", sub: "28 g", val: figNum(kcalOf(fo) * .2835) });
-        if (fo.pg && fo.pn !== "OUNCES") meas.push({ tag: "1 " + fo.pn,
-          sub: Math.round(fo.pg) + " g", val: figNum(kcalOf(fo) * fo.pg / 100) });
-      }
-      const viz = { holeA: total1 ? String(100 - mm) : "",
-        holeB: total1 ? String(mm) : "", rows: rows, meas: meas };
-      for (let i = 0; i < 14; i++) viz["s" + i] = slots[i] || NO_SLOT;
+      const totalAll = macros + (fo.wa || 0) + (fo.ah || 0) + (fo.al || 0);
+      const mm = totalAll ? Math.round(100 * macros / totalAll) : 0;
+      const viz = { holeA: totalAll ? String(100 - mm) : "",
+        holeB: totalAll ? String(mm) : "", rows: rows,
+        fullOn: !!zoom, fullScore: String(Math.round(scoreOf(fo))) };
+      for (let i = 0; i < 12; i++) viz["s" + i] = slots[i] || NO_SLOT;
       return viz;
     };
     // A search food being open borrows the plate's height: the summary folds to its header
@@ -1445,7 +1435,6 @@ class Component extends DCLogic {
             : [this.fmt(fo.p * f), this.fmt(fo.c * f), this.fmt(fo.f * f)];
         const col = mCol.k === "score" ? String(sc2)
           : mCol.k === "kcal" ? String(Math.round(ekc2 * f))
-            : mCol.k === "dens" ? (fo.kcal / 100).toFixed(2)
               : this.fmt(mCol.get(fo) * f);
         return { v1: val[0], v2: val[1], v3: val[2], col: col };
       })();
@@ -1498,17 +1487,19 @@ class Component extends DCLogic {
           padding: bare || open ? ".3rem 0 .15rem" : 0
         },
         xv: xv,
-        viz: open ? vizFor(fo, openQty, zoomed,
-          () => {
-            this.setState({ vizZoom: zoomed ? null : fo.name });
-            if (!zoomed) setTimeout(() => {
-              const el = document.querySelector('[data-scroll="rows"] [data-sel="on"]');
-              if (el && el.parentElement) el.parentElement.scrollIntoView({ behavior: "smooth", block: "start" });
-            }, 60);
-          }) : NO_VIZ,
+        viz: open ? vizFor(fo, openQty, zoomed) : NO_VIZ,
+        // Any tap on the drawing is the zoom toggle, in either direction.
+        vizTap: () => {
+          if (!open) return;
+          this.setState({ vizZoom: zoomed ? null : fo.name });
+          if (!zoomed) setTimeout(() => {
+            const el = document.querySelector('[data-scroll="rows"] [data-sel="on"]');
+            if (el && el.parentElement) el.parentElement.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 60);
+        },
         mExpand: {
           overflow: "hidden",
-          height: open ? (zoomed ? ((fo.al || 0) > 0 ? "28.8rem" : "27rem")
+          height: open ? (zoomed ? ((fo.al || 0) > 0 ? "27.2rem" : "25.4rem")
             : ((fo.al || 0) > 0 ? "16.7rem" : "14.9rem")) : "0px",
           opacity: open ? 1 : 0,
           background: open ? PICKED_BG : "transparent",
@@ -1675,7 +1666,6 @@ class Component extends DCLogic {
       const g = gramsOf(fo.name) / 100;
       return mCol.k === "score" ? String(scoreOf(fo))
         : mCol.k === "kcal" ? String(Math.round(kcalOf(fo) * g))
-          : mCol.k === "dens" ? (fo.kcal / 100).toFixed(2)
             : this.fmt(mCol.get(fo) * g);
     };
     const sumRows = sumFoods.map(fo => {
@@ -1695,9 +1685,9 @@ class Component extends DCLogic {
       return Object.assign({}, mkRow(fo), {
         v1: sv[0], v2: sv[1], v3: sv[2],
         viz: sOpenName === fo.name
-          ? vizFor(fo, gramsOf(fo.name), s.vizZoom === fo.name,
-            () => this.setState({ vizZoom: s.vizZoom === fo.name ? null : fo.name }))
+          ? vizFor(fo, gramsOf(fo.name), s.vizZoom === fo.name)
           : NO_VIZ,
+        vizTap: () => this.setState({ vizZoom: s.vizZoom === fo.name ? null : fo.name }),
         qty: qtyOf(fo.name), qtyUnit: fo.mu === "ml" ? "ml" : "g",
         // Mobile reads the size rather than editing it — the steppers are the whole input.
         // Fixed width for three digits, so the + and − stay in a column down the table.
@@ -1748,7 +1738,7 @@ class Component extends DCLogic {
         sExpand: {
           overflow: "hidden",
           height: sOpenName === fo.name ? (s.vizZoom === fo.name
-            ? ((fo.al || 0) > 0 ? "28.8rem" : "27rem")
+            ? ((fo.al || 0) > 0 ? "27.2rem" : "25.4rem")
             : ((fo.al || 0) > 0 ? "16.7rem" : "14.9rem")) : "0px",
           opacity: sOpenName === fo.name ? 1 : 0,
           borderBottom: sOpenName === fo.name ? "1px solid rgba(34,211,238,.14)" : 0,
@@ -1756,7 +1746,7 @@ class Component extends DCLogic {
         },
         fb: this.fmt(fo.fb * g),
         sumKcal: String(Math.round(kcalOf(fo) * g)),
-        sumExtra: extra.k === "score" ? String(scoreOf(fo)) : extra.k === "dens" ? (fo.kcal / 100).toFixed(2) : this.fmt(extra.get(fo) * g),
+        sumExtra: extra.k === "score" ? String(scoreOf(fo)) : this.fmt(extra.get(fo) * g),
         mSumVal: mSumValOf(fo),
         sfill1: sumFillOf(sfv[0], sfvMax), sfill2: sumFillOf(sfv[1], sfvMax), sfill3: sumFillOf(sfv[2], sfvMax),
         sfillK: sumFillOf(kcalOf(fo) * g, sumKcalMax),
@@ -1802,8 +1792,8 @@ class Component extends DCLogic {
       cellFb: Object.assign({}, totCell, { borderLeft: EDGE }),
       cell1: Object.assign({}, totCell, { borderLeft: EDGE }), cell2: totCell, cell3: totCell,
       kcalVal: String(tKDisp),
-      extraVal: extra.k === "score" ? (tScore ? String(tScore) : "\u2014") : extra.k === "dens" ? (tQty > 0 ? (tK / tQty).toFixed(2) : "\u2014") : this.fmt(sumFoods.reduce((a, fo) => a + extra.get(fo) * gs(fo), 0)),
-      mTotVal: mCol.k === "score" ? (tScore ? String(tScore) : "\u2014") : mCol.k === "kcal" ? String(tKDisp) : mCol.k === "dens" ? (tQty > 0 ? (tK / tQty).toFixed(2) : "\u2014") : this.fmt(sumFoods.reduce((a, fo) => a + mCol.get(fo) * gs(fo), 0)),
+      extraVal: extra.k === "score" ? (tScore ? String(tScore) : "\u2014") : this.fmt(sumFoods.reduce((a, fo) => a + extra.get(fo) * gs(fo), 0)),
+      mTotVal: mCol.k === "score" ? (tScore ? String(tScore) : "\u2014") : mCol.k === "kcal" ? String(tKDisp) : this.fmt(sumFoods.reduce((a, fo) => a + mCol.get(fo) * gs(fo), 0)),
       fill1: totFillOf(tfv[0], tfvMax), fill2: totFillOf(tfv[1], tfvMax), fill3: totFillOf(tfv[2], tfvMax),
       fillK: totFillOf(1, 1),
       cellK: Object.assign({}, totCell, { borderLeft: INNER }),
@@ -1825,7 +1815,6 @@ class Component extends DCLogic {
       const alt = fo.pg ? (Math.abs(n - Math.round(n)) < 0.05 ? String(Math.round(n)) : n.toFixed(1)) + " " + fo.pn : "";
       const val = mCol.k === "score" ? String(scoreOf(fo))
         : mCol.k === "kcal" ? String(Math.round(kcalOf(fo) * (g / 100)))
-          : mCol.k === "dens" ? (fo.kcal / 100).toFixed(2)
             : this.fmt(mCol.get(fo) * (g / 100));
       return "- " + fo.name + " \u00b7 " + g + " " + u + (alt ? " (" + alt + ")" : "") +
         " \u00b7 " + val + (mCol.unit ? " " + mCol.unit : "");
@@ -2036,26 +2025,26 @@ class Component extends DCLogic {
       // sizes the rows use, the same colours, and the same height, so an open food reads as
       // the list continuing rather than as something else pasted in.
       mVizBox: { display: "flex", alignItems: vZoom ? "flex-start" : "center",
-        gap: ".65rem", padding: "8px .2rem 10px .25rem" },
+        gap: ".65rem", padding: "8px .2rem 10px .25rem", cursor: "pointer" },
       vLeft: { flex: "none", display: "flex", flexDirection: "column", gap: ".55rem",
         width: "164px" },
       vRing: { flex: "none", position: "relative", width: "164px", height: "164px" },
       vSvg: { display: "block", width: "100%", height: "100%" },
-      mrRow: { display: "flex", alignItems: "baseline", gap: ".4rem", height: "22px",
-        padding: "0 2px" },
-      mrTag: { fontFamily: "var(--font-2)", fontSize: ".68rem", letterSpacing: ".08em",
-        color: "#9fb3c1", whiteSpace: "nowrap" },
-      mrSub: { fontFamily: "var(--font-2)", fontSize: ".64rem", color: "#647d8c",
-        whiteSpace: "nowrap" },
-      mrVal: { marginLeft: "auto", display: "flex", alignItems: "baseline", gap: ".25rem",
-        fontWeight: 300, fontSize: ".9rem", color: "#d7e6ef",
-        fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
+      vFullRow: { display: "flex", alignItems: "baseline", padding: "4px 2px 0" },
+      vFullTag: { fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".1em",
+        color: "#c7d6e0" },
+      vFullVal: { marginLeft: "auto", display: "flex", alignItems: "baseline",
+        gap: ".25rem", fontWeight: 300, fontSize: "1.5rem", color: "#22d3ee",
+        fontVariantNumeric: "tabular-nums" },
+      vFullCap: { padding: "2px 2px 0", fontFamily: "var(--font-1)", fontWeight: 300,
+        fontSize: ".78rem", lineHeight: 1.45, color: "#7b91a3", whiteSpace: "normal",
+        textWrap: "pretty" },
       // The hole's own flex baseline-aligns the two figures around their slash; the
       // translate centres the pair in the ring, since the container is only as tall as
       // its text.
       vHole: { position: "absolute", left: 0, right: 0, top: "50%",
         transform: "translateY(-52%)", display: "flex", alignItems: "baseline",
-        justifyContent: "center", fontWeight: 300, fontSize: "1.1rem",
+        justifyContent: "center", fontWeight: 300, fontSize: "1.05rem",
         fontVariantNumeric: "tabular-nums", pointerEvents: "none" },
       vHoleA: { color: "#8fa6b4" },
       vHoleSep: { padding: "0 .14rem", fontSize: ".9rem", color: "#58707f" },
@@ -2397,7 +2386,7 @@ class Component extends DCLogic {
       openExtra: () => this.setState({ extraOpen: true }),
       closeExtra: () => this.setState({ extraOpen: false }),
       extraOpts: EXTRAS.map(x => ({
-        label: x.k === "score" ? "FULLNESS SCORE" : x.k === "fb" ? "DIETARY FIBRE" : x.k === "sf" ? "SATURATED FAT" : x.k === "sg" ? "SUGAR" : "ENERGY DENSITY",
+        label: x.k === "score" ? "FULLNESS SCORE" : x.k === "fb" ? "DIETARY FIBRE" : x.k === "sf" ? "SATURATED FAT" : x.k === "sg" ? "SUGAR" : "WATER",
         unit: x.unit,
         desc: x.k === "score"
           ? "(protein% \u00d7 0.7) + (carb% \u00d7 0.2) + (fat% \u00d7 0.05) + (fibre g per 100 kcal \u00d7 2.6) + bulk, where bulk is 30 \u00d7 (1 \u2212 e^\u2212grams per 100 kcal / 120). Capped at 100; percentages are shares of the food's energy."
@@ -2407,14 +2396,14 @@ class Component extends DCLogic {
               ? "Solid at room temperature. Most guidelines cap it near 10% of daily calories."
               : x.k === "sg"
                 ? "Total sugars. USDA does not separate added sugar here."
-                : "Calories per gram of food. Low density means more food for the same energy.",
+                : "What most food mostly is \u2014 the median food here is 64% water. Weight without energy: the same macros in more water is a lower-calorie food.",
         unitStyle: { fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".06em", color: "#94a3b8", flex: "none" },
         descStyle: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".82rem", lineHeight: 1.55, letterSpacing: 0, color: "#94a3b8", textWrap: "pretty", whiteSpace: "normal" },
         onClick: () => this.setState({ extra: x.k, extraOpen: false }),
         style: {
           display: "flex", flexDirection: "column", alignItems: "flex-start", gap: ".2rem",
           padding: ".5rem .7rem .6rem", border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left", width: "100%",
-          borderBottom: x.k === "dens" ? 0 : "1px solid rgba(34,211,238,.28)",
+          borderBottom: x.k === "wa" ? 0 : "1px solid rgba(34,211,238,.28)",
           fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em",
           transition: "background 140ms ease, color 140ms ease",
           background: extra.k === x.k ? "rgba(34,211,238,.10)" : "transparent",

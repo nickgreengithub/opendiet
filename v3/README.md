@@ -69,25 +69,25 @@ What is different from the root:
   and earns nothing — it correlates 0.96 with the bulk term and the fit sets its weight to
   zero every time. The sugar term's known unfairness is that USDA reports total sugars, so
   an apple is charged the same gram as a jellybean.
-- An open food is one ring, and a second tier it can grow. The ring is all of 100 g —
-  protein, fat and carbs each in their own colour (fat between the two, because cyan and
-  green are the pair a tritan eye loses), then water, ash, alcohol when there is any — with
-  the macros run centred at three o'clock, facing the table. The hole states the split that
-  matters, everything-else / macros of 100: watermelon says 92/8, parmesan 30/70. The table
-  sits against the right edge on a subtle interior grid — hairlines between rows and before
-  the gram column, no outer border — dot, name, grams, with the macro rows indented under
-  MACROS, whose dot is a three-colour pie because that slice of the ring is not one colour
-  either. MACROS wears a ringed +: tapping it gives the food the screen. The search line
-  and the column header fold away, the row scrolls to the top, and nothing moves that did
-  not have to — the ring keeps its place and size while an outer tier grows on it, riding
-  each macro's own arc (saturated, mono and poly over fat; sugars, fibre and starch over
-  carbs), the table keeps its right edge and just grows the matching indented rows, and a
-  little table appears under the ring pricing every measure the food has — 100 g, an
-  ounce, its own serving — in calories. The way back out cannot be a secret: the table
-  leads with CLOSE and a ringed − in the accent, top right where closing things live, and
-  the + on MACROS is now a − saying the same. Ash stays a top-level part rather than a
-  macro, because it is the mineral residue — matter with no energy in it — and the macros
-  figure is the food's energy-bearing weight. A whole ring is drawn as two semicircles rather than a 359.8° arc,
+- An open food is a donut in two equal rings, with two levels of story. At rest it tells
+  the whole food: the inner ring is all of 100 g — macros as one light slice, then water,
+  ash, alcohol when there is any — and the outer ring rides only the macros slice's arc,
+  breaking it into protein, fat, carbs (fat between the two, because cyan and green are
+  the pair a tritan eye loses), the run centred at three o'clock to face the table. The
+  hole states the split that matters, everything-else / macros of 100: watermelon says
+  92/8, parmesan 30/70. The table sits against the right edge on a subtle interior grid —
+  hairlines between rows and before the gram column, no outer border — dot, name, grams,
+  with the macro rows indented under MACROS, which wears a ringed + as the invitation.
+  Tapping anywhere on the drawing zooms; tapping anywhere again zooms back — the + turning
+  − is the only state the gesture needs. Zoomed, the food takes the screen: the search
+  line and the column header fold away, the row scrolls to the top, and the donut retells
+  itself as the macros alone — the three of them fill the inner ring, and each one's own
+  parts ride its arc outside: protein whole, fat as saturated, mono, poly; carbs as
+  sugars, fibre, starch. The table grows the matching indented rows in place, and under
+  the ring the FULLNESS score appears with a caption saying what it is, since the zoom is
+  where a food is being studied rather than glanced at. Ash stays a top-level part rather
+  than a macro, because it is the mineral residue — matter with no energy in it — and the
+  macros figure is the food's energy-bearing weight. A whole ring is drawn as two semicircles rather than a 359.8° arc,
   whose butt caps would meet in a hairline seam. The SVG holds geometry only (the template
   engine wraps interpolated text in spans, which SVG will not paint); the hole's figures
   and the table are HTML. The chosen column's figure keeps the row's top right corner; the
