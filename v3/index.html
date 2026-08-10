@@ -336,23 +336,31 @@ option{background:#070b12;color:#d7e6ef}
           <div style="{{ r.mExpand }}">
             <span style="{{ mVizBox }}">
               <span style="{{ vRing }}">
-                <svg width="164" height="164" viewBox="0 0 164 164" style="display:block">
+                <svg width="164" height="164" viewBox="0 0 164 164" style="{{ vSvg }}">
                   <path d="{{ r.viz.s0.d }}" fill="none" stroke="{{ r.viz.s0.col }}" stroke-width="21"></path>
                   <path d="{{ r.viz.s1.d }}" fill="none" stroke="{{ r.viz.s1.col }}" stroke-width="21"></path>
                   <path d="{{ r.viz.s2.d }}" fill="none" stroke="{{ r.viz.s2.col }}" stroke-width="21"></path>
                   <path d="{{ r.viz.s3.d }}" fill="none" stroke="{{ r.viz.s3.col }}" stroke-width="21"></path>
-                  <path d="{{ r.viz.s4.d }}" fill="none" stroke="{{ r.viz.s4.col }}" stroke-width="13"></path>
-                  <path d="{{ r.viz.s5.d }}" fill="none" stroke="{{ r.viz.s5.col }}" stroke-width="13"></path>
+                  <path d="{{ r.viz.s4.d }}" fill="none" stroke="{{ r.viz.s4.col }}" stroke-width="21"></path>
+                  <path d="{{ r.viz.s5.d }}" fill="none" stroke="{{ r.viz.s5.col }}" stroke-width="21"></path>
                   <path d="{{ r.viz.s6.d }}" fill="none" stroke="{{ r.viz.s6.col }}" stroke-width="13"></path>
+                  <path d="{{ r.viz.s7.d }}" fill="none" stroke="{{ r.viz.s7.col }}" stroke-width="13"></path>
+                  <path d="{{ r.viz.s8.d }}" fill="none" stroke="{{ r.viz.s8.col }}" stroke-width="13"></path>
+                  <path d="{{ r.viz.s9.d }}" fill="none" stroke="{{ r.viz.s9.col }}" stroke-width="13"></path>
+                  <path d="{{ r.viz.s10.d }}" fill="none" stroke="{{ r.viz.s10.col }}" stroke-width="13"></path>
+                  <path d="{{ r.viz.s11.d }}" fill="none" stroke="{{ r.viz.s11.col }}" stroke-width="13"></path>
+                  <path d="{{ r.viz.s12.d }}" fill="none" stroke="{{ r.viz.s12.col }}" stroke-width="13"></path>
+                  <path d="{{ r.viz.s13.d }}" fill="none" stroke="{{ r.viz.s13.col }}" stroke-width="13"></path>
                 </svg>
-                <span style="{{ vHole }}">{{ r.viz.hole }}<span style="{{ unitSuffix }}">{{ r.viz.holeU }}</span></span>
+                <span style="{{ vHole }}"><span style="{{ vHoleA }}">{{ r.viz.holeA }}</span><span style="{{ vHoleSep }}">/</span><span style="{{ vHoleB }}">{{ r.viz.holeB }}</span></span>
               </span>
               <span style="{{ vTable }}">
                 <sc-for list="{{ r.viz.rows }}" as="vr" hint-placeholder-count="7">
-                  <span style="{{ vr.row }}">
+                  <span onClick="{{ vr.tap }}" style="{{ vr.row }}">
                     <span style="{{ vr.dot }}"></span>
                     <span style="{{ vr.tagS }}">{{ vr.tag }}</span>
-                    <span style="{{ vr.valS }}">{{ vr.val }}<span style="{{ unitSuffix }}">g</span></span>
+                    <span style="{{ vr.chev }}"></span>
+                    <span style="{{ vr.valS }}"><span style="{{ vr.valIn }}">{{ vr.val }}<span style="{{ unitSuffix }}">g</span></span></span>
                   </span>
                 </sc-for>
               </span>
@@ -381,6 +389,7 @@ option{background:#070b12;color:#d7e6ef}
     <sc-if value="{{ hasSummary }}" hint-placeholder-val="{{ false }}">
     <div data-rise style="{{ mSumPanel }}">
       <div onClick="{{ sumHeadTap }}" style="flex:none;display:flex;align-items:center;justify-content:space-between;min-height:2.3rem;padding:.15rem .3rem .15rem 0;font-family:var(--font-2);font-size:.9rem;letter-spacing:.14em;color:#7b91a3;cursor:pointer"><span style="flex:1;min-width:0">MY FOOD SUMMARY</span><span style="{{ mSumPeek }}">{{ tot.mTotVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span><span style="{{ mSumHeadEnd }}"><button onClick="{{ sumRestore }}" style="{{ upBtn }}" style-hover="color:#d7e6ef"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M5 15l7-7 7 7"></path></svg></button><button onClick="{{ copyPlate }}" style="{{ copyBtn }}" style-hover="color:#d7e6ef"><sc-if value="{{ copied }}" hint-placeholder-val="{{ false }}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#7ee0a8" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M4.5 12.5l5 5 10-11"></path></svg></sc-if><sc-if value="{{ notCopied }}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><rect x="9" y="9" width="11" height="11" rx="1.6"></rect><path d="M6 15H5a1.6 1.6 0 0 1-1.6-1.6V5A1.6 1.6 0 0 1 5 3.4h8.4A1.6 1.6 0 0 1 15 5v1"></path></svg></sc-if></button></span></div>
+      <div style="{{ sumBody }}"><div style="{{ sumBodyIn }}">
       <div data-scroll="sum" style="{{ mSumScroll }}">
         <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
           <div data-new="{{ r.arrived }}" data-gone="{{ r.leaving }}" data-lift="m">
@@ -393,23 +402,31 @@ option{background:#070b12;color:#d7e6ef}
           <div style="{{ r.sExpand }}">
             <span style="{{ mVizBox }}">
               <span style="{{ vRing }}">
-                <svg width="164" height="164" viewBox="0 0 164 164" style="display:block">
+                <svg width="164" height="164" viewBox="0 0 164 164" style="{{ vSvg }}">
                   <path d="{{ r.viz.s0.d }}" fill="none" stroke="{{ r.viz.s0.col }}" stroke-width="21"></path>
                   <path d="{{ r.viz.s1.d }}" fill="none" stroke="{{ r.viz.s1.col }}" stroke-width="21"></path>
                   <path d="{{ r.viz.s2.d }}" fill="none" stroke="{{ r.viz.s2.col }}" stroke-width="21"></path>
                   <path d="{{ r.viz.s3.d }}" fill="none" stroke="{{ r.viz.s3.col }}" stroke-width="21"></path>
-                  <path d="{{ r.viz.s4.d }}" fill="none" stroke="{{ r.viz.s4.col }}" stroke-width="13"></path>
-                  <path d="{{ r.viz.s5.d }}" fill="none" stroke="{{ r.viz.s5.col }}" stroke-width="13"></path>
+                  <path d="{{ r.viz.s4.d }}" fill="none" stroke="{{ r.viz.s4.col }}" stroke-width="21"></path>
+                  <path d="{{ r.viz.s5.d }}" fill="none" stroke="{{ r.viz.s5.col }}" stroke-width="21"></path>
                   <path d="{{ r.viz.s6.d }}" fill="none" stroke="{{ r.viz.s6.col }}" stroke-width="13"></path>
+                  <path d="{{ r.viz.s7.d }}" fill="none" stroke="{{ r.viz.s7.col }}" stroke-width="13"></path>
+                  <path d="{{ r.viz.s8.d }}" fill="none" stroke="{{ r.viz.s8.col }}" stroke-width="13"></path>
+                  <path d="{{ r.viz.s9.d }}" fill="none" stroke="{{ r.viz.s9.col }}" stroke-width="13"></path>
+                  <path d="{{ r.viz.s10.d }}" fill="none" stroke="{{ r.viz.s10.col }}" stroke-width="13"></path>
+                  <path d="{{ r.viz.s11.d }}" fill="none" stroke="{{ r.viz.s11.col }}" stroke-width="13"></path>
+                  <path d="{{ r.viz.s12.d }}" fill="none" stroke="{{ r.viz.s12.col }}" stroke-width="13"></path>
+                  <path d="{{ r.viz.s13.d }}" fill="none" stroke="{{ r.viz.s13.col }}" stroke-width="13"></path>
                 </svg>
-                <span style="{{ vHole }}">{{ r.viz.hole }}<span style="{{ unitSuffix }}">{{ r.viz.holeU }}</span></span>
+                <span style="{{ vHole }}"><span style="{{ vHoleA }}">{{ r.viz.holeA }}</span><span style="{{ vHoleSep }}">/</span><span style="{{ vHoleB }}">{{ r.viz.holeB }}</span></span>
               </span>
               <span style="{{ vTable }}">
                 <sc-for list="{{ r.viz.rows }}" as="vr" hint-placeholder-count="7">
-                  <span style="{{ vr.row }}">
+                  <span onClick="{{ vr.tap }}" style="{{ vr.row }}">
                     <span style="{{ vr.dot }}"></span>
                     <span style="{{ vr.tagS }}">{{ vr.tag }}</span>
-                    <span style="{{ vr.valS }}">{{ vr.val }}<span style="{{ unitSuffix }}">g</span></span>
+                    <span style="{{ vr.chev }}"></span>
+                    <span style="{{ vr.valS }}"><span style="{{ vr.valIn }}">{{ vr.val }}<span style="{{ unitSuffix }}">g</span></span></span>
                   </span>
                 </sc-for>
               </span>
@@ -446,6 +463,7 @@ option{background:#070b12;color:#d7e6ef}
           <span style="{{ mTotVal }}">{{ tot.mTotVal }}<span style="{{ unitSuffix }}">{{ mColUnit }}</span></span>
         </span>
       </div>
+      </div></div>
     </div>
     </sc-if>
     </div>
@@ -1235,18 +1253,21 @@ class Component extends DCLogic {
     // table is in grams, calories from each when it is in calories or in percent of them.
     const macroSplit = fo => isGrams ? [fo.p, fo.c, fo.f] : macroK(fo);
     const NO_SLOT = { d: "", col: "transparent" };
-    const NO_VIZ = { hole: "", holeU: "", s0: NO_SLOT, s1: NO_SLOT, s2: NO_SLOT, s3: NO_SLOT,
-      s4: NO_SLOT, s5: NO_SLOT, s6: NO_SLOT, rows: [] };
-    // An open food is one donut in two tiers. The inner ring is all of 100 g — macros,
-    // water, ash, alcohol when there is any — with the amount in its hole. The outer ring
-    // rides only the macros segment's arc, breaking it into protein, fat and carbs, so the
-    // subset sits directly against the slice it is a subset of. No callout lines: a table
-    // to the right names every segment — dot, name, grams on one right-hand column — with
-    // the macro rows indented under MACROS, in the order the ring carries them. The drawing
-    // is fixed-pixel and geometry only, because the framework wraps interpolated text in
-    // spans, which SVG will not paint.
-    const vizFor = (fo, grams) => {
+    const NO_VIZ = { holeA: "", holeB: "", rows: [] };
+    for (let i = 0; i < 14; i++) NO_VIZ["s" + i] = NO_SLOT;
+    // An open food is one ring, and a second tier it can grow. The ring is all of 100 g —
+    // protein, fat and carbs each in their own colour, then water, ash, alcohol when there
+    // is any — with the macros run centred at three o'clock, facing the table. The hole
+    // states the split that matters: everything-else / macros, of 100. The table names
+    // every slice on a subtle grid — dot, name, grams on one right-hand column, macro rows
+    // indented under MACROS — and MACROS wears the chevron: tapping it centres the ring,
+    // adds the outer tier (saturated, mono and poly over the fat arc; sugars, fibre and
+    // starch over the carbs arc) and the table rows to match. The drawing is fixed-pixel
+    // geometry only, because the framework wraps interpolated text in spans, which SVG
+    // will not paint.
+    const vizFor = (fo, grams, zoom, onZoom) => {
       const f = grams / 100, g1 = n => figNum((n || 0) * f);
+      const HID = { display: "none" }, NOOP = () => {};
       const polar = (r, deg) => {
         const a = (deg - 90) * Math.PI / 180;
         return [82 + r * Math.cos(a), 82 + r * Math.sin(a)];
@@ -1267,7 +1288,7 @@ class Component extends DCLogic {
           p1[0].toFixed(1) + " " + p1[1].toFixed(1);
       };
       // Slices clockwise from startDeg at radius r. `total` maps grams to degrees, so the
-      // outer ring can spend fewer than 360 of them. Gaps only where there are neighbours.
+      // outer tier can spend fewer than 360 of them. Gaps only where there are neighbours.
       const ring = (r, parts, startDeg, total) => {
         const shown = parts.filter(x => (total ? 360 * x[1] / total : 0) > 3).length;
         let cur = startDeg;
@@ -1279,47 +1300,75 @@ class Component extends DCLogic {
           return sweep > 3 && a1 > a0 ? { d: arc(r, a0, a1), col: x[0] } : NO_SLOT;
         });
       };
-      const row = (tag, val, col, ind, gapTop) => ({
-        row: { display: "flex", alignItems: "center", height: "24px",
-          paddingLeft: ind ? "16px" : "0", paddingRight: "2px",
-          marginTop: gapTop ? "6px" : "0" },
-        dot: { flex: "none", width: "7px", height: "7px", borderRadius: "50%",
-          background: col, marginRight: "9px" },
-        tagS: { fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".08em",
-          color: ind ? "#7b91a3" : "#9fb3c1", whiteSpace: "nowrap" },
-        valS: { marginLeft: "auto", display: "flex", alignItems: "baseline", gap: ".25rem",
-          fontWeight: 300, fontSize: ".97rem", color: "#d7e6ef",
-          fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
+      const row = (tag, val, col, ind, o) => ({
+        row: { display: "flex", alignItems: "stretch", height: "27px",
+          paddingLeft: (ind * 16) + "px",
+          borderTop: (o && o.first) ? "0" : "1px solid rgba(215,230,239,.08)",
+          cursor: (o && o.zoomRow) ? "pointer" : "default" },
+        dot: { flex: "none", alignSelf: "center", width: "7px", height: "7px",
+          borderRadius: "50%", background: col, marginRight: "9px" },
+        tagS: { alignSelf: "center", fontFamily: "var(--font-2)", fontSize: ".78rem",
+          letterSpacing: ".08em", color: ind ? "#9fb3c1" : "#c7d6e0",
+          whiteSpace: "nowrap" },
+        chev: (o && o.zoomRow) ? { flex: "none", alignSelf: "center", width: "7px",
+          height: "7px", marginLeft: ".55rem", marginTop: zoom ? "4px" : "-4px",
+          borderRight: "1.5px solid #7b91a3", borderBottom: "1.5px solid #7b91a3",
+          transform: zoom ? "rotate(-135deg)" : "rotate(45deg)",
+          transition: "transform 300ms ease" } : HID,
+        valS: { marginLeft: "auto", flex: "none", width: "4.9rem", display: "flex",
+          alignItems: "center", justifyContent: "flex-end",
+          borderLeft: "1px solid rgba(215,230,239,.08)", paddingLeft: ".5rem" },
+        valIn: { display: "flex", alignItems: "baseline", gap: ".25rem", fontWeight: 300,
+          fontSize: "1rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums",
+          whiteSpace: "nowrap" },
+        tap: (o && o.zoomRow) ? onZoom : NOOP,
         tag: tag, val: val
       });
-      const WATER_C = "#5787a8", ASH_C = "#465865", ALC_C = "#a58ee0", MAC_C = "#b9cbd8";
+      const WATER_C = "#5787a8", ASH_C = "#465865", ALC_C = "#a58ee0";
+      const CORAL = a2 => "rgba(240,140,122," + a2 + ")";
+      const GRN = a2 => "rgba(126,224,168," + a2 + ")";
       const macros = fo.p + fo.c + fo.f;
-      // Alcohol is always a slot, usually an empty one: the template hands slots 0-3 the
-      // inner ring's stroke width and 4-6 the outer's, so positions cannot shift.
-      const inner = [[MAC_C, macros], [WATER_C, fo.wa || 0], [ASH_C, fo.ah || 0],
-        [ALC_C, fo.al || 0]];
+      const starch = Math.max(0, fo.c - (fo.sg || 0) - (fo.fb || 0));
+      const fRest = Math.max(0, fo.f - (fo.sf || 0) - (fo.mo || 0) - (fo.po || 0));
+      // The macros run is itself in the macros' colours — protein, fat, carbs, with fat
+      // between the two because cyan and green are the pair a tritan eye loses. Water,
+      // ash and alcohol complete the circle.
+      const inner = [[HUE[0], fo.p], [HUE[2], fo.f], [HUE[1], fo.c],
+        [WATER_C, fo.wa || 0], [ASH_C, fo.ah || 0], [ALC_C, fo.al || 0]];
       const total1 = inner.reduce((a2, x) => a2 + x[1], 0);
       const mSweep = total1 ? 360 * macros / total1 : 0;
-      // The macros slice is centred at three o'clock, facing the table, and the outer ring
-      // rides exactly its arc. Protein, fat, carbs — fat between the two, because cyan and
-      // green are the pair a tritan eye loses.
       const start = 90 - mSweep / 2;
-      const slots = ring(48, inner, start, total1).concat(
-        ring(68, [[HUE[0], fo.p], [HUE[2], fo.f], [HUE[1], fo.c]], start,
-          mSweep > 0 ? macros * 360 / mSweep : 0));
+      // The outer tier exists only zoomed: each macro's own parts, riding its arc.
+      const outer = zoom ? ring(68, [[HUE[0], fo.p],
+        [CORAL(.9), fo.sf || 0], [CORAL(.55), fo.mo || 0], [CORAL(.3), fo.po || 0],
+        [CORAL(.12), fRest],
+        [GRN(.85), fo.sg || 0], [GRN(.5), fo.fb || 0], [GRN(.28), starch]], start,
+        mSweep > 0 ? macros * 360 / mSweep : 0)
+        : [];
+      const slots = ring(48, inner, start, total1).concat(outer);
       const rows = [
-        row("WATER", g1(fo.wa), WATER_C, 0, false),
-        row("ASH", g1(fo.ah), ASH_C, 0, false)
+        row("WATER", g1(fo.wa), WATER_C, 0, { first: true }),
+        row("ASH", g1(fo.ah), ASH_C, 0, null)
       ];
-      if ((fo.al || 0) > 0) rows.push(row("ALC", g1(fo.al), ALC_C, 0, false));
+      if ((fo.al || 0) > 0) rows.push(row("ALC", g1(fo.al), ALC_C, 0, null));
       rows.push(
-        row("MACROS", g1(macros), MAC_C, 0, true),
-        row("PROTIN", g1(fo.p), HUE[0], 1, false),
-        row("FAT", g1(fo.f), HUE[2], 1, false),
-        row("CARBS", g1(fo.c), HUE[1], 1, false)
-      );
-      const viz = { hole: figNum(grams), holeU: fo.mu === "ml" ? "ml" : "g", rows: rows };
-      for (let i = 0; i < 7; i++) viz["s" + i] = slots[i] || NO_SLOT;
+        row("MACROS", g1(macros),
+          "conic-gradient(#22d3ee 0 120deg,#f08c7a 0 240deg,#7ee0a8 0)", 0, { zoomRow: true }),
+        row("PROTIN", g1(fo.p), HUE[0], 1, null),
+        row("FAT", g1(fo.f), HUE[2], 1, null));
+      if (zoom) rows.push(
+        row("SAT", g1(fo.sf), CORAL(.9), 2, null),
+        row("MUFA", g1(fo.mo), CORAL(.55), 2, null),
+        row("PUFA", g1(fo.po), CORAL(.3), 2, null));
+      rows.push(row("CARBS", g1(fo.c), HUE[1], 1, null));
+      if (zoom) rows.push(
+        row("SUGARS", g1(fo.sg), GRN(.85), 2, null),
+        row("FIBRE", g1(fo.fb), GRN(.5), 2, null),
+        row("STARCH", g1(starch), GRN(.28), 2, null));
+      const mm = total1 ? Math.round(100 * macros / total1) : 0;
+      const viz = { holeA: total1 ? String(100 - mm) : "",
+        holeB: total1 ? String(mm) : "", rows: rows };
+      for (let i = 0; i < 14; i++) viz["s" + i] = slots[i] || NO_SLOT;
       return viz;
     };
     // A search food being open borrows the plate's height: the summary folds to its header
@@ -1349,6 +1398,7 @@ class Component extends DCLogic {
     const setQty = q => this.setState({ mQty: Math.min(990, Math.max(1, Math.round(q))) });
     let rows = src.slice(0, ROW_CAP).map((fo, ri) => {
       const open = openName === fo.name;
+      const zoomed = open && s.vizZoom === fo.name;
       const r = mkRow(fo);
       // The figures an open food shows, at the amount it is open at rather than per 100.
       const xv = (() => {
@@ -1414,10 +1464,12 @@ class Component extends DCLogic {
           padding: bare || open ? ".3rem 0 .15rem" : 0
         },
         xv: xv,
-        viz: open ? vizFor(fo, openQty) : NO_VIZ,
+        viz: open ? vizFor(fo, openQty, zoomed,
+          () => this.setState({ vizZoom: zoomed ? null : fo.name })) : NO_VIZ,
         mExpand: {
           overflow: "hidden",
-          height: open ? ((fo.al || 0) > 0 ? "15.3rem" : "14.7rem") : "0px",
+          height: open ? (zoomed ? ((fo.al || 0) > 0 ? "40.3rem" : "38.5rem")
+            : ((fo.al || 0) > 0 ? "16.7rem" : "14.9rem")) : "0px",
           opacity: open ? 1 : 0,
           background: open ? PICKED_BG : "transparent",
           borderBottom: open ? "1px solid rgba(34,211,238,.14)" : 0,
@@ -1574,6 +1626,7 @@ class Component extends DCLogic {
     };
     // Only one plate row is open at a time.
     const sOpenName = s.narrow ? s.sOpen : null;
+    const vZoom = !!(s.vizZoom && (s.vizZoom === openName || s.vizZoom === sOpenName));
     // The chosen column's figure for a plate row, wanted in two places now.
     const mSumValOf = fo => {
       const g = gramsOf(fo.name) / 100;
@@ -1599,7 +1652,8 @@ class Component extends DCLogic {
       return Object.assign({}, mkRow(fo), {
         v1: sv[0], v2: sv[1], v3: sv[2],
         viz: sOpenName === fo.name
-          ? vizFor(fo, gramsOf(fo.name))
+          ? vizFor(fo, gramsOf(fo.name), s.vizZoom === fo.name,
+            () => this.setState({ vizZoom: s.vizZoom === fo.name ? null : fo.name }))
           : NO_VIZ,
         qty: qtyOf(fo.name), qtyUnit: fo.mu === "ml" ? "ml" : "g",
         // Mobile reads the size rather than editing it — the steppers are the whole input.
@@ -1650,7 +1704,9 @@ class Component extends DCLogic {
         }),
         sExpand: {
           overflow: "hidden",
-          height: sOpenName === fo.name ? ((fo.al || 0) > 0 ? "15.3rem" : "14.7rem") : "0px",
+          height: sOpenName === fo.name ? (s.vizZoom === fo.name
+            ? ((fo.al || 0) > 0 ? "40.3rem" : "38.5rem")
+            : ((fo.al || 0) > 0 ? "16.7rem" : "14.9rem")) : "0px",
           opacity: sOpenName === fo.name ? 1 : 0,
           borderBottom: sOpenName === fo.name ? "1px solid rgba(34,211,238,.14)" : 0,
           transition: "height 430ms cubic-bezier(.22,1,.36,1), opacity 320ms ease"
@@ -1933,16 +1989,29 @@ class Component extends DCLogic {
       // The figures line is a row of the list, not a panel bolted into it: the same two type
       // sizes the rows use, the same colours, and the same height, so an open food reads as
       // the list continuing rather than as something else pasted in.
-      mVizBox: { display: "flex", alignItems: "center", gap: ".65rem",
-        padding: "8px .2rem 10px .25rem" },
-      vRing: { flex: "none", position: "relative", width: "164px", height: "164px" },
-      // The hole's own flex baseline-aligns the amount and its unit; the translate centres
-      // the pair in the ring, since the container is only as tall as its text.
+      mVizBox: vZoom
+        ? { display: "flex", flexDirection: "column", alignItems: "center", gap: ".55rem",
+          padding: "10px .2rem 10px .25rem" }
+        : { display: "flex", alignItems: "center", gap: ".65rem",
+          padding: "8px .2rem 10px .25rem" },
+      vRing: { flex: "none", position: "relative",
+        width: vZoom ? "200px" : "164px", height: vZoom ? "200px" : "164px" },
+      vSvg: { display: "block", width: "100%", height: "100%" },
+      // The hole's own flex baseline-aligns the two figures around their slash; the
+      // translate centres the pair in the ring, since the container is only as tall as
+      // its text.
       vHole: { position: "absolute", left: 0, right: 0, top: "50%",
         transform: "translateY(-52%)", display: "flex", alignItems: "baseline",
-        justifyContent: "center", gap: ".25rem", fontWeight: 300, fontSize: "1.15rem",
-        color: "#d7e6ef", fontVariantNumeric: "tabular-nums", pointerEvents: "none" },
-      vTable: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column" },
+        justifyContent: "center", fontWeight: 300, fontSize: "1.1rem",
+        fontVariantNumeric: "tabular-nums", pointerEvents: "none" },
+      vHoleA: { color: "#8fa6b4" },
+      vHoleSep: { padding: "0 .14rem", fontSize: ".9rem", color: "#58707f" },
+      vHoleB: { color: "#e6eef4" },
+      vTable: vZoom
+        ? { alignSelf: "stretch", display: "flex", flexDirection: "column",
+          padding: "0 .1rem" }
+        : { flex: 1, minWidth: 0, maxWidth: "13.8rem", marginLeft: "auto",
+          display: "flex", flexDirection: "column" },
       // The last column is for doing rather than reading, so it is fenced off by a heavier
       // rule than the ones between the figures.
       dActHead: { borderLeft: "2px solid rgba(34,211,238,.55)" },
@@ -2090,13 +2159,21 @@ class Component extends DCLogic {
         width: "1.9rem", height: "100%", flex: "none", cursor: "pointer", color: "#7b91a3"
       },
       mSumPanel: {
-        flex: "none", maxHeight: sumTucked ? "2.7rem" : "72%",
+        flex: "none", maxHeight: "72%",
         display: "flex", flexDirection: "column", background: "#0d1522",
         borderTop: "1px solid rgba(34,211,238,.55)",
         paddingBottom: sumTucked ? "calc(.3rem + env(safe-area-inset-bottom, 0px))" : 0,
-        overflow: "hidden",
-        transition: "max-height 430ms cubic-bezier(.22,1,.36,1)"
+        overflow: "hidden"
       },
+      // The fold is a grid row going 1fr -> 0fr: the one animatable way to a content-sized
+      // height. max-height could not do it — a length and a percentage never interpolate,
+      // which is why the fold used to snap.
+      sumBody: {
+        flex: "1 1 auto", minHeight: 0, display: "grid",
+        gridTemplateRows: sumTucked ? "0fr" : "1fr",
+        transition: "grid-template-rows 430ms cubic-bezier(.22,1,.36,1)"
+      },
+      sumBodyIn: { minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column" },
       mListStyle: { flex: 1, minHeight: 0, overflowY: "auto" },
       mSumHeadEnd: { display: "flex", alignItems: "center", justifyContent: "flex-end", width: "2.6rem", flex: "none" },
       mSumRow: mSumRowBase,
@@ -2147,9 +2224,9 @@ class Component extends DCLogic {
         marginRight: ".55rem", color: "#22d3ee", fontFamily: "var(--font-1)", fontWeight: 300,
         fontSize: "1.02rem", letterSpacing: 0, fontVariantNumeric: "tabular-nums"
       },
-      mSumScroll: { flex: 1, minHeight: 0, overflowY: "auto", display: sumTucked ? "none" : "block" },
+      mSumScroll: { flex: 1, minHeight: 0, overflowY: "auto" },
       mSumTotRow: {
-        flex: "none", display: sumTucked ? "none" : "flex", alignItems: "center", gap: ".7rem",
+        flex: "none", display: "flex", alignItems: "center", gap: ".7rem",
         minHeight: "2.2rem", padding: ".5rem 0 calc(.8rem + env(safe-area-inset-bottom, 0px))"
       },
       // The glyphs sit toward the number rather than centred in their targets, so they read

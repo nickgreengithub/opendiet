@@ -69,23 +69,30 @@ What is different from the root:
   and earns nothing — it correlates 0.96 with the bulk term and the fit sets its weight to
   zero every time. The sugar term's known unfairness is that USDA reports total sugars, so
   an apple is charged the same gram as a jellybean.
-- An open food is one donut in two tiers. The inner ring is all of 100 g — macros, water,
-  ash, alcohol when there is any — with the amount in its hole; the outer ring rides only
-  the macros segment's arc, breaking it into protein, fat and carbs, so the subset sits
-  directly against the slice it is a subset of. The macros slice is centred at three
-  o'clock, facing a table that names every segment — dot, name, grams on one right-hand
-  column, the macro rows indented under MACROS — so nothing is read off an angled leader
-  line. In the outer tier fat sits between protein and carbs, because cyan and green are
-  the pair a tritan eye loses. A whole ring is drawn as two semicircles rather than a
-  359.8° arc, whose butt caps would meet in a hairline seam. The SVG holds geometry only
-  (the template engine wraps interpolated text in spans, which SVG will not paint); the
-  hole's amount and the table are HTML. The chosen column's figure keeps the row's top
-  right corner; the reset opens the controls row.
+- An open food is one ring, and a second tier it can grow. The ring is all of 100 g —
+  protein, fat and carbs each in their own colour (fat between the two, because cyan and
+  green are the pair a tritan eye loses), then water, ash, alcohol when there is any — with
+  the macros run centred at three o'clock, facing the table. The hole states the split that
+  matters, everything-else / macros of 100: watermelon says 92/8, parmesan 30/70. The table
+  sits against the right edge on a subtle interior grid — hairlines between rows and before
+  the gram column, no outer border — dot, name, grams, with the macro rows indented under
+  MACROS, whose dot is a three-colour pie because that slice of the ring is not one colour
+  either. MACROS wears the chevron: tapping it centres a larger ring, grows an outer tier
+  riding each macro's own arc — saturated, mono and poly over fat; sugars, fibre and starch
+  over carbs — and adds the matching indented rows, the chevron turning up to say the same
+  tap folds it back. A whole ring is drawn as two semicircles rather than a 359.8° arc,
+  whose butt caps would meet in a hairline seam. The SVG holds geometry only (the template
+  engine wraps interpolated text in spans, which SVG will not paint); the hole's figures
+  and the table are HTML. The chosen column's figure keeps the row's top right corner; the
+  reset opens the controls row.
 - While a search food is open, the plate lends it the height: the summary folds to its
   header line, keeps its total on show, and the copy button gives way to an up chevron.
   The fold is also the user's to work: tapping the header of an open summary folds it (and
   closes any open plate row, whose height it was), and tapping a folded one anywhere brings
-  it back, closing the open search food that had borrowed the room.
+  it back, closing the open search food that had borrowed the room. The fold animates as a
+  grid row going 1fr to 0fr — the one animatable route to a content-sized height, since
+  max-height as a length and as a percentage never interpolate, which is why it used to
+  snap shut.
 - Plate rows open the same way, with a bin where ADD was, and edit the plate's own amount.
   Collapsed, a plate row just states its grams — the steppers live in the expansion.
 - The plate's totals line rides the same three tracks as its rows, so the amount and the
