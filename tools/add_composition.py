@@ -11,7 +11,7 @@ sum to 100 g exactly:
 This appends the parts the site did not already have, plus the two fats needed to break the
 fat figure down, as five more elements on each food row:
 
-    [ ..., servingGrams, servingLabel, water, ash, mufa, pufa, alcohol ]
+    [ ..., servingGrams, servingLabel, water, ash, mufa, pufa, alcohol, trans ]
 
 Readers that stop earlier are unaffected — the root site reads the first ten.
 
@@ -29,9 +29,11 @@ ROOT = Path(__file__).resolve().parent.parent
 
 # FDC nutrient ids. Ash is the mineral residue: no energy, but it has to be accounted for or
 # the parts do not reach 100 — table salt is 99.8% of it.
-NUT = {"1051": "water", "1007": "ash", "1292": "mufa", "1293": "pufa", "1018": "alcohol"}
-# The order they are written onto the row.
-ORDER = ["water", "ash", "mufa", "pufa", "alcohol"]
+NUT = {"1051": "water", "1007": "ash", "1292": "mufa", "1293": "pufa", "1018": "alcohol",
+       "1257": "trans"}
+# The order they are written onto the row. Trans is last so every earlier reader's indices
+# hold still.
+ORDER = ["water", "ash", "mufa", "pufa", "alcohol", "trans"]
 
 
 def clean(desc):
@@ -80,7 +82,8 @@ def apply(lib, table, dry):
         # Never below zero: a rounding shortfall is not a mineral.
         ash = v["ash"] if "ash" in v else max(0.0, 100 - water - p - c - fat - v.get("alcohol", 0.0))
         vals = {"water": water, "ash": ash, "mufa": v.get("mufa", 0.0),
-                "pufa": v.get("pufa", 0.0), "alcohol": v.get("alcohol", 0.0)}
+                "pufa": v.get("pufa", 0.0), "alcohol": v.get("alcohol", 0.0),
+                "trans": v.get("trans", 0.0)}
         f[13:] = [trim(vals[k]) for k in ORDER]
     if not dry:
         path.write_text(json.dumps(d, separators=(",", ":")))

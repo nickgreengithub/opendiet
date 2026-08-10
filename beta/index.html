@@ -1469,7 +1469,7 @@ class Component extends DCLogic {
         ({ col: sg.col, st: outSt(O_TAGS[i][0], O_TAGS[i][1], sg) }));
       const fSegs = circSegs([[CORAL(.9), fo.sf || 0], [CORAL(.55), fo.mo || 0],
         [CORAL(.3), fo.po || 0], [CORAL(.12), fRest]], 0, fo.f);
-      const F_TAGS = ["SAT", "MUFA", "PUFA", ""];
+      const F_TAGS = ["SAT", "MONO", "POLY", ""];
       const fCircs = fSegs.map((sg, i) =>
         ({ col: sg.col, st: subSt(F_TAGS[i], zm === "f", sg) }));
       const cSegs = circSegs([[GRN(.85), fo.sg || 0], [GRN(.5), fo.fb || 0],
@@ -1507,8 +1507,8 @@ class Component extends DCLogic {
       rows.push(
         row("FAT", g1(fo.f), HUE[2], 1, fo.f >= 1 ? { exp: "f" } : null),
         row("SAT", g1(fo.sf), CORAL(.9), 2, { sub: "f" }),
-        row("MUFA", g1(fo.mo), CORAL(.55), 2, { sub: "f" }),
-        row("PUFA", g1(fo.po), CORAL(.3), 2, { sub: "f" }));
+        row("MONO", g1(fo.mo), CORAL(.55), 2, { sub: "f" }),
+        row("POLY", g1(fo.po), CORAL(.3), 2, { sub: "f" }));
       const iCarb = rows.length;
       rows.push(
         row("CARBS", g1(fo.c), HUE[1], 1, fo.c >= 1 ? { exp: "c" } : null),
