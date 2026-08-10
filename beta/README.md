@@ -98,9 +98,16 @@ What is different from the root:
   the rows below ride along with — inside a bracket drawn in the drawing's own pixels,
   possible because every row height and the table's right-hugging width are fixed. The
   open macro's rows lean forward and the rest lean back, the same quarter-step the donut
-  takes. Tapping any other row is a pick: its slice brightens above a receding ring and
-  its name and figure do the same in the table, on a 200ms answer that never waits for
-  the choreography's clock. The ring's position is a constant that nothing beneath it
+  takes. Tapping any other row is a pick: its slice brightens above a receding ring, its
+  name and figure do the same in the table, and the hole's emphasis swaps with it — a
+  water-side pick brightens the left figure, a macro pick the right. Picking MACROS
+  lights all three of the outer run, because that run is what MACROS is. While a macro is
+  open, its own sub rows pick in place; any other row folds the macro on its way to the
+  pick, quickly — the long unwinding is reserved for a tap on the drawing itself, held by
+  a short-lived wind flag so that clearing a pick never waits on the choreography's
+  delays. TRANS is wired through the fat breakup — loader, row, slice, remainder — and
+  appears the moment the data pipeline runs with FDC nutrient 1257 aboard; MONO and POLY
+  say what MUFA and PUFA meant. The ring's position is a constant that nothing beneath it
   may move, and the expansion's height is computed from what the table actually needs. A tap anywhere on the drawing folds it back — the ringed − on the open row says
   so — and the other macro's + presses through and switches directly. Ash stays a top-level part rather
   than a macro, because it is the mineral residue — matter with no energy in it — and the
