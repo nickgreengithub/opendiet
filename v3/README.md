@@ -77,15 +77,17 @@ What is different from the root:
   hole states the split that matters, everything-else / macros of 100: watermelon says
   92/8, parmesan 30/70. The table sits against the right edge on a subtle interior grid —
   hairlines between rows and before the gram column, no outer border — dot, name, grams,
-  with the macro rows indented under MACROS, which wears a ringed + as the invitation.
-  Tapping anywhere on the drawing zooms; tapping anywhere again zooms back — the + turning
-  − is the only state the gesture needs. Zoomed, the food takes the screen: the search
-  line and the column header fold away, the row scrolls to the top, and the donut retells
-  itself as the macros alone — the three of them fill the inner ring, and each one's own
-  parts ride its arc outside: protein whole, fat as saturated, mono, poly; carbs as
-  sugars, fibre, starch. The table grows the matching indented rows in place, and under
-  the ring the FULLNESS score appears with a caption saying what it is, since the zoom is
-  where a food is being studied rather than glanced at. Ash stays a top-level part rather
+  with the macro rows indented under MACROS. Fat and carbs are the two slices with more
+  to say, so those rows wear a ringed +. Pressing one expands it alone, and the food takes
+  the screen: the search line and the column header fold away, the row scrolls to the top,
+  the donut stays exactly where it was while everything that is not that macro drops to
+  quarter strength, the table grows just that macro's rows — saturated, mono, poly for
+  fat; sugars, fibre, starch for carbs — inside a bracket, and a second small donut
+  appears under the first carrying the breakup with its grams in the hole. Straight dashed
+  lines, no elbows, run from the lit slice to the bracket and to the small donut; their
+  geometry is computed in the drawing's own pixels, which works because every row height
+  and the table's right-hugging width are fixed. A tap anywhere on the drawing folds it
+  all back — the ringed − on the open row says so. Ash stays a top-level part rather
   than a macro, because it is the mineral residue — matter with no energy in it — and the
   macros figure is the food's energy-bearing weight. A whole ring is drawn as two semicircles rather than a 359.8° arc,
   whose butt caps would meet in a hairline seam. The SVG holds geometry only (the template
