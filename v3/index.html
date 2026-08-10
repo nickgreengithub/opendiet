@@ -1333,8 +1333,21 @@ class Component extends DCLogic {
             ? { d: arc(r, a0, a1), col: x[0], st: st || {} } : NO_SLOT;
         });
       };
+      // A sub row is always in the table, holding no height until its macro is open, so
+      // opening and closing is a slide the rows below ride along with.
       const row = (tag, val, col, ind, o) => ({
-        row: { display: "flex", alignItems: "stretch", height: "27px",
+        row: (o && o.sub) ? {
+          display: "flex", alignItems: "stretch", overflow: "hidden",
+          height: zm === o.sub ? "27px" : "0px",
+          paddingLeft: (ind * 16) + "px",
+          borderTop: zm === o.sub ? "1px solid rgba(215,230,239,.08)"
+            : "0px solid rgba(215,230,239,0)",
+          opacity: zm === o.sub ? 1 : 0,
+          transition: zm === o.sub
+            ? "height 350ms cubic-bezier(.22,1,.36,1), opacity 250ms ease 120ms, border-top-width 350ms ease, border-top-color 350ms ease"
+            : "height 350ms cubic-bezier(.22,1,.36,1), opacity 180ms ease, border-top-width 350ms ease, border-top-color 350ms ease",
+          cursor: "default"
+        } : { display: "flex", alignItems: "stretch", height: "27px",
           paddingLeft: (ind * 16) + "px",
           borderTop: (o && o.first) ? "0" : "1px solid rgba(215,230,239,.08)",
           cursor: (o && o.exp && zm !== o.exp) ? "pointer" : "default" },
@@ -1423,17 +1436,17 @@ class Component extends DCLogic {
         row("MACROS", g1(macros), MAC_C, 0, null),
         row("PROTIN", g1(fo.p), HUE[0], 1, null));
       const iFat = rows.length;
-      rows.push(row("FAT", g1(fo.f), HUE[2], 1, { exp: "f" }));
-      if (zm === "f") rows.push(
-        row("SAT", g1(fo.sf), CORAL(.9), 2, null),
-        row("MUFA", g1(fo.mo), CORAL(.55), 2, null),
-        row("PUFA", g1(fo.po), CORAL(.3), 2, null));
+      rows.push(
+        row("FAT", g1(fo.f), HUE[2], 1, { exp: "f" }),
+        row("SAT", g1(fo.sf), CORAL(.9), 2, { sub: "f" }),
+        row("MUFA", g1(fo.mo), CORAL(.55), 2, { sub: "f" }),
+        row("PUFA", g1(fo.po), CORAL(.3), 2, { sub: "f" }));
       const iCarb = rows.length;
-      rows.push(row("CARBS", g1(fo.c), HUE[1], 1, { exp: "c" }));
-      if (zm === "c") rows.push(
-        row("SUGARS", g1(fo.sg), GRN(.85), 2, null),
-        row("FIBRE", g1(fo.fb), GRN(.5), 2, null),
-        row("STARCH", g1(starch), GRN(.28), 2, null));
+      rows.push(
+        row("CARBS", g1(fo.c), HUE[1], 1, { exp: "c" }),
+        row("SUGARS", g1(fo.sg), GRN(.85), 2, { sub: "c" }),
+        row("FIBRE", g1(fo.fb), GRN(.5), 2, { sub: "c" }),
+        row("STARCH", g1(starch), GRN(.28), 2, { sub: "c" }));
       const mm = total1 ? Math.round(100 * macros / total1) : 0;
       // At rest the hole is the split; with a macro open it is that macro's grams, in
       // that macro's colour.
@@ -1455,9 +1468,10 @@ class Component extends DCLogic {
         const vw2 = Math.min(typeof window !== "undefined" ? window.innerWidth : 390, 640);
         const tableW = Math.min(220.8, vw2 - 7.2 - 164 - 10.4);
         const bx = vw2 - 3.2 - tableW - 7;
-        const rowY = k => 8 + (k ? 27 + (k - 1) * 28 : 0);
+        const rh = rows.map((x2, k) => x2.row.height === "0px" ? 0 : k ? 28 : 27);
+        const rowY = k => 8 + rh.slice(0, k).reduce((a2, b2) => a2 + b2, 0);
         const i0 = zm === "f" ? iFat : iCarb;
-        const yTop = rowY(i0) + 2, yBot = rowY(i0 + 3) + 26;
+        const yTop = rowY(i0) + 2, yBot = rowY(i0 + 4) - 2;
         viz.brk = "M" + (bx + 5) + " " + yTop + " L" + bx + " " + yTop +
           " L" + bx + " " + yBot + " L" + (bx + 5) + " " + yBot;
       }
@@ -1728,9 +1742,7 @@ class Component extends DCLogic {
     // Only one plate row is open at a time.
     const sOpenName = s.narrow ? s.sOpen : null;
     const vZoom = !!(s.vizZoom && s.vizMacro && (s.vizZoom === openName || s.vizZoom === sOpenName));
-    // A zoomed search food takes the screen: the search line and the column header fold
-    // away above it, and the row is scrolled to the top so nothing needs scrolling to.
-    const vZoomS = !!(openName && s.vizMacro && s.vizZoom === openName);
+
     // The chosen column's figure for a plate row, wanted in two places now.
     const mSumValOf = fo => {
       const g = gramsOf(fo.name) / 100;
@@ -2063,11 +2075,8 @@ class Component extends DCLogic {
       },
       mHeadRow: {
         flex: "none", position: "relative", zIndex: 20, display: "block",
-        height: vZoomS ? "0" : "2.4rem",
-        overflow: vZoomS ? "hidden" : "visible",
-        borderTop: "1px solid rgba(34,211,238," + (vZoomS ? "0" : ".28") + ")",
-        borderBottom: "1px solid rgba(34,211,238," + (vZoomS ? "0" : ".55") + ")",
-        transition: "height 430ms cubic-bezier(.22,1,.36,1), border-color 430ms ease",
+        height: "2.4rem",
+        borderTop: "1px solid rgba(34,211,238,.28)", borderBottom: "1px solid rgba(34,211,238,.55)",
         fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".08em",
         color: "#c3d6e2", textTransform: "uppercase"
       },
@@ -2237,8 +2246,7 @@ class Component extends DCLogic {
       mSearchRow: {
         flex: "none", position: "relative", display: "flex", alignItems: "center",
         gap: landing ? ".9rem" : ".6rem",
-        height: vZoomS ? "0" : landing ? "3.6rem" : "2.9rem",
-        overflow: vZoomS ? "hidden" : "visible",
+        height: landing ? "3.6rem" : "2.9rem",
         padding: landing ? "0 1.9rem" : "0 .55rem 0 .6rem",
         fontFamily: "var(--font-2)", zIndex: 30,
         transform: landing ? "translateY(" + landingDrop + "px)" : "none",

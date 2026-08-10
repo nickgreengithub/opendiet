@@ -86,11 +86,12 @@ What is different from the root:
   own parts fade up on the ring it vacated — saturated, mono, poly for fat; sugars,
   fibre, starch for carbs — and the rest of the donut steps back to quarter strength.
   The sweep is a stroke-dasharray on a pathLength-100 circle, which CSS can animate where
-  an arc path cannot; the slide is the circle's own r. Meanwhile the food takes the
-  screen — the search line and the column header fold away, the row scrolls to the top —
-  and the table grows that macro's rows inside a bracket drawn in the drawing's own
-  pixels, possible because every row height and the table's right-hugging width are
-  fixed. A tap anywhere on the drawing folds it back — the ringed − on the open row says
+  an arc path cannot; the slide is the circle's own r. The row scrolls to the top, and
+  that macro's table rows slide open beneath their parent — they are always in the table,
+  holding no height and a zero-width border until their macro is pressed, so opening is a
+  height transition the rows below ride along with — inside a bracket drawn in the
+  drawing's own pixels, possible because every row height and the table's right-hugging
+  width are fixed. A tap anywhere on the drawing folds it back — the ringed − on the open row says
   so — and the other macro's + presses through and switches directly. Ash stays a top-level part rather
   than a macro, because it is the mineral residue — matter with no energy in it — and the
   macros figure is the food's energy-bearing weight. A whole ring is drawn as two semicircles rather than a 359.8° arc,
