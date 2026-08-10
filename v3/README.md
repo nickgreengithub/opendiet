@@ -37,7 +37,9 @@ What is different from the root:
   singular. Opening the name is worth 1 when the query was a whole word and 9 when it was a
   fragment: a whole word identifies the food by itself, so where it sits hardly matters,
   while a fragment carries nothing else, so typing "j" is a request for foods called
-  J-something rather than for `Orange juice`, however everyday orange juice is. The exception is 8 for not being a brand,
+  J-something rather than for `Orange juice`, however everyday orange juice is. A multi-word
+  query that opens the name gets the same 9 — "chicken br" is the user typing
+  `Chicken breast` from its start, and it outranks the everyday `Chicken, broilers`. The exception is 8 for not being a brand,
   which is a whole tier: nobody searching for a food means a restaurant's version of it
   first, so `T.G.I. FRIDAY'S` loses "t" to `Tomatoes` and `Tofu`. A brand is USDA shouting
   in capitals (`QUAKER`, `MEAD JOHNSON`, `KFC`) or a possessive (`McDonald's`) — which
@@ -67,7 +69,7 @@ What is different from the root:
   and earns nothing — it correlates 0.96 with the bulk term and the fit sets its weight to
   zero every time. The sugar term's known unfairness is that USDA reports total sugars, so
   an apple is charged the same gram as a jellybean.
-- An open food shows one bar per macro — PROT, CARB, FAT down the left with their figures,
+- An open food shows one bar per macro — PRO, CAR, FAT down the left with their figures,
   a bar beside each, all three on the same scale so which of them the food mostly is can be
   read without reading. Each bar has its macro's hue, the same three the desktop table names
   its columns with. Carbohydrate and fat are drawn as their parts — shades of the bar's own

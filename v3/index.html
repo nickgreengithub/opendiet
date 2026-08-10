@@ -1013,6 +1013,7 @@ class Component extends DCLogic {
     const PLAIN_PTS = 8;
     // What the food is called, before USDA starts qualifying it.
     const qHead = qStems.join(" ");
+    const qJoin = qWords.join(" ");
     if (qWords.length) src = src.filter(fo => {
       const n = fo.nl, words = fo.w;
       let hit = 0, near = 99, spare = 99, firstTier = 0;
@@ -1043,7 +1044,11 @@ class Component extends DCLogic {
       }
       if (fo.cm) hit += COMMON_PTS;
       if (!fo.br) hit += PLAIN_PTS;
-      if (n.indexOf(qWords[0]) === 0) hit += firstTier === WHOLE_PTS ? LEAD_PTS : PART_LEAD_PTS;
+      // "chicken br" opening the name is the user typing the name itself, and it outranks
+      // being the everyday one: they mean chicken breast, not the chicken USDA files under
+      // "Chicken, broilers". Guarded so a single whole word keeps its old, quiet +1.
+      if (n.indexOf(qJoin) === 0 && (qWords.length > 1 || firstTier !== WHOLE_PTS)) hit += PART_LEAD_PTS;
+      else if (n.indexOf(qWords[0]) === 0) hit += firstTier === WHOLE_PTS ? LEAD_PTS : PART_LEAD_PTS;
       hit += Math.max(0, NEAR_PTS - near);
       hit += Math.max(0, CLOSE_PTS - spare);
       // The whole of the name's head, and nothing else: an apple rather than an apple juice.
@@ -1237,8 +1242,8 @@ class Component extends DCLogic {
       // The same three hues the desktop table names its columns with.
       const CY = "34,211,238", GR = "126,224,168", SA = "240,140,122";
       const defs = [
-        { tag: "PROT", rgb: CY },
-        { tag: "CARB", rgb: GR, parts: [fo.sg, fo.fb, rest(fo.c - fo.sg - fo.fb)],
+        { tag: "PRO", rgb: CY },
+        { tag: "CAR", rgb: GR, parts: [fo.sg, fo.fb, rest(fo.c - fo.sg - fo.fb)],
           subs: [["SUGARS", fo.sg], ["FIBRE", fo.fb], ["STARCH", rest(fo.c - fo.sg - fo.fb)]] },
         { tag: "FAT", rgb: SA, parts: [fo.sf, fo.mo || 0, fo.po || 0, rest(fo.f - fo.sf - (fo.mo || 0) - (fo.po || 0))],
           subs: [["SAT", fo.sf], ["MONO", fo.mo], ["POLY", fo.po]] }
@@ -1365,7 +1370,7 @@ class Component extends DCLogic {
           k => this.setState({ mPart: k })) : NO_BARS,
         mExpand: {
           overflow: "hidden",
-          height: open ? (s.mPart ? "10.9rem" : "7.35rem") : "0px",
+          height: open ? (s.mPart ? "11.35rem" : "7.8rem") : "0px",
           opacity: open ? 1 : 0,
           background: open ? PICKED_BG : "transparent",
           borderBottom: open ? "1px solid rgba(34,211,238,.14)" : 0,
@@ -1592,7 +1597,7 @@ class Component extends DCLogic {
         }),
         sExpand: {
           overflow: "hidden",
-          height: sOpenName === fo.name ? (s.sPart ? "10.9rem" : "7.35rem") : "0px",
+          height: sOpenName === fo.name ? (s.sPart ? "11.35rem" : "7.8rem") : "0px",
           opacity: sOpenName === fo.name ? 1 : 0,
           borderBottom: sOpenName === fo.name ? "1px solid rgba(34,211,238,.14)" : 0,
           transition: "height 260ms cubic-bezier(.22,1,.36,1), opacity 200ms ease"
@@ -1875,14 +1880,14 @@ class Component extends DCLogic {
       // the list continuing rather than as something else pasted in.
       mMacroBlock: { display: "flex", flexDirection: "column", padding: "0 .3rem 0 .55rem" },
       mMacroRow: {
-        display: "grid", gridTemplateColumns: "6.4rem minmax(0,1fr) 4.1rem", columnGap: ".6rem",
-        alignItems: "center", height: "1.35rem",
+        display: "grid", gridTemplateColumns: "5.9rem minmax(0,1fr) 4.1rem", columnGap: ".6rem",
+        alignItems: "center", height: "1.5rem",
         fontWeight: 300, fontSize: ".95rem", color: "#d7e6ef",
         fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
       },
       mMacroLbl: { display: "flex", alignItems: "baseline", gap: ".3rem", minWidth: 0 },
       mMacroTrack: {
-        display: "flex", height: ".3rem", borderRadius: "999px", overflow: "hidden",
+        display: "flex", height: ".45rem", borderRadius: "999px", overflow: "hidden",
         background: "rgba(215,230,239,.07)"
       },
       mMacroEnd: { display: "flex", alignItems: "center", justifyContent: "flex-end", height: "100%" },
@@ -2041,7 +2046,7 @@ class Component extends DCLogic {
       },
       mSumPanel: {
         flex: "none", maxHeight: "72%",
-        display: "flex", flexDirection: "column", background: "#090f18",
+        display: "flex", flexDirection: "column", background: "#0d1522",
         borderTop: "1px solid rgba(34,211,238,.55)",
         transition: "max-height 220ms cubic-bezier(.22,1,.36,1)"
       },
