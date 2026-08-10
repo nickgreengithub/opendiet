@@ -69,28 +69,32 @@ What is different from the root:
   and earns nothing — it correlates 0.96 with the bulk term and the fit sets its weight to
   zero every time. The sugar term's known unfairness is that USDA reports total sugars, so
   an apple is charged the same gram as a jellybean.
-- An open food is drawn as two rings. The first is all of 100 g — macros, water, ash,
-  alcohol when there is any — with the amount in its hole; its macros slice is pinned to six
-  o'clock and hands a dashed line down to the second ring, which is those macros on their
-  own: protein, carbohydrate, fat, with their total in its hole. Labels stand in a column to
-  the right — dot, name, grams — stacked in the order the slices pass the eye, so no callout
-  line ever crosses another. The drawing is fixed-pixel: the labels are HTML beside the SVG,
-  and the two can only agree on where things are if nothing scales (the template engine
-  wraps interpolated text in spans, which SVG will not paint, so the SVG holds geometry
-  only). The chosen column's figure keeps the row's top right corner; the reset opens the
+- An open food is drawn as a hierarchy of bars, each level indented under the segment it
+  breaks open. TOTAL WEIGHT is all of 100 g — water, ash, alcohol when there is any, and
+  the macros as one light segment; MACROS sits indented beneath with its own bar of fat,
+  protein and carbohydrate; CARBS indents once more into sugars, fibre and starch — three
+  shades of the one green, since they are three answers to what the carbohydrate is rather
+  than three different things. Starch is really carbs-minus-the-others, USDA not reporting
+  starch as such. Each sub-level's header wears a corner glyph (a CSS border L) pointing
+  back at its parent, every bar runs on the same faint track, and every gram figure sits on
+  one right-hand column, headers and components alike. The scale is per-level: a bar shows
+  its parts against their own sum, so a food that is mostly water still shows its macros
+  legibly. The chosen column's figure keeps the row's top right corner; the reset opens the
   controls row.
 - While a search food is open, the plate lends it the height: the summary folds to its
-  header line, keeps its total on show, and the copy button gives way to an up chevron that
-  closes the food and brings the plate back.
+  header line, keeps its total on show, and the copy button gives way to an up chevron.
+  The fold is also the user's to work: tapping the header of an open summary folds it (and
+  closes any open plate row, whose height it was), and tapping a folded one anywhere brings
+  it back, closing the open search food that had borrowed the room.
 - Plate rows open the same way, with a bin where ADD was, and edit the plate's own amount.
   Collapsed, a plate row just states its grams — the steppers live in the expansion.
 - The plate's totals line rides the same three tracks as its rows, so the amount and the
   chosen measure sit under the columns they are totals of rather than in a row of evenly
   spaced figures. Its header carries one control: copy, which puts the plate on the
-  clipboard as a tab-separated table — every food with its grams, the same amount as its own
-  household measure, and the chosen column — so it pastes into a spreadsheet as columns and
-  reads as a list anywhere else. Removal mode is gone with the bin that opened it; a food
-  leaves from the bin in its own expansion.
+  clipboard as a shopping list — a dashed line per food with its grams, its own household
+  measure in brackets, and the chosen column, then the totals — because the place a plate
+  gets pasted is a message, not a spreadsheet. Removal mode is gone with the bin that
+  opened it; a food leaves from the bin in its own expansion.
 
 The food libraries are **not** copied into this folder. `index.html` reads them from the
 site root via `const DATA = "../data/"`, so the two versions can never drift apart.
