@@ -154,6 +154,11 @@ What is different from the root:
   amount. An open plate row sits on its own lighter ground, so the food being edited
   reads as lifted out of the list it came from.
   Collapsed, a plate row just states its grams — the steppers live in the expansion.
+- The totals line wears the same ringed + as fats and carbs. Pressing it expands the
+  bottom bar into the very drawing an open food gets — donut, hole split, table, macro
+  rings, picks, the lot — computed for the plate summed as one food: absolute grams
+  re-expressed per 100 g, so the same code that explains one food explains the whole
+  plate at once.
 - The plate's totals line rides the same three tracks as its rows, so the amount and the
   chosen measure sit under the columns they are totals of rather than in a row of evenly
   spaced figures. Its header carries one control: copy, which puts the plate on the

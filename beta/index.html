@@ -472,6 +472,7 @@ option{background:#070b12;color:#d7e6ef}
           </div>
         </sc-for>
       </div>
+      <div style="{{ totWrap }}">
       <div style="{{ mSumTotRow }}">
         <span style="{{ mTotRow }}">
           <span style="{{ mTotMacros }}">
@@ -482,6 +483,49 @@ option{background:#070b12;color:#d7e6ef}
           <span style="{{ mTotQty }}">{{ tot.qty }}<span style="{{ sizeSuffix }}">{{ tot.qtyUnit }}</span></span>
           <span style="{{ mTotVal }}">{{ tot.mTotVal }}<span style="{{ unitSuffix }}">{{ mColUnit }}</span></span>
         </span>
+        <span onClick="{{ totToggle }}" style="{{ totChevBox }}"><span style="{{ totChev }}"></span></span>
+      </div>
+      <div onClick="{{ totVizTap }}" style="{{ totExpand }}">
+        <span style="{{ mVizBox }}">
+              <span style="{{ totViz.bF }}"></span>
+              <span style="{{ totViz.bC }}"></span>
+              <span style="{{ vLeft }}">
+              <span style="{{ vRing }}">
+                <svg width="164" height="164" viewBox="0 0 164 164" style="{{ vSvg }}">
+                  <path d="{{ totViz.s0.d }}" style="{{ totViz.s0.st }}" fill="none" stroke="{{ totViz.s0.col }}" stroke-width="21"></path>
+                  <path d="{{ totViz.s1.d }}" style="{{ totViz.s1.st }}" fill="none" stroke="{{ totViz.s1.col }}" stroke-width="21"></path>
+                  <path d="{{ totViz.s2.d }}" style="{{ totViz.s2.st }}" fill="none" stroke="{{ totViz.s2.col }}" stroke-width="21"></path>
+                  <path d="{{ totViz.s3.d }}" style="{{ totViz.s3.st }}" fill="none" stroke="{{ totViz.s3.col }}" stroke-width="21"></path>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ totViz.o0.st }}" fill="none" stroke="{{ totViz.o0.col }}" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ totViz.o1.st }}" fill="none" stroke="{{ totViz.o1.col }}" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ totViz.o2.st }}" fill="none" stroke="{{ totViz.o2.col }}" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ totViz.f0.st }}" fill="none" stroke="{{ totViz.f0.col }}" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ totViz.f1.st }}" fill="none" stroke="{{ totViz.f1.col }}" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ totViz.f2.st }}" fill="none" stroke="{{ totViz.f2.col }}" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ totViz.f3.st }}" fill="none" stroke="{{ totViz.f3.col }}" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ totViz.f4.st }}" fill="none" stroke="{{ totViz.f4.col }}" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ totViz.c0.st }}" fill="none" stroke="{{ totViz.c0.col }}" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ totViz.c1.st }}" fill="none" stroke="{{ totViz.c1.col }}" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ totViz.c2.st }}" fill="none" stroke="{{ totViz.c2.col }}" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ totViz.swF }}" fill="none" stroke="#f08c7a" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ totViz.swC }}" fill="none" stroke="#7ee0a8" stroke-width="21"></circle>
+                </svg>
+                <span style="{{ totViz.holeSplitS }}"><span style="{{ totViz.holeAS }}">{{ totViz.holeA }}</span><span style="{{ vHoleSep }}">/</span><span style="{{ totViz.holeBS }}">{{ totViz.holeB }}</span></span><span style="{{ totViz.holeZFS }}">{{ totViz.holeZF }}<span style="{{ vHoleUnit }}">g</span></span><span style="{{ totViz.holeZCS }}">{{ totViz.holeZC }}<span style="{{ vHoleUnit }}">g</span></span>
+              </span>
+
+              </span>
+              <span style="{{ vTable }}">
+                <sc-for list="{{ totViz.rows }}" as="vr" hint-placeholder-count="7">
+                  <span onClick="{{ vr.tap }}" style="{{ vr.row }}">
+                    <span style="{{ vr.dot }}"></span>
+                    <span style="{{ vr.tagS }}">{{ vr.tag }}</span>
+                    <span onClick="{{ vr.chevTap }}" style="{{ vr.chevBox }}"><span style="{{ vr.chev }}"></span></span>
+                    <span style="{{ vr.valS }}"><span style="{{ vr.valIn }}">{{ vr.val }}<span style="{{ unitSuffix }}">g</span></span></span>
+                  </span>
+                </sc-for>
+              </span>
+            </span>
+      </div>
       </div>
       </div></div>
     </div>
@@ -1282,7 +1326,7 @@ class Component extends DCLogic {
     const NO_SLOT = { d: "", col: "transparent", st: {} };
     const NO_CIRC = { col: "transparent", st: { opacity: 0, strokeDasharray: "0 100" } };
     const NO_SWEEP = { opacity: 0 };
-    const NO_VIZ = { holeA: "", holeB: "", rows: [], expH: "0px",
+    const NO_VIZ = { holeA: "", holeB: "", rows: [], expH: "0px", vizH: "0px",
       bF: { display: "none" }, bC: { display: "none" },
       swF: NO_SWEEP, swC: NO_SWEEP, holeAS: {}, holeBS: {},
       holeSplitS: { display: "none" },
@@ -1641,6 +1685,7 @@ class Component extends DCLogic {
       const visH = rows.reduce((a2, x2, k) =>
         a2 + (x2.row.height === "0px" ? 0 : x2.row.overflow === "hidden" ? 30 : k ? 31 : 30), 0);
       viz.expH = (18 + Math.max(visH, 174) + 52.8).toFixed(1) + "px";
+      viz.vizH = (18 + Math.max(visH, 174)).toFixed(1) + "px";
       return viz;
     };
     // A search food being open borrows the plate's height: the summary folds to its header
@@ -2085,6 +2130,52 @@ class Component extends DCLogic {
       // Mixed solids + liquids fall back to G, matching USDA's gram basis.
       qtyUnit: sumFoods.length && sumFoods.every(fo => fo.mu === "ml") ? "ml" : "g"
     };
+    // The plate summed as one food: absolute grams re-expressed per 100 g, so the same
+    // drawing that explains one food explains the whole plate.
+    const totAgg = k => sumFoods.reduce((a, fo) => a + (fo[k] || 0) * gs(fo), 0);
+    const foTot = tQty > 0 ? { name: "__TOT__",
+      p: tP / tQty * 100, c: tC / tQty * 100, f: tF / tQty * 100,
+      wa: totAgg("wa") / tQty * 100, ah: totAgg("ah") / tQty * 100,
+      al: totAgg("al") / tQty * 100, sg: totAgg("sg") / tQty * 100,
+      fb: tFb / tQty * 100, sf: totAgg("sf") / tQty * 100,
+      mo: totAgg("mo") / tQty * 100, po: totAgg("po") / tQty * 100,
+      tr: totAgg("tr") / tQty * 100 } : null;
+    const totOpen = !!(s.totOpen && foTot && s.narrow);
+    const totZm = totOpen && s.vizZoom === "__TOT__" ? s.vizMacro : null;
+    const totViz = totOpen ? vizFor(foTot, tQty, totZm,
+      m => this.setState({ vizZoom: "__TOT__", vizMacro: m, vizPick: null }),
+      s.vizPick,
+      (p2, coll) => this.setState(st => coll
+        ? { vizZoom: null, vizPick: p2, vizWind: false }
+        : { vizPick: st.vizPick === p2 ? null : p2 }),
+      s.vizWind) : NO_VIZ;
+    const totWrap = { background: totOpen ? "#12222e" : "transparent",
+      paddingBottom: totOpen ? "calc(.4rem + env(safe-area-inset-bottom, 0px))" : 0,
+      transition: "background 320ms ease" };
+    const totExpand = { overflow: "hidden",
+      height: totOpen ? totViz.vizH : "0px", opacity: totOpen ? 1 : 0,
+      transition: "height 520ms cubic-bezier(.22,1,.36,1), opacity 320ms ease" };
+    const totVizTap = () => {
+      if (s.vizPick) this.setState({ vizPick: null });
+      else if (totZm) {
+        this.setState({ vizZoom: null, vizWind: true });
+        clearTimeout(this._windT);
+        this._windT = setTimeout(() => this.setState({ vizWind: false }), 2000);
+      }
+    };
+    const totToggle = e => {
+      if (e && e.stopPropagation) e.stopPropagation();
+      this.setState(st => ({ totOpen: !st.totOpen, vizPick: null,
+        vizZoom: st.vizZoom === "__TOT__" ? null : st.vizZoom }));
+    };
+    const totChevBox = { flex: "none", alignSelf: "stretch", display: "flex",
+      alignItems: "center", justifyContent: "center", width: "40px",
+      marginRight: "-.3rem", cursor: "pointer" };
+    const totChev = { flex: "none", width: "16px", height: "16px", borderRadius: "50%",
+      boxSizing: "border-box", border: "1px solid #66808f",
+      background: totOpen
+        ? "linear-gradient(#c7d6e0,#c7d6e0) center/8px 1.3px no-repeat"
+        : "linear-gradient(#c7d6e0,#c7d6e0) center/8px 1.3px no-repeat, linear-gradient(#c7d6e0,#c7d6e0) center/1.3px 8px no-repeat" };
     // What the copy button puts on the clipboard: the plate as a table, tab separated, so it
     // pastes into a spreadsheet as columns and still reads as a list anywhere else. Each food
     // carries both ways of saying its amount, because the second one is the one you can
@@ -2542,7 +2633,8 @@ class Component extends DCLogic {
       mSumScroll: { flex: 1, minHeight: 0, overflowY: "auto" },
       mSumTotRow: {
         flex: "none", display: "flex", alignItems: "center", gap: ".7rem",
-        minHeight: "2.2rem", padding: ".5rem 0 calc(.8rem + env(safe-area-inset-bottom, 0px))"
+        minHeight: "2.2rem",
+        padding: totOpen ? ".5rem 0 .2rem" : ".5rem 0 calc(.8rem + env(safe-area-inset-bottom, 0px))"
       },
       // The glyphs sit toward the number rather than centred in their targets, so they read
       // as attached to it while keeping a 32px area to hit.
@@ -2691,6 +2783,7 @@ class Component extends DCLogic {
       hasSummary: sumRows.length > 0 && !s.sumHold && !(s.narrow && s.kb), sumRows,
       sumFillers: Array.from({ length: Math.max(0, 10 - sumRows.length) }, (_, i) => i),
       blankEdge: { borderLeft: EDGE }, blankInner: { borderLeft: INNER }, tot, sumCount: String(sumRows.length),
+      totViz, totWrap, totExpand, totVizTap, totToggle, totChevBox, totChev,
       qtyStyle, headIsland: Object.assign({}, headIsland, dHide), unitSuffix, numWrap, never: false,
       headMeasure: { position: "relative", display: dLanding ? "none" : "flex", alignItems: "center", justifyContent: "flex-end", gap: ".3rem", paddingLeft: ".55rem", cursor: "pointer", color: "#c3d6e2", whiteSpace: "nowrap" },
       measureCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300, fontSize: ".875rem", fontVariantNumeric: "tabular-nums", color: "#7b91a3", whiteSpace: "nowrap" },
