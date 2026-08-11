@@ -223,7 +223,13 @@ What is different from the root:
   max-height as a length and as a percentage never interpolate, which is why it used to
   snap shut.
 - Plate rows open the same way, with a bin where ADD was, and edit the plate's own
-  amount. An open plate row sits on its own lighter ground, so the food being edited
+  amount. A row can also be swiped off to the left: the gesture only takes over once it
+  is clearly more sideways than down, so the list still scrolls under a travelling
+  thumb, and only a closed row will take it — an open one has a drawing in it that owns
+  the finger. The row slides as a solid strip over a coral ground with the bin waiting
+  at the edge, runs slower past the point of no return so the thumb is told it has gone
+  far enough, and springs back if let go short of it. Past it, the row keeps going off
+  its own edge and the fold that always followed a removal takes it from there. An open plate row sits on its own lighter ground, so the food being edited
   reads as lifted out of the list it came from.
   Collapsed, a plate row just states its grams — the steppers live in the expansion.
 - The totals line wears the same ringed + as fats and carbs, on its left so the totals

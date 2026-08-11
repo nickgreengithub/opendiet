@@ -443,7 +443,8 @@ option{background:#070b12;color:#d7e6ef}
       <div data-scroll="sum" style="{{ mSumScroll }}">
         <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
           <div data-new="{{ r.arrived }}" data-gone="{{ r.leaving }}" data-lift="m" style="{{ r.sWrap }}">
-          <div data-row onClick="{{ r.sToggle }}" style="{{ r.mSumRow }}">
+          <span style="{{ r.swipeBg }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M4 7h16"></path><path d="M10 11.5v5.5M14 11.5v5.5"></path><path d="M6.5 7l.9 12.1a1.4 1.4 0 0 0 1.4 1.3h6.4a1.4 1.4 0 0 0 1.4-1.3L17.5 7"></path><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"></path></svg></span>
+          <div data-row data-swipe="{{ r.swipeArm }}" onClick="{{ r.sToggle }}" onTouchStart="{{ r.onTouchStart }}" onTouchMove="{{ r.onTouchMove }}" onTouchEnd="{{ r.onTouchEnd }}" onTouchCancel="{{ r.onTouchEnd }}" style="{{ r.mSumRow }}">
             <span style="{{ r.sNameStyle }}">{{ r.name }}</span>
             
             <span data-pulse="{{ r.stepPulse }}" style="{{ r.sQtyCell }}">{{ r.qty }}<span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
@@ -2098,7 +2099,10 @@ class Component extends DCLogic {
         : mCol.k === "kcal" ? String(Math.round(kcalOf(fo) * g))
             : this.fmt(mCol.get(fo) * g);
     };
+    // How far a row must travel before letting go removes it.
+    const SW_GO = 88;
     const sumRows = sumFoods.map(fo => {
+      const swAt = s.swipe === fo.name ? (s.swipeX || 0) : 0;
       const vzp = sOpenName === fo.name
         ? vizFor(fo, gramsOf(fo.name), s.vizZoom === fo.name ? s.vizMacro : null,
           m => this.setState({ vizZoom: fo.name, vizMacro: m, vizPick: null }),
@@ -2159,8 +2163,8 @@ class Component extends DCLogic {
         // plate's own, so every change lands straight in the totals.
         // Opening a plate row's drawing folds the totals drawing — the deliberate
         // expansions displace each other; nothing else touches the totals.
-        sToggle: () => this.setState(st => ({ sOpen: sOpenName === fo.name ? null : fo.name, sMode: "g", vizZoom: null, vizMacro: null, vizPick: null,
-          totOpen: sOpenName === fo.name ? st.totOpen : false })),
+        sToggle: () => { if (this._swJust) return; this.setState(st => ({ sOpen: sOpenName === fo.name ? null : fo.name, sMode: "g", vizZoom: null, vizMacro: null, vizPick: null,
+          totOpen: sOpenName === fo.name ? st.totOpen : false })); },
         ctl: sOpenName === fo.name
           ? amountCtl(fo, Math.round(gramsOf(fo.name)),
               q => this.setState(st => ({ qty: Object.assign({}, st.qty, { [fo.name]: String(clampG(q)) }) })),
@@ -2195,14 +2199,78 @@ class Component extends DCLogic {
         // The open food's ground lives on the wrapper around the row and its expansion —
         // one surface, no seam, and it repaints reliably where a background on the row
         // itself did not on iOS.
+        // A plate row can be swiped off as well as binned. The gesture only takes
+        // over once it is clearly horizontal, so the list still scrolls under a
+        // thumb travelling down, and only a closed row can be swiped — an open one
+        // has a drawing in it that owns the finger.
         sWrap: {
+          position: "relative",
           background: sOpenName === fo.name ? "#12222e" : "transparent",
           transition: "background 320ms ease"
         },
+        // The ground revealed behind the sliding row: coral, deepening with the
+        // distance travelled, with the bin at the edge the row is leaving towards.
+        swipeBg: {
+          position: "absolute", inset: 0, display: swAt ? "flex" : "none",
+          alignItems: "center", justifyContent: "flex-end", paddingRight: "1.1rem",
+          background: "rgba(240,140,122," + (0.10 + 0.26 * Math.min(1, swAt / SW_GO)).toFixed(3) + ")",
+          color: swAt >= SW_GO ? "#f6b3a5" : "#a5707f", pointerEvents: "none",
+          transition: "color 140ms ease"
+        },
+        swipeArm: swAt >= SW_GO,
+        onTouchStart: e => {
+          if (sOpenName === fo.name || !e.touches || e.touches.length !== 1) return;
+          const tch = e.touches[0];
+          this._sw = { name: fo.name, x: tch.clientX, y: tch.clientY, on: false };
+        },
+        onTouchMove: e => {
+          const w = this._sw;
+          if (!w || w.name !== fo.name || !e.touches || !e.touches.length) return;
+          const dx = e.touches[0].clientX - w.x, dy = e.touches[0].clientY - w.y;
+          // Claim the gesture only when it is more sideways than not; until then the
+          // scroll keeps it.
+          if (!w.on) {
+            if (Math.abs(dy) > Math.abs(dx) || Math.abs(dx) < 10) {
+              if (Math.abs(dy) > 12) this._sw = null;
+              return;
+            }
+            w.on = true;
+            this._swJust = true;
+          }
+          // Rightward pulls do nothing; leftward runs slower past the threshold, so
+          // the row tells the thumb it has gone far enough.
+          const raw = Math.max(0, -dx);
+          const px = raw <= SW_GO ? raw : SW_GO + (raw - SW_GO) * 0.35;
+          this.setState({ swipe: fo.name, swipeX: Math.round(px) });
+        },
+        onTouchEnd: () => {
+          const w = this._sw;
+          this._sw = null;
+          if (!w || !w.on) return;
+          clearTimeout(this._swJustT);
+          this._swJustT = setTimeout(() => { this._swJust = false; }, 350);
+          const px = this.state.swipe === fo.name ? (this.state.swipeX || 0) : 0;
+          // Past the threshold the row keeps going, off its own edge, and the fold
+          // that always followed a removal takes it from there.
+          if (px >= SW_GO) {
+            this.setState({ swipe: fo.name, swipeX: 420, swipeGone: true });
+            setTimeout(() => this.setState({ swipe: null, swipeX: 0, swipeGone: false }), 180);
+            setTimeout(() => this.toggleSum(fo.name), 150);
+          } else {
+            this.setState({ swipe: null, swipeX: 0 });
+          }
+        },
         mSumRow: Object.assign({}, mSumRowBase, {
+          position: "relative",
+          transform: swAt ? "translateX(" + -swAt + "px)" : "none",
+          transition: swAt && !s.swipeGone
+            ? "background 140ms ease"
+            : "background 140ms ease, transform 240ms cubic-bezier(.22,1,.36,1)",
           gridTemplateColumns: sOpenName === fo.name ? "minmax(0,1fr) 4.2rem" : SUM_COLS,
           borderBottom: sOpenName === fo.name ? 0 : "1px solid rgba(34,211,238,.14)",
-          background: "transparent"
+          // Sliding, the row takes the panel's own ground so it reads as a solid
+          // strip moving off the coral rather than a transparency over it.
+          background: swAt ? "#0d1522" : "transparent"
         }),
         sExpand: {
           overflow: "hidden",
