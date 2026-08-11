@@ -21,7 +21,11 @@ What is different from the root:
   lowest-first on a second tap), then the thermic-effect switch. Picking a new column
   carries an active column-sort with it.
 - The FULLNESS column is fixed now — the expanded sub-columns made a swappable extra
-  column redundant — and hovering its header simply explains the score.
+  column redundant. Every header explains itself the same way: hovering any of them —
+  water, the macros, the six sub-macros, calories, fullness — gives its name and a
+  sentence. The basis menu that used to hang off PROT, CARBS and FATS is gone with the
+  bases themselves: a column that could silently be showing percentages or calories made
+  every figure a question, and grams answers it.
 - The desktop table wears the donut's own colours: each macro column's bar is its slice's
   hue — protein cyan, carbs green, fat coral, water an indigo the donut wears too, moved
   off blue so it could never be read as protein's cyan — sheer enough that the
@@ -31,10 +35,9 @@ What is different from the root:
   PROT, and the macro headers say CARBS and FATS, as the drawing does. The SIZE header
   sits at its column's left edge, where its values start, and with OZ as the measure the
   whole table speaks ounces wherever it spoke grams — figures, water, sub-macros,
-  totals, targets — two decimals below ten. The actions header
+  totals — two decimals below ten. The actions header
   carries a circled triangle pointing where the table will go — right to open, left to
-  come home — and the summary's own ring points down to unfold the target rows, up to
-  fold them: pressing the header's widens the app and trades
+  come home: pressing it widens the app and trades
   the CARBS and FATS totals for six sub-macro columns of the same weight as any other —
   SUGAR FIBRE STARCH, SAT MONO POLY — each header wearing its parent's three-letter mark
   (CAR, FAT) pinned at the cell's left in darker type, names six characters at most, no
@@ -54,15 +57,12 @@ What is different from the root:
   block at WATER, one fences the actions column — everything between is a hairline,
   because two strong lines side by side read as a doubled border; the actions fence is
   1px like everything else, since double thickness read as a doubled line. The desktop
-  totals row says MY FOOD SUMMARY behind its own ringed +, which opens two rows
-  beneath it: SET DAILY CALORIE TARGET — FDA daily values scaled from the calorie
-  figure typed into the SIZE column, a boxed input sitting under the plate's own size
-  inputs (default 2000) with the KCAL column repeating it, one target per column that
-  has one, none for water — and
-  DIFFERENCE, the plate's distance from each target in signed numbers; the input is an
-  unmistakable boxed field that takes the caret the moment the rows open. The summary's
-  FULLNESS is the average of its foods' scores, each weighing in at the grams it was
-  added at.
+  totals row says MY FOOD SUMMARY, keeps a copy button in the actions column — the same
+  shopping list the mobile header copies — and its FULLNESS is the average of its foods'
+  scores, each weighing in at the grams it was added at. There is deliberately no
+  target to compare against: converting a calorie figure into a protein or carbohydrate
+  goal is contested enough that the table would be taking a side it has no business
+  taking. It states what is on the plate.
   SAT reads SATURA in the expanded header, since six characters were there to spend.
   With OZ as the measure the plate's size inputs read and edit in ounces to one
   decimal — what is being typed is held verbatim until the field blurs, so a dot never
@@ -247,4 +247,7 @@ What is different from the root:
 The food libraries are **not** copied into this folder. `index.html` reads them from the
 site root via `const DATA = "../data/"`, so the two versions can never drift apart.
 
-Promoting the beta to the root means moving these files up and setting `DATA` back to `"data/"`.
+The root is now built from this folder: the same app, with the site's own head (title,
+canonical, link previews) in place of the beta's `noindex`, and `DATA` set back to
+`"data/"`. Promote again the same way — take `beta/index.html`, swap the head, swap the
+data path.

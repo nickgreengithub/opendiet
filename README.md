@@ -20,28 +20,39 @@ This is that missing page. One table, every number visible at once, sortable by 
 
 ## What it does
 
-- **Search and sort** any column — protein, carbs, fat, calories, or name.
-- **Three view bases.** Read macros as grams, as a percentage of the food's own macro energy,
-  or as their kcal contribution.
-- **Portion sizes.** Measure everything per 100 g/ml, per ounce, per tablespoon or per teaspoon.
-  Liquids are measured by volume automatically.
-- **Star foods to build a plate.** Starred foods drop into a summary with running totals, and
-  their portions can be typed in directly. Saved in your browser, not on a server.
+- **Search and sort** any column — water, protein, carbs, fat, calories, or name.
+- **Expand the table** and each macro breaks into its parts: sugar, fibre and starch under
+  carbohydrate; saturated, monounsaturated and polyunsaturated under fat. Every column
+  explains itself on hover.
+- **Two measures.** Read everything per 100 g/ml or per ounce; the whole table follows,
+  figures and portions alike.
+- **Open a food** and it is drawn rather than listed — a donut of what the food actually is
+  (most food is mostly water), with its macros on a ring of their own, and a table beside it.
+  Press a macro and it slides in and breaks into its parts.
+- **Build a plate.** Added foods drop into a summary with running totals, their portions
+  typed in directly, and a copy button that puts the plate on the clipboard as a shopping
+  list. Saved in your browser, not on a server.
 - **A fullness score** per food — a per-calorie index built from macro energy shares, fibre
-  density and the sheer bulk a calorie buys.
+  density and the sheer bulk a calorie buys. The plate carries the weighted average of its own.
 - **Thermic effect toggle.** Deducts the energy digestion itself costs: 25% of protein calories,
   8% of carbohydrate, 2% of fat.
-- **One swappable column** for fibre, saturated fat, sugar, calorie density or the fullness score.
+
+There is deliberately no daily target to measure a plate against: turning a calorie figure
+into a protein or carbohydrate goal is contested enough that the table would be taking a
+side it has no business taking. It states what is on the plate.
 
 ## The data
 
-Three libraries, all from USDA FoodData Central, all committed to this repo as static JSON:
+From USDA FoodData Central, committed to this repo as static JSON:
 
 | Library | Foods | Source release |
 |---|---|---|
-| CORE | 1,779 | SR Legacy, whole-food groups, generic (unbranded) descriptions |
 | SR LEGACY | 7,756 | SR Legacy, 2019-04-02 |
 | SURVEY FNDDS | 8,661 | Survey (FNDDS), 2020-03-31 |
+
+SR Legacy is what the site reads. The everyday-food problem is solved in the search
+ranking rather than by filtering the data, so no curated subset is needed and a long
+result list costs nothing.
 
 Values are per 100 g, or per 100 ml for foods measured by volume — FoodData Central's own basis.
 A blank cell means USDA reports no value for that nutrient, not that the value is zero.

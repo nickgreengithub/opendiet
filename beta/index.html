@@ -220,18 +220,18 @@ option{background:#070b12;color:#d7e6ef}
         <input data-search data-land="{{ dLandFlag }}" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ dSearchInput }}">
         <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ dClearBtn }}" style-hover="color:#d7e6ef"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if>
       </span>
-      <span onClick="{{ sortOn.wa }}" style="{{ headWa }}"><span>WATER</span><span style="{{ headUnit }}">{{ vzUnit }}</span><sc-if value="{{ sorted.wa }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if></span>
-      <span onMouseEnter="{{ openBasis.s1 }}" onMouseLeave="{{ closeBasis }}" onClick="{{ sortOn.s1 }}" style="{{ head1 }}"><span>PROT</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s1 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-25%</span></sc-if><sc-if value="{{ basisShow.s1 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></span></button></sc-for><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">PROTEIN</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.s1 }}</span></span></span></span></sc-if></span>
-      <span style="{{ subHead }}"><span style="{{ subPre }}">CAR</span><span>SUGAR</span></span>
-      <span style="{{ subHead }}"><span style="{{ subPre }}">CAR</span><span>FIBRE</span></span>
-      <span style="{{ subHead }}"><span style="{{ subPre }}">CAR</span><span>STARCH</span></span>
-      <span onMouseEnter="{{ openBasis.s2 }}" onMouseLeave="{{ closeBasis }}" onClick="{{ sortOn.s2 }}" style="{{ head2 }}"><span>CARBS</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s2 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-8%</span></sc-if><sc-if value="{{ basisShow.s2 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></span></button></sc-for><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">CARBS</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.s2 }}</span></span></span></span></sc-if></span>
-      <span style="{{ subHead }}"><span style="{{ subPre }}">FAT</span><span>SATURA</span></span>
-      <span style="{{ subHead }}"><span style="{{ subPre }}">FAT</span><span>MONO</span></span>
-      <span style="{{ subHead }}"><span style="{{ subPre }}">FAT</span><span>POLY</span></span>
-      <span onMouseEnter="{{ openBasis.s3 }}" onMouseLeave="{{ closeBasis }}" onClick="{{ sortOn.s3 }}" style="{{ head3 }}"><span>FATS</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s3 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-2%</span></sc-if><sc-if value="{{ basisShow.s3 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></span></button></sc-for><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">FATS</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.s3 }}</span></span></span></span></sc-if></span>
-      <span onMouseEnter="{{ tipOn.kcal }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.kcal }}" style="{{ headTotal }}"><span>KCAL</span><sc-if value="{{ sorted.kcal }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.kcal }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(34,211,238,.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="display:block;padding:0 .7rem .7rem"><span style="font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#94a3b8;text-wrap:pretty">Digestion costs 25% of protein calories, 8% of carbohydrate, 2% of fat. Always applied to KCAL; applied to the macro columns only when they show kcal contribution.</span></span><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">KCAL</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.kcal }}</span></span></span></span></sc-if></span>
-      <span onMouseEnter="{{ openExtra }}" onMouseLeave="{{ closeExtra }}" onClick="{{ sortOn.extra }}" style="{{ headIsland }}"><span>{{ extraLabel }}</span><sc-if value="{{ sorted.extra }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ extraOpen }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><span style="display:block;padding:.55rem .7rem .7rem"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">FULLNESS SCORE</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.score }}</span></span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.wa }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.wa }}" style="{{ headWa }}"><span>WATER</span><span style="{{ headUnit }}">{{ vzUnit }}</span><sc-if value="{{ sorted.wa }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.wa }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">WATER</span><span style="{{ headTipText }}">{{ tipText.wa }}</span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.s1 }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.s1 }}" style="{{ head1 }}"><span>PROT</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s1 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-25%</span></sc-if><sc-if value="{{ tip.s1 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">PROTEIN</span><span style="{{ headTipText }}">{{ tipText.s1 }}</span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.sg }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span style="{{ subPre }}">CAR</span><span>SUGAR</span><sc-if value="{{ tip.sg }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">SUGAR</span><span style="{{ headTipText }}">{{ tipText.sg }}</span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.fb }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span style="{{ subPre }}">CAR</span><span>FIBRE</span><sc-if value="{{ tip.fb }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">FIBRE</span><span style="{{ headTipText }}">{{ tipText.fb }}</span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.st }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span style="{{ subPre }}">CAR</span><span>STARCH</span><sc-if value="{{ tip.st }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">STARCH</span><span style="{{ headTipText }}">{{ tipText.st }}</span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.s2 }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.s2 }}" style="{{ head2 }}"><span>CARBS</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s2 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-8%</span></sc-if><sc-if value="{{ tip.s2 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">CARBS</span><span style="{{ headTipText }}">{{ tipText.s2 }}</span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.sf }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span style="{{ subPre }}">FAT</span><span>SATURA</span><sc-if value="{{ tip.sf }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">SATURATED FAT</span><span style="{{ headTipText }}">{{ tipText.sf }}</span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.mo }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span style="{{ subPre }}">FAT</span><span>MONO</span><sc-if value="{{ tip.mo }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">MONOUNSATURATED</span><span style="{{ headTipText }}">{{ tipText.mo }}</span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.po }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span style="{{ subPre }}">FAT</span><span>POLY</span><sc-if value="{{ tip.po }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">POLYUNSATURATED</span><span style="{{ headTipText }}">{{ tipText.po }}</span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.s3 }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.s3 }}" style="{{ head3 }}"><span>FATS</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s3 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-2%</span></sc-if><sc-if value="{{ tip.s3 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">FATS</span><span style="{{ headTipText }}">{{ tipText.s3 }}</span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.kcal }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.kcal }}" style="{{ headTotal }}"><span>KCAL</span><sc-if value="{{ sorted.kcal }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.kcal }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(34,211,238,.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="display:block;padding:0 .7rem .7rem"><span style="font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#94a3b8;text-wrap:pretty">Digestion costs 25% of protein calories, 8% of carbohydrate, 2% of fat. Applied to the calorie figures throughout.</span></span><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">KCAL</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.kcal }}</span></span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.score }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.extra }}" style="{{ headIsland }}"><span>{{ extraLabel }}</span><sc-if value="{{ sorted.extra }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.score }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">FULLNESS SCORE</span><span style="{{ headTipText }}">{{ tipText.score }}</span></span></span></sc-if></span>
       <span style="{{ dActHead }}"><span data-dexp onClick="{{ dExpToggle }}" style="{{ dExpBox }}"><span style="{{ dExpChev }}"><span style="{{ dExpTri }}"></span></span></span></span>
     </div>
     </div>
@@ -265,6 +265,7 @@ option{background:#070b12;color:#d7e6ef}
     </div>
     <sc-if value="{{ hasSummary }}" hint-placeholder-val="{{ false }}">
       <div style="{{ dSumWrap }}">
+        <div style="{{ dSumRule }}"></div>
         <div style="position:relative;flex:1;min-height:0;display:flex;flex-direction:column">
         <div data-scroll style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box">
           <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
@@ -312,7 +313,7 @@ option{background:#070b12;color:#d7e6ef}
         </div>
         </div>
         <div style="{{ dTotRow }}">
-          <span style="{{ dSumLab }}"><span data-dtgt onClick="{{ dTgtToggle }}" style="{{ dTgtBox }}"><span style="{{ dTgtChev }}"><span style="{{ dTgtTri }}"></span></span></span><span style="{{ dSumLabText }}">MY FOOD SUMMARY</span></span>
+          <span style="{{ dSumLab }}"><span style="{{ dSumLabText }}">MY FOOD SUMMARY</span></span>
           <span style="{{ measureCell }}">{{ tot.qty }}<span style="{{ sizeSuffix }}">{{ tot.qtyUnit }}</span></span>
           <span style="{{ tot.cellWa }}"><span style="{{ tot.fillWa }}"></span><span style="{{ numWrap }}">{{ tot.vWa }}</span></span>
           <span style="{{ tot.cell1 }}"><span style="{{ tot.fill1 }}"></span><span style="{{ numWrap }}">{{ tot.v1 }}</span></span>
@@ -326,43 +327,7 @@ option{background:#070b12;color:#d7e6ef}
           <span style="{{ tot.cell3 }}"><span style="{{ tot.fill3 }}"></span><span style="{{ numWrap }}">{{ tot.v3 }}</span></span>
           <span style="{{ tot.cellK }}"><span style="{{ tot.fillK }}"></span><span style="{{ numWrap }}">{{ tot.kcalVal }}</span></span>
           <span style="{{ tot.cellScore }}">{{ tot.extraVal }}<span style="{{ extraSuffix }}">{{ extraUnit }}</span></span>
-          <span style="{{ dActHead }}"></span>
-        </div>
-        <div style="{{ dTgtWrap }}">
-          <div style="{{ dTgtRowS }}">
-            <span style="{{ dTgtLab }}"><span>SET DAILY CALORIE TARGET</span></span>
-            <span style="{{ tgtSizeCell }}"><input data-tgt value="{{ tgtVal }}" onChange="{{ onTgt }}" onClick="{{ stopProp }}" inputmode="numeric" style="{{ tgtInputS }}"></span>
-            <span style="{{ tgtR.wa.tc }}"></span>
-            <span style="{{ tgtR.p.tc }}">{{ tgtR.p.tv }}</span>
-            <span style="{{ tgtR.sg.tc }}">{{ tgtR.sg.tv }}</span>
-            <span style="{{ tgtR.fb.tc }}">{{ tgtR.fb.tv }}</span>
-            <span style="{{ tgtR.st.tc }}">{{ tgtR.st.tv }}</span>
-            <span style="{{ tgtR.cb.tc }}">{{ tgtR.cb.tv }}</span>
-            <span style="{{ tgtR.sf.tc }}">{{ tgtR.sf.tv }}</span>
-            <span style="{{ tgtR.mo.tc }}">{{ tgtR.mo.tv }}</span>
-            <span style="{{ tgtR.po.tc }}">{{ tgtR.po.tv }}</span>
-            <span style="{{ tgtR.f.tc }}">{{ tgtR.f.tv }}</span>
-            <span style="{{ tgtR.k.tc }}">{{ tgtR.k.tv }}</span>
-            <span style="{{ tgtR.x.tc }}"></span>
-            <span style="{{ blankAct }}"></span>
-          </div>
-          <div style="{{ dTgtRowS }}">
-            <span style="{{ dTgtLab }}"><span>DIFFERENCE</span></span>
-            <span></span>
-            <span style="{{ tgtR.wa.dc }}"></span>
-            <span style="{{ tgtR.p.dc }}">{{ tgtR.p.dv }}</span>
-            <span style="{{ tgtR.sg.dc }}">{{ tgtR.sg.dv }}</span>
-            <span style="{{ tgtR.fb.dc }}">{{ tgtR.fb.dv }}</span>
-            <span style="{{ tgtR.st.dc }}">{{ tgtR.st.dv }}</span>
-            <span style="{{ tgtR.cb.dc }}">{{ tgtR.cb.dv }}</span>
-            <span style="{{ tgtR.sf.dc }}">{{ tgtR.sf.dv }}</span>
-            <span style="{{ tgtR.mo.dc }}">{{ tgtR.mo.dv }}</span>
-            <span style="{{ tgtR.po.dc }}">{{ tgtR.po.dv }}</span>
-            <span style="{{ tgtR.f.dc }}">{{ tgtR.f.dv }}</span>
-            <span style="{{ tgtR.k.dc }}">{{ tgtR.k.dv }}</span>
-            <span style="{{ tgtR.x.dc }}"></span>
-            <span style="{{ blankAct }}"></span>
-          </div>
+          <span style="{{ dActHead }}"><button onClick="{{ copyPlate }}" style="{{ dCopyBtn }}" style-hover="color:#8ff0fb"><sc-if value="{{ copied }}" hint-placeholder-val="{{ false }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7ee0a8" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M4.5 12.5l5 5 10-11"></path></svg></sc-if><sc-if value="{{ notCopied }}" hint-placeholder-val="{{ true }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><rect x="9" y="9" width="11" height="11" rx="1.6"></rect><path d="M6 15H5a1.6 1.6 0 0 1-1.6-1.6V5A1.6 1.6 0 0 1 5 3.4h8.4A1.6 1.6 0 0 1 15 5v1"></path></svg></sc-if></button></span>
         </div>
       </div>
     </sc-if>
@@ -1009,7 +974,9 @@ class Component extends DCLogic {
     const s = this.state;
     const visible = this.visibleFoods();
     const sortKey = s.sortKey || "name", sortDir = s.sortDir === undefined ? 1 : s.sortDir;
-    const basis = s.basis || "std", isPct = basis === "gpct", isKcalBasis = basis === "kcal", isGrams = basis === "std";
+    // Grams is the only basis the table offers now — a column that could silently be
+    // showing percentages or calories made every figure a question.
+    const isPct = false, isKcalBasis = false, isGrams = true;
     const tef = !!s.tef;
     // Thermic effect: protein costs ~25% of its energy to digest, carbs ~8%, fat ~2%.
     const kcalOf = fo => tef ? Math.max(1, fo.kcal - (0.25 * fo.p * 4 + 0.08 * fo.c * 4 + 0.02 * fo.f * 9)) : fo.kcal;
@@ -1997,26 +1964,6 @@ class Component extends DCLogic {
         color: lib === d.k ? "#22d3ee" : "#d7e6ef"
       }
     }));
-    const BASES = [
-      { k: "std", label: "GRAMS", unit: "g" },
-      { k: "gpct", label: "GRAMS %", unit: "%" },
-      { k: "kcal", label: "KCAL CONTRIBUTION", unit: "kcal" }
-    ];
-    const basisOpts = BASES.map(b => ({
-      label: b.label, unit: b.unit,
-      unitStyle: { fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".06em", color: "#94a3b8", flex: "none" },
-      descStyle: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".82rem", lineHeight: 1.55, letterSpacing: 0, color: "#94a3b8", textWrap: "pretty", whiteSpace: "normal" },
-      onClick: () => this.setState({ basis: b.k, basisCol: "" }),
-      style: {
-        display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", width: "100%", boxSizing: "border-box",
-        height: "2.1rem", padding: "0 .7rem", border: 0, borderBottom: "1px solid rgba(34,211,238,.28)", borderRadius: 0,
-        cursor: "pointer", textAlign: "left",
-        fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em",
-        transition: "background 140ms ease, color 140ms ease",
-        background: basis === b.k ? "rgba(34,211,238,.10)" : "transparent",
-        color: basis === b.k ? "#22d3ee" : "#d7e6ef"
-      }
-    }));
     const tefStyle = {
       display: "flex", alignItems: "center", gap: ".55rem", width: "100%", boxSizing: "border-box",
       padding: ".55rem .7rem .35rem", border: 0, borderTop: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
@@ -2069,6 +2016,12 @@ class Component extends DCLogic {
       s3: "The most energy-dense macronutrient at 9 kcal per gram. Needed to absorb vitamins A, D, E and K and to make hormones; some fatty acids are essential and can only come from food.",
       fb: "Carbohydrate that passes through the small intestine undigested. It adds bulk and slows digestion, so it contributes to fullness with little usable energy, and it feeds gut bacteria.",
       kcal: "Food energy, measured by the Atwater factors 4/4/9. Intake relative to expenditure is what moves body mass; the macro split shapes composition and satiety, not that balance.",
+      wa: "What most food mostly is \u2014 the median food here is 64% water. Weight without energy: the same macros in more water make a lower-calorie food.",
+      sg: "Total sugars, free and naturally occurring alike. USDA does not separate added sugar in this data, so a whole fruit and a biscuit are counted the same way here.",
+      st: "Carbohydrate that is neither sugar nor fibre, derived here as what is left of the carbohydrate once both are taken out. Digested to glucose, more slowly than sugar is.",
+      sf: "Saturated fat, solid at room temperature. Most guidelines cap it near 10% of daily calories, though the strength of that advice is argued over.",
+      mo: "Monounsaturated fat, one double bond in the chain. The dominant fat in olive oil, avocados and most nuts.",
+      po: "Polyunsaturated fat, several double bonds. Includes the omega-3 and omega-6 fatty acids that are essential, meaning the body cannot make them.",
       score: "An index used on this site, not an official measure. It weighs each macronutrient's share of a food's calories — protein highest, then carbohydrate, then fat — adds a bonus for fibre and for the bulk a calorie buys, and takes something back for sugar. Checked against Holt's 1995 satiety index, the only measured data of its kind."
     };
     const tipStyle = {
@@ -2081,7 +2034,9 @@ class Component extends DCLogic {
     const tipTitle = { fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".12em", color: "#7b91a3" };
     const tipBody = { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".85rem", lineHeight: 1.65, color: "#d7e6ef", textWrap: "pretty" };
     const hd = s.tip || "";
-    const tipOn = { s1: () => this.setState({ tip: "s1" }), s2: () => this.setState({ tip: "s2" }), s3: () => this.setState({ tip: "s3" }), fb: () => this.setState({ tip: "fb" }), kcal: () => this.setState({ tip: "kcal" }), score: () => this.setState({ tip: "score" }) };
+    const TIP_KEYS = ["s1", "s2", "s3", "fb", "kcal", "score", "wa", "sg", "st", "sf", "mo", "po"];
+    const tipOn = {};
+    TIP_KEYS.forEach(k => { tipOn[k] = () => this.setState({ tip: k }); });
     // Newest first, so a food always joins the plate at the top row and drops in from above.
     const sumFoods = (s.sum || []).map(n => this.foods().find(fo => fo.name === n)).filter(Boolean).reverse();
     // Each summary row carries its own quantity; macros and totals scale off it.
@@ -2340,72 +2295,6 @@ class Component extends DCLogic {
       // Mixed solids + liquids fall back to G, matching USDA's gram basis.
       qtyUnit: dOz ? "oz" : (sumFoods.length && sumFoods.every(fo => fo.mu === "ml") ? "ml" : "g")
     };
-    // Three rows under the summary, behind its own ringed +: the day's target from a
-    // chosen calorie figure (FDA daily values at 2000 kcal, scaled linearly), the
-    // plate's distance from it in absolute numbers, and the same distance as a bar
-    // swinging left (under) or right (over) of a centre line — no numbers, just lean.
-    const dTgt = !!s.dTgt && !s.narrow;
-    const tgtRaw = s.tgtKcal === undefined ? "2000" : String(s.tgtKcal);
-    const tgtK = Math.round(Number(tgtRaw)) || 2000;
-    const tgtScale = tgtK / 2000;
-    // FDA daily values at 2000 kcal. Protein and added sugar are both 50 g there — a
-    // coincidence, not a copy. STARCH is derived: the carbohydrate day minus its sugar
-    // and fibre. MONO and POLY have no daily value anywhere, so they honestly say so.
-    const TGT_DEF = [
-      ["wa", null, null],
-      ["p", 50, null],
-      ["sg", 50, null],
-      ["fb", 28, null],
-      ["st", 275 - 50 - 28, null],
-      ["cb", 275, null],
-      ["sf", 20, null],
-      ["mo", null, null],
-      ["po", null, null],
-      ["f", 78, null],
-      ["k", -1, null],
-      ["x", null, null]
-    ];
-    const TGT_ACT = { wa: null, p: tP, sg: tSg, fb: tFb, st: tSt, cb: tC, sf: tSf,
-      mo: tMo, po: tPo, f: tF, k: tKDisp, x: null };
-    const TGT_SUB = { sg: 1, fb: 1, st: 1, sf: 1, mo: 1, po: 1 };
-    const TGT_TOT = { cb: 1, f: 1 };
-    const tgtCellBase = key => ({
-      position: "relative", overflow: "hidden", minWidth: 0, display: "flex",
-      alignItems: "center", justifyContent: "flex-end",
-      fontVariantNumeric: "tabular-nums", fontWeight: 300, fontSize: ".875rem",
-      borderLeft: key === "wa" ? EDGE
-        : TGT_SUB[key] ? (dxp ? INNER : "1px solid transparent")
-        : TGT_TOT[key] ? (dxp ? "1px solid transparent" : INNER)
-        : INNER,
-      paddingLeft: TGT_SUB[key] ? (dxp ? ".55rem" : "0") : TGT_TOT[key] ? (dxp ? "0" : ".55rem") : ".55rem",
-      paddingRight: TGT_SUB[key] ? (dxp ? ".5rem" : "0") : TGT_TOT[key] ? (dxp ? "0" : ".5rem") : ".5rem",
-      transition: "border-color 300ms ease, padding 500ms cubic-bezier(.22,1,.36,1)"
-    });
-    const dTgtData = {};
-    TGT_DEF.forEach(def => {
-      const key = def[0], hue = def[2];
-      const target = def[1] === null ? null : def[1] === -1 ? tgtK : def[1] * tgtScale;
-      const act = TGT_ACT[key];
-      const noT = target === null || act === null;
-      const diff = noT ? 0 : act - target;
-      // KCAL is the one figure that is already its own unit; the rest are grams and
-      // follow the measure.
-      const fmtT = key === "k" ? (n => String(Math.round(n))) : gFmt;
-      dTgtData[key] = {
-        tv: key === "wa" || key === "x" ? "" : noT ? "—" : fmtT(target),
-        tc: Object.assign(tgtCellBase(key), { color: noT ? "#54677a" : "#9fb3c1" }),
-        dv: noT ? "" : (diff >= 0 ? "+" : "−") + fmtT(Math.abs(diff)),
-        dc: Object.assign(tgtCellBase(key), { color: "#c7d6e0" })
-      };
-    });
-    const dTgtToggle = () => {
-      const opening = !s.dTgt;
-      this.setState({ dTgt: opening });
-      if (opening) setTimeout(() => {
-        try { document.querySelector("[data-tgt]").focus(); } catch (e) {}
-      }, 460);
-    };
-    const onTgt = e => this.setState({ tgtKcal: e.target.value.replace(/[^0-9]/g, "").slice(0, 5) });
     // The plate summed as one food: absolute grams re-expressed per 100 g, so the same
     // drawing that explains one food explains the whole plate.
     const totAgg = k => sumFoods.reduce((a, fo) => a + (fo[k] || 0) * gs(fo), 0);
@@ -2552,11 +2441,18 @@ class Component extends DCLogic {
       },
       dSumWrap: {
         flex: "0 0 auto", maxHeight: "55%", minHeight: 0, display: "flex", flexDirection: "column",
-        marginTop: "1.5rem", borderTop: "1px solid rgba(34,211,238,.55)",
+        marginTop: "1.5rem",
         opacity: dLanding ? 0 : 1, pointerEvents: dLanding ? "none" : "auto",
         transition: "opacity 420ms ease 120ms"
       },
+      // The rows reserve 10px for the scrollbar, so a rule drawn across them stops
+      // where they stop rather than at the shell's edge.
+      dSumRule: {
+        flex: "none", marginRight: "10px",
+        borderTop: "1px solid " + (dLanding ? "transparent" : "rgba(34,211,238,.55)")
+      },
       dFootRule: {
+        marginRight: "10px",
         borderTop: "1px solid " + (dLanding ? "transparent" : "rgba(34,211,238,.55)"),
         transition: "border-color 460ms ease"
       },
@@ -3115,10 +3011,7 @@ class Component extends DCLogic {
       measureLabel: (unit.k === "100G" ? "100 G" : unit.k === "OZ" ? "OZ" : unit.grams + " G") + (tef ? " · TEF" : ""),
       ozOn: unit.k === "OZ",
       unitShort: (unit.k === "100G" ? "100 G/ML" : unit.grams + " G · " + unit.label) + (isPct ? " · %" : isKcalBasis ? " · KCAL" : " · G") + (tef ? " · TEF" : ""),
-      basisOpts, tefStyle, tefBox, tefMark: tef ? "×" : "",
-      basisShow: { s1: s.basisCol === "s1", s2: s.basisCol === "s2", s3: s.basisCol === "s3" },
-      openBasis: { s1: () => this.setState({ basisCol: "s1" }), s2: () => this.setState({ basisCol: "s2" }), s3: () => this.setState({ basisCol: "s3" }) },
-      closeBasis: () => this.setState({ basisCol: "" }),
+      tefStyle, tefBox, tefMark: tef ? "×" : "",
       basisLabel: isPct ? "GRAMS %" : isKcalBasis ? "KCAL" : "GRAMS",
       toggleTef: () => this.setState({ tef: !s.tef }),
       tefOn: tef && isKcalBasis,
@@ -3134,7 +3027,7 @@ class Component extends DCLogic {
       toggleCat: () => this.setState({ catOpen: !s.catOpen }),
       lab1: LABELS[0], lab2: LABELS[1], lab3: LABELS[2],
       lab1s: "PROTEIN", lab2s: "CARB", lab3s: "FAT",
-      tip: { s1: hd === "s1", s2: hd === "s2", s3: hd === "s3", fb: hd === "fb", kcal: hd === "kcal", score: hd === "score" },
+      tip: (() => { const o = {}; TIP_KEYS.forEach(k => { o[k] = hd === k; }); return o; })(),
       tipText: TIPS, tipOn, tipOff: () => this.setState({ tip: "" }),
       tipStyle, tipStyleLeft, tipTitle, tipBody,
       head1: Object.assign(headCell(HUE[0]), dHide),
@@ -3177,43 +3070,18 @@ class Component extends DCLogic {
       },
       blankSub: { borderLeft: dxp ? INNER : "1px solid transparent", transition: "border-color 300ms ease" },
       blankTot: { borderLeft: dxp ? "1px solid transparent" : INNER, transition: "border-color 300ms ease" },
-      tgtR: dTgtData, dTgtToggle, onTgt, tgtVal: tgtRaw,
       dSumLab: { display: "flex", alignItems: "center", gap: ".35rem", minWidth: 0,
         overflow: "hidden", whiteSpace: "nowrap", fontFamily: "var(--font-2)",
         fontSize: ".75rem", letterSpacing: ".12em", color: "#7b91a3" },
       dSumLabText: { overflow: "hidden", textOverflow: "ellipsis" },
-      dTgtBox: { flex: "none", alignSelf: "stretch", display: "flex", alignItems: "center",
-        justifyContent: "center", width: "26px", cursor: "pointer" },
-      // The target expander points where the rows will go: down to unfold them,
-      // up to fold them away.
-      dTgtChev: { flex: "none", width: "16px", height: "16px", borderRadius: "50%",
-        boxSizing: "border-box", border: "1px solid #66808f",
-        display: "flex", alignItems: "center", justifyContent: "center", background: "none" },
-      dTgtTri: dTgt
-        ? { width: 0, height: 0, borderLeft: "4px solid transparent", borderRight: "4px solid transparent",
-          borderTop: "0 solid transparent", borderBottom: "5.5px solid #c7d6e0", margin: "0 0 1.5px 0" }
-        : { width: 0, height: 0, borderLeft: "4px solid transparent", borderRight: "4px solid transparent",
-          borderTop: "5.5px solid #c7d6e0", borderBottom: "0 solid transparent", margin: "1.5px 0 0 0" },
-      dTgtWrap: { flex: "none", marginRight: "10px", overflow: "hidden",
-        height: dTgt ? "calc(3.6rem + 2px)" : "0px", opacity: dTgt ? 1 : 0,
-        transition: "height 420ms cubic-bezier(.22,1,.36,1), opacity 300ms ease" },
-      dTgtRowS: { display: "grid", gridTemplateColumns: dCols, columnGap: 0,
-        alignItems: "stretch", minHeight: "1.8rem",
-        borderTop: "1px solid rgba(34,211,238,.14)", fontSize: ".9rem", color: "#d7e6ef",
-        transition: D_GRID_T },
-      dTgtLab: { display: "flex", alignItems: "center", gap: ".45rem", minWidth: 0,
-        overflow: "hidden", whiteSpace: "nowrap", paddingLeft: "26px", boxSizing: "border-box",
-        fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em", color: "#7b91a3" },
-      // The target figure is an input dressed exactly like the size inputs above it:
-      // pinned right in its column, no chrome of its own.
-      tgtSizeCell: { display: "flex", alignItems: "center", justifyContent: "flex-end",
-        paddingLeft: ".2rem", paddingRight: ".45rem" },
-      tgtInputS: { width: "2.8rem", boxSizing: "border-box", textAlign: "right",
-        background: "rgba(34,211,238,.07)", border: "1px solid rgba(34,211,238,.45)",
-        borderRadius: 0, padding: ".12rem .25rem", color: "#22d3ee",
-        fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".875rem",
-        fontVariantNumeric: "tabular-nums" },
       blankAct: { borderLeft: "1px solid rgba(34,211,238,.55)" },
+      // Copy sits where the plate rows keep their bin: the actions column, last row.
+      dCopyBtn: {
+        display: "flex", alignItems: "center", justifyContent: "center",
+        width: "100%", height: "100%", padding: 0, border: 0, borderRadius: 0,
+        background: "transparent", cursor: "pointer", color: "#7b91a3",
+        transition: "color 140ms ease"
+      },
       // Offscreen rows skip layout entirely, which is what keeps 250 grids animating
       // their tracks at full frame rate.
       dRowWrap: { flex: "none", contentVisibility: "auto", containIntrinsicSize: "auto 29px" },
@@ -3277,6 +3145,16 @@ class Component extends DCLogic {
           color: extra.k === x.k ? "#22d3ee" : "#d7e6ef"
         }
       })),
+      // Every header explains itself the same way: a name, then a sentence.
+      headTipWrap: { position: "absolute", top: "100%", right: 0, zIndex: 40,
+        display: "flex", flexDirection: "column", minWidth: "20rem", paddingTop: ".35rem",
+        textTransform: "none", letterSpacing: 0, cursor: "default" },
+      headTipInner: { display: "block", padding: ".55rem .7rem .7rem", background: "#070b12",
+        border: "1px solid rgba(34,211,238,.55)", boxShadow: "0 0 28px rgba(34,211,238,.12)" },
+      headTipName: { fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".12em", color: "#7b91a3" },
+      headTipText: { display: "block", marginTop: ".3rem", fontFamily: "var(--font-1)",
+        fontWeight: 300, fontSize: ".85rem", lineHeight: 1.55, color: "#cbd5e1",
+        textWrap: "pretty", whiteSpace: "normal" },
       headUnit: { textTransform: "none", fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".06em", color: "#94a3b8" },
       fillLegend: isPct ? "MACROS AS % OF FOOD ENERGY" : isKcalBasis ? "MACROS AS KCAL CONTRIBUTED" : "MACROS IN GRAMS",
       shownCount: String(matchCount),
