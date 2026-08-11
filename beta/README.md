@@ -60,6 +60,12 @@ What is different from the root:
   amount moves off the header measure) puts it back, and ADD puts that amount on the plate.
   `tools/add_portions.py` writes the serving onto the food row as a twelfth and thirteenth
   element.
+- With OZ as the header measure, the bar under the search says simply OZ behind a small
+  monochrome stars-and-stripes flag — the audience that thinks in ounces is one country —
+  and the whole drawing speaks ounces with it: the table beside the donut, and the figure
+  the hole shows with a macro open, two decimals below ten because most foods are
+  fractions of an ounce. Picking any measure also restates an open food's amount as one
+  of it, so choosing OZ lands on exactly 1 oz.
 - FULLNESS is checked against evidence rather than asserted. `tools/calibrate_fullness.py`
   matches 33 of the 38 foods in Holt's 1995 satiety index — the only measured satiety data
   there is — to SR Legacy and reports rank correlation, judged leave-one-out: fit on 32
