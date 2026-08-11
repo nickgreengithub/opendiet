@@ -10,9 +10,15 @@ What is different from the root:
   the built one; CALORIE CALC, RECIPE BUILDER and FOOD COMPARE are placeholders.
 - Desktop switches app with tabs across the top. Mobile gets a back button to the launcher.
 - The desktop table wears the donut's own colours: each macro column's bar is its slice's
-  hue — protein cyan, carbs green, fat coral, water its blue — sheer enough that the
-  figure stays the loudest thing in the cell. WATER rides its own sortable column left of
-  PROT, and the macro headers say CARBS and FATS, as the drawing does. The actions header
+  hue — protein cyan, carbs green, fat coral, water an indigo the donut wears too, moved
+  off blue so it could never be read as protein's cyan — sheer enough that the
+  figure stays the loudest thing in the cell. The six sub-macro bars keep to two flat
+  tones, one green and one coral: the donut's brightness ramp died into the ground at
+  bar alpha. WATER rides its own sortable column left of
+  PROT, and the macro headers say CARBS and FATS, as the drawing does. The SIZE header
+  sits at its column's left edge, where its values start, and with OZ as the measure the
+  whole table speaks ounces wherever it spoke grams — figures, water, sub-macros,
+  totals, targets — two decimals below ten. The actions header
   carries the same ringed + the mobile rows use: pressing it widens the app and trades
   the CARBS and FATS totals for six sub-macro columns of the same weight as any other —
   SUGAR FIBRE STARCH, SAT MONO POLY — each header wearing its parent's three-letter mark
@@ -31,7 +37,15 @@ What is different from the root:
   a 250-row table isn't relaid out per frame; the two together are the difference
   between a stutter and a glide. Two strong rules and no more: one opens the numeric
   block at WATER, one fences the actions column — everything between is a hairline,
-  because two strong lines side by side read as a doubled border.
+  because two strong lines side by side read as a doubled border; the actions fence is
+  1px like everything else, since double thickness read as a doubled line. The desktop
+  totals row says MY FOOD SUMMARY behind its own ringed +, which opens three rows
+  beneath it: TARGET — FDA daily values scaled from an editable daily-calorie figure
+  (default 2000), one per column that has one, none for water — DIFFERENCE, the plate's
+  distance from each target in signed numbers, and BALANCE, the same distance as a bar
+  swinging left (under) or right (over) of a centre line in the column's own hue, no
+  numbers at all. SAT reads SATURA in the expanded header, since six characters were
+  there to spend.
 - Both layouts open on the search line alone, centred both ways — on mobile the magnifier
   and library button step out of the flow so the placeholder holds the exact middle — and
   lift it to the header on the first keystroke. Reaching for the search box, or typing a different query, returns the list to
