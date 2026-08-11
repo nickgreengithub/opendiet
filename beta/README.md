@@ -76,7 +76,11 @@ What is different from the root:
   breaking it into protein, fat, carbs (fat between the two, because cyan and green are
   the pair a tritan eye loses), the run centred at three o'clock to face the table. The
   hole states the split that matters, everything-else / macros of 100: watermelon says
-  92/8, parmesan 30/70. The table sits against the right edge on a subtle interior grid —
+  92/8, parmesan 30/70. With a macro open it says that macro's grams instead, and the two
+  figures trade places on the choreography's own clock — the split slips out with the
+  flare, the grams arrive as the sweep closes, leave first on the way back, and the split
+  returns with the final brighten, the last macro remembered so the leaving figure still
+  knows what it says while it fades. The table sits against the right edge on a subtle interior grid —
   hairlines between rows and before the gram column, no outer border, the gram figures
   held a step off the screen's edge — dot, name, grams,
   with the macro rows indented under MACROS. Fat and carbs are the two slices with more
