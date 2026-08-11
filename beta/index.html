@@ -220,7 +220,6 @@ option{background:#070b12;color:#d7e6ef}
         <input data-search data-land="{{ dLandFlag }}" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ dSearchInput }}">
         <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ dClearBtn }}" style-hover="color:#d7e6ef"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if>
       </span>
-      <span style="{{ headMeasure }}"></span>
       <span onClick="{{ sortOn.wa }}" style="{{ headWa }}"><span>WATER</span><span style="{{ headUnit }}">{{ vzUnit }}</span><sc-if value="{{ sorted.wa }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if></span>
       <span onMouseEnter="{{ openBasis.s1 }}" onMouseLeave="{{ closeBasis }}" onClick="{{ sortOn.s1 }}" style="{{ head1 }}"><span>PROT</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s1 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-25%</span></sc-if><sc-if value="{{ basisShow.s1 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></span></button></sc-for><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">PROTEIN</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.s1 }}</span></span></span></span></sc-if></span>
       <span style="{{ subHead }}"><span style="{{ subPre }}">CAR</span><span>SUGAR</span></span>
@@ -274,7 +273,7 @@ option{background:#070b12;color:#d7e6ef}
                 <span style="display:flex;align-items:center;gap:.55rem;min-width:0">
                   <span style="font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:color 140ms ease" style-hover="color:#a5f3fc">{{ r.name }}</span>
                 </span>
-                <span style="{{ sumSizeCell }}"><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
+                <span style="{{ sumSizeCell }}"><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onBlur="{{ r.qtyBlur }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
                 <span style="{{ r.cellWa }}"><span style="{{ r.fillWa }}"></span><span style="{{ numWrap }}">{{ r.vWa }}</span></span>
                 <span style="{{ r.cell1 }}"><span style="{{ r.sfill1 }}"></span><span style="{{ numWrap }}">{{ r.v1 }}</span></span>
                 <span style="{{ r.sub1.c }}"><span style="{{ r.sub1.f }}"></span><span style="{{ numWrap }}">{{ r.sub1.v }}</span></span>
@@ -2035,7 +2034,7 @@ class Component extends DCLogic {
       // Choosing a measure restates any open donut in it: one of the new measure
       // becomes the amount, so OZ opens on exactly 1 oz.
       onClick: () => this.setState({ unit: u.k, unitOpen: false, mColOpen: false,
-        mQty: Math.round(u.g), mMode: "g" }),
+        mQty: Math.round(u.g), mMode: "g", qtyOzRaw: {} }),
       gStyle: { fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", fontVariantNumeric: "tabular-nums", color: unit.k === u.k ? "#22d3ee" : "#94a3b8", flex: "none" },
       style: {
         display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem",
@@ -2163,7 +2162,19 @@ class Component extends DCLogic {
             this._windT = setTimeout(() => this.setState({ vizWind: false }), 2000);
           }
         },
-        qty: qtyOf(fo.name), qtyUnit: fo.mu === "ml" ? "ml" : "g",
+        // With OZ as the measure the size input reads and edits in ounces, one decimal,
+        // while the plate keeps counting grams underneath. What is being typed is held
+        // verbatim until the field blurs, so "1." never has its dot eaten mid-thought.
+        qty: dOz
+          ? (s.qtyOzRaw && s.qtyOzRaw[fo.name] != null ? s.qtyOzRaw[fo.name]
+            : String(Math.round(gramsOf(fo.name) / 28.35 * 10) / 10))
+          : qtyOf(fo.name),
+        qtyUnit: dOz ? "oz" : (fo.mu === "ml" ? "ml" : "g"),
+        qtyBlur: () => this.setState(st => {
+          if (!st.qtyOzRaw || st.qtyOzRaw[fo.name] == null) return null;
+          const m = Object.assign({}, st.qtyOzRaw); delete m[fo.name];
+          return { qtyOzRaw: m };
+        }),
         // Mobile reads the size rather than editing it — the steppers are the whole input.
         // Fixed width for three digits, so the + and − stay in a column down the table.
         qtyStyle: s.narrow
@@ -2249,6 +2260,14 @@ class Component extends DCLogic {
         sub6: subCellOf((fo.po || 0) * g, SUB_CRL[2], sumGramMax, gFmt((fo.po || 0) * g)),
         onQty: e => {
           const raw = e.target.value, num = parseFloat(raw);
+          if (dOz) {
+            const grams = !isNaN(num) ? Math.min(QTY_MAX, Math.round(num * 28.35 * 10) / 10) : null;
+            this.setState(st => ({
+              qtyOzRaw: Object.assign({}, st.qtyOzRaw, { [fo.name]: raw }),
+              qty: grams === null ? st.qty : Object.assign({}, st.qty, { [fo.name]: String(grams) })
+            }));
+            return;
+          }
           const v = !isNaN(num) && num > QTY_MAX ? String(QTY_MAX) : raw;
           this.setState(st => ({ qty: Object.assign({}, st.qty, { [fo.name]: v }) }));
         },
@@ -2313,9 +2332,9 @@ class Component extends DCLogic {
       sub4: subCellOf(tSf, SUB_CRL[0], tfvMax, gFmt(tSf)),
       sub5: subCellOf(tMo, SUB_CRL[1], tfvMax, gFmt(tMo)),
       sub6: subCellOf(tPo, SUB_CRL[2], tfvMax, gFmt(tPo)),
-      qty: String(Math.round(tQty)),
+      qty: dOz ? String(Math.round(tQty / 28.35 * 10) / 10) : String(Math.round(tQty)),
       // Mixed solids + liquids fall back to G, matching USDA's gram basis.
-      qtyUnit: sumFoods.length && sumFoods.every(fo => fo.mu === "ml") ? "ml" : "g"
+      qtyUnit: dOz ? "oz" : (sumFoods.length && sumFoods.every(fo => fo.mu === "ml") ? "ml" : "g")
     };
     // Three rows under the summary, behind its own ringed +: the day's target from a
     // chosen calorie figure (FDA daily values at 2000 kcal, scaled linearly), the
@@ -2325,18 +2344,21 @@ class Component extends DCLogic {
     const tgtRaw = s.tgtKcal === undefined ? "2000" : String(s.tgtKcal);
     const tgtK = Math.round(Number(tgtRaw)) || 2000;
     const tgtScale = tgtK / 2000;
+    // FDA daily values at 2000 kcal. Protein and added sugar are both 50 g there — a
+    // coincidence, not a copy. STARCH is derived: the carbohydrate day minus its sugar
+    // and fibre. MONO and POLY have no daily value anywhere, so they honestly say so.
     const TGT_DEF = [
       ["wa", null, null],
-      ["p", 50, "rgba(34,211,238,.55)"],
-      ["sg", 50, "rgba(126,224,168,.55)"],
-      ["fb", 28, "rgba(126,224,168,.55)"],
-      ["st", null, null],
-      ["cb", 275, "rgba(126,224,168,.55)"],
-      ["sf", 20, "rgba(240,140,122,.55)"],
+      ["p", 50, null],
+      ["sg", 50, null],
+      ["fb", 28, null],
+      ["st", 275 - 50 - 28, null],
+      ["cb", 275, null],
+      ["sf", 20, null],
       ["mo", null, null],
       ["po", null, null],
-      ["f", 78, "rgba(240,140,122,.55)"],
-      ["k", -1, "rgba(34,211,238,.55)"],
+      ["f", 78, null],
+      ["k", -1, null],
       ["x", null, null]
     ];
     const TGT_ACT = { wa: null, p: tP, sg: tSg, fb: tFb, st: tSt, cb: tC, sf: tSf,
@@ -2492,6 +2514,8 @@ class Component extends DCLogic {
         transition: "transform 620ms cubic-bezier(.22,1,.36,1), height 760ms cubic-bezier(.22,1,.36,1), border-color 460ms ease, " + D_GRID_T
       },
       dSearchCell: {
+        // With the SIZE header gone the search line takes its track too.
+        gridColumn: dLanding ? "auto" : "span 2",
         position: "relative", display: "flex", alignItems: "center",
         justifyContent: dLanding ? "center" : "flex-start",
         gap: ".55rem", padding: dLanding ? "0 1.25rem" : "0 .85rem 0 0",
@@ -2584,8 +2608,8 @@ class Component extends DCLogic {
       // The measure lives above the desktop table now: two words, the active one lit.
       dMeasWrap: { marginLeft: "auto", display: !s.narrow && app === "search" && !dLanding ? "flex" : "none",
         alignItems: "center", gap: "1.15rem" },
-      dMeas100: () => this.setState({ unit: "100G" }),
-      dMeasOz: () => this.setState({ unit: "OZ" }),
+      dMeas100: () => this.setState({ unit: "100G", qtyOzRaw: {} }),
+      dMeasOz: () => this.setState({ unit: "OZ", qtyOzRaw: {} }),
       dMeas100S: {
         display: "flex", alignItems: "center", height: "1.9rem", cursor: "pointer", whiteSpace: "nowrap",
         transition: "color 160ms ease, text-shadow 160ms ease",
@@ -3168,7 +3192,8 @@ class Component extends DCLogic {
       // The target figure is an input dressed exactly like the size inputs above it:
       // pinned right in its column, no chrome of its own.
       tgtInputS: { width: "3.4rem", textAlign: "right", background: "transparent",
-        border: 0, borderRadius: 0, padding: "0 0 .1rem", color: "#d7e6ef",
+        border: 0, borderRadius: 0, borderBottom: "1px solid rgba(34,211,238,.5)",
+        padding: "0 0 .1rem", color: "#22d3ee",
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".875rem",
         fontVariantNumeric: "tabular-nums" },
       blankAct: { borderLeft: "1px solid rgba(34,211,238,.55)" },
@@ -3238,10 +3263,10 @@ class Component extends DCLogic {
       blankEdge: { borderLeft: EDGE }, blankInner: { borderLeft: INNER }, tot, sumCount: String(sumRows.length),
       totViz, totWrap, totExpand, totVizTap, totToggle, totChevBox, totChev,
       qtyStyle, headIsland: Object.assign({}, headIsland, dHide), unitSuffix, numWrap, never: false,
-      headMeasure: { position: "relative", display: dLanding ? "none" : "flex", alignItems: "center", justifyContent: "flex-start", gap: ".3rem", paddingRight: ".5rem", cursor: "pointer", color: "#c3d6e2", whiteSpace: "nowrap" },
-      measureCell: { display: "flex", alignItems: "center", justifyContent: "flex-start", paddingRight: ".5rem", fontWeight: 300, fontSize: ".875rem", fontVariantNumeric: "tabular-nums", color: "#7b91a3", whiteSpace: "nowrap" },
+      headMeasure: { position: "relative", display: dLanding ? "none" : "flex", alignItems: "center", justifyContent: "flex-start", gap: ".3rem", paddingLeft: ".7rem", paddingRight: ".5rem", color: "#c3d6e2", whiteSpace: "nowrap" },
+      measureCell: { display: "flex", alignItems: "center", justifyContent: "flex-start", paddingLeft: ".7rem", paddingRight: ".5rem", fontWeight: 300, fontSize: ".875rem", fontVariantNumeric: "tabular-nums", color: "#7b91a3", whiteSpace: "nowrap" },
       sizeSuffix: { marginLeft: ".2rem", display: "inline-block", width: s.narrow ? "1.35rem" : "1.2rem", textAlign: "left", flex: "none", fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".7rem", letterSpacing: ".06em", color: "#94a3b8" },
-      sumSizeCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: ".5rem", fontWeight: 300, fontSize: ".875rem", fontVariantNumeric: "tabular-nums", color: "#d7e6ef", whiteSpace: "nowrap" },
+      sumSizeCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", paddingLeft: ".7rem", paddingRight: ".5rem", fontWeight: 300, fontSize: ".875rem", fontVariantNumeric: "tabular-nums", color: "#d7e6ef", whiteSpace: "nowrap" },
       catFiltered: s.cat !== "ALL",
       inputFix: { style: { boxSizing: "border-box" } }
     };

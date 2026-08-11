@@ -56,8 +56,13 @@ What is different from the root:
   beneath it: SET DAILY CALORIE TARGET — FDA daily values scaled from the calorie
   figure typed into the KCAL column, an input dressed exactly like the size inputs
   above it (default 2000), one target per column that has one, none for water — and
-  DIFFERENCE, the plate's distance from each target in signed numbers. SAT reads SATURA
-  in the expanded header, since six characters were there to spend.
+  DIFFERENCE, the plate's distance from each target in signed numbers; the input wears
+  a cyan figure on a cyan hairline, so it reads as the one editable thing in the row.
+  SAT reads SATURA in the expanded header, since six characters were there to spend.
+  With OZ as the measure the plate's size inputs read and edit in ounces to one
+  decimal — what is being typed is held verbatim until the field blurs, so a dot never
+  vanishes mid-thought — while the plate keeps counting grams underneath, and the
+  totals line follows suit.
 - Both layouts open on the search line alone, centred both ways — on mobile the magnifier
   and library button step out of the flow so the placeholder holds the exact middle — and
   lift it to the header on the first keystroke. Reaching for the search box, or typing a different query, returns the list to
