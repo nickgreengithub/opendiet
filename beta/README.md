@@ -42,8 +42,13 @@ What is different from the root:
   `max-height`; `--od-row` tells each slot the height it is opening to, since a phone's rows
   are taller than a desktop's.
 - No CORE library. The everyday-food problem is solved in the search order rather than by
-  filtering the data, so a long result list costs nothing. SR Legacy is the default; FNDDS
-  is the other option. `data/core.json` stays for the root site, which still opens on it.
+  filtering the data, so a long result list costs nothing. SR Legacy is the library; the
+  switcher that once offered FNDDS is gone — one good default beat a menu — though the
+  FNDDS file still ships for the loader. `data/core.json` stays for the root site, which
+  still opens on it. ABOUT, which lived in that menu, is a quiet line on the launcher now.
+- Mobile's measure · column selector rides in the search bar itself rather than a bar of
+  its own, sharing one type size with the input, and its column names run to eight
+  characters at most — FULLNESS, SAT FAT — so the selector never crowds the query.
 - Search matches every word of the query, in any order, and treats a plural as its
   singular in both directions — "apple" finds `Apples, raw`, "eggs" finds `Egg, whole, raw`,
   "berry" reaches `Blueberries`. Results are then scored by how the query landed: 20 for a

@@ -181,6 +181,7 @@ option{background:#070b12;color:#d7e6ef}
         </div>
       </sc-for>
     </div>
+    <button onClick="{{ openAbout }}" style="{{ homeAbout }}" style-hover="color:#22d3ee">ABOUT OPENDIET.ORG</button>
   </div>
   </sc-if>
   <sc-if value="{{ appSoon }}" hint-placeholder-val="{{ false }}">
@@ -190,29 +191,32 @@ option{background:#070b12;color:#d7e6ef}
     <span style="{{ soonNote }}">{{ appNote }}</span>
   </div>
   </sc-if>
+  <sc-if value="{{ aboutOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeAbout }}" style="{{ aboutScrim }}">
+  <div onClick="{{ stopProp }}" style="{{ aboutPanel }}">
+    <div style="{{ aboutMeta }}"><span>V0.1.0-BETA</span><a onClick="{{ closeAbout }}" style="{{ aboutClose }}">CLOSE</a></div>
+    <div style="{{ aboutLead }}">This open source project is free to fork for non-commercial use.</div>
+    <div style="{{ aboutPara }}">Values come from USDA FoodData Central, public domain. Numbers are averages for a generic item — brands, cuts and cooking method move them.</div>
+    <div style="{{ aboutLabel }}">DISCLAIMER</div>
+    <div style="{{ aboutDisc }}">Not medical or nutritional advice. Nothing here diagnoses, treats or prevents anything. Talk to a doctor or a registered dietitian before changing your diet, especially with a medical condition, pregnancy, or a history of disordered eating.</div>
+    <div style="{{ aboutFoot }}">
+      <span style="{{ aboutMade }}">MADE BY <a href="https://www.linkedin.com/in/analystnickgreen/" target="_blank" style="letter-spacing:.12em;cursor:pointer;white-space:nowrap">NICHOLAS GREEN</a> · 2026</span>
+      <a href="https://github.com/nickgreengithub/opendiet" target="_blank" style="{{ aboutGit }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="M12 .5C5.73.5.99 5.24.99 11.51c0 4.86 3.15 8.98 7.52 10.44.55.1.75-.24.75-.53v-2.05c-3.06.67-3.71-1.3-3.71-1.3-.5-1.28-1.23-1.62-1.23-1.62-1-.69.08-.67.08-.67 1.11.08 1.69 1.14 1.69 1.14.98 1.69 2.58 1.2 3.21.92.1-.72.39-1.2.7-1.48-2.44-.28-5.01-1.22-5.01-5.44 0-1.2.43-2.18 1.13-2.95-.11-.28-.49-1.4.11-2.92 0 0 .92-.3 3.02 1.13a10.4 10.4 0 0 1 5.5 0c2.1-1.43 3.02-1.13 3.02-1.13.6 1.52.22 2.64.11 2.92.7.77 1.13 1.75 1.13 2.95 0 4.23-2.58 5.16-5.03 5.43.4.34.75 1.02.75 2.06v3.05c0 .3.2.64.76.53a11.03 11.03 0 0 0 7.51-10.44C23.01 5.24 18.27.5 12 .5z"></path></svg>GITHUB</a>
+    </div>
+  </div>
+  </div>
+  </sc-if>
   <sc-if value="{{ isResults }}" hint-placeholder-val="{{ true }}">
   <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
   <div style="display:flex;flex-direction:column;flex:1;min-height:0">
     <div style="flex:none;z-index:5;padding-right:10px">
 
     <div style="{{ dHeadRow }}">
-      <span data-hint="{{ searchHint }}" onMouseEnter="{{ openLib }}" onMouseLeave="{{ closeLib }}" style="{{ dSearchCell }}">
+      <span data-hint="{{ searchHint }}" style="{{ dSearchCell }}">
         <span style="{{ dLandHide }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="flex:none"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg></span>
         <span onClick="{{ sortOn.name }}" style="{{ dSortCell }}"><sc-if value="{{ sorted.name }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if></span>
         <input data-search data-land="{{ dLandFlag }}" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ dSearchInput }}">
         <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ dClearBtn }}" style-hover="color:#d7e6ef"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if>
-        
-        <sc-if value="{{ libOpen }}" hint-placeholder-val="{{ false }}">
-          <span data-pop style="position:absolute;top:100%;left:0;z-index:40;display:flex;flex-direction:column;min-width:16rem;max-height:70vh;overflow-y:auto;padding-top:.35rem">
-            <span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)">
-              <span style="display:grid;grid-template-columns:minmax(0,1fr) 4.6rem;column-gap:.55rem;padding:.35rem .7rem;border-bottom:1px solid rgba(34,211,238,.55);font-family:var(--font-2);font-size:.68rem;letter-spacing:.12em;color:#7b91a3"><span>LIBRARY</span><span style="text-align:right">FOODS</span></span>
-              <sc-for list="{{ libOpts }}" as="o" hint-placeholder-count="4">
-                <button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ o.label }}</span><span style="{{ o.countStyle }}">{{ o.sub }}</span></button>
-              </sc-for>
-              <button onClick="{{ openAbout }}" style="{{ aboutRowStyle }}" style-hover="background:rgba(34,211,238,.18)"><span>ABOUT</span><span style="color:#d7e6ef">OPENDIET.ORG</span></button>
-            </span>
-          </span>
-        </sc-if>
       </span>
       <span onMouseEnter="{{ openUnit }}" onMouseLeave="{{ closeUnit }}" style="{{ headMeasure }}"><span>SIZE</span><sc-if value="{{ unitOpen }}" hint-placeholder-val="{{ false }}">
           <span style="position:absolute;top:100%;left:0;z-index:40;display:flex;flex-direction:column;min-width:18rem;padding-top:.35rem;text-transform:none;letter-spacing:0">
@@ -346,23 +350,9 @@ option{background:#070b12;color:#d7e6ef}
     <div data-hint="{{ searchHint }}" style="{{ mSearchRow }}">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="{{ mSearchIcon }}"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
       <input data-search="m" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ mSearchInput }}">
-      <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ mClearBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if><span data-pop onClick="{{ mLib }}" style="{{ mLibBtn }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></span>
-      <sc-if value="{{ libOpen }}" hint-placeholder-val="{{ false }}">
-        <span data-pop style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:18rem;max-height:70vh;overflow-y:auto;padding-top:.35rem">
-          <span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)">
-            <span style="display:grid;grid-template-columns:minmax(0,1fr) 5.2rem;column-gap:.55rem;padding:.45rem .85rem;border-bottom:1px solid rgba(34,211,238,.55);font-family:var(--font-2);font-size:.86rem;letter-spacing:.12em;color:#7b91a3"><span>LIBRARY</span><span style="text-align:right">FOODS</span></span>
-            <sc-for list="{{ libOpts }}" as="o" hint-placeholder-count="4">
-              <button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ o.label }}</span><span style="{{ o.countStyle }}">{{ o.sub }}</span></button>
-            </sc-for>
-            <button onClick="{{ openAbout }}" style="{{ aboutRowStyle }}" style-hover="background:rgba(34,211,238,.18)"><span>ABOUT</span><span style="color:#d7e6ef">OPENDIET.ORG</span></button>
-          </span>
-        </span>
-      </sc-if>
+      <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ mClearBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if><span data-pop onClick="{{ mColToggle }}" style="{{ mHeadOne }}"><sc-if value="{{ ozOn }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" style="flex:none;opacity:.85"><path d="M5.7 3.4v18" stroke="currentColor" stroke-width="1.5" fill="none"></path><rect x="5.7" y="4.6" width="13.6" height="9.2" fill="none" stroke="currentColor" stroke-width="1.3"></rect><rect x="5.7" y="4.6" width="6.2" height="4.6" fill="currentColor" stroke="none"></rect><path d="M11.9 7h7.4M5.7 11.2h13.6" stroke="currentColor" stroke-width="1.1" fill="none"></path></svg></sc-if><span>{{ measureLabel }}</span><span style="{{ mHeadDot }}">·</span><span style="{{ mHeadCol }}">{{ mColLabel }}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ mColOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><span style="display:grid;grid-template-columns:1fr 1fr"><span style="display:flex;flex-direction:column;border-right:1px solid rgba(34,211,238,.28)"><span style="{{ mPopHead }}">MEASURE</span><sc-for list="{{ unitOpts }}" as="u" hint-placeholder-count="4"><button onClick="{{ u.onClick }}" style="{{ u.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ u.label }}</span><span style="{{ u.gStyle }}">{{ u.grams }}</span></button></sc-for></span><span style="display:flex;flex-direction:column"><span style="{{ mPopHead }}">COLUMN</span><sc-for list="{{ mColOpts }}" as="o" hint-placeholder-count="9"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ o.label }}</span><span style="{{ o.unitStyle }}">{{ o.unit }}</span></button></sc-for></span></span><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(34,211,238,.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="{{ mPopNote }}">Digestion costs 25% of protein calories, 8% of carbohydrate and 2% of fat. Applied to calories.</span></span></span></sc-if></span>
     </div>
     <div style="{{ mBody }}">
-    <div style="{{ mHeadRow }}">
-      <span data-pop onClick="{{ mColToggle }}" style="{{ mHeadOne }}"><sc-if value="{{ ozOn }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" style="flex:none;opacity:.85"><path d="M5.7 3.4v18" stroke="currentColor" stroke-width="1.5" fill="none"></path><rect x="5.7" y="4.6" width="13.6" height="9.2" fill="none" stroke="currentColor" stroke-width="1.3"></rect><rect x="5.7" y="4.6" width="6.2" height="4.6" fill="currentColor" stroke="none"></rect><path d="M11.9 7h7.4M5.7 11.2h13.6" stroke="currentColor" stroke-width="1.1" fill="none"></path></svg></sc-if><span>{{ measureLabel }}</span><span style="{{ mHeadDot }}">·</span><span style="{{ mHeadCol }}">{{ mColLabel }}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ mColOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><span style="display:grid;grid-template-columns:1fr 1fr"><span style="display:flex;flex-direction:column;border-right:1px solid rgba(34,211,238,.28)"><span style="{{ mPopHead }}">MEASURE</span><sc-for list="{{ unitOpts }}" as="u" hint-placeholder-count="4"><button onClick="{{ u.onClick }}" style="{{ u.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ u.label }}</span><span style="{{ u.gStyle }}">{{ u.grams }}</span></button></sc-for></span><span style="display:flex;flex-direction:column"><span style="{{ mPopHead }}">COLUMN</span><sc-for list="{{ mColOpts }}" as="o" hint-placeholder-count="9"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ o.label }}</span><span style="{{ o.unitStyle }}">{{ o.unit }}</span></button></sc-for></span></span><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(34,211,238,.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="{{ mPopNote }}">Digestion costs 25% of protein calories, 8% of carbohydrate and 2% of fat. Applied to calories.</span></span></span></sc-if></span>
-    </div>
     <div data-scroll="rows" style="{{ mListStyle }}">
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
         <div data-back="{{ r.back }}" data-lift="m">
@@ -576,21 +566,6 @@ option{background:#070b12;color:#d7e6ef}
     </div>
     </sc-if>
     </div>
-  </div>
-  </sc-if>
-  <sc-if value="{{ aboutOpen }}" hint-placeholder-val="{{ false }}">
-  <div onClick="{{ closeAbout }}" style="{{ aboutScrim }}">
-  <div onClick="{{ stopProp }}" style="{{ aboutPanel }}">
-    <div style="{{ aboutMeta }}"><span>V0.1.0-BETA</span><a onClick="{{ closeAbout }}" style="{{ aboutClose }}">CLOSE</a></div>
-    <div style="{{ aboutLead }}">This open source project is free to fork for non-commercial use.</div>
-    <div style="{{ aboutPara }}">Values come from USDA FoodData Central, public domain. Numbers are averages for a generic item — brands, cuts and cooking method move them.</div>
-    <div style="{{ aboutLabel }}">DISCLAIMER</div>
-    <div style="{{ aboutDisc }}">Not medical or nutritional advice. Nothing here diagnoses, treats or prevents anything. Talk to a doctor or a registered dietitian before changing your diet, especially with a medical condition, pregnancy, or a history of disordered eating.</div>
-    <div style="{{ aboutFoot }}">
-      <span style="{{ aboutMade }}">MADE BY <a href="https://www.linkedin.com/in/analystnickgreen/" target="_blank" style="letter-spacing:.12em;cursor:pointer;white-space:nowrap">NICHOLAS GREEN</a> · 2026</span>
-      <a href="https://github.com/nickgreengithub/opendiet" target="_blank" style="{{ aboutGit }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="M12 .5C5.73.5.99 5.24.99 11.51c0 4.86 3.15 8.98 7.52 10.44.55.1.75-.24.75-.53v-2.05c-3.06.67-3.71-1.3-3.71-1.3-.5-1.28-1.23-1.62-1.23-1.62-1-.69.08-.67.08-.67 1.11.08 1.69 1.14 1.69 1.14.98 1.69 2.58 1.2 3.21.92.1-.72.39-1.2.7-1.48-2.44-.28-5.01-1.22-5.01-5.44 0-1.2.43-2.18 1.13-2.95-.11-.28-.49-1.4.11-2.92 0 0 .92-.3 3.02 1.13a10.4 10.4 0 0 1 5.5 0c2.1-1.43 3.02-1.13 3.02-1.13.6 1.52.22 2.64.11 2.92.7.77 1.13 1.75 1.13 2.95 0 4.23-2.58 5.16-5.03 5.43.4.34.75 1.02.75 2.06v3.05c0 .3.2.64.76.53a11.03 11.03 0 0 0 7.51-10.44C23.01 5.24 18.27.5 12 .5z"></path></svg>GITHUB</a>
-    </div>
-  </div>
   </div>
   </sc-if>
   <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
@@ -2449,7 +2424,9 @@ class Component extends DCLogic {
       mTipF: () => this.setState({ mTip: s.mTip === "s3" ? "" : "s3", libOpen: false, unitOpen: false, mColOpen: false }),
       mTipPop: { position: "absolute", top: "100%", right: 0, zIndex: 40, width: "16rem", display: "flex", flexDirection: "column", gap: ".35rem", padding: ".7rem .85rem", background: "#070b12", border: "1px solid rgba(34,211,238,.55)", boxShadow: "0 0 28px rgba(34,211,238,.12)", textAlign: "left", textTransform: "none", letterSpacing: 0, whiteSpace: "normal", cursor: "default" },
       mExtra: () => this.setState({ extraOpen: !s.extraOpen, libOpen: false, unitOpen: false, catOpen: false }),
-      mColLabel: mCol.label === "FULLNESS" ? "FULLN" : mCol.label, mColUnit: mCol.unit,
+      // Eight characters at most in the bar, so the selector never crowds the query.
+      mColLabel: mCol.label === "FULLNESS SCORE" ? "FULLNESS"
+        : mCol.label === "SATURATED FAT" ? "SAT FAT" : mCol.label, mColUnit: mCol.unit,
       basisUnit: barBasisUnit,
       sortOn: {
         name: () => this.sortBy("name"), s1: () => this.sortBy("s1"), s2: () => this.sortBy("s2"),
@@ -2535,13 +2512,6 @@ class Component extends DCLogic {
         overflow: bare ? "visible" : "hidden",
         textOverflow: bare ? "clip" : "ellipsis",
         padding: bare ? ".35rem 0" : 0
-      },
-      mHeadRow: {
-        flex: "none", position: "relative", zIndex: 20, display: "block",
-        height: "2.4rem",
-        borderTop: "1px solid rgba(34,211,238,.28)", borderBottom: "1px solid rgba(34,211,238,.55)",
-        fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".08em",
-        color: "#c3d6e2", textTransform: "uppercase"
       },
       mHead: { display: bare ? "none" : "flex", alignItems: "center", justifyContent: "flex-end", gap: ".15rem", height: "100%", cursor: "pointer", whiteSpace: "nowrap" },
       mPop: { position: "absolute", top: "100%", left: 0, right: 0, zIndex: 40, display: "flex", flexDirection: "column", paddingTop: ".3rem", textTransform: "none", letterSpacing: 0 },
@@ -2675,6 +2645,13 @@ class Component extends DCLogic {
       homeMark: { display: "flex", alignItems: "baseline", fontFamily: "var(--font-2)", fontSize: s.narrow ? "1.3rem" : "1.6rem", letterSpacing: ".2em", color: "#d7e6ef" },
       homeSub: { fontFamily: "var(--font-2)", fontSize: s.narrow ? ".8rem" : ".78rem", letterSpacing: ".18em", color: "#5b7183" },
       homeGrid: { flex: "none", display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: s.narrow ? ".6rem" : "1rem" },
+      // ABOUT lives on the launcher now that the library menu that used to hold it is gone.
+      homeAbout: {
+        alignSelf: "flex-start", marginTop: s.narrow ? "1.1rem" : "1.5rem",
+        padding: 0, border: 0, borderRadius: 0, background: "transparent", cursor: "pointer",
+        fontFamily: "var(--font-2)", fontSize: ".78rem", letterSpacing: ".16em",
+        color: "#5b7183", transition: "color 140ms ease"
+      },
       cardTop: { display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: ".6rem" },
       cardNote: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? ".95rem" : "1rem", lineHeight: 1.5, color: "#94a3b8", textWrap: "pretty" },
       soonWrap: {
@@ -2710,10 +2687,11 @@ class Component extends DCLogic {
         height: landing ? "3.6rem" : "2.9rem",
         padding: landing ? "0 1.9rem" : "0 .55rem 0 .6rem",
         fontFamily: "var(--font-2)", zIndex: 30,
+        borderBottom: "1px solid " + (landing ? "transparent" : "rgba(34,211,238,.55)"),
         transform: landing ? "translateY(" + landingDrop + "px)" : "none",
         // It travels at one speed and settles into the compact bar at a slower one, so the
         // shape keeps resolving after the move has landed.
-        transition: "transform 620ms cubic-bezier(.22,1,.36,1), height 760ms cubic-bezier(.22,1,.36,1), padding 760ms cubic-bezier(.22,1,.36,1), gap 760ms ease"
+        transition: "transform 620ms cubic-bezier(.22,1,.36,1), height 760ms cubic-bezier(.22,1,.36,1), padding 760ms cubic-bezier(.22,1,.36,1), gap 760ms ease, border-color 460ms ease"
       },
       // The landing screen is a search box and nothing else — the library picker fades in
       // with the table. Space is reserved so the input does not resize underneath you.
@@ -2727,7 +2705,7 @@ class Component extends DCLogic {
         height: landing ? "2.7rem" : "2rem",
         textAlign: landing ? "center" : "left",
         padding: landing ? "0 .1rem" : "0 .3rem",
-        fontSize: landing ? "1.34rem" : "1.1rem",
+        fontSize: landing ? "1.34rem" : ".98rem",
         letterSpacing: landing ? ".07em" : ".05em",
         transition: "font-size 760ms cubic-bezier(.22,1,.36,1), height 760ms cubic-bezier(.22,1,.36,1), letter-spacing 760ms ease, padding 760ms ease"
       },
@@ -2872,9 +2850,14 @@ class Component extends DCLogic {
         backdropFilter: "blur(7px)", WebkitBackdropFilter: "blur(7px)",
         pointerEvents: "auto"
       },
+      // The measure · column selector lives in the search bar now, sharing one type size
+      // with the input — no bar of its own. It fades in with the table, like the icon.
       mHeadOne: {
-        display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".45rem",
-        height: "100%", paddingRight: ".3rem", cursor: "pointer", whiteSpace: "nowrap"
+        display: landing ? "none" : "flex", alignItems: "center", gap: ".4rem",
+        flex: "none", height: "100%", paddingRight: ".1rem", cursor: "pointer",
+        whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: ".98rem",
+        letterSpacing: ".06em", textTransform: "uppercase", color: "#c3d6e2",
+        opacity: landing ? 0 : 1, transition: "opacity 300ms ease 200ms"
       },
       // With the keyboard up the numbers column is gone, so only the measure is worth naming.
       mHeadDot: { display: bare ? "none" : "inline", color: "#3f5364" },
