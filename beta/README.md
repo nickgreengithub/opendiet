@@ -182,7 +182,11 @@ What is different from the root:
   bottom bar into the very drawing an open food gets — donut, hole split, table, macro
   rings, picks, the lot — computed for the plate summed as one food: absolute grams
   re-expressed per 100 g, so the same code that explains one food explains the whole
-  plate at once. A tap anywhere outside the open drawing folds it back down.
+  plate at once. Open, the bar's three shorthands (PRO CAR FAT) step aside for the view's
+  name — SUM TOTALS drifts up into their place — and the panel keeps one expansion at a
+  time: opening the totals folds any open plate row, and opening a plate or search food
+  folds the totals. Nothing else does — a stray tap outside the drawing leaves it be;
+  only its own ring, the bar, or a deliberate expansion elsewhere folds it.
 - The plate's totals line rides the same three tracks as its rows, so the amount and the
   chosen measure sit under the columns they are totals of rather than in a row of evenly
   spaced figures. Its header carries one control: copy, which puts the plate on the

@@ -518,10 +518,13 @@ option{background:#070b12;color:#d7e6ef}
       <div onClick="{{ totToggle }}" style="{{ mSumTotRow }}">
         <span style="{{ totChevBox }}"><span style="{{ totChev }}"></span></span>
         <span style="{{ mTotRow }}">
-          <span style="{{ mTotMacros }}">
-            <span><span style="{{ mTotTag }}">PROT</span> {{ tot.v1 }}<span style="{{ mTotUnit }}">{{ tot.u3 }}</span></span>
-            <span><span style="{{ mTotTag }}">CARB</span> {{ tot.v2 }}<span style="{{ mTotUnit }}">{{ tot.u3 }}</span></span>
-            <span><span style="{{ mTotTag }}">FAT</span> {{ tot.v3 }}<span style="{{ mTotUnit }}">{{ tot.u3 }}</span></span>
+          <span style="{{ mTotSwap }}">
+            <span style="{{ mTotMacros }}">
+              <span><span style="{{ mTotTag }}">PRO</span> {{ tot.v1 }}<span style="{{ mTotUnit }}">{{ tot.u3 }}</span></span>
+              <span><span style="{{ mTotTag }}">CAR</span> {{ tot.v2 }}<span style="{{ mTotUnit }}">{{ tot.u3 }}</span></span>
+              <span><span style="{{ mTotTag }}">FAT</span> {{ tot.v3 }}<span style="{{ mTotUnit }}">{{ tot.u3 }}</span></span>
+            </span>
+            <span style="{{ mTotLabel }}">SUM TOTALS</span>
           </span>
           <span style="{{ mTotQty }}">{{ tot.qty }}<span style="{{ sizeSuffix }}">{{ tot.qtyUnit }}</span></span>
           <span style="{{ mTotVal }}">{{ tot.mTotVal }}<span style="{{ unitSuffix }}">{{ mColUnit }}</span></span>
@@ -681,11 +684,8 @@ class Component extends DCLogic {
     // bubble click to document from non-interactive elements.
     this._dismiss = e => {
       const s = this.state;
-      // The totals drawing folds itself when attention goes anywhere else.
-      if (s.totOpen && !(e.target && e.target.closest && e.target.closest("[data-totwrap]"))) {
-        this.setState(st => ({ totOpen: false, vizPick: null,
-          vizZoom: st.vizZoom === "__TOT__" ? null : st.vizZoom }));
-      }
+      // The totals drawing holds its ground: it folds on its own ring, or when a plate
+      // or search food is deliberately opened instead — never on a stray outside tap.
       if (!(s.libOpen || s.unitOpen || s.catOpen || s.extraOpen || s.mColOpen || s.mTip)) return;
       if (e.target && e.target.closest && e.target.closest("[data-pop]")) return;
       this.setState({ libOpen: false, unitOpen: false, catOpen: false, extraOpen: false, mColOpen: false, mTip: "" });
@@ -1868,7 +1868,8 @@ class Component extends DCLogic {
         back: s.justBack === fo.name ? "on" : "off",
         open: open,
         toggleRow: s.narrow
-          ? () => this.setState({ mOpen: open ? null : fo.name, mQty: Math.round(unit.g), mMode: "g", vizZoom: null, vizMacro: null, vizPick: null })
+          ? () => this.setState({ mOpen: open ? null : fo.name, mQty: Math.round(unit.g), mMode: "g", vizZoom: null, vizMacro: null, vizPick: null,
+            totOpen: open ? s.totOpen : false })
           : r.toggleRow,
         addRow: e => {
           if (e && e.stopPropagation) e.stopPropagation();
@@ -2143,7 +2144,10 @@ class Component extends DCLogic {
         leaving: s.leaving === fo.name ? "on" : "off",
         // A plate row opens the same way a search row does; the amount it edits is the
         // plate's own, so every change lands straight in the totals.
-        sToggle: () => this.setState({ sOpen: sOpenName === fo.name ? null : fo.name, sMode: "g", vizZoom: null, vizMacro: null, vizPick: null }),
+        // Opening a plate row's drawing folds the totals drawing — the deliberate
+        // expansions displace each other; nothing else touches the totals.
+        sToggle: () => this.setState(st => ({ sOpen: sOpenName === fo.name ? null : fo.name, sMode: "g", vizZoom: null, vizMacro: null, vizPick: null,
+          totOpen: sOpenName === fo.name ? st.totOpen : false })),
         ctl: sOpenName === fo.name
           ? amountCtl(fo, Math.round(gramsOf(fo.name)),
               q => this.setState(st => ({ qty: Object.assign({}, st.qty, { [fo.name]: String(clampG(q)) }) })),
@@ -2311,10 +2315,12 @@ class Component extends DCLogic {
         this._windT = setTimeout(() => this.setState({ vizWind: false }), 2000);
       }
     };
+    // Opening the totals drawing closes any plate row's own drawing first — one
+    // expansion at a time is the panel's rule.
     const totToggle = e => {
       if (e && e.stopPropagation) e.stopPropagation();
       this.setState(st => ({ totOpen: !st.totOpen, vizPick: null,
-        vizZoom: st.vizZoom === "__TOT__" ? null : st.vizZoom }));
+        sOpen: null, vizZoom: null }));
     };
     const totChevBox = { flex: "none", alignSelf: "stretch", display: "flex",
       alignItems: "center", justifyContent: "center", width: "22px",
@@ -2756,9 +2762,24 @@ class Component extends DCLogic {
       },
       // Three figures now share the name's track rather than the whole line, so they give a
       // little type back to keep clear of each other.
+      // While the totals drawing is open the three shorthands step aside for the view's
+      // name — a crossfade in place, the label drifting up into position.
+      mTotSwap: { position: "relative", minWidth: 0 },
       mTotMacros: {
         minWidth: 0, display: "grid", gridTemplateColumns: "repeat(3,1fr)",
-        alignItems: "baseline", justifyItems: "center", textAlign: "center", fontSize: ".9rem"
+        alignItems: "baseline", justifyItems: "center", textAlign: "center", fontSize: ".9rem",
+        opacity: totOpen ? 0 : 1,
+        transition: totOpen ? "opacity 220ms ease" : "opacity 300ms ease 180ms"
+      },
+      mTotLabel: {
+        position: "absolute", left: ".55rem", top: "50%",
+        transform: totOpen ? "translateY(-50%)" : "translateY(-22%)",
+        opacity: totOpen ? 1 : 0, pointerEvents: "none", whiteSpace: "nowrap",
+        fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".16em",
+        color: "#c3d6e2",
+        transition: totOpen
+          ? "opacity 340ms ease 200ms, transform 340ms cubic-bezier(.22,1,.36,1) 200ms"
+          : "opacity 200ms ease, transform 200ms ease"
       },
       // The tag and the unit are the parts that can afford to shrink; the figures are what
       // the line is for. Without this the three collide on a 360px phone.
@@ -2770,7 +2791,8 @@ class Component extends DCLogic {
       copyPlate: e => { if (e && e.stopPropagation) e.stopPropagation(); this.copyPlate(plateText); },
       copyBtn: {
         display: sumTucked ? "none" : "flex", alignItems: "center", justifyContent: "flex-end",
-        height: "100%", width: "2.6rem", padding: 0, border: 0, borderRadius: 0,
+        height: "100%", width: "2.6rem", padding: "0 .4rem 0 0", border: 0, borderRadius: 0,
+        boxSizing: "border-box",
         background: "transparent", cursor: "pointer", color: "#7b91a3",
         transition: "color 140ms ease"
       },
@@ -2789,7 +2811,7 @@ class Component extends DCLogic {
       // so its grams and its chosen column land under the columns they are totals of.
       mSumHeadGrid: { flex: 1, minWidth: 0, display: "grid",
         gridTemplateColumns: SUM_COLS, columnGap: ".4rem", alignItems: "center" },
-      mSumTitleCell: { minWidth: 0, display: "flex", alignItems: "center", gap: ".55rem" },
+      mSumTitleCell: { minWidth: 0, display: "flex", alignItems: "center", gap: ".55rem", paddingLeft: ".55rem" },
       mSumTitle: { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
       sumRing: { flex: "none", width: "16px", height: "16px", borderRadius: "50%",
         boxSizing: "border-box", border: "1px solid #66808f",
