@@ -101,9 +101,12 @@ What is different from the root:
   open macro's rows lean forward and the rest lean back, the same quarter-step the donut
   takes. Tapping any other row is a pick: its slice brightens above a receding ring, its
   name and figure do the same in the table, and the hole's emphasis swaps with it — a
-  water-side pick brightens the left figure, a macro pick the right. Every dim in the
-  drawing is a brightness drop rather than transparency, because a see-through slice
-  lets the layer beneath it read as a second, ghost donut. The brackets are spans rather
+  water-side pick brightens the left figure, a macro pick the right. Every dim and every lift in the
+  drawing is an opaque stroke colour computed in JS — never opacity, which lets the layer
+  beneath a slice read as a second, ghost donut, and never a CSS filter, which iOS Safari
+  does not apply to SVG elements at all; the rgba shades are composited onto the panel
+  first, so no slice is ever see-through. The flare is a stroke tint keyframe for the
+  same reason. The brackets are spans rather
   than paths — a span's top and height can animate where a path's d cannot — so each one
   grows, shrinks and shifts with the very rows it hugs. Picking MACROS
   lights all three of the outer run, because that run is what MACROS is. While a macro is

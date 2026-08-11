@@ -28,8 +28,10 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
 /* Ambient onboarding: a light sweeps through whatever the user should touch next.
    Purely decorative — it never blocks a tap, and it stops the moment the step is done. */
 @keyframes od-sweep{0%{background-position:190% 0}70%{background-position:-90% 0}100%{background-position:-90% 0}}
-/* The pressed slice announces itself before it moves. */
-@keyframes od-flare{0%,30%{filter:brightness(1.8)}100%{filter:brightness(1)}}
+/* The pressed slice announces itself before it moves — as a stroke tint, because iOS
+   Safari does not apply CSS filters to SVG elements. */
+@keyframes od-flare-f{0%,30%{stroke:#ffdccf}}
+@keyframes od-flare-c{0%,30%{stroke:#d6f7e2}}
 @keyframes od-ring{0%,100%{box-shadow:inset 0 0 0 1px rgba(34,211,238,.22)}50%{box-shadow:inset 0 0 0 1px rgba(34,211,238,.9), 0 0 18px rgba(34,211,238,.22)}}
 @keyframes od-edge{0%,100%{border-left-color:rgba(34,211,238,.12)}50%{border-left-color:rgba(34,211,238,.95)}}
 [data-hint="on"]{
@@ -1350,18 +1352,32 @@ class Component extends DCLogic {
       const dashOf = len => len.toFixed(2) + " " + (100 - len).toFixed(2);
       // A picked row's slice rises above the rest; picking answers in 200ms, never on the
       // choreography's clock.
-      // Dimming is a brightness drop, never transparency: a see-through slice lets the
-      // layer beneath it read as a second, ghost donut.
-      const emph = tag => !pk ? null : pk === tag
-        ? { opacity: 1, filter: "brightness(1.45)" }
-        : { opacity: 1, filter: "brightness(.4) saturate(.7)" };
-      const FAST = "opacity 200ms ease, filter 200ms ease";
-      const innSt = tag => {
+      // Dimming and lifting are done in the colour itself — opaque, computed stroke
+      // values — never with opacity or CSS filters: transparency lets the layer beneath
+      // a slice read as a second, ghost donut, and iOS Safari does not apply filters to
+      // SVG elements at all. Every rgba shade is composited onto the panel first, so no
+      // slice is ever see-through.
+      const BG = [11, 26, 32];
+      const rgbOf = c => {
+        if (c[0] === "#") return [parseInt(c.slice(1, 3), 16),
+          parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)];
+        const m = (c.match(/[\d.]+/g) || [0, 0, 0]).map(Number);
+        const a2 = m.length > 3 ? m[3] : 1;
+        return [0, 1, 2].map(i => Math.round(m[i] * a2 + BG[i] * (1 - a2)));
+      };
+      const cssRGB = v => "rgb(" + v[0] + "," + v[1] + "," + v[2] + ")";
+      const solidC = c => cssRGB(rgbOf(c));
+      const dimC = c => cssRGB(rgbOf(c).map(x => Math.round(x * .35)));
+      const briC = c => cssRGB(rgbOf(c).map(x => Math.round(x + (255 - x) * .42)));
+      const emph = tag => !pk ? null : pk === tag ? "hi" : "lo";
+      const shade = (c, e) => e === "hi" ? briC(c) : e === "lo" ? dimC(c) : solidC(c);
+      const FAST = "stroke 200ms ease, opacity 200ms ease";
+      const innSt = (tag, col) => {
         const e = emph(tag);
-        if (e) return Object.assign({ transition: FAST }, e);
-        return { opacity: 1, filter: zm ? "brightness(.35) saturate(.7)" : "none",
-          transition: zm ? "filter 250ms ease"
-            : wind ? "filter 400ms ease 480ms" : "filter 250ms ease, opacity 250ms ease" };
+        if (e) return { stroke: shade(col, e), opacity: 1, transition: FAST };
+        return { stroke: zm ? dimC(col) : solidC(col), opacity: 1,
+          transition: zm ? "stroke 250ms ease"
+            : wind ? "stroke 400ms ease 480ms" : "stroke 250ms ease, opacity 250ms ease" };
       };
       const outSt = (tag, key, seg) => {
         const chosen = zm === key;
@@ -1369,26 +1385,28 @@ class Component extends DCLogic {
           strokeDasharray: (zm && !chosen) ? "0 100" : dashOf(seg.len),
           transform: "rotate(" + (seg.a0 - 90).toFixed(1) + "deg)",
           transformOrigin: "82px 82px",
-          opacity: chosen && zm ? 0 : 1, filter: "none"
+          opacity: chosen && zm ? 0 : 1
         };
         // Picking MACROS lights all three of them: the outer run is what MACROS is.
         const e = emph(pk === "MACROS" && !zm ? "MACROS" : tag);
-        if (e) return Object.assign(base, e,
+        base.stroke = shade(seg.col, e);
+        if (e) return Object.assign(base,
           { transition: FAST + ", stroke-dasharray 450ms " + EASE });
         base.transition = zm
           ? "stroke-dasharray 450ms " + EASE + ", opacity 120ms ease"
           : wind ? "stroke-dasharray 500ms " + EASE + " 900ms, opacity 250ms ease 1040ms"
-          : "stroke-dasharray 450ms " + EASE + ", opacity 250ms ease, filter 250ms ease";
+          : "stroke-dasharray 450ms " + EASE + ", stroke 250ms ease, opacity 250ms ease";
         return base;
       };
       const subSt = (tag, on, seg) => {
         const base = {
           strokeDasharray: on ? dashOf(seg.len) : "0 100",
           transform: "rotate(" + (seg.a0 - 90).toFixed(1) + "deg)",
-          transformOrigin: "82px 82px", opacity: 1, filter: "none"
+          transformOrigin: "82px 82px", opacity: 1
         };
         const e = on ? emph(tag) : null;
-        if (e) return Object.assign(base, e,
+        base.stroke = shade(seg.col, e);
+        if (e) return Object.assign(base,
           { transition: FAST + ", stroke-dasharray 450ms " + EASE });
         base.transition = on
           ? "stroke-dasharray 520ms " + EASE + " 780ms"
@@ -1468,7 +1486,7 @@ class Component extends DCLogic {
       const start = 90 - mSweep / 2;
       const IN_TAGS = ["MACROS", "WATER", "ASH", "ALC"];
       const innerSlots = ring(46, inner, start, total1).map((sl, i) =>
-        sl.d ? { d: sl.d, col: sl.col, st: innSt(IN_TAGS[i]) } : sl);
+        sl.d ? { d: sl.d, col: sl.col, st: innSt(IN_TAGS[i], sl.col) } : sl);
       // Fat between protein and carbs, because cyan and green are the pair a tritan
       // eye loses.
       const outSegs = circSegs([[HUE[0], fo.p], [HUE[2], fo.f], [HUE[1], fo.c]], start,
@@ -1491,15 +1509,15 @@ class Component extends DCLogic {
       // released, it waits for the parts to wind up, retraces, and lets go of its opacity
       // only once the resting ring is winding back in.
       const perG = macros > 0 ? mSweep / macros : 0;
-      const sweepC = (startG, valG, on) => ({
+      const sweepC = (startG, valG, on, col, flare) => ({
         r: on ? "46px" : "70px",
         strokeDasharray: on ? "101 0"
           : (valG * perG / 3.6).toFixed(2) + " " + (100 - valG * perG / 3.6).toFixed(2),
         transform: "rotate(" + (start + startG * perG - 90).toFixed(1) + "deg)",
         transformOrigin: "82px 82px",
         opacity: on ? 1 : 0,
-        filter: on && pk ? "brightness(.4) saturate(.7)" : "none",
-        animation: on && !pk ? "od-flare 950ms ease" : "none",
+        stroke: on && pk ? dimC(col) : solidC(col),
+        animation: on && !pk ? flare + " 950ms ease" : "none",
         transition: on
           ? (pk ? FAST : "r 650ms " + EASE + " 280ms, stroke-dasharray 650ms " + EASE + " 280ms, opacity 120ms ease")
           : wind
@@ -1549,8 +1567,8 @@ class Component extends DCLogic {
         holeUS: zm ? { marginLeft: ".15rem", fontFamily: "var(--font-2)",
           fontSize: ".8rem", letterSpacing: ".04em", color: "#5f7f8e" } : HID,
         rows: rows,
-        swF: sweepC(fo.p, fo.f, zm === "f"),
-        swC: sweepC(fo.p + fo.f, fo.c, zm === "c") };
+        swF: sweepC(fo.p, fo.f, zm === "f", HUE[2], "od-flare-f"),
+        swC: sweepC(fo.p + fo.f, fo.c, zm === "c", HUE[1], "od-flare-c") };
       // The brackets live at the table's left edge, in the drawing's own pixels: 30px
       // first row then 31, the table at up to 13.8rem against the right edge. Each one
       // rides its own macro's rows — growing, shrinking and shifting with them, since a
