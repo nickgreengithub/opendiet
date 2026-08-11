@@ -232,7 +232,7 @@ option{background:#070b12;color:#d7e6ef}
       <span onMouseEnter="{{ openBasis.s3 }}" onMouseLeave="{{ closeBasis }}" onClick="{{ sortOn.s3 }}" style="{{ head3 }}"><span>FATS</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s3 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-2%</span></sc-if><sc-if value="{{ basisShow.s3 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></span></button></sc-for><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">FATS</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.s3 }}</span></span></span></span></sc-if></span>
       <span onMouseEnter="{{ tipOn.kcal }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.kcal }}" style="{{ headTotal }}"><span>KCAL</span><sc-if value="{{ sorted.kcal }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.kcal }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(34,211,238,.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="display:block;padding:0 .7rem .7rem"><span style="font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#94a3b8;text-wrap:pretty">Digestion costs 25% of protein calories, 8% of carbohydrate, 2% of fat. Always applied to KCAL; applied to the macro columns only when they show kcal contribution.</span></span><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">KCAL</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.kcal }}</span></span></span></span></sc-if></span>
       <span onMouseEnter="{{ openExtra }}" onMouseLeave="{{ closeExtra }}" onClick="{{ sortOn.extra }}" style="{{ headIsland }}"><span>{{ extraLabel }}</span><sc-if value="{{ sorted.extra }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ extraOpen }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><span style="display:block;padding:.55rem .7rem .7rem"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">FULLNESS SCORE</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.score }}</span></span></span></span></sc-if></span>
-      <span style="{{ dActHead }}"><span data-dexp onClick="{{ dExpToggle }}" style="{{ dExpBox }}"><span style="{{ dExpChev }}"></span></span></span>
+      <span style="{{ dActHead }}"><span data-dexp onClick="{{ dExpToggle }}" style="{{ dExpBox }}"><span style="{{ dExpChev }}"><span style="{{ dExpTri }}"></span></span></span></span>
     </div>
     </div>
     <div style="{{ dBody }}">
@@ -312,7 +312,7 @@ option{background:#070b12;color:#d7e6ef}
         </div>
         </div>
         <div style="{{ dTotRow }}">
-          <span style="{{ dSumLab }}"><span data-dtgt onClick="{{ dTgtToggle }}" style="{{ dTgtBox }}"><span style="{{ dTgtChev }}"></span></span><span style="{{ dSumLabText }}">MY FOOD SUMMARY</span></span>
+          <span style="{{ dSumLab }}"><span data-dtgt onClick="{{ dTgtToggle }}" style="{{ dTgtBox }}"><span style="{{ dTgtChev }}"><span style="{{ dTgtTri }}"></span></span></span><span style="{{ dSumLabText }}">MY FOOD SUMMARY</span></span>
           <span style="{{ measureCell }}">{{ tot.qty }}<span style="{{ sizeSuffix }}">{{ tot.qtyUnit }}</span></span>
           <span style="{{ tot.cellWa }}"><span style="{{ tot.fillWa }}"></span><span style="{{ numWrap }}">{{ tot.vWa }}</span></span>
           <span style="{{ tot.cell1 }}"><span style="{{ tot.fill1 }}"></span><span style="{{ numWrap }}">{{ tot.v1 }}</span></span>
@@ -3184,11 +3184,16 @@ class Component extends DCLogic {
       dSumLabText: { overflow: "hidden", textOverflow: "ellipsis" },
       dTgtBox: { flex: "none", alignSelf: "stretch", display: "flex", alignItems: "center",
         justifyContent: "center", width: "26px", cursor: "pointer" },
+      // The target expander points where the rows will go: down to unfold them,
+      // up to fold them away.
       dTgtChev: { flex: "none", width: "16px", height: "16px", borderRadius: "50%",
         boxSizing: "border-box", border: "1px solid #66808f",
-        background: dTgt
-          ? "linear-gradient(#c7d6e0,#c7d6e0) center/8px 1.3px no-repeat"
-          : "linear-gradient(#c7d6e0,#c7d6e0) center/8px 1.3px no-repeat, linear-gradient(#c7d6e0,#c7d6e0) center/1.3px 8px no-repeat" },
+        display: "flex", alignItems: "center", justifyContent: "center", background: "none" },
+      dTgtTri: dTgt
+        ? { width: 0, height: 0, borderLeft: "4px solid transparent", borderRight: "4px solid transparent",
+          borderTop: "0 solid transparent", borderBottom: "5.5px solid #c7d6e0", margin: "0 0 1.5px 0" }
+        : { width: 0, height: 0, borderLeft: "4px solid transparent", borderRight: "4px solid transparent",
+          borderTop: "5.5px solid #c7d6e0", borderBottom: "0 solid transparent", margin: "1.5px 0 0 0" },
       dTgtWrap: { flex: "none", marginRight: "10px", overflow: "hidden",
         height: dTgt ? "calc(3.6rem + 2px)" : "0px", opacity: dTgt ? 1 : 0,
         transition: "height 420ms cubic-bezier(.22,1,.36,1), opacity 300ms ease" },
@@ -3222,13 +3227,18 @@ class Component extends DCLogic {
         display: dLanding ? "none" : "flex", alignItems: "center", justifyContent: "center",
         width: "100%", height: "100%", cursor: "pointer"
       },
+      // The column expander points where the table will go: right to open out,
+      // left to come home.
       dExpChev: {
         flex: "none", width: "16px", height: "16px",
         borderRadius: "50%", boxSizing: "border-box", border: "1px solid #66808f",
-        background: dxp
-          ? "linear-gradient(#c7d6e0,#c7d6e0) center/8px 1.3px no-repeat"
-          : "linear-gradient(#c7d6e0,#c7d6e0) center/8px 1.3px no-repeat, linear-gradient(#c7d6e0,#c7d6e0) center/1.3px 8px no-repeat"
+        display: "flex", alignItems: "center", justifyContent: "center", background: "none"
       },
+      dExpTri: dxp
+        ? { width: 0, height: 0, borderTop: "4px solid transparent", borderBottom: "4px solid transparent",
+          borderLeft: "0 solid transparent", borderRight: "5.5px solid #c7d6e0", margin: "0 1.5px 0 0" }
+        : { width: 0, height: 0, borderTop: "4px solid transparent", borderBottom: "4px solid transparent",
+          borderLeft: "5.5px solid #c7d6e0", borderRight: "0 solid transparent", margin: "0 0 0 1.5px" },
       aboutRowStyle: {
         display: "flex", alignItems: "center", gap: ".3rem",
         height: s.narrow ? "2.4rem" : "1.95rem", padding: s.narrow ? "0 .85rem" : "0 .7rem",

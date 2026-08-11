@@ -32,7 +32,9 @@ What is different from the root:
   sits at its column's left edge, where its values start, and with OZ as the measure the
   whole table speaks ounces wherever it spoke grams — figures, water, sub-macros,
   totals, targets — two decimals below ten. The actions header
-  carries the same ringed + the mobile rows use: pressing it widens the app and trades
+  carries a circled triangle pointing where the table will go — right to open, left to
+  come home — and the summary's own ring points down to unfold the target rows, up to
+  fold them: pressing the header's widens the app and trades
   the CARBS and FATS totals for six sub-macro columns of the same weight as any other —
   SUGAR FIBRE STARCH, SAT MONO POLY — each header wearing its parent's three-letter mark
   (CAR, FAT) pinned at the cell's left in darker type, names six characters at most, no
