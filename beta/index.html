@@ -1368,6 +1368,7 @@ class Component extends DCLogic {
       const cssRGB = v => "rgb(" + v[0] + "," + v[1] + "," + v[2] + ")";
       const solidC = c => cssRGB(rgbOf(c));
       const dimC = c => cssRGB(rgbOf(c).map(x => Math.round(x * .35)));
+      const dim2C = c => cssRGB(rgbOf(c).map(x => Math.round(x * .18)));
       const briC = c => cssRGB(rgbOf(c).map(x => Math.round(x + (255 - x) * .42)));
       const emph = tag => !pk ? null : pk === tag ? "hi" : "lo";
       const shade = (c, e) => e === "hi" ? briC(c) : e === "lo" ? dimC(c) : solidC(c);
@@ -1387,8 +1388,9 @@ class Component extends DCLogic {
           transformOrigin: "82px 82px",
           opacity: chosen && zm ? 0 : 1
         };
-        // Picking MACROS lights all three of them: the outer run is what MACROS is.
-        const e = emph(pk === "MACROS" && !zm ? "MACROS" : tag);
+        // Picking MACROS lights the inner slice alone; the outer run dulls with the rest,
+        // so one thing on the ring answers the tap.
+        const e = emph(tag);
         base.stroke = shade(seg.col, e);
         if (e) return Object.assign(base,
           { transition: FAST + ", stroke-dasharray 450ms " + EASE });
@@ -1516,7 +1518,9 @@ class Component extends DCLogic {
         transform: "rotate(" + (start + startG * perG - 90).toFixed(1) + "deg)",
         transformOrigin: "82px 82px",
         opacity: on ? 1 : 0,
-        stroke: on && pk ? dimC(col) : solidC(col),
+        // Under a sub pick the sweep dulls harder than usual: the macro's own colour is
+        // naturally brighter than its parts, and the picked part must win.
+        stroke: on && pk ? dim2C(col) : solidC(col),
         animation: on && !pk ? flare + " 950ms ease" : "none",
         transition: on
           ? (pk ? FAST : "r 650ms " + EASE + " 280ms, stroke-dasharray 650ms " + EASE + " 280ms, opacity 120ms ease")

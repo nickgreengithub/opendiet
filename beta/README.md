@@ -109,7 +109,10 @@ What is different from the root:
   same reason. The brackets are spans rather
   than paths — a span's top and height can animate where a path's d cannot — so each one
   grows, shrinks and shifts with the very rows it hugs. Picking MACROS
-  lights all three of the outer run, because that run is what MACROS is. While a macro is
+  lights the inner macros slice alone and dulls the outer run with everything else, so
+  one thing on the ring answers the tap; under a sub pick the sweep dulls harder than
+  usual, because a macro's own colour is naturally brighter than its parts and the picked
+  part must win. While a macro is
   open, its own sub rows pick in place; any other row folds the macro on its way to the
   pick, quickly — the long unwinding is reserved for a tap on the drawing itself, held by
   a short-lived wind flag so that clearing a pick never waits on the choreography's
