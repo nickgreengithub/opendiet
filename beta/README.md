@@ -87,10 +87,12 @@ What is different from the root:
   at once the two groups' heights cancel exactly and nothing below them moves off-beat. The table sits against the right edge on a subtle interior grid —
   hairlines between rows and before the gram column, no outer border, the gram figures
   held a step off the screen's edge — dot, name, grams,
-  with the macro rows indented under MACROS. Fat and carbs are the two slices with more
+  with the macro rows indented under MACROS. Fats and carbs are the two slices with more
   to say, so those rows wear a ringed +, pinned against the gram column — unless the
   macro is under 1 g per 100, where there is nothing worth opening and no ring to
-  promise it. Pressing one
+  promise it. Only the ring opens: the row's name is a pick like any other row's, so
+  tapping CARBS highlights carbs rather than unpacking them. Collapse is more lenient —
+  with a macro open, its name, its −, and the drawing itself all fold it. Pressing one
   plays the move rather than cutting to it: the slice first flares bright where it
   stands, then slides in from the outer ring and sweeps the inner one like a clock hand
   until the macro owns the whole circle — the hole handing its split over to that

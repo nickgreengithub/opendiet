@@ -371,7 +371,7 @@ option{background:#070b12;color:#d7e6ef}
                   <span onClick="{{ vr.tap }}" style="{{ vr.row }}">
                     <span style="{{ vr.dot }}"></span>
                     <span style="{{ vr.tagS }}">{{ vr.tag }}</span>
-                    <span style="{{ vr.chev }}"></span>
+                    <span onClick="{{ vr.chevTap }}" style="{{ vr.chev }}"></span>
                     <span style="{{ vr.valS }}"><span style="{{ vr.valIn }}">{{ vr.val }}<span style="{{ unitSuffix }}">g</span></span></span>
                   </span>
                 </sc-for>
@@ -445,7 +445,7 @@ option{background:#070b12;color:#d7e6ef}
                   <span onClick="{{ vr.tap }}" style="{{ vr.row }}">
                     <span style="{{ vr.dot }}"></span>
                     <span style="{{ vr.tagS }}">{{ vr.tag }}</span>
-                    <span style="{{ vr.chev }}"></span>
+                    <span onClick="{{ vr.chevTap }}" style="{{ vr.chev }}"></span>
                     <span style="{{ vr.valS }}"><span style="{{ vr.valIn }}">{{ vr.val }}<span style="{{ unitSuffix }}">g</span></span></span>
                   </span>
                 </sc-for>
@@ -1306,7 +1306,7 @@ class Component extends DCLogic {
     // paint.
     const vizFor = (fo, grams, zm, onMacro, pk, onPick, wind) => {
       const f = grams / 100, g1 = n => figNum((n || 0) * f);
-      const HID = { display: "none" };
+      const HID = { display: "none" }, NOOP = () => {};
       const EASE = "cubic-bezier(.4,0,.2,1)";
       const polar = (r, deg) => {
         const a = (deg - 90) * Math.PI / 180;
@@ -1467,19 +1467,20 @@ class Component extends DCLogic {
             : lit ? "#f2f7fa" : dim ? "#8ba0ad" : "#d7e6ef",
           transition: "color 250ms ease",
           fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
-        // An expander row opens its macro; its own − bubbles to the drawing and folds
-        // everything, and the other macro's + presses through and switches directly.
-        // Every other row is a pick: its slice and its name rise above the rest.
-        tap: (o && o.exp) ? e => {
-          if (zm === o.exp || !onMacro) return;
-          if (e && e.stopPropagation) e.stopPropagation();
-          onMacro(o.exp);
-        } : e => {
+        // Only the ringed + opens a macro; the row's name is a pick like any other.
+        // Collapse is lenient: with its macro open, the row's name and its − both fold
+        // it (by letting the tap bubble to the drawing).
+        tap: (o && o.exp && zm === o.exp) ? NOOP : e => {
           if (e && e.stopPropagation) e.stopPropagation();
           if (!onPick) return;
           // A sub row picks in place; any other row folds the open macro on its way.
           onPick(tag, !!(zm && !(o && o.sub === zm)));
         },
+        chevTap: (o && o.exp) ? e => {
+          if (zm === o.exp || !onMacro) return;
+          if (e && e.stopPropagation) e.stopPropagation();
+          onMacro(o.exp);
+        } : NOOP,
         tag: tag, val: val
       }; };
       const WATER_C = "#5787a8", ASH_C = "#465865", ALC_C = "#a58ee0", MAC_C = "#b9cbd8";
@@ -1500,7 +1501,7 @@ class Component extends DCLogic {
       // eye loses.
       const outSegs = circSegs([[HUE[0], fo.p], [HUE[2], fo.f], [HUE[1], fo.c]], start,
         mSweep > 0 ? macros * 360 / mSweep : 0);
-      const O_TAGS = [["PROTIN", "p"], ["FAT", "f"], ["CARBS", "c"]];
+      const O_TAGS = [["PROTEIN", "p"], ["FATS", "f"], ["CARBS", "c"]];
       const outCircs = outSegs.map((sg, i) =>
         ({ col: sg.col, st: outSt(O_TAGS[i][0], O_TAGS[i][1], sg) }));
       const fSegs = circSegs([[CORAL(.9), fo.sf || 0], [CORAL(.72), fo.tr || 0],
@@ -1542,11 +1543,11 @@ class Component extends DCLogic {
       if ((fo.al || 0) > 0) rows.push(row("ALC", g1(fo.al), ALC_C, 0, null));
       rows.push(
         row("MACROS", g1(macros), MAC_C, 0, null),
-        row("PROTIN", g1(fo.p), HUE[0], 1, null));
+        row("PROTEIN", g1(fo.p), HUE[0], 1, null));
       const iFat = rows.length;
       // A macro under 1 g per 100 has nothing worth opening: no ring, no promise.
       rows.push(
-        row("FAT", g1(fo.f), HUE[2], 1, fo.f >= 1 ? { exp: "f" } : null),
+        row("FATS", g1(fo.f), HUE[2], 1, fo.f >= 1 ? { exp: "f" } : null),
         row("SAT", g1(fo.sf), CORAL(.9), 2, { sub: "f" }));
       // TRANS appears once the data pipeline has run with FDC nutrient 1257 aboard.
       if (fo.tr) rows.push(row("TRANS", g1(fo.tr), CORAL(.72), 2, { sub: "f" }));
@@ -2096,7 +2097,7 @@ class Component extends DCLogic {
     }).concat([
       "",
       "TOTAL \u00b7 " + tot.qty + " " + tot.qtyUnit + " \u00b7 " + tot.mTotVal + (mCol.unit ? " " + mCol.unit : ""),
-      "PROTIN " + tot.v1 + " " + tot.u3 + " \u00b7 CARBS " + tot.v2 + " " + tot.u3 + " \u00b7 FAT " + tot.v3 + " " + tot.u3
+      "PROTEIN " + tot.v1 + " " + tot.u3 + " \u00b7 CARBS " + tot.v2 + " " + tot.u3 + " \u00b7 FAT " + tot.v3 + " " + tot.u3
     ]).join("\n");
     const signOut = () => { try { localStorage.removeItem("nutri-search-user"); } catch (e) {} this.setState({ user: null, view: "results" }); };
 
