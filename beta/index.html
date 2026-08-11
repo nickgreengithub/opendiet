@@ -341,7 +341,7 @@ option{background:#070b12;color:#d7e6ef}
         </div>
         <div style="{{ dTgtWrap }}">
           <div style="{{ dTgtRowS }}">
-            <span style="{{ dTgtLab }}"><span>TARGET</span><input data-tgt value="{{ tgtVal }}" onChange="{{ onTgt }}" inputmode="numeric" style="{{ tgtInputS }}"><span style="{{ dTgtSub }}">DAILY KCAL</span></span>
+            <span style="{{ dTgtLab }}"><span>SET DAILY CALORIE TARGET</span></span>
             <span></span>
             <span style="{{ tgtR.wa.tc }}"></span>
             <span style="{{ tgtR.p.tc }}">{{ tgtR.p.tv }}</span>
@@ -353,7 +353,7 @@ option{background:#070b12;color:#d7e6ef}
             <span style="{{ tgtR.mo.tc }}">{{ tgtR.mo.tv }}</span>
             <span style="{{ tgtR.po.tc }}">{{ tgtR.po.tv }}</span>
             <span style="{{ tgtR.f.tc }}">{{ tgtR.f.tv }}</span>
-            <span style="{{ tgtR.k.tc }}">{{ tgtR.k.tv }}</span>
+            <span style="{{ tgtR.k.tc }}"><input data-tgt value="{{ tgtVal }}" onChange="{{ onTgt }}" onClick="{{ stopProp }}" inputmode="numeric" style="{{ tgtInputS }}"></span>
             <span style="{{ tgtR.x.tc }}"></span>
             <span style="{{ blankAct }}"></span>
           </div>
@@ -372,23 +372,6 @@ option{background:#070b12;color:#d7e6ef}
             <span style="{{ tgtR.f.dc }}">{{ tgtR.f.dv }}</span>
             <span style="{{ tgtR.k.dc }}">{{ tgtR.k.dv }}</span>
             <span style="{{ tgtR.x.dc }}"></span>
-            <span style="{{ blankAct }}"></span>
-          </div>
-          <div style="{{ dTgtRowS }}">
-            <span style="{{ dTgtLab }}"><span>BALANCE</span></span>
-            <span></span>
-            <span style="{{ tgtR.wa.bc }}"></span>
-            <span style="{{ tgtR.p.bc }}"><span style="{{ tgtR.p.bb }}"></span></span>
-            <span style="{{ tgtR.sg.bc }}"><span style="{{ tgtR.sg.bb }}"></span></span>
-            <span style="{{ tgtR.fb.bc }}"><span style="{{ tgtR.fb.bb }}"></span></span>
-            <span style="{{ tgtR.st.bc }}"><span style="{{ tgtR.st.bb }}"></span></span>
-            <span style="{{ tgtR.cb.bc }}"><span style="{{ tgtR.cb.bb }}"></span></span>
-            <span style="{{ tgtR.sf.bc }}"><span style="{{ tgtR.sf.bb }}"></span></span>
-            <span style="{{ tgtR.mo.bc }}"><span style="{{ tgtR.mo.bb }}"></span></span>
-            <span style="{{ tgtR.po.bc }}"><span style="{{ tgtR.po.bb }}"></span></span>
-            <span style="{{ tgtR.f.bc }}"><span style="{{ tgtR.f.bb }}"></span></span>
-            <span style="{{ tgtR.k.bc }}"><span style="{{ tgtR.k.bb }}"></span></span>
-            <span style="{{ tgtR.x.bc }}"></span>
             <span style="{{ blankAct }}"></span>
           </div>
         </div>
@@ -2391,21 +2374,11 @@ class Component extends DCLogic {
       // KCAL is the one figure that is already its own unit; the rest are grams and
       // follow the measure.
       const fmtT = key === "k" ? (n => String(Math.round(n))) : gFmt;
-      const w = noT ? 0 : Math.min(50, Math.abs(diff) / (target || 1) * 50);
       dTgtData[key] = {
         tv: key === "wa" || key === "x" ? "" : noT ? "—" : fmtT(target),
         tc: Object.assign(tgtCellBase(key), { color: noT ? "#54677a" : "#9fb3c1" }),
         dv: noT ? "" : (diff >= 0 ? "+" : "−") + fmtT(Math.abs(diff)),
-        dc: Object.assign(tgtCellBase(key), { color: "#c7d6e0" }),
-        bc: Object.assign(tgtCellBase(key), noT ? {} : {
-          backgroundImage: "linear-gradient(rgba(215,230,239,.22),rgba(215,230,239,.22))",
-          backgroundSize: "1px 56%", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat"
-        }),
-        bb: noT ? { display: "none" } : {
-          position: "absolute", top: "34%", bottom: "34%",
-          left: diff < 0 ? (50 - w) + "%" : "50%", width: w + "%",
-          background: hue, transition: "width 300ms ease, left 300ms ease"
-        }
+        dc: Object.assign(tgtCellBase(key), { color: "#c7d6e0" })
       };
     });
     const dTgtToggle = () => this.setState({ dTgt: !s.dTgt });
@@ -3131,7 +3104,7 @@ class Component extends DCLogic {
           ? "linear-gradient(#c7d6e0,#c7d6e0) center/8px 1.3px no-repeat"
           : "linear-gradient(#c7d6e0,#c7d6e0) center/8px 1.3px no-repeat, linear-gradient(#c7d6e0,#c7d6e0) center/1.3px 8px no-repeat" },
       dTgtWrap: { flex: "none", marginRight: "10px", overflow: "hidden",
-        height: dTgt ? "calc(5.4rem + 3px)" : "0px", opacity: dTgt ? 1 : 0,
+        height: dTgt ? "calc(3.6rem + 2px)" : "0px", opacity: dTgt ? 1 : 0,
         transition: "height 420ms cubic-bezier(.22,1,.36,1), opacity 300ms ease" },
       dTgtRowS: { display: "grid", gridTemplateColumns: dCols, columnGap: 0,
         alignItems: "stretch", minHeight: "1.8rem",
@@ -3139,12 +3112,13 @@ class Component extends DCLogic {
         transition: D_GRID_T },
       dTgtLab: { display: "flex", alignItems: "center", gap: ".45rem", minWidth: 0,
         overflow: "hidden", whiteSpace: "nowrap", paddingLeft: "26px", boxSizing: "border-box",
-        fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".12em", color: "#54677a" },
-      dTgtSub: { fontSize: ".62rem", letterSpacing: ".12em", color: "#3f5364" },
-      tgtInputS: { width: "3.1rem", background: "transparent", border: 0,
-        borderBottom: "1px solid rgba(34,211,238,.45)", color: "#22d3ee",
-        fontFamily: "var(--font-2)", fontSize: ".8rem", letterSpacing: ".08em",
-        textAlign: "center", padding: "0 0 .1rem" },
+        fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em", color: "#7b91a3" },
+      // The target figure is an input dressed exactly like the size inputs above it:
+      // pinned right in its column, no chrome of its own.
+      tgtInputS: { width: "3.4rem", textAlign: "right", background: "transparent",
+        border: 0, borderRadius: 0, padding: "0 0 .1rem", color: "#d7e6ef",
+        fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".875rem",
+        fontVariantNumeric: "tabular-nums" },
       blankAct: { borderLeft: "1px solid rgba(34,211,238,.55)" },
       // Offscreen rows skip layout entirely, which is what keeps 250 grids animating
       // their tracks at full frame rate.

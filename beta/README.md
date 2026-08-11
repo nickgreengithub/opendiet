@@ -39,13 +39,12 @@ What is different from the root:
   block at WATER, one fences the actions column — everything between is a hairline,
   because two strong lines side by side read as a doubled border; the actions fence is
   1px like everything else, since double thickness read as a doubled line. The desktop
-  totals row says MY FOOD SUMMARY behind its own ringed +, which opens three rows
-  beneath it: TARGET — FDA daily values scaled from an editable daily-calorie figure
-  (default 2000), one per column that has one, none for water — DIFFERENCE, the plate's
-  distance from each target in signed numbers, and BALANCE, the same distance as a bar
-  swinging left (under) or right (over) of a centre line in the column's own hue, no
-  numbers at all. SAT reads SATURA in the expanded header, since six characters were
-  there to spend.
+  totals row says MY FOOD SUMMARY behind its own ringed +, which opens two rows
+  beneath it: SET DAILY CALORIE TARGET — FDA daily values scaled from the calorie
+  figure typed into the KCAL column, an input dressed exactly like the size inputs
+  above it (default 2000), one target per column that has one, none for water — and
+  DIFFERENCE, the plate's distance from each target in signed numbers. SAT reads SATURA
+  in the expanded header, since six characters were there to spend.
 - Both layouts open on the search line alone, centred both ways — on mobile the magnifier
   and library button step out of the flow so the placeholder holds the exact middle — and
   lift it to the header on the first keystroke. Reaching for the search box, or typing a different query, returns the list to
