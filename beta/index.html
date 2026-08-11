@@ -1589,8 +1589,10 @@ class Component extends DCLogic {
           transition: "color 200ms ease" },
         holeSplitS: Object.assign({}, holeL, {
           opacity: zm ? 0 : 1, transform: holeT(!zm),
+          // The split returns as the sweep finishes its retrace; waiting for the ring's
+          // final brighten left the hole empty a beat too long.
           transition: zm ? "opacity 250ms ease, transform 250ms ease"
-            : wind ? "opacity 450ms ease 1450ms, transform 450ms ease 1450ms"
+            : wind ? "opacity 400ms ease 850ms, transform 400ms ease 850ms"
             : "opacity 250ms ease, transform 250ms ease" }),
         holeZF: g1(fo.f), holeZFS: zLayer("f", HUE[2]),
         holeZC: g1(fo.c), holeZCS: zLayer("c", HUE[1]),

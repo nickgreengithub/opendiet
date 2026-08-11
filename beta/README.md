@@ -79,7 +79,7 @@ What is different from the root:
   92/8, parmesan 30/70. With a macro open it says that macro's grams instead, and the two
   figures trade places on the choreography's own clock — the split slips out with the
   flare, the grams arrive as the sweep closes, leave first on the way back, and the split
-  returns with the final brighten. Each macro's grams is its own layer, so switching
+  returns as the sweep lands, ahead of the final brighten. Each macro's grams is its own layer, so switching
   straight from fat to carbs cross-fades the two figures directly. The sub rows' hairline
   is an inset shadow inside their 30px rather than a border — a border adds height the
   height transition does not govern, and its snap at the end of a switch was a visible
