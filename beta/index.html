@@ -404,7 +404,7 @@ option{background:#070b12;color:#d7e6ef}
       <div style="{{ sumBody }}"><div style="{{ sumBodyIn }}">
       <div data-scroll="sum" style="{{ mSumScroll }}">
         <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
-          <div data-new="{{ r.arrived }}" data-gone="{{ r.leaving }}" data-lift="m">
+          <div data-new="{{ r.arrived }}" data-gone="{{ r.leaving }}" data-lift="m" style="{{ r.sWrap }}">
           <div data-row onClick="{{ r.sToggle }}" style="{{ r.mSumRow }}">
             <span style="{{ r.sNameStyle }}">{{ r.name }}</span>
             
@@ -1991,22 +1991,25 @@ class Component extends DCLogic {
           textOverflow: sOpenName === fo.name ? "clip" : "ellipsis",
           padding: sOpenName === fo.name ? ".3rem 0 .15rem" : 0
         },
+        // The open food's ground lives on the wrapper around the row and its expansion —
+        // one surface, no seam, and it repaints reliably where a background on the row
+        // itself did not on iOS.
+        sWrap: {
+          background: sOpenName === fo.name ? "#12222e" : "transparent",
+          transition: "background 320ms ease"
+        },
         mSumRow: Object.assign({}, mSumRowBase, {
           gridTemplateColumns: sOpenName === fo.name ? "minmax(0,1fr) 4.2rem" : SUM_COLS,
           borderBottom: sOpenName === fo.name ? 0 : "1px solid rgba(34,211,238,.14)",
-          background: sOpenName === fo.name ? "#12222e" : "transparent",
-          // iOS Safari does not repaint a background change on a row inside its
-          // momentum scroller until something else forces it; its own compositing
-          // layer forces it now.
-          transform: sOpenName === fo.name ? "translateZ(0)" : "none"
+          background: "transparent"
         }),
         sExpand: {
           overflow: "hidden",
           height: sOpenName === fo.name ? vzp.expH : "0px",
           opacity: sOpenName === fo.name ? 1 : 0,
           borderBottom: sOpenName === fo.name ? "1px solid rgba(34,211,238,.14)" : 0,
-          background: sOpenName === fo.name ? "#12222e" : "transparent",
-          transition: "height 520ms cubic-bezier(.22,1,.36,1), opacity 320ms ease, background 320ms ease"
+          background: "transparent",
+          transition: "height 520ms cubic-bezier(.22,1,.36,1), opacity 320ms ease"
         },
         fb: this.fmt(fo.fb * g),
         sumKcal: String(Math.round(kcalOf(fo) * g)),
