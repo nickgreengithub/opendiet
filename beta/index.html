@@ -240,7 +240,7 @@ option{background:#070b12;color:#d7e6ef}
     <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
       <div data-back="{{ r.back }}" style="{{ dRowWrap }}">
         <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ dRowStyle }}" style-hover="background:rgba(34,211,238,.20)">
-          <span style="display:flex;align-items:center;gap:.55rem;min-width:0">
+          <span style="display:flex;align-items:center;gap:.55rem;min-width:0;padding-right:.9rem">
             <span style="flex:1;min-width:0;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span>
           </span>
           <span style="{{ measureCell }}">{{ r.measureVal }}<span style="{{ sizeSuffix }}">{{ r.measureUnit }}</span></span>
@@ -270,7 +270,7 @@ option{background:#070b12;color:#d7e6ef}
           <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
             <div data-new="{{ r.arrived }}" data-gone="{{ r.leaving }}">
               <div data-row onClick="{{ r.toggleRow }}" style="{{ dRowStyle }}" style-hover="background:rgba(34,211,238,.20)">
-                <span style="display:flex;align-items:center;gap:.55rem;min-width:0">
+                <span style="display:flex;align-items:center;gap:.55rem;min-width:0;padding-right:.9rem">
                   <span style="font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:color 140ms ease" style-hover="color:#a5f3fc">{{ r.name }}</span>
                 </span>
                 <span style="{{ sumSizeCell }}"><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onBlur="{{ r.qtyBlur }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
