@@ -93,9 +93,11 @@ What is different from the root:
   of the donut dulls in the same breath as the flare — the slice is the only bright thing
   from the first frame — then its neighbours wind out dull, the slice slides in (the
   circle's own r) and sweeps the inner ring like a clock hand, and its own parts wind in
-  on the ring it left; closing runs the film backwards — the parts wind up first, the
-  sweep retraces still bright, the resting ring winds back in still dull, and brightness
-  returns to everything as the very last step. The row scrolls to the top, and that macro's table
+  on the ring it left; closing runs the film backwards — the parts wind up first,
+  dulled the instant the unwinding starts, the sweep retraces still bright, the resting
+  ring winds back in still dull, and brightness returns to everything only after the
+  winding has fully landed. The bracket shrinks with the rows it hugs before it fades,
+  rather than fading before its shrink can be seen. The row scrolls to the top, and that macro's table
   rows slide open beneath their parent — they are always in the table, holding no height
   and a zero-width border until their macro is pressed, so opening is a height transition
   the rows below ride along with — inside a bracket drawn in the drawing's own pixels,

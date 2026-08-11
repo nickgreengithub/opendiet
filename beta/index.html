@@ -1378,7 +1378,7 @@ class Component extends DCLogic {
         if (e) return { stroke: shade(col, e), opacity: 1, transition: FAST };
         return { stroke: zm ? dimC(col) : solidC(col), opacity: 1,
           transition: zm ? "stroke 250ms ease"
-            : wind ? "stroke 450ms ease 1250ms" : "stroke 250ms ease, opacity 250ms ease" };
+            : wind ? "stroke 450ms ease 1450ms" : "stroke 250ms ease, opacity 250ms ease" };
       };
       const outSt = (tag, key, seg) => {
         const chosen = zm === key;
@@ -1397,7 +1397,7 @@ class Component extends DCLogic {
           { transition: FAST + ", stroke-dasharray 450ms " + EASE });
         base.transition = zm
           ? "stroke-dasharray 450ms " + EASE + ", opacity 120ms ease, stroke 200ms ease"
-          : wind ? "stroke-dasharray 500ms " + EASE + " 900ms, opacity 250ms ease 1040ms, stroke 450ms ease 1250ms"
+          : wind ? "stroke-dasharray 500ms " + EASE + " 900ms, opacity 250ms ease 1040ms, stroke 450ms ease 1450ms"
           : "stroke-dasharray 450ms " + EASE + ", stroke 250ms ease, opacity 250ms ease";
         return base;
       };
@@ -1408,12 +1408,12 @@ class Component extends DCLogic {
           transformOrigin: "82px 82px", opacity: 1
         };
         const e = on ? emph(tag) : null;
-        base.stroke = shade(seg.col, e);
+        base.stroke = e ? shade(seg.col, e) : on ? solidC(seg.col) : dimC(seg.col);
         if (e) return Object.assign(base,
           { transition: FAST + ", stroke-dasharray 450ms " + EASE });
         base.transition = on
           ? "stroke-dasharray 520ms " + EASE + " 780ms"
-          : "stroke-dasharray 450ms " + EASE;
+          : "stroke-dasharray 450ms " + EASE + ", stroke 200ms ease";
         return base;
       };
       const row = (tag, val, col, ind, o) => {
@@ -1596,7 +1596,7 @@ class Component extends DCLogic {
             opacity: on ? 1 : 0, pointerEvents: "none",
             transition: on
               ? "height 520ms cubic-bezier(.22,1,.36,1), top 520ms cubic-bezier(.22,1,.36,1), opacity 250ms ease"
-              : "height 480ms cubic-bezier(.22,1,.36,1), top 480ms cubic-bezier(.22,1,.36,1), opacity 240ms ease"
+              : "height 480ms cubic-bezier(.22,1,.36,1), top 480ms cubic-bezier(.22,1,.36,1), opacity 260ms ease 320ms"
           };
         };
         viz.bF = brkS(iFat, fo.tr ? 5 : 4, zm === "f");
@@ -1724,7 +1724,7 @@ class Component extends DCLogic {
             // choreography timings just long enough for it to play.
             this.setState({ vizZoom: null, vizMacro: null, vizWind: true });
             clearTimeout(this._windT);
-            this._windT = setTimeout(() => this.setState({ vizWind: false }), 1700);
+            this._windT = setTimeout(() => this.setState({ vizWind: false }), 2000);
           }
         },
         mExpand: {
@@ -1926,7 +1926,7 @@ class Component extends DCLogic {
           else if (s.vizZoom === fo.name) {
             this.setState({ vizZoom: null, vizMacro: null, vizWind: true });
             clearTimeout(this._windT);
-            this._windT = setTimeout(() => this.setState({ vizWind: false }), 1700);
+            this._windT = setTimeout(() => this.setState({ vizWind: false }), 2000);
           }
         },
         qty: qtyOf(fo.name), qtyUnit: fo.mu === "ml" ? "ml" : "g",
