@@ -9,6 +9,21 @@ What is different from the root:
 - A launcher screen: the site is a set of small apps rather than one page. FOOD SEARCH is
   the built one; CALORIE CALC, RECIPE BUILDER and FOOD COMPARE are placeholders.
 - Desktop switches app with tabs across the top. Mobile gets a back button to the launcher.
+- The desktop table wears the donut's own colours: each macro column's bar is its slice's
+  hue — protein cyan, carbs green, fat coral, water its blue — sheer enough that the
+  figure stays the loudest thing in the cell. WATER rides its own sortable column left of
+  PROT, and the macro headers say CARBS and FATS, as the drawing does. The actions header
+  carries the same ringed + the mobile rows use: pressing it widens the whole app and
+  opens six sub-macro columns — SUGARS FIBRE STARCH ahead of CARBS, SAT MONO POLY ahead
+  of FATS, parts before their sum so each group's header sits over the total it names —
+  named by a second header line that unfolds beneath the first. Every track exists all
+  the time (a grid ignores display:none children, which would shuffle every cell that
+  follows); collapsed sub tracks are 0rem wide, and keeping the track count constant is
+  what lets grid-template-columns interpolate, so the whole table — rows, headers, plate,
+  totals, even the continuation lines below the last row — breathes as one animation
+  rather than snapping. Column gaps are gone (a gap beside a 0rem track is dead space
+  that never closes); the cells carry their own padding instead. The sub columns always
+  speak grams, whatever basis the macro columns are in.
 - Both layouts open on the search line alone, centred both ways — on mobile the magnifier
   and library button step out of the flow so the placeholder holds the exact middle — and
   lift it to the header on the first keystroke. Reaching for the search box, or typing a different query, returns the list to

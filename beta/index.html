@@ -153,7 +153,7 @@ option{background:#070b12;color:#d7e6ef}
 </style>
 </helmet>
 <div style="{{ shell }}">
-<div style="width:100%;max-width:1120px;display:flex;flex-direction:column;flex:1;min-height:0">
+<div style="{{ dShell }}">
   <sc-if value="{{ tabsOn }}" hint-placeholder-val="{{ false }}">
   <div style="{{ tabBar }}">
     <sc-for list="{{ appTabs }}" as="t" hint-placeholder-count="4">
@@ -227,25 +227,40 @@ option{background:#070b12;color:#d7e6ef}
           </span>
         </sc-if>
 </span>
+      <span onClick="{{ sortOn.wa }}" style="{{ headWa }}"><span>WATER</span><span style="{{ headUnit }}">g</span><sc-if value="{{ sorted.wa }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if></span>
       <span onMouseEnter="{{ openBasis.s1 }}" onMouseLeave="{{ closeBasis }}" onClick="{{ sortOn.s1 }}" style="{{ head1 }}"><span>PROT</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s1 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-25%</span></sc-if><sc-if value="{{ basisShow.s1 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></span></button></sc-for><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">PROTEIN</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.s1 }}</span></span></span></span></sc-if></span>
-      <span onMouseEnter="{{ openBasis.s2 }}" onMouseLeave="{{ closeBasis }}" onClick="{{ sortOn.s2 }}" style="{{ head2 }}"><span>CARB</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s2 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-8%</span></sc-if><sc-if value="{{ basisShow.s2 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></span></button></sc-for><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">CARB</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.s2 }}</span></span></span></span></sc-if></span>
-      <span onMouseEnter="{{ openBasis.s3 }}" onMouseLeave="{{ closeBasis }}" onClick="{{ sortOn.s3 }}" style="{{ head3 }}"><span>FAT</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s3 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-2%</span></sc-if><sc-if value="{{ basisShow.s3 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></span></button></sc-for><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">FAT</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.s3 }}</span></span></span></span></sc-if></span>
+      <span onMouseEnter="{{ openBasis.s2 }}" onMouseLeave="{{ closeBasis }}" onClick="{{ sortOn.s2 }}" style="{{ head2 }}"><span>CARBS</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s2 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-8%</span></sc-if><sc-if value="{{ basisShow.s2 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></span></button></sc-for><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">CARBS</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.s2 }}</span></span></span></span></sc-if></span>
+      <span onMouseEnter="{{ openBasis.s3 }}" onMouseLeave="{{ closeBasis }}" onClick="{{ sortOn.s3 }}" style="{{ head3 }}"><span>FATS</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s3 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-2%</span></sc-if><sc-if value="{{ basisShow.s3 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></span></button></sc-for><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">FATS</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.s3 }}</span></span></span></span></sc-if></span>
       <span onMouseEnter="{{ tipOn.kcal }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.kcal }}" style="{{ headTotal }}"><span>KCAL</span><sc-if value="{{ sorted.kcal }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.kcal }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(34,211,238,.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="display:block;padding:0 .7rem .7rem"><span style="font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#94a3b8;text-wrap:pretty">Digestion costs 25% of protein calories, 8% of carbohydrate, 2% of fat. Always applied to KCAL; applied to the macro columns only when they show kcal contribution.</span></span><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">KCAL</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.kcal }}</span></span></span></span></sc-if></span>
       <span onMouseEnter="{{ openExtra }}" onMouseLeave="{{ closeExtra }}" onClick="{{ sortOn.extra }}" style="{{ headIsland }}"><span>{{ extraLabel }}</span><sc-if value="{{ sorted.extra }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ extraOpen }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ extraOpts }}" as="x" hint-placeholder-count="4"><button onClick="{{ x.onClick }}" style="{{ x.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ x.label }}</span><span style="{{ x.unitStyle }}">{{ x.unit }}</span></span><span style="{{ x.descStyle }}">{{ x.desc }}</span></button></sc-for></span></span></sc-if></span>
-      <span style="{{ dActHead }}"></span>
+      <span style="{{ dActHead }}"><span data-dexp onClick="{{ dExpToggle }}" style="{{ dExpBox }}"><span style="{{ dExpChev }}"></span></span></span>
+    </div>
+    <div style="{{ dSubHead }}">
+      <span></span><span></span><span></span><span></span>
+      <span style="{{ subHeadC }}">SUGARS</span><span style="{{ subHeadC }}">FIBRE</span><span style="{{ subHeadC }}">STARCH</span>
+      <span></span>
+      <span style="{{ subHeadF }}">SAT</span><span style="{{ subHeadF }}">MONO</span><span style="{{ subHeadF }}">POLY</span>
+      <span></span><span></span><span></span><span></span>
     </div>
     </div>
     <div style="{{ dBody }}">
     <div data-scroll="rows" style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box;display:flex;flex-direction:column">
     <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
       <div data-back="{{ r.back }}" style="flex:none">
-        <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem 2.6rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
+        <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ dRowStyle }}" style-hover="background:rgba(34,211,238,.20)">
           <span style="display:flex;align-items:center;gap:.55rem;min-width:0">
             <span style="flex:1;min-width:0;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span>
           </span>
           <span style="{{ measureCell }}">{{ r.measureVal }}<span style="{{ sizeSuffix }}">{{ r.measureUnit }}</span></span>
+          <span style="{{ r.cellWa }}"><span style="{{ r.fillWa }}"></span><span style="{{ numWrap }}">{{ r.vWa }}</span></span>
           <span style="{{ r.cell1 }}"><span style="{{ r.fill1 }}"></span><span style="{{ numWrap }}">{{ r.v1 }}</span></span>
+          <span style="{{ r.sub1.c }}"><span style="{{ r.sub1.f }}"></span><span style="{{ numWrap }}">{{ r.sub1.v }}</span></span>
+          <span style="{{ r.sub2.c }}"><span style="{{ r.sub2.f }}"></span><span style="{{ numWrap }}">{{ r.sub2.v }}</span></span>
+          <span style="{{ r.sub3.c }}"><span style="{{ r.sub3.f }}"></span><span style="{{ numWrap }}">{{ r.sub3.v }}</span></span>
           <span style="{{ r.cell2 }}"><span style="{{ r.fill2 }}"></span><span style="{{ numWrap }}">{{ r.v2 }}</span></span>
+          <span style="{{ r.sub4.c }}"><span style="{{ r.sub4.f }}"></span><span style="{{ numWrap }}">{{ r.sub4.v }}</span></span>
+          <span style="{{ r.sub5.c }}"><span style="{{ r.sub5.f }}"></span><span style="{{ numWrap }}">{{ r.sub5.v }}</span></span>
+          <span style="{{ r.sub6.c }}"><span style="{{ r.sub6.f }}"></span><span style="{{ numWrap }}">{{ r.sub6.v }}</span></span>
           <span style="{{ r.cell3 }}"><span style="{{ r.fill3 }}"></span><span style="{{ numWrap }}">{{ r.v3 }}</span></span>
           <span style="{{ r.cellK }}"><span style="{{ r.fillK }}"></span><span style="{{ numWrap }}">{{ r.kcalVal }}</span></span>
           <span style="{{ r.cellScore }}">{{ r.extraVal }}<span style="{{ extraSuffix }}">{{ extraUnit }}</span></span>
@@ -262,13 +277,20 @@ option{background:#070b12;color:#d7e6ef}
         <div data-scroll style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box">
           <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
             <div data-new="{{ r.arrived }}" data-gone="{{ r.leaving }}">
-              <div data-row onClick="{{ r.toggleRow }}" style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem 2.6rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14);font-size:.9rem;color:#d7e6ef;cursor:pointer;transition:background 140ms ease" style-hover="background:rgba(34,211,238,.20)">
+              <div data-row onClick="{{ r.toggleRow }}" style="{{ dRowStyle }}" style-hover="background:rgba(34,211,238,.20)">
                 <span style="display:flex;align-items:center;gap:.55rem;min-width:0">
                   <span style="font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:color 140ms ease" style-hover="color:#a5f3fc">{{ r.name }}</span>
                 </span>
                 <span style="{{ sumSizeCell }}"><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
+                <span style="{{ r.cellWa }}"><span style="{{ r.fillWa }}"></span><span style="{{ numWrap }}">{{ r.vWa }}</span></span>
                 <span style="{{ r.cell1 }}"><span style="{{ r.sfill1 }}"></span><span style="{{ numWrap }}">{{ r.v1 }}</span></span>
+                <span style="{{ r.sub1.c }}"><span style="{{ r.sub1.f }}"></span><span style="{{ numWrap }}">{{ r.sub1.v }}</span></span>
+                <span style="{{ r.sub2.c }}"><span style="{{ r.sub2.f }}"></span><span style="{{ numWrap }}">{{ r.sub2.v }}</span></span>
+                <span style="{{ r.sub3.c }}"><span style="{{ r.sub3.f }}"></span><span style="{{ numWrap }}">{{ r.sub3.v }}</span></span>
                 <span style="{{ r.cell2 }}"><span style="{{ r.sfill2 }}"></span><span style="{{ numWrap }}">{{ r.v2 }}</span></span>
+                <span style="{{ r.sub4.c }}"><span style="{{ r.sub4.f }}"></span><span style="{{ numWrap }}">{{ r.sub4.v }}</span></span>
+                <span style="{{ r.sub5.c }}"><span style="{{ r.sub5.f }}"></span><span style="{{ numWrap }}">{{ r.sub5.v }}</span></span>
+                <span style="{{ r.sub6.c }}"><span style="{{ r.sub6.f }}"></span><span style="{{ numWrap }}">{{ r.sub6.v }}</span></span>
                 <span style="{{ r.cell3 }}"><span style="{{ r.sfill3 }}"></span><span style="{{ numWrap }}">{{ r.v3 }}</span></span>
                 <span style="{{ r.cellK }}"><span style="{{ r.sfillK }}"></span><span style="{{ numWrap }}">{{ r.sumKcal }}</span></span>
                 <span style="{{ r.cellScore }}">{{ r.sumExtra }}<span style="{{ extraSuffix }}">{{ extraUnit }}</span></span>
@@ -277,24 +299,38 @@ option{background:#070b12;color:#d7e6ef}
             </div>
           </sc-for>
           <sc-if value="{{ never }}" hint-placeholder-val="{{ false }}">
-            <div style="display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem 2.6rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-bottom:1px solid rgba(34,211,238,.14)">
+            <div style="{{ dBlankRow }}">
               <span></span>
               <span></span>
-              <span style="{{ blankFaint }}"></span>
               <span style="{{ blankEdge }}"></span>
+              <span style="{{ blankEdge }}"></span>
+              <span style="{{ blankSub }}"></span>
+              <span style="{{ blankSub }}"></span>
+              <span style="{{ blankSub }}"></span>
               <span style="{{ blankInner }}"></span>
+              <span style="{{ blankSub }}"></span>
+              <span style="{{ blankSub }}"></span>
+              <span style="{{ blankSub }}"></span>
               <span style="{{ blankInner }}"></span>
               <span style="{{ blankInner }}"></span>
               <span style="{{ blankEdge }}"></span>
+              <span></span>
             </div>
           </sc-if>
         </div>
         </div>
-        <div style="flex:none;margin-right:10px;display:grid;grid-template-columns:minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem 2.6rem;column-gap:.55rem;align-items:stretch;min-height:1.8rem;border-top:1px solid rgba(34,211,238,.55);font-size:.9rem;color:#d7e6ef">
+        <div style="{{ dTotRow }}">
           <span style="display:flex;align-items:center;gap:.55rem;font-family:var(--font-2);font-size:.75rem;letter-spacing:.12em;color:#7b91a3">TOTAL</span>
           <span style="{{ measureCell }}">{{ tot.qty }}<span style="{{ sizeSuffix }}">{{ tot.qtyUnit }}</span></span>
+          <span style="{{ tot.cellWa }}"><span style="{{ tot.fillWa }}"></span><span style="{{ numWrap }}">{{ tot.vWa }}</span></span>
           <span style="{{ tot.cell1 }}"><span style="{{ tot.fill1 }}"></span><span style="{{ numWrap }}">{{ tot.v1 }}</span></span>
+          <span style="{{ tot.sub1.c }}"><span style="{{ tot.sub1.f }}"></span><span style="{{ numWrap }}">{{ tot.sub1.v }}</span></span>
+          <span style="{{ tot.sub2.c }}"><span style="{{ tot.sub2.f }}"></span><span style="{{ numWrap }}">{{ tot.sub2.v }}</span></span>
+          <span style="{{ tot.sub3.c }}"><span style="{{ tot.sub3.f }}"></span><span style="{{ numWrap }}">{{ tot.sub3.v }}</span></span>
           <span style="{{ tot.cell2 }}"><span style="{{ tot.fill2 }}"></span><span style="{{ numWrap }}">{{ tot.v2 }}</span></span>
+          <span style="{{ tot.sub4.c }}"><span style="{{ tot.sub4.f }}"></span><span style="{{ numWrap }}">{{ tot.sub4.v }}</span></span>
+          <span style="{{ tot.sub5.c }}"><span style="{{ tot.sub5.f }}"></span><span style="{{ numWrap }}">{{ tot.sub5.v }}</span></span>
+          <span style="{{ tot.sub6.c }}"><span style="{{ tot.sub6.f }}"></span><span style="{{ numWrap }}">{{ tot.sub6.v }}</span></span>
           <span style="{{ tot.cell3 }}"><span style="{{ tot.fill3 }}"></span><span style="{{ numWrap }}">{{ tot.v3 }}</span></span>
           <span style="{{ tot.cellK }}"><span style="{{ tot.fillK }}"></span><span style="{{ numWrap }}">{{ tot.kcalVal }}</span></span>
           <span style="{{ tot.cellScore }}">{{ tot.extraVal }}<span style="{{ extraSuffix }}">{{ extraUnit }}</span></span>
@@ -1026,29 +1062,34 @@ class Component extends DCLogic {
     const INNER = "1px solid rgba(34,211,238,.14)";
     const EDGE_C = "rgba(34,211,238,.55)", INNER_C = "rgba(34,211,238,.14)";
     const numCell = (hue, muted, edge) => ({
-      position: "relative", overflow: "hidden",
+      position: "relative", overflow: "hidden", minWidth: 0,
       display: "flex", alignItems: "center", justifyContent: "flex-end",
       fontVariantNumeric: "tabular-nums", fontWeight: 300, fontSize: ".875rem",
       color: muted ? "#7b91a3" : "#d7e6ef",
-      borderLeft: edge ? EDGE : INNER, paddingLeft: ".55rem"
+      borderLeft: edge ? EDGE : INNER, paddingLeft: ".55rem", paddingRight: ".5rem"
     });
     // Header underline in the segment hue — the header IS the legend.
     // Label stays vertically centred like FOOD; the hue rule hangs below it, clear of the table edge.
     const headCell = (hue, edge) => ({
-      position: "relative",
+      position: "relative", minWidth: 0,
       display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".3rem",
-      padding: "0 0 0 .55rem", cursor: "pointer", color: "#c3d6e2", whiteSpace: "nowrap",
+      padding: "0 .5rem 0 .55rem", cursor: "pointer", color: "#c3d6e2", whiteSpace: "nowrap",
       borderLeft: edge ? EDGE : INNER
     });
     const headIsland = {
-      position: "relative",
+      position: "relative", minWidth: 0,
       display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".3rem", whiteSpace: "nowrap",
-      padding: "0 0 0 .55rem", cursor: "pointer", color: "#c3d6e2", borderLeft: EDGE
+      padding: "0 .5rem 0 .55rem", cursor: "pointer", color: "#c3d6e2", borderLeft: EDGE
     };
-    const fillOf = (v, max) => ({ position: "absolute", left: 0, top: 0, bottom: 0, display: v > 0 ? "block" : "none", width: Math.max(0, Math.min(100, v / max * 100)) + "%", background: "rgba(34,211,238,.30)", transition: "width 140ms ease" });
-    const sumFillOf = (v, max) => Object.assign({}, fillOf(v, max), { background: "rgba(165,243,252,.24)" });
-    // Total is scaled against itself, so it gets its own tone — cyan-300.
-    const totFillOf = (v, max) => Object.assign({}, fillOf(v, max), { background: "rgba(103,232,249,.34)" });
+    // Each macro column's bar wears its donut hue — protein cyan, carbs green, fat
+    // coral — sheer enough that the figure on top stays the loudest thing in the cell.
+    const fillOf = (v, max, bg) => ({ position: "absolute", left: 0, top: 0, bottom: 0, display: v > 0 ? "block" : "none", width: Math.max(0, Math.min(100, v / max * 100)) + "%", background: bg || "rgba(34,211,238,.30)", transition: "width 140ms ease" });
+    const sumFillOf = (v, max, bg) => Object.assign({}, fillOf(v, max), { background: bg || "rgba(165,243,252,.24)" });
+    // Total is scaled against itself, so it gets its own, slightly brighter tone.
+    const totFillOf = (v, max, bg) => Object.assign({}, fillOf(v, max), { background: bg || "rgba(103,232,249,.34)" });
+    const CARB_FILL = "rgba(126,224,168,.26)", FAT_FILL = "rgba(240,140,122,.26)";
+    const CARB_FILL_S = "rgba(126,224,168,.20)", FAT_FILL_S = "rgba(240,140,122,.20)";
+    const CARB_FILL_T = "rgba(126,224,168,.32)", FAT_FILL_T = "rgba(240,140,122,.32)";
     const numWrap = { position: "relative", display: "flex", alignItems: "baseline", justifyContent: "flex-end" };
     const unitSuffix = { marginLeft: ".15rem", fontFamily: "var(--font-2)", fontSize: s.narrow ? ".84rem" : ".66rem", letterSpacing: ".06em", color: "#94a3b8" };
     const inSum = name => (s.sum || []).includes(name);
@@ -1071,6 +1112,11 @@ class Component extends DCLogic {
         : isKcalBasis
           ? [String(Math.round(mk[0] * uf)), String(Math.round(mk[1] * uf)), String(Math.round(mk[2] * uf))]
           : [this.fmt(fo.p * uf), this.fmt(fo.c * uf), this.fmt(fo.f * uf)];
+      // The sub-macro columns always speak grams, whatever basis the macro columns are
+      // in — a share-of-calories starch figure answers no question anyone asks.
+      const rSt = Math.max(0, fo.c - (fo.sg || 0) - (fo.fb || 0));
+      const rSubs = [fo.sg || 0, fo.fb || 0, rSt, fo.sf || 0, fo.mo || 0, fo.po || 0];
+      const rSubHue = SUB_GRN.concat(SUB_CRL);
       return {
         name: fo.name, cat: fo.cat, catLabel: this.catLabel(fo.cat), kcal: String(fo.kcal),
         p: this.fmt(fo.p), c: this.fmt(fo.c), f: this.fmt(fo.f), fb: this.fmt(fo.fb),
@@ -1081,12 +1127,23 @@ class Component extends DCLogic {
         mVal: mCol.k === "score" ? String(sc) : mCol.k === "kcal" ? String(Math.round(ekc * uf)) : this.fmt(mCol.get(fo) * uf),
         starStyle: { display: "flex", alignItems: "center", justifyContent: "center", padding: 0, border: 0, borderRadius: 0, background: "transparent", cursor: "pointer", color: inSum(fo.name) ? "#22d3ee" : "#3f5364", transition: "color 140ms ease" },
         starFill: inSum(fo.name) ? "currentColor" : "none",
-        fill1: fillOf(fv[0], fvMax), fill2: fillOf(fv[1], fvMax), fill3: fillOf(fv[2], fvMax),
+        fill1: fillOf(fv[0], fvMax), fill2: fillOf(fv[1], fvMax, CARB_FILL), fill3: fillOf(fv[2], fvMax, FAT_FILL),
         fillK: fillOf(ekc * uf, rowKcalMax * uf),
         cellK: Object.assign({}, numCell(null, false), { borderLeft: INNER }),
         cellScore: Object.assign({}, numCell(null, false), { borderLeft: EDGE, color: "#22d3ee" }),
         v1: vals[0], v2: vals[1], v3: vals[2],
         cell1: numCell(HUE[0], vals[0] === "0", true), cell2: numCell(HUE[1], vals[1] === "0"), cell3: numCell(HUE[2], vals[2] === "0"),
+        // Water rides its own column left of PROT, always in grams: the donut's honest
+        // slice, in the donut's own blue.
+        vWa: this.fmt((fo.wa || 0) * uf),
+        cellWa: numCell(null, (fo.wa || 0) === 0, true),
+        fillWa: fillOf(fo.wa || 0, 100, WATER_FILL),
+        sub1: subCellOf(rSubs[0], rSubHue[0], gramMax, this.fmt(rSubs[0] * uf)),
+        sub2: subCellOf(rSubs[1], rSubHue[1], gramMax, this.fmt(rSubs[1] * uf)),
+        sub3: subCellOf(rSubs[2], rSubHue[2], gramMax, this.fmt(rSubs[2] * uf)),
+        sub4: subCellOf(rSubs[3], rSubHue[3], gramMax, this.fmt(rSubs[3] * uf)),
+        sub5: subCellOf(rSubs[4], rSubHue[4], gramMax, this.fmt(rSubs[4] * uf)),
+        sub6: subCellOf(rSubs[5], rSubHue[5], gramMax, this.fmt(rSubs[5] * uf)),
         cellFb: Object.assign({}, numCell(null, fo.fb === 0), { borderLeft: EDGE }),
         fbStyle: { display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300, fontSize: ".85rem", fontVariantNumeric: "tabular-nums", color: fo.fb === 0 ? "#7b91a3" : "#d7e6ef" },
         _sh: { s1: fo.p, s2: fo.c, s3: fo.f },
@@ -1723,7 +1780,47 @@ class Component extends DCLogic {
     // 82px is the shell's top padding plus the tab bar; 54 is the tall landing row.
     const dLanding = !s.narrow && !s.typed && app === "search";
     const dDrop = Math.max(0, Math.round((vh - 54) / 2) - 82);
-    const dCols = "minmax(7.5rem,1fr) 3.4rem 7.2rem 7.2rem 7.2rem 7.2rem 7.2rem 2.6rem";
+    // The desktop table expands the way a macro row does on mobile: the ringed + in the
+    // actions header widens the whole app and opens six sub-macro tracks under CARBS and
+    // FATS. Every track exists all the time — a grid ignores display:none children, which
+    // would shuffle every cell that follows — so collapsed sub tracks are 0rem wide and
+    // the numeric tracks lend them the width when they open. Same track count both ways is
+    // what lets grid-template-columns interpolate, so the whole table breathes as one
+    // animation instead of snapping. Column gaps are gone (a gap beside a 0rem track is
+    // dead space that never closes); the cells carry their own padding instead.
+    const dxp = !!s.dxp && !s.narrow;
+    const D_NW = dxp ? "6.4rem" : "7.2rem";
+    const D_SW = dxp ? "4.8rem" : "0rem";
+    const D_SUB3 = " " + D_SW + " " + D_SW + " " + D_SW;
+    // Each group runs parts-then-total — SUGARS FIBRE STARCH then CARBS — so the group
+    // header, right-aligned across its span, sits over the total it names.
+    const dCols = "minmax(7.5rem,1fr) 3.4rem " + D_NW + " " + D_NW + D_SUB3 + " " + D_NW +
+      D_SUB3 + " " + D_NW + " " + D_NW + " " + D_NW + " 2.6rem";
+    const D_GRID_T = "grid-template-columns 500ms cubic-bezier(.22,1,.36,1)";
+    const SUB_BC = "rgba(215,230,239,.12)";
+    const dSubBorder = dxp ? "1px solid " + SUB_BC : "1px solid transparent";
+    // A sub-macro cell: clipped while its track is 0, padded only when open so the box
+    // itself can reach zero width. The display value and the bar's scale are the
+    // caller's, since search rows read per-measure and plate rows per their own grams.
+    const subCellOf = (vAbs, hue, max, disp) => ({
+      c: { position: "relative", overflow: "hidden", minWidth: 0,
+        display: "flex", alignItems: "center", justifyContent: "flex-end",
+        fontVariantNumeric: "tabular-nums", fontWeight: 300, fontSize: ".82rem",
+        color: vAbs ? "#b9c8d2" : "#5f7484",
+        borderLeft: dSubBorder,
+        paddingLeft: dxp ? ".4rem" : "0", paddingRight: dxp ? ".5rem" : "0",
+        transition: "border-color 300ms ease, padding 500ms cubic-bezier(.22,1,.36,1)" },
+      f: { position: "absolute", left: 0, top: 0, bottom: 0,
+        display: vAbs > 0 && dxp ? "block" : "none",
+        width: Math.max(0, Math.min(100, vAbs / max * 100)) + "%",
+        background: hue, transition: "width 140ms ease" },
+      v: disp
+    });
+    // Sub-macro bar shades follow the donut's own ramp: sugars before fibre before
+    // starch, saturated before mono before poly.
+    const SUB_GRN = ["rgba(126,224,168,.30)", "rgba(126,224,168,.19)", "rgba(126,224,168,.11)"];
+    const SUB_CRL = ["rgba(240,140,122,.30)", "rgba(240,140,122,.19)", "rgba(240,140,122,.11)"];
+    const WATER_FILL = "rgba(87,135,168,.30)";
     const dHide = dLanding ? { display: "none" } : {};
     // The list is a leaderboard for the current sort; searching is how you reach the rest.
     const ROW_CAP = s.narrow ? 100 : 250;
@@ -2102,8 +2199,18 @@ class Component extends DCLogic {
         sumKcal: String(Math.round(kcalOf(fo) * g)),
         sumExtra: extra.k === "score" ? String(scoreOf(fo)) : this.fmt(extra.get(fo) * g),
         mSumVal: mSumValOf(fo),
-        sfill1: sumFillOf(sfv[0], sfvMax), sfill2: sumFillOf(sfv[1], sfvMax), sfill3: sumFillOf(sfv[2], sfvMax),
+        sfill1: sumFillOf(sfv[0], sfvMax, "rgba(34,211,238,.24)"), sfill2: sumFillOf(sfv[1], sfvMax, CARB_FILL_S), sfill3: sumFillOf(sfv[2], sfvMax, FAT_FILL_S),
         sfillK: sumFillOf(kcalOf(fo) * g, sumKcalMax),
+        // Plate rows restate water and the sub-macros at their own grams, not the
+        // header measure.
+        vWa: this.fmt((fo.wa || 0) * g),
+        fillWa: fillOf(fo.wa || 0, 100, WATER_FILL),
+        sub1: subCellOf((fo.sg || 0) * g, SUB_GRN[0], sumGramMax, this.fmt((fo.sg || 0) * g)),
+        sub2: subCellOf((fo.fb || 0) * g, SUB_GRN[1], sumGramMax, this.fmt((fo.fb || 0) * g)),
+        sub3: subCellOf(Math.max(0, fo.c - (fo.sg || 0) - (fo.fb || 0)) * g, SUB_GRN[2], sumGramMax, this.fmt(Math.max(0, fo.c - (fo.sg || 0) - (fo.fb || 0)) * g)),
+        sub4: subCellOf((fo.sf || 0) * g, SUB_CRL[0], sumGramMax, this.fmt((fo.sf || 0) * g)),
+        sub5: subCellOf((fo.mo || 0) * g, SUB_CRL[1], sumGramMax, this.fmt((fo.mo || 0) * g)),
+        sub6: subCellOf((fo.po || 0) * g, SUB_CRL[2], sumGramMax, this.fmt((fo.po || 0) * g)),
         onQty: e => {
           const raw = e.target.value, num = parseFloat(raw);
           const v = !isNaN(num) && num > QTY_MAX ? String(QTY_MAX) : raw;
@@ -2119,7 +2226,7 @@ class Component extends DCLogic {
     const tP = sumFoods.reduce((a, fo) => a + fo.p * gs(fo), 0), tC = sumFoods.reduce((a, fo) => a + fo.c * gs(fo), 0), tF = sumFoods.reduce((a, fo) => a + fo.f * gs(fo), 0);
     const tK = sumFoods.reduce((a, fo) => a + kcalOf(fo) * gs(fo), 0);
     const tQty = sumFoods.reduce((a, fo) => a + gramsOf(fo.name), 0);
-    const totCell = { position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "flex-end", fontVariantNumeric: "tabular-nums", fontWeight: 300, fontSize: ".875rem", color: "#d7e6ef", borderLeft: INNER, paddingLeft: ".55rem" };
+    const totCell = { position: "relative", overflow: "hidden", minWidth: 0, display: "flex", alignItems: "center", justifyContent: "flex-end", fontVariantNumeric: "tabular-nums", fontWeight: 300, fontSize: ".875rem", color: "#d7e6ef", borderLeft: INNER, paddingLeft: ".55rem", paddingRight: ".5rem" };
     const tFb = sumFoods.reduce((a, fo) => a + fo.fb * gs(fo), 0);
     // Totals must sum the rows as displayed: each food rebased by its OWN Atwater factor.
     // Sum what the rows display, not the unrounded values — otherwise the total contradicts them.
@@ -2137,6 +2244,12 @@ class Component extends DCLogic {
     const tGsh = [tP / tGram * 100, tC / tGram * 100, tF / tGram * 100];
     const tfv = isPct ? tGsh : isKcalBasis ? tMk : [tP, tC, tF];
     const tfvMax = isPct ? 100 : Math.max(tfv[0], tfv[1], tfv[2]) || 1;
+    const tWa = sumFoods.reduce((a, fo) => a + (fo.wa || 0) * gs(fo), 0);
+    const tSg = sumFoods.reduce((a, fo) => a + (fo.sg || 0) * gs(fo), 0);
+    const tSt = sumFoods.reduce((a, fo) => a + Math.max(0, fo.c - (fo.sg || 0) - (fo.fb || 0)) * gs(fo), 0);
+    const tSf = sumFoods.reduce((a, fo) => a + (fo.sf || 0) * gs(fo), 0);
+    const tMo = sumFoods.reduce((a, fo) => a + (fo.mo || 0) * gs(fo), 0);
+    const tPo = sumFoods.reduce((a, fo) => a + (fo.po || 0) * gs(fo), 0);
     const tot = {
       v1: isPct ? this.pctFmt(tGsh[0]) : isKcalBasis ? String(Math.round(tMk[0])) : this.fmt(tP),
       v2: isPct ? this.pctFmt(tGsh[1]) : isKcalBasis ? String(Math.round(tMk[1])) : this.fmt(tC),
@@ -2148,10 +2261,19 @@ class Component extends DCLogic {
       kcalVal: String(tKDisp),
       extraVal: extra.k === "score" ? (tScore ? String(tScore) : "\u2014") : this.fmt(sumFoods.reduce((a, fo) => a + extra.get(fo) * gs(fo), 0)),
       mTotVal: mCol.k === "score" ? (tScore ? String(tScore) : "\u2014") : mCol.k === "kcal" ? String(tKDisp) : this.fmt(sumFoods.reduce((a, fo) => a + mCol.get(fo) * gs(fo), 0)),
-      fill1: totFillOf(tfv[0], tfvMax), fill2: totFillOf(tfv[1], tfvMax), fill3: totFillOf(tfv[2], tfvMax),
+      fill1: totFillOf(tfv[0], tfvMax), fill2: totFillOf(tfv[1], tfvMax, CARB_FILL_T), fill3: totFillOf(tfv[2], tfvMax, FAT_FILL_T),
       fillK: totFillOf(1, 1),
       cellK: Object.assign({}, totCell, { borderLeft: INNER }),
       cellScore: Object.assign({}, totCell, { borderLeft: EDGE, color: "#22d3ee" }),
+      vWa: this.fmt(tWa),
+      cellWa: Object.assign({}, totCell, { borderLeft: EDGE }),
+      fillWa: fillOf(tQty ? tWa / tQty * 100 : 0, 100, WATER_FILL),
+      sub1: subCellOf(tSg, SUB_GRN[0], tfvMax, this.fmt(tSg)),
+      sub2: subCellOf(tFb, SUB_GRN[1], tfvMax, this.fmt(tFb)),
+      sub3: subCellOf(tSt, SUB_GRN[2], tfvMax, this.fmt(tSt)),
+      sub4: subCellOf(tSf, SUB_CRL[0], tfvMax, this.fmt(tSf)),
+      sub5: subCellOf(tMo, SUB_CRL[1], tfvMax, this.fmt(tMo)),
+      sub6: subCellOf(tPo, SUB_CRL[2], tfvMax, this.fmt(tPo)),
       qty: String(Math.round(tQty)),
       // Mixed solids + liquids fall back to G, matching USDA's gram basis.
       qtyUnit: sumFoods.length && sumFoods.every(fo => fo.mu === "ml") ? "ml" : "g"
@@ -2233,31 +2355,42 @@ class Component extends DCLogic {
       },
       // Empty rows below the last result: the table keeps its shape instead of stopping
       // mid-page. Drawn rather than built, so it costs no rows and never lengthens the scroll.
-      gridFill: {
-        flex: "1 1 auto", minHeight: 0, pointerEvents: "none",
-        backgroundRepeat: "no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat",
-        backgroundImage:
-          "linear-gradient(" + EDGE_C + "," + EDGE_C + ")," +
-          "linear-gradient(" + INNER_C + "," + INNER_C + ")," +
-          "linear-gradient(" + INNER_C + "," + INNER_C + ")," +
-          "linear-gradient(" + INNER_C + "," + INNER_C + ")," +
-          "linear-gradient(" + EDGE_C + "," + EDGE_C + ")," +
-          "linear-gradient(" + EDGE_C + "," + EDGE_C + ")," +
-          "repeating-linear-gradient(to bottom, transparent 0, transparent 1.8rem, " + INNER_C + " 1.8rem, " + INNER_C + " calc(1.8rem + 1px))",
-        backgroundSize: "1px 100%, 1px 100%, 1px 100%, 1px 100%, 1px 100%, 2px 100%, 100% calc(1.8rem + 1px)",
-        backgroundPosition:
-          "right 41.35rem top, right 33.6rem top, right 25.85rem top, right 18.1rem top, right 10.35rem top, right 2.6rem top, left top"
-      },
+      // The continuation lines are computed from the same track arithmetic as the grid,
+      // right to left, so they follow the columns wherever the expansion puts them.
+      gridFill: (() => {
+        const nw = dxp ? 6.4 : 7.2, sw = dxp ? 4.8 : 0;
+        const subLn = dxp ? SUB_BC : "transparent";
+        const stops = [];
+        let gx = 2.6;
+        stops.push([gx, EDGE_C, 2]);
+        gx += nw; stops.push([gx, EDGE_C, 1]);
+        gx += nw; stops.push([gx, INNER_C, 1]);
+        gx += nw; stops.push([gx, INNER_C, 1]);
+        for (let i = 0; i < 3; i++) { gx += sw; stops.push([gx, subLn, 1]); }
+        gx += nw; stops.push([gx, INNER_C, 1]);
+        for (let i = 0; i < 3; i++) { gx += sw; stops.push([gx, subLn, 1]); }
+        gx += nw; stops.push([gx, EDGE_C, 1]);
+        gx += nw; stops.push([gx, EDGE_C, 1]);
+        return {
+          flex: "1 1 auto", minHeight: 0, pointerEvents: "none",
+          backgroundRepeat: stops.map(() => "no-repeat").join(", ") + ", repeat",
+          backgroundImage: stops.map(t => "linear-gradient(" + t[1] + "," + t[1] + ")").join(",") +
+            ",repeating-linear-gradient(to bottom, transparent 0, transparent 1.8rem, " + INNER_C + " 1.8rem, " + INNER_C + " calc(1.8rem + 1px))",
+          backgroundSize: stops.map(t => t[2] + "px 100%").join(", ") + ", 100% calc(1.8rem + 1px)",
+          backgroundPosition: stops.map(t => "right " + t[0].toFixed(1) + "rem top").join(", ") + ", left top",
+          transition: "background-position 500ms cubic-bezier(.22,1,.36,1)"
+        };
+      })(),
       dHeadRow: {
         display: "grid", gridTemplateColumns: dLanding ? "minmax(0,1fr)" : dCols,
-        columnGap: ".55rem", alignItems: "stretch",
+        columnGap: 0, alignItems: "stretch",
         height: dLanding ? "3.4rem" : "1.95rem",
         borderTop: "1px solid " + (dLanding ? "transparent" : "rgba(34,211,238,.55)"),
         borderBottom: "1px solid " + (dLanding ? "transparent" : "rgba(34,211,238,.55)"),
         transform: dLanding ? "translateY(" + dDrop + "px)" : "none",
         fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em",
         color: "#7b91a3", textTransform: "uppercase",
-        transition: "transform 620ms cubic-bezier(.22,1,.36,1), height 760ms cubic-bezier(.22,1,.36,1), border-color 460ms ease"
+        transition: "transform 620ms cubic-bezier(.22,1,.36,1), height 760ms cubic-bezier(.22,1,.36,1), border-color 460ms ease, " + D_GRID_T
       },
       dSearchCell: {
         position: "relative", display: "flex", alignItems: "center",
@@ -2308,9 +2441,10 @@ class Component extends DCLogic {
       basisUnit: barBasisUnit,
       sortOn: {
         name: () => this.sortBy("name"), s1: () => this.sortBy("s1"), s2: () => this.sortBy("s2"),
-        s3: () => this.sortBy("s3"), kcal: () => this.sortBy("kcal"), extra: () => this.sortBy("extra")
+        s3: () => this.sortBy("s3"), kcal: () => this.sortBy("kcal"), extra: () => this.sortBy("extra"),
+        wa: () => this.sortBy("wa")
       },
-      sorted: { name: sortKey === "name", s1: sortKey === "s1", s2: sortKey === "s2", s3: sortKey === "s3", kcal: sortKey === "kcal", extra: sortKey === "extra" },
+      sorted: { name: sortKey === "name", s1: sortKey === "s1", s2: sortKey === "s2", s3: sortKey === "s3", kcal: sortKey === "kcal", extra: sortKey === "extra", wa: sortKey === "wa" },
       sortMark: sortDir === -1 ? "M5 9l7 7 7-7" : "M5 15l7-7 7 7",
       sortMarkStyle: { flex: "none", color: "#22d3ee" },
       mColOpen: !!s.mColOpen,
@@ -2442,7 +2576,7 @@ class Component extends DCLogic {
         display: "flex", flexDirection: "column" },
       // The last column is for doing rather than reading, so it is fenced off by a heavier
       // rule than the ones between the figures.
-      dActHead: { borderLeft: "2px solid rgba(34,211,238,.55)" },
+      dActHead: { borderLeft: "2px solid rgba(34,211,238,.55)", display: "flex", alignItems: "stretch", justifyContent: "center" },
       dActCell: { display: "flex", alignItems: "center", justifyContent: "center", borderLeft: "2px solid rgba(34,211,238,.55)" },
       dAddBtn: {
         display: "flex", alignItems: "center", justifyContent: "center",
@@ -2785,9 +2919,76 @@ class Component extends DCLogic {
       tip: { s1: hd === "s1", s2: hd === "s2", s3: hd === "s3", fb: hd === "fb", kcal: hd === "kcal", score: hd === "score" },
       tipText: TIPS, tipOn, tipOff: () => this.setState({ tip: "" }),
       tipStyle, tipStyleLeft, tipTitle, tipBody,
-      head1: Object.assign(headCell(HUE[0], true), dHide), head2: Object.assign(headCell(HUE[1]), dHide),
-      head3: Object.assign(headCell(HUE[2]), dHide),
+      head1: Object.assign(headCell(HUE[0], true), dHide),
+      // CARBS and FATS each span their own track plus the three sub tracks beside it —
+      // spanning 0rem tracks costs nothing collapsed, and saves the header from ever
+      // changing shape when they open.
+      head2: Object.assign(headCell(HUE[1]), { gridColumn: "span 4" }, dHide),
+      head3: Object.assign(headCell(HUE[2]), { gridColumn: "span 4" }, dHide),
+      headWa: Object.assign(headCell(null, true), dHide),
       headTotal: Object.assign({}, headIsland, { borderLeft: INNER }, dHide),
+      // The second header line: sub-macro names under CARBS and FATS, folded to nothing
+      // until the ringed + opens the table out.
+      dSubHead: {
+        display: dLanding ? "none" : "grid", gridTemplateColumns: dCols, columnGap: 0,
+        alignItems: "stretch", overflow: "hidden",
+        height: dxp ? "1.5rem" : "0rem", opacity: dxp ? 1 : 0,
+        borderBottom: "1px solid " + (dxp ? "rgba(34,211,238,.28)" : "transparent"),
+        fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".1em",
+        textTransform: "uppercase",
+        transition: D_GRID_T + ", height 500ms cubic-bezier(.22,1,.36,1), opacity 300ms ease, border-color 300ms ease"
+      },
+      subHeadC: {
+        minWidth: 0, overflow: "hidden", display: "flex", alignItems: "center",
+        justifyContent: "flex-end", whiteSpace: "nowrap", color: "rgba(126,224,168,.75)",
+        borderLeft: dSubBorder, paddingRight: dxp ? ".5rem" : "0",
+        transition: "border-color 300ms ease, padding 500ms cubic-bezier(.22,1,.36,1)"
+      },
+      subHeadF: {
+        minWidth: 0, overflow: "hidden", display: "flex", alignItems: "center",
+        justifyContent: "flex-end", whiteSpace: "nowrap", color: "rgba(240,140,122,.75)",
+        borderLeft: dSubBorder, paddingRight: dxp ? ".5rem" : "0",
+        transition: "border-color 300ms ease, padding 500ms cubic-bezier(.22,1,.36,1)"
+      },
+      // One grid to rule every desktop row — search, plate and blank alike — so the
+      // expansion is a single animation the whole table performs together.
+      dRowStyle: {
+        display: "grid", gridTemplateColumns: dCols, columnGap: 0,
+        alignItems: "stretch", minHeight: "1.8rem",
+        borderBottom: "1px solid rgba(34,211,238,.14)", fontSize: ".9rem",
+        color: "#d7e6ef", cursor: "pointer",
+        transition: "background 140ms ease, " + D_GRID_T
+      },
+      dBlankRow: {
+        display: "grid", gridTemplateColumns: dCols, columnGap: 0,
+        alignItems: "stretch", minHeight: "1.8rem",
+        borderBottom: "1px solid rgba(34,211,238,.14)",
+        transition: D_GRID_T
+      },
+      dTotRow: {
+        flex: "none", marginRight: "10px", display: "grid", gridTemplateColumns: dCols,
+        columnGap: 0, alignItems: "stretch", minHeight: "1.8rem",
+        borderTop: "1px solid rgba(34,211,238,.55)", fontSize: ".9rem", color: "#d7e6ef",
+        transition: D_GRID_T
+      },
+      blankSub: { borderLeft: dSubBorder, transition: "border-color 300ms ease" },
+      dShell: {
+        width: "100%", maxWidth: dxp ? "1560px" : "1120px",
+        display: "flex", flexDirection: "column", flex: 1, minHeight: 0,
+        transition: "max-width 560ms cubic-bezier(.22,1,.36,1)"
+      },
+      dExpToggle: () => this.setState({ dxp: !s.dxp }),
+      dExpBox: {
+        display: dLanding ? "none" : "flex", alignItems: "center", justifyContent: "center",
+        width: "100%", height: "100%", cursor: "pointer"
+      },
+      dExpChev: {
+        flex: "none", width: "16px", height: "16px",
+        borderRadius: "50%", boxSizing: "border-box", border: "1px solid #66808f",
+        background: dxp
+          ? "linear-gradient(#c7d6e0,#c7d6e0) center/8px 1.3px no-repeat"
+          : "linear-gradient(#c7d6e0,#c7d6e0) center/8px 1.3px no-repeat, linear-gradient(#c7d6e0,#c7d6e0) center/1.3px 8px no-repeat"
+      },
       aboutRowStyle: {
         display: "flex", alignItems: "center", gap: ".3rem",
         height: s.narrow ? "2.4rem" : "1.95rem", padding: s.narrow ? "0 .85rem" : "0 .7rem",
@@ -2834,10 +3035,10 @@ class Component extends DCLogic {
       blankEdge: { borderLeft: EDGE }, blankInner: { borderLeft: INNER }, tot, sumCount: String(sumRows.length),
       totViz, totWrap, totExpand, totVizTap, totToggle, totChevBox, totChev,
       qtyStyle, headIsland: Object.assign({}, headIsland, dHide), unitSuffix, numWrap, never: false,
-      headMeasure: { position: "relative", display: dLanding ? "none" : "flex", alignItems: "center", justifyContent: "flex-end", gap: ".3rem", paddingLeft: ".55rem", cursor: "pointer", color: "#c3d6e2", whiteSpace: "nowrap" },
-      measureCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300, fontSize: ".875rem", fontVariantNumeric: "tabular-nums", color: "#7b91a3", whiteSpace: "nowrap" },
+      headMeasure: { position: "relative", display: dLanding ? "none" : "flex", alignItems: "center", justifyContent: "flex-end", gap: ".3rem", paddingLeft: ".55rem", paddingRight: ".5rem", cursor: "pointer", color: "#c3d6e2", whiteSpace: "nowrap" },
+      measureCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: ".5rem", fontWeight: 300, fontSize: ".875rem", fontVariantNumeric: "tabular-nums", color: "#7b91a3", whiteSpace: "nowrap" },
       sizeSuffix: { marginLeft: ".2rem", display: "inline-block", width: s.narrow ? "1.35rem" : "1.2rem", textAlign: "left", flex: "none", fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".7rem", letterSpacing: ".06em", color: "#94a3b8" },
-      sumSizeCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", fontWeight: 300, fontSize: ".875rem", fontVariantNumeric: "tabular-nums", color: "#d7e6ef", whiteSpace: "nowrap" },
+      sumSizeCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: ".5rem", fontWeight: 300, fontSize: ".875rem", fontVariantNumeric: "tabular-nums", color: "#d7e6ef", whiteSpace: "nowrap" },
       catFiltered: s.cat !== "ALL",
       inputFix: { style: { boxSizing: "border-box" } }
     };
