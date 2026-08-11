@@ -1424,7 +1424,7 @@ class Component extends DCLogic {
         row: (o && o.sub) ? {
           display: "flex", alignItems: "stretch", overflow: "hidden",
           height: zm === o.sub ? "30px" : "0px",
-          paddingLeft: (ind * 16) + "px",
+          paddingLeft: (ind * 16) + "px", paddingRight: ".45rem",
           borderTop: zm === o.sub ? "1px solid rgba(215,230,239,.08)"
             : "0px solid rgba(215,230,239,0)",
           opacity: zm === o.sub ? 1 : 0,
@@ -1433,7 +1433,7 @@ class Component extends DCLogic {
             : "height 480ms cubic-bezier(.22,1,.36,1), opacity 240ms ease, border-top-width 480ms ease, border-top-color 480ms ease",
           cursor: "pointer"
         } : { display: "flex", alignItems: "stretch", height: "30px",
-          paddingLeft: (ind * 16) + "px",
+          paddingLeft: (ind * 16) + "px", paddingRight: ".45rem",
           borderTop: (o && o.first) ? "0" : "1px solid rgba(215,230,239,.08)",
           cursor: "pointer" },
         dot: { flex: "none", alignSelf: "center", width: "7px", height: "7px",
@@ -1974,14 +1974,16 @@ class Component extends DCLogic {
         },
         mSumRow: Object.assign({}, mSumRowBase, {
           gridTemplateColumns: sOpenName === fo.name ? "minmax(0,1fr) 4.2rem" : SUM_COLS,
-          borderBottom: sOpenName === fo.name ? 0 : "1px solid rgba(34,211,238,.14)"
+          borderBottom: sOpenName === fo.name ? 0 : "1px solid rgba(34,211,238,.14)",
+          background: sOpenName === fo.name ? "#12222e" : "transparent"
         }),
         sExpand: {
           overflow: "hidden",
           height: sOpenName === fo.name ? vzp.expH : "0px",
           opacity: sOpenName === fo.name ? 1 : 0,
           borderBottom: sOpenName === fo.name ? "1px solid rgba(34,211,238,.14)" : 0,
-          transition: "height 520ms cubic-bezier(.22,1,.36,1), opacity 320ms ease"
+          background: sOpenName === fo.name ? "#12222e" : "transparent",
+          transition: "height 520ms cubic-bezier(.22,1,.36,1), opacity 320ms ease, background 320ms ease"
         },
         fb: this.fmt(fo.fb * g),
         sumKcal: String(Math.round(kcalOf(fo) * g)),

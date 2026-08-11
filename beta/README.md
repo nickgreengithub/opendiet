@@ -77,7 +77,8 @@ What is different from the root:
   the pair a tritan eye loses), the run centred at three o'clock to face the table. The
   hole states the split that matters, everything-else / macros of 100: watermelon says
   92/8, parmesan 30/70. The table sits against the right edge on a subtle interior grid —
-  hairlines between rows and before the gram column, no outer border — dot, name, grams,
+  hairlines between rows and before the gram column, no outer border, the gram figures
+  held a step off the screen's edge — dot, name, grams,
   with the macro rows indented under MACROS. Fat and carbs are the two slices with more
   to say, so those rows wear a ringed +, pinned against the gram column — unless the
   macro is under 1 g per 100, where there is nothing worth opening and no ring to
@@ -139,7 +140,9 @@ What is different from the root:
   grid row going 1fr to 0fr — the one animatable route to a content-sized height, since
   max-height as a length and as a percentage never interpolate, which is why it used to
   snap shut.
-- Plate rows open the same way, with a bin where ADD was, and edit the plate's own amount.
+- Plate rows open the same way, with a bin where ADD was, and edit the plate's own
+  amount. An open plate row sits on its own lighter ground, so the food being edited
+  reads as lifted out of the list it came from.
   Collapsed, a plate row just states its grams — the steppers live in the expansion.
 - The plate's totals line rides the same three tracks as its rows, so the amount and the
   chosen measure sit under the columns they are totals of rather than in a row of evenly
