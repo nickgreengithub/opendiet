@@ -1489,7 +1489,11 @@ class Component extends DCLogic {
         dot: { flex: "none", alignSelf: "center", width: "7px", height: "7px",
           borderRadius: "50%", background: col, marginRight: "9px",
           opacity: pkDim ? .45 : dim && !pkLit ? .55 : 1, transition: "opacity 250ms ease" },
-        tagS: { alignSelf: "center", fontFamily: "var(--font-2)", fontSize: ".85rem",
+        // The tag owns the stretch between name and figures, so the ring and the gram
+        // column sit pinned right by construction rather than by an auto margin the
+        // node recycler can lose.
+        tagS: { flex: "1 1 auto", minWidth: 0, alignSelf: "center",
+          fontFamily: "var(--font-2)", fontSize: ".85rem",
           letterSpacing: ".08em",
           color: pkLit ? "#f2f7fa" : pkDim ? "#5f7484"
             : lit ? (ind ? "#d3e0e8" : "#e2ecf2")
@@ -1500,14 +1504,14 @@ class Component extends DCLogic {
         // fingertip is not a cursor.
         chevBox: (o && o.exp) ? { flex: "none", alignSelf: "stretch",
           display: "flex", alignItems: "center", justifyContent: "center",
-          width: "42px", marginLeft: "auto", marginRight: ".05rem",
+          width: "42px", marginLeft: "0", marginRight: ".05rem",
           cursor: "pointer" } : HID,
         chev: (o && o.exp) ? { flex: "none", width: "16px", height: "16px",
           borderRadius: "50%", boxSizing: "border-box", border: "1px solid #66808f",
           background: zm === o.exp
             ? "linear-gradient(#c7d6e0,#c7d6e0) center/8px 1.3px no-repeat"
             : "linear-gradient(#c7d6e0,#c7d6e0) center/8px 1.3px no-repeat, linear-gradient(#c7d6e0,#c7d6e0) center/1.3px 8px no-repeat" } : HID,
-        valS: { marginLeft: (o && o.exp) ? "0" : "auto", flex: "none", width: "4.9rem",
+        valS: { marginLeft: "0", flex: "none", width: "4.9rem",
           display: "flex", alignItems: "center", justifyContent: "flex-end",
           borderLeft: "1px solid rgba(215,230,239,.08)", paddingLeft: ".5rem" },
         valIn: { display: "flex", alignItems: "baseline", gap: ".25rem", fontWeight: 300,
