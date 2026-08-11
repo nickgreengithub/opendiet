@@ -306,7 +306,7 @@ option{background:#070b12;color:#d7e6ef}
   <div style="display:flex;flex-direction:column;flex:1;min-height:0">
     <sc-if value="{{ popOpen }}" hint-placeholder-val="{{ false }}"><div data-pop onClick="{{ closePops }}" style="{{ popScrim }}"></div></sc-if>
     <div data-hint="{{ searchHint }}" style="{{ mSearchRow }}">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="flex:none"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="{{ mSearchIcon }}"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
       <input data-search="m" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ mSearchInput }}">
       <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ mClearBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if><span data-pop onClick="{{ mLib }}" style="{{ mLibBtn }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></span>
       <sc-if value="{{ libOpen }}" hint-placeholder-val="{{ false }}">
@@ -337,9 +337,8 @@ option{background:#070b12;color:#d7e6ef}
           </div>
           <div style="{{ r.mExpand }}">
             <span onClick="{{ r.vizTap }}" style="{{ mVizBox }}">
-              <svg width="100%" height="100%" style="{{ vLink }}">
-                <path d="{{ r.viz.brk }}" fill="none" stroke="rgba(139,166,184,.6)" stroke-width="1.2"></path>
-              </svg>
+              <span style="{{ r.viz.bF }}"></span>
+              <span style="{{ r.viz.bC }}"></span>
               <span style="{{ vLeft }}">
               <span style="{{ vRing }}">
                 <svg width="164" height="164" viewBox="0 0 164 164" style="{{ vSvg }}">
@@ -412,9 +411,8 @@ option{background:#070b12;color:#d7e6ef}
           </div>
           <div style="{{ r.sExpand }}">
             <span onClick="{{ r.vizTap }}" style="{{ mVizBox }}">
-              <svg width="100%" height="100%" style="{{ vLink }}">
-                <path d="{{ r.viz.brk }}" fill="none" stroke="rgba(139,166,184,.6)" stroke-width="1.2"></path>
-              </svg>
+              <span style="{{ r.viz.bF }}"></span>
+              <span style="{{ r.viz.bC }}"></span>
               <span style="{{ vLeft }}">
               <span style="{{ vRing }}">
                 <svg width="164" height="164" viewBox="0 0 164 164" style="{{ vSvg }}">
@@ -1282,7 +1280,8 @@ class Component extends DCLogic {
     const NO_SLOT = { d: "", col: "transparent", st: {} };
     const NO_CIRC = { col: "transparent", st: { opacity: 0, strokeDasharray: "0 100" } };
     const NO_SWEEP = { opacity: 0 };
-    const NO_VIZ = { holeA: "", holeB: "", rows: [], brk: "", expH: "0px",
+    const NO_VIZ = { holeA: "", holeB: "", rows: [], expH: "0px",
+      bF: { display: "none" }, bC: { display: "none" },
       swF: NO_SWEEP, swC: NO_SWEEP, holeAS: {},
       holeSepS: { display: "none" }, holeBS: {}, holeUS: { display: "none" } };
     for (let i = 0; i < 4; i++) NO_VIZ["s" + i] = NO_SLOT;
@@ -1351,16 +1350,18 @@ class Component extends DCLogic {
       const dashOf = len => len.toFixed(2) + " " + (100 - len).toFixed(2);
       // A picked row's slice rises above the rest; picking answers in 200ms, never on the
       // choreography's clock.
+      // Dimming is a brightness drop, never transparency: a see-through slice lets the
+      // layer beneath it read as a second, ghost donut.
       const emph = tag => !pk ? null : pk === tag
         ? { opacity: 1, filter: "brightness(1.45)" }
-        : { opacity: .3, filter: "none" };
+        : { opacity: 1, filter: "brightness(.4) saturate(.7)" };
       const FAST = "opacity 200ms ease, filter 200ms ease";
       const innSt = tag => {
         const e = emph(tag);
         if (e) return Object.assign({ transition: FAST }, e);
-        return { opacity: zm ? .25 : 1, filter: "none",
-          transition: zm ? "opacity 250ms ease"
-            : wind ? "opacity 400ms ease 480ms" : "opacity 250ms ease, filter 250ms ease" };
+        return { opacity: 1, filter: zm ? "brightness(.35) saturate(.7)" : "none",
+          transition: zm ? "filter 250ms ease"
+            : wind ? "filter 400ms ease 480ms" : "filter 250ms ease, opacity 250ms ease" };
       };
       const outSt = (tag, key, seg) => {
         const chosen = zm === key;
@@ -1496,7 +1497,8 @@ class Component extends DCLogic {
           : (valG * perG / 3.6).toFixed(2) + " " + (100 - valG * perG / 3.6).toFixed(2),
         transform: "rotate(" + (start + startG * perG - 90).toFixed(1) + "deg)",
         transformOrigin: "82px 82px",
-        opacity: on ? (pk ? .3 : 1) : 0,
+        opacity: on ? 1 : 0,
+        filter: on && pk ? "brightness(.4) saturate(.7)" : "none",
         animation: on && !pk ? "od-flare 950ms ease" : "none",
         transition: on
           ? (pk ? FAST : "r 650ms " + EASE + " 280ms, stroke-dasharray 650ms " + EASE + " 280ms, opacity 120ms ease")
@@ -1546,23 +1548,36 @@ class Component extends DCLogic {
             transition: "color 200ms ease" },
         holeUS: zm ? { marginLeft: ".15rem", fontFamily: "var(--font-2)",
           fontSize: ".8rem", letterSpacing: ".04em", color: "#5f7f8e" } : HID,
-        rows: rows, brk: "",
+        rows: rows,
         swF: sweepC(fo.p, fo.f, zm === "f"),
         swC: sweepC(fo.p + fo.f, fo.c, zm === "c") };
-      if (zm) {
-        // The bracket hugs the open macro's rows at the table's left edge, in the
-        // drawing's own pixels: 30px first row then 31, the table at up to 13.8rem
-        // against the right edge.
+      // The brackets live at the table's left edge, in the drawing's own pixels: 30px
+      // first row then 31, the table at up to 13.8rem against the right edge. Each one
+      // rides its own macro's rows — growing, shrinking and shifting with them, since a
+      // span's top and height can animate where a path's d cannot.
+      {
         const vw2 = Math.min(typeof window !== "undefined" ? window.innerWidth : 390, 640);
         const tableW = Math.min(220.8, vw2 - 7.2 - 164 - 10.4);
         const bx = vw2 - 3.2 - tableW - 7;
         const rh = rows.map((x2, k) => x2.row.height === "0px" ? 0 : k ? 31 : 30);
         const rowY = k => 8 + rh.slice(0, k).reduce((a2, b2) => a2 + b2, 0);
-        const i0 = zm === "f" ? iFat : iCarb;
-        const nSub = zm === "f" ? (fo.tr ? 5 : 4) : 4;
-        const yTop = rowY(i0) + 2, yBot = rowY(i0 + nSub) - 2;
-        viz.brk = "M" + (bx + 5) + " " + yTop + " L" + bx + " " + yTop +
-          " L" + bx + " " + yBot + " L" + (bx + 5) + " " + yBot;
+        const brkS = (i0, nSub, on) => {
+          const top = rowY(i0) + 2;
+          const h = on ? rowY(i0 + nSub) - 2 - top : 26;
+          return {
+            position: "absolute", left: bx + "px", top: top + "px",
+            width: "5px", height: h + "px", boxSizing: "border-box",
+            borderLeft: "1px solid rgba(139,166,184,.6)",
+            borderTop: "1px solid rgba(139,166,184,.6)",
+            borderBottom: "1px solid rgba(139,166,184,.6)",
+            opacity: on ? 1 : 0, pointerEvents: "none",
+            transition: on
+              ? "height 520ms cubic-bezier(.22,1,.36,1), top 520ms cubic-bezier(.22,1,.36,1), opacity 250ms ease"
+              : "height 480ms cubic-bezier(.22,1,.36,1), top 480ms cubic-bezier(.22,1,.36,1), opacity 240ms ease"
+          };
+        };
+        viz.bF = brkS(iFat, fo.tr ? 5 : 4, zm === "f");
+        viz.bC = brkS(iCarb, 4, zm === "c");
       }
       for (let i = 0; i < 4; i++) viz["s" + i] = innerSlots[i] || NO_SLOT;
       for (let i = 0; i < 3; i++) viz["o" + i] = outCircs[i] || NO_CIRC;
@@ -2231,8 +2246,6 @@ class Component extends DCLogic {
         flexDirection: "column", gap: ".55rem", width: "164px", paddingTop: "10px" },
       vRing: { flex: "none", position: "relative", width: "164px", height: "164px" },
       vSvg: { display: "block", width: "100%", height: "100%" },
-      vLink: { position: "absolute", left: 0, top: 0, width: "100%", height: "100%",
-        pointerEvents: "none" },
 
       // The hole's own flex baseline-aligns the two figures around their slash; the
       // translate centres the pair in the ring, since the container is only as tall as
@@ -2374,10 +2387,15 @@ class Component extends DCLogic {
       },
       // The landing screen is a search box and nothing else — the library picker fades in
       // with the table. Space is reserved so the input does not resize underneath you.
+      // The landing line is centred both ways: the magnifier steps aside and the
+      // placeholder holds the middle of the screen until the first keystroke.
+      mSearchIcon: { flex: "none", display: landing ? "none" : "block",
+        opacity: landing ? 0 : 1, transition: "opacity 300ms ease 200ms" },
       mSearchInput: {
         flex: 1, minWidth: 0, background: "transparent", border: 0,
         color: "#eaf5fb", fontFamily: "var(--font-2)", textTransform: "uppercase", textOverflow: "ellipsis",
         height: landing ? "2.7rem" : "2rem",
+        textAlign: landing ? "center" : "left",
         padding: landing ? "0 .1rem" : "0 .3rem",
         fontSize: landing ? "1.34rem" : "1.1rem",
         letterSpacing: landing ? ".07em" : ".05em",
@@ -2499,7 +2517,7 @@ class Component extends DCLogic {
         borderBottom: "1px solid rgba(34,211,238,.55)"
       },
       mLibBtn: {
-        display: "flex", alignItems: "center", justifyContent: "center",
+        display: landing ? "none" : "flex", alignItems: "center", justifyContent: "center",
         width: "2rem", height: "100%", cursor: "pointer", color: "#c3d6e2",
         opacity: landing ? 0 : 1,
         pointerEvents: landing ? "none" : "auto",

@@ -9,8 +9,9 @@ What is different from the root:
 - A launcher screen: the site is a set of small apps rather than one page. FOOD SEARCH is
   the built one; CALORIE CALC, RECIPE BUILDER and FOOD COMPARE are placeholders.
 - Desktop switches app with tabs across the top. Mobile gets a back button to the launcher.
-- Both layouts open on the search line alone, centred, and lift it to the header on the first
-  keystroke. Reaching for the search box, or typing a different query, returns the list to
+- Both layouts open on the search line alone, centred both ways — on mobile the magnifier
+  and library button step out of the flow so the placeholder holds the exact middle — and
+  lift it to the header on the first keystroke. Reaching for the search box, or typing a different query, returns the list to
   the top.
 - The plate reads newest first. A food joins at the top row: a slot opens to the row's
   height and the row drops into it from above, out of a cyan wash. Taking one off reverses
@@ -100,7 +101,11 @@ What is different from the root:
   open macro's rows lean forward and the rest lean back, the same quarter-step the donut
   takes. Tapping any other row is a pick: its slice brightens above a receding ring, its
   name and figure do the same in the table, and the hole's emphasis swaps with it — a
-  water-side pick brightens the left figure, a macro pick the right. Picking MACROS
+  water-side pick brightens the left figure, a macro pick the right. Every dim in the
+  drawing is a brightness drop rather than transparency, because a see-through slice
+  lets the layer beneath it read as a second, ghost donut. The brackets are spans rather
+  than paths — a span's top and height can animate where a path's d cannot — so each one
+  grows, shrinks and shifts with the very rows it hugs. Picking MACROS
   lights all three of the outer run, because that run is what MACROS is. While a macro is
   open, its own sub rows pick in place; any other row folds the macro on its way to the
   pick, quickly — the long unwinding is reserved for a tap on the drawing itself, held by
