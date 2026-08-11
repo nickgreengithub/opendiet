@@ -331,7 +331,7 @@ option{background:#070b12;color:#d7e6ef}
         <div style="{{ dTgtWrap }}">
           <div style="{{ dTgtRowS }}">
             <span style="{{ dTgtLab }}"><span>SET DAILY CALORIE TARGET</span></span>
-            <span></span>
+            <span style="{{ tgtSizeCell }}"><input data-tgt value="{{ tgtVal }}" onChange="{{ onTgt }}" onClick="{{ stopProp }}" inputmode="numeric" style="{{ tgtInputS }}"></span>
             <span style="{{ tgtR.wa.tc }}"></span>
             <span style="{{ tgtR.p.tc }}">{{ tgtR.p.tv }}</span>
             <span style="{{ tgtR.sg.tc }}">{{ tgtR.sg.tv }}</span>
@@ -342,7 +342,7 @@ option{background:#070b12;color:#d7e6ef}
             <span style="{{ tgtR.mo.tc }}">{{ tgtR.mo.tv }}</span>
             <span style="{{ tgtR.po.tc }}">{{ tgtR.po.tv }}</span>
             <span style="{{ tgtR.f.tc }}">{{ tgtR.f.tv }}</span>
-            <span style="{{ tgtR.k.tc }}"><input data-tgt value="{{ tgtVal }}" onChange="{{ onTgt }}" onClick="{{ stopProp }}" inputmode="numeric" style="{{ tgtInputS }}"></span>
+            <span style="{{ tgtR.k.tc }}">{{ tgtR.k.tv }}</span>
             <span style="{{ tgtR.x.tc }}"></span>
             <span style="{{ blankAct }}"></span>
           </div>
@@ -3201,9 +3201,11 @@ class Component extends DCLogic {
         fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em", color: "#7b91a3" },
       // The target figure is an input dressed exactly like the size inputs above it:
       // pinned right in its column, no chrome of its own.
-      tgtInputS: { width: "3.6rem", boxSizing: "border-box", textAlign: "right",
+      tgtSizeCell: { display: "flex", alignItems: "center", justifyContent: "flex-end",
+        paddingLeft: ".2rem", paddingRight: ".45rem" },
+      tgtInputS: { width: "2.8rem", boxSizing: "border-box", textAlign: "right",
         background: "rgba(34,211,238,.07)", border: "1px solid rgba(34,211,238,.45)",
-        borderRadius: 0, padding: ".12rem .3rem", color: "#22d3ee",
+        borderRadius: 0, padding: ".12rem .25rem", color: "#22d3ee",
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".875rem",
         fontVariantNumeric: "tabular-nums" },
       blankAct: { borderLeft: "1px solid rgba(34,211,238,.55)" },

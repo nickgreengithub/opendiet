@@ -54,8 +54,9 @@ What is different from the root:
   1px like everything else, since double thickness read as a doubled line. The desktop
   totals row says MY FOOD SUMMARY behind its own ringed +, which opens two rows
   beneath it: SET DAILY CALORIE TARGET — FDA daily values scaled from the calorie
-  figure typed into the KCAL column, an input dressed exactly like the size inputs
-  above it (default 2000), one target per column that has one, none for water — and
+  figure typed into the SIZE column, a boxed input sitting under the plate's own size
+  inputs (default 2000) with the KCAL column repeating it, one target per column that
+  has one, none for water — and
   DIFFERENCE, the plate's distance from each target in signed numbers; the input is an
   unmistakable boxed field that takes the caret the moment the rows open. The summary's
   FULLNESS is the average of its foods' scores, each weighing in at the grams it was
