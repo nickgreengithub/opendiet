@@ -1975,7 +1975,11 @@ class Component extends DCLogic {
         mSumRow: Object.assign({}, mSumRowBase, {
           gridTemplateColumns: sOpenName === fo.name ? "minmax(0,1fr) 4.2rem" : SUM_COLS,
           borderBottom: sOpenName === fo.name ? 0 : "1px solid rgba(34,211,238,.14)",
-          background: sOpenName === fo.name ? "#12222e" : "transparent"
+          background: sOpenName === fo.name ? "#12222e" : "transparent",
+          // iOS Safari does not repaint a background change on a row inside its
+          // momentum scroller until something else forces it; its own compositing
+          // layer forces it now.
+          transform: sOpenName === fo.name ? "translateZ(0)" : "none"
         }),
         sExpand: {
           overflow: "hidden",
