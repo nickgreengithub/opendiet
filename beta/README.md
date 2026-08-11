@@ -23,7 +23,13 @@ What is different from the root:
   totals, even the continuation lines below the last row — breathes as one animation
   rather than snapping. Column gaps are gone (a gap beside a 0rem track is dead space
   that never closes); the cells carry their own padding instead. The sub columns always
-  speak grams, whatever basis the macro columns are in.
+  speak grams, whatever basis the macro columns are in. The numeric tracks hold one
+  narrow width in both modes — the figures never needed more — so the expansion animates
+  only the six sub tracks and the shell, and offscreen rows carry content-visibility so
+  a 250-row table isn't relaid out per frame; the two together are the difference
+  between a stutter and a glide. Two strong rules and no more: one opens the numeric
+  block at WATER, one fences the actions column — everything between is a hairline,
+  because two strong lines side by side read as a doubled border.
 - Both layouts open on the search line alone, centred both ways — on mobile the magnifier
   and library button step out of the flow so the placeholder holds the exact middle — and
   lift it to the header on the first keystroke. Reaching for the search box, or typing a different query, returns the list to

@@ -246,7 +246,7 @@ option{background:#070b12;color:#d7e6ef}
     <div style="{{ dBody }}">
     <div data-scroll="rows" style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box;display:flex;flex-direction:column">
     <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
-      <div data-back="{{ r.back }}" style="flex:none">
+      <div data-back="{{ r.back }}" style="{{ dRowWrap }}">
         <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ dRowStyle }}" style-hover="background:rgba(34,211,238,.20)">
           <span style="display:flex;align-items:center;gap:.55rem;min-width:0">
             <span style="flex:1;min-width:0;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span>
@@ -303,18 +303,18 @@ option{background:#070b12;color:#d7e6ef}
               <span></span>
               <span></span>
               <span style="{{ blankEdge }}"></span>
-              <span style="{{ blankEdge }}"></span>
-              <span style="{{ blankSub }}"></span>
-              <span style="{{ blankSub }}"></span>
-              <span style="{{ blankSub }}"></span>
               <span style="{{ blankInner }}"></span>
               <span style="{{ blankSub }}"></span>
               <span style="{{ blankSub }}"></span>
               <span style="{{ blankSub }}"></span>
               <span style="{{ blankInner }}"></span>
+              <span style="{{ blankSub }}"></span>
+              <span style="{{ blankSub }}"></span>
+              <span style="{{ blankSub }}"></span>
               <span style="{{ blankInner }}"></span>
-              <span style="{{ blankEdge }}"></span>
-              <span></span>
+              <span style="{{ blankInner }}"></span>
+              <span style="{{ blankInner }}"></span>
+              <span style="{{ blankAct }}"></span>
             </div>
           </sc-if>
         </div>
@@ -1079,7 +1079,7 @@ class Component extends DCLogic {
     const headIsland = {
       position: "relative", minWidth: 0,
       display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".3rem", whiteSpace: "nowrap",
-      padding: "0 .5rem 0 .55rem", cursor: "pointer", color: "#c3d6e2", borderLeft: EDGE
+      padding: "0 .5rem 0 .55rem", cursor: "pointer", color: "#c3d6e2", borderLeft: INNER
     };
     // Each macro column's bar wears its donut hue — protein cyan, carbs green, fat
     // coral — sheer enough that the figure on top stays the loudest thing in the cell.
@@ -1130,9 +1130,12 @@ class Component extends DCLogic {
         fill1: fillOf(fv[0], fvMax), fill2: fillOf(fv[1], fvMax, CARB_FILL), fill3: fillOf(fv[2], fvMax, FAT_FILL),
         fillK: fillOf(ekc * uf, rowKcalMax * uf),
         cellK: Object.assign({}, numCell(null, false), { borderLeft: INNER }),
-        cellScore: Object.assign({}, numCell(null, false), { borderLeft: EDGE, color: "#22d3ee" }),
+        // One strong rule opens the numeric block (WATER's left edge) and one fences the
+        // actions; everything between is a hairline — two strong lines side by side read
+        // as a doubled border.
+        cellScore: Object.assign({}, numCell(null, false), { borderLeft: INNER, color: "#22d3ee" }),
         v1: vals[0], v2: vals[1], v3: vals[2],
-        cell1: numCell(HUE[0], vals[0] === "0", true), cell2: numCell(HUE[1], vals[1] === "0"), cell3: numCell(HUE[2], vals[2] === "0"),
+        cell1: numCell(HUE[0], vals[0] === "0"), cell2: numCell(HUE[1], vals[1] === "0"), cell3: numCell(HUE[2], vals[2] === "0"),
         // Water rides its own column left of PROT, always in grams: the donut's honest
         // slice, in the donut's own blue.
         vWa: this.fmt((fo.wa || 0) * uf),
@@ -1789,8 +1792,11 @@ class Component extends DCLogic {
     // animation instead of snapping. Column gaps are gone (a gap beside a 0rem track is
     // dead space that never closes); the cells carry their own padding instead.
     const dxp = !!s.dxp && !s.narrow;
-    const D_NW = dxp ? "6.4rem" : "7.2rem";
-    const D_SW = dxp ? "4.8rem" : "0rem";
+    // The numeric tracks hold one width in both modes — the figures never needed more —
+    // so the expansion animates only the six sub tracks and the shell. Fewer moving
+    // tracks is also what keeps the animation smooth.
+    const D_NW = "5.6rem";
+    const D_SW = dxp ? "4.6rem" : "0rem";
     const D_SUB3 = " " + D_SW + " " + D_SW + " " + D_SW;
     // Each group runs parts-then-total — SUGARS FIBRE STARCH then CARBS — so the group
     // header, right-aligned across its span, sits over the total it names.
@@ -2261,14 +2267,14 @@ class Component extends DCLogic {
       u3: isPct ? "%" : isKcalBasis ? "kcal" : "g",
       fb: this.fmt(tFb),
       cellFb: Object.assign({}, totCell, { borderLeft: EDGE }),
-      cell1: Object.assign({}, totCell, { borderLeft: EDGE }), cell2: totCell, cell3: totCell,
+      cell1: totCell, cell2: totCell, cell3: totCell,
       kcalVal: String(tKDisp),
       extraVal: extra.k === "score" ? (tScore ? String(tScore) : "\u2014") : this.fmt(sumFoods.reduce((a, fo) => a + extra.get(fo) * gs(fo), 0)),
       mTotVal: mCol.k === "score" ? (tScore ? String(tScore) : "\u2014") : mCol.k === "kcal" ? String(tKDisp) : this.fmt(sumFoods.reduce((a, fo) => a + mCol.get(fo) * gs(fo), 0)),
       fill1: totFillOf(tfv[0], tfvMax), fill2: totFillOf(tfv[1], tfvMax, CARB_FILL_T), fill3: totFillOf(tfv[2], tfvMax, FAT_FILL_T),
       fillK: totFillOf(1, 1),
       cellK: Object.assign({}, totCell, { borderLeft: INNER }),
-      cellScore: Object.assign({}, totCell, { borderLeft: EDGE, color: "#22d3ee" }),
+      cellScore: Object.assign({}, totCell, { borderLeft: INNER, color: "#22d3ee" }),
       vWa: this.fmt(tWa),
       cellWa: Object.assign({}, totCell, { borderLeft: EDGE }),
       fillWa: fillOf(tQty ? tWa / tQty * 100 : 0, 100, WATER_FILL),
@@ -2369,13 +2375,13 @@ class Component extends DCLogic {
         const stops = [];
         let gx = 2.6;
         stops.push([gx, EDGE_C, 2]);
-        gx += nw; stops.push([gx, EDGE_C, 1]);
         gx += nw; stops.push([gx, INNER_C, 1]);
+        gx += nw; stops.push([gx, INNER_C, 1]);
+        gx += nw; stops.push([gx, INNER_C, 1]);
+        for (let i = 0; i < 3; i++) { gx += sw; stops.push([gx, subLn, 1]); }
         gx += nw; stops.push([gx, INNER_C, 1]);
         for (let i = 0; i < 3; i++) { gx += sw; stops.push([gx, subLn, 1]); }
         gx += nw; stops.push([gx, INNER_C, 1]);
-        for (let i = 0; i < 3; i++) { gx += sw; stops.push([gx, subLn, 1]); }
-        gx += nw; stops.push([gx, EDGE_C, 1]);
         gx += nw; stops.push([gx, EDGE_C, 1]);
         return {
           flex: "1 1 auto", minHeight: 0, pointerEvents: "none",
@@ -2941,7 +2947,7 @@ class Component extends DCLogic {
       tip: { s1: hd === "s1", s2: hd === "s2", s3: hd === "s3", fb: hd === "fb", kcal: hd === "kcal", score: hd === "score" },
       tipText: TIPS, tipOn, tipOff: () => this.setState({ tip: "" }),
       tipStyle, tipStyleLeft, tipTitle, tipBody,
-      head1: Object.assign(headCell(HUE[0], true), dHide),
+      head1: Object.assign(headCell(HUE[0]), dHide),
       // CARBS and FATS each span their own track plus the three sub tracks beside it —
       // spanning 0rem tracks costs nothing collapsed, and saves the header from ever
       // changing shape when they open.
@@ -2994,8 +3000,12 @@ class Component extends DCLogic {
         transition: D_GRID_T
       },
       blankSub: { borderLeft: dSubBorder, transition: "border-color 300ms ease" },
+      blankAct: { borderLeft: "2px solid rgba(34,211,238,.55)" },
+      // Offscreen rows skip layout entirely, which is what keeps 250 grids animating
+      // their tracks at full frame rate.
+      dRowWrap: { flex: "none", contentVisibility: "auto", containIntrinsicSize: "auto 29px" },
       dShell: {
-        width: "100%", maxWidth: dxp ? "1560px" : "1120px",
+        width: "100%", maxWidth: dxp ? "1400px" : "1120px",
         display: "flex", flexDirection: "column", flex: 1, minHeight: 0,
         transition: "max-width 560ms cubic-bezier(.22,1,.36,1)"
       },
