@@ -1378,7 +1378,7 @@ class Component extends DCLogic {
         if (e) return { stroke: shade(col, e), opacity: 1, transition: FAST };
         return { stroke: zm ? dimC(col) : solidC(col), opacity: 1,
           transition: zm ? "stroke 250ms ease"
-            : wind ? "stroke 400ms ease 480ms" : "stroke 250ms ease, opacity 250ms ease" };
+            : wind ? "stroke 450ms ease 1250ms" : "stroke 250ms ease, opacity 250ms ease" };
       };
       const outSt = (tag, key, seg) => {
         const chosen = zm === key;
@@ -1391,12 +1391,13 @@ class Component extends DCLogic {
         // Picking MACROS lights the inner slice alone; the outer run dulls with the rest,
         // so one thing on the ring answers the tap.
         const e = emph(tag);
-        base.stroke = shade(seg.col, e);
+        base.stroke = e ? shade(seg.col, e)
+          : zm && !chosen ? dimC(seg.col) : solidC(seg.col);
         if (e) return Object.assign(base,
           { transition: FAST + ", stroke-dasharray 450ms " + EASE });
         base.transition = zm
-          ? "stroke-dasharray 450ms " + EASE + ", opacity 120ms ease"
-          : wind ? "stroke-dasharray 500ms " + EASE + " 900ms, opacity 250ms ease 1040ms"
+          ? "stroke-dasharray 450ms " + EASE + ", opacity 120ms ease, stroke 200ms ease"
+          : wind ? "stroke-dasharray 500ms " + EASE + " 900ms, opacity 250ms ease 1040ms, stroke 450ms ease 1250ms"
           : "stroke-dasharray 450ms " + EASE + ", stroke 250ms ease, opacity 250ms ease";
         return base;
       };

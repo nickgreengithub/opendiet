@@ -89,11 +89,13 @@ What is different from the root:
   own parts fade up on the ring it vacated — saturated, mono, poly for fat; sugars,
   fibre, starch for carbs — and the rest of the donut steps back to quarter strength.
   The outer ring and both sub-rings are dash patterns on pathLength-100 circles rather
-  than arc paths, because a dash can wind and an arc cannot. Opening a macro, its
-  neighbours wind out, the slice flares, slides in (the circle's own r) and sweeps the
-  inner ring like a clock hand, and its own parts wind in on the ring it left; closing
-  runs the film backwards — the parts wind up first, the sweep retraces, and the resting
-  ring winds back in, in that order. The row scrolls to the top, and that macro's table
+  than arc paths, because a dash can wind and an arc cannot. Opening a macro, the rest
+  of the donut dulls in the same breath as the flare — the slice is the only bright thing
+  from the first frame — then its neighbours wind out dull, the slice slides in (the
+  circle's own r) and sweeps the inner ring like a clock hand, and its own parts wind in
+  on the ring it left; closing runs the film backwards — the parts wind up first, the
+  sweep retraces still bright, the resting ring winds back in still dull, and brightness
+  returns to everything as the very last step. The row scrolls to the top, and that macro's table
   rows slide open beneath their parent — they are always in the table, holding no height
   and a zero-width border until their macro is pressed, so opening is a height transition
   the rows below ride along with — inside a bracket drawn in the drawing's own pixels,
