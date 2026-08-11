@@ -159,6 +159,8 @@ option{background:#070b12;color:#d7e6ef}
     <sc-for list="{{ appTabs }}" as="t" hint-placeholder-count="4">
       <span onClick="{{ t.onClick }}" style="{{ t.style }}" style-hover="color:#d7e6ef">{{ t.label }}</span>
     </sc-for>
+    <span style="{{ dMeasWrap }}"><span onClick="{{ dMeas100 }}" style="{{ dMeas100S }}">100 G</span><span onClick="{{ dMeasOz }}" style="{{ dMeasOzS }}">OZ</span></span>
+    <span onClick="{{ openAbout }}" style="{{ tabAbout }}" style-hover="color:#22d3ee">ABOUT</span>
   </div>
   </sc-if>
   <sc-if value="{{ backOn }}" hint-placeholder-val="{{ false }}">
@@ -218,19 +220,7 @@ option{background:#070b12;color:#d7e6ef}
         <input data-search data-land="{{ dLandFlag }}" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ dSearchInput }}">
         <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ dClearBtn }}" style-hover="color:#d7e6ef"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if>
       </span>
-      <span onMouseEnter="{{ openUnit }}" onMouseLeave="{{ closeUnit }}" style="{{ headMeasure }}"><span>SIZE</span><sc-if value="{{ unitOpen }}" hint-placeholder-val="{{ false }}">
-          <span style="position:absolute;top:100%;left:0;z-index:40;display:flex;flex-direction:column;min-width:18rem;padding-top:.35rem;text-transform:none;letter-spacing:0">
-            <span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)">
-              <span style="display:grid;grid-template-columns:1fr 1fr">
-                <sc-for list="{{ unitOpts }}" as="u" hint-placeholder-count="4">
-                  <button onClick="{{ u.onClick }}" style="{{ u.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ u.label }}</span><span style="{{ u.gStyle }}">{{ u.grams }}</span></button>
-                </sc-for>
-              </span>
-              <span style="padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55);font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#94a3b8;text-wrap:pretty">Sets the portion every food is measured at. Once added, a food's size can be typed directly in the summary table.</span>
-            </span>
-          </span>
-        </sc-if>
-</span>
+      <span style="{{ headMeasure }}"></span>
       <span onClick="{{ sortOn.wa }}" style="{{ headWa }}"><span>WATER</span><span style="{{ headUnit }}">{{ vzUnit }}</span><sc-if value="{{ sorted.wa }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if></span>
       <span onMouseEnter="{{ openBasis.s1 }}" onMouseLeave="{{ closeBasis }}" onClick="{{ sortOn.s1 }}" style="{{ head1 }}"><span>PROT</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s1 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-25%</span></sc-if><sc-if value="{{ basisShow.s1 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></span></button></sc-for><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">PROTEIN</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.s1 }}</span></span></span></span></sc-if></span>
       <span style="{{ subHead }}"><span style="{{ subPre }}">CAR</span><span>SUGAR</span></span>
@@ -242,7 +232,7 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ subHead }}"><span style="{{ subPre }}">FAT</span><span>POLY</span></span>
       <span onMouseEnter="{{ openBasis.s3 }}" onMouseLeave="{{ closeBasis }}" onClick="{{ sortOn.s3 }}" style="{{ head3 }}"><span>FATS</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s3 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-2%</span></sc-if><sc-if value="{{ basisShow.s3 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></span></button></sc-for><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">FATS</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.s3 }}</span></span></span></span></sc-if></span>
       <span onMouseEnter="{{ tipOn.kcal }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.kcal }}" style="{{ headTotal }}"><span>KCAL</span><sc-if value="{{ sorted.kcal }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.kcal }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(34,211,238,.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="display:block;padding:0 .7rem .7rem"><span style="font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#94a3b8;text-wrap:pretty">Digestion costs 25% of protein calories, 8% of carbohydrate, 2% of fat. Always applied to KCAL; applied to the macro columns only when they show kcal contribution.</span></span><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">KCAL</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.kcal }}</span></span></span></span></sc-if></span>
-      <span onMouseEnter="{{ openExtra }}" onMouseLeave="{{ closeExtra }}" onClick="{{ sortOn.extra }}" style="{{ headIsland }}"><span>{{ extraLabel }}</span><sc-if value="{{ sorted.extra }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ extraOpen }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ extraOpts }}" as="x" hint-placeholder-count="4"><button onClick="{{ x.onClick }}" style="{{ x.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ x.label }}</span><span style="{{ x.unitStyle }}">{{ x.unit }}</span></span><span style="{{ x.descStyle }}">{{ x.desc }}</span></button></sc-for></span></span></sc-if></span>
+      <span onMouseEnter="{{ openExtra }}" onMouseLeave="{{ closeExtra }}" onClick="{{ sortOn.extra }}" style="{{ headIsland }}"><span>{{ extraLabel }}</span><sc-if value="{{ sorted.extra }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ extraOpen }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><span style="display:block;padding:.55rem .7rem .7rem"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">FULLNESS SCORE</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.score }}</span></span></span></span></sc-if></span>
       <span style="{{ dActHead }}"><span data-dexp onClick="{{ dExpToggle }}" style="{{ dExpBox }}"><span style="{{ dExpChev }}"></span></span></span>
     </div>
     </div>
@@ -385,7 +375,7 @@ option{background:#070b12;color:#d7e6ef}
     <div data-hint="{{ searchHint }}" style="{{ mSearchRow }}">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b91a3" stroke-width="1.8" style="{{ mSearchIcon }}"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
       <input data-search="m" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ mSearchInput }}">
-      <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ mClearBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if><span data-pop onClick="{{ mColToggle }}" style="{{ mHeadOne }}"><sc-if value="{{ ozOn }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" style="flex:none;opacity:.85"><path d="M5.7 3.4v18" stroke="currentColor" stroke-width="1.5" fill="none"></path><rect x="5.7" y="4.6" width="13.6" height="9.2" fill="none" stroke="currentColor" stroke-width="1.3"></rect><rect x="5.7" y="4.6" width="6.2" height="4.6" fill="currentColor" stroke="none"></rect><path d="M11.9 7h7.4M5.7 11.2h13.6" stroke="currentColor" stroke-width="1.1" fill="none"></path></svg></sc-if><span>{{ measureLabel }}</span><span style="{{ mHeadDot }}">·</span><span style="{{ mHeadCol }}">{{ mColLabel }}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ mColOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><span style="display:grid;grid-template-columns:1fr 1fr"><span style="display:flex;flex-direction:column;border-right:1px solid rgba(34,211,238,.28)"><span style="{{ mPopHead }}">MEASURE</span><sc-for list="{{ unitOpts }}" as="u" hint-placeholder-count="4"><button onClick="{{ u.onClick }}" style="{{ u.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ u.label }}</span><span style="{{ u.gStyle }}">{{ u.grams }}</span></button></sc-for></span><span style="display:flex;flex-direction:column"><span style="{{ mPopHead }}">COLUMN</span><sc-for list="{{ mColOpts }}" as="o" hint-placeholder-count="9"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ o.label }}</span><span style="{{ o.unitStyle }}">{{ o.unit }}</span></button></sc-for></span></span><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(34,211,238,.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="{{ mPopNote }}">Digestion costs 25% of protein calories, 8% of carbohydrate and 2% of fat. Applied to calories.</span></span></span></sc-if></span>
+      <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ mClearBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if><span data-pop onClick="{{ mColToggle }}" style="{{ mHeadOne }}"><sc-if value="{{ ozOn }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" style="flex:none;opacity:.85"><path d="M5.7 3.4v18" stroke="currentColor" stroke-width="1.5" fill="none"></path><rect x="5.7" y="4.6" width="13.6" height="9.2" fill="none" stroke="currentColor" stroke-width="1.3"></rect><rect x="5.7" y="4.6" width="6.2" height="4.6" fill="currentColor" stroke="none"></rect><path d="M11.9 7h7.4M5.7 11.2h13.6" stroke="currentColor" stroke-width="1.1" fill="none"></path></svg></sc-if><span>{{ measureLabel }}</span><span style="{{ mHeadDot }}">·</span><span style="{{ mHeadCol }}">{{ mColLabel }}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ mColOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><span style="{{ mPopHead }}">MEASURE</span><span style="display:grid;grid-template-columns:1fr 1fr"><sc-for list="{{ unitOpts }}" as="u" hint-placeholder-count="2"><button onClick="{{ u.onClick }}" style="{{ u.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ u.label }}</span><span style="{{ u.gStyle }}">{{ u.grams }}</span></button></sc-for></span><span style="{{ mPopHead }}">COLUMN</span><span style="display:grid;grid-template-columns:1fr 1fr"><sc-for list="{{ mColOpts }}" as="o" hint-placeholder-count="9"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ o.label }}</span><span style="{{ o.unitStyle }}">{{ o.unit }}</span></button></sc-for></span><span style="{{ mPopHead }}">SORT</span><span style="display:grid;grid-template-columns:1fr 1fr"><button onClick="{{ mSortRel }}" style="{{ mSortRelS }}" style-hover="background:rgba(34,211,238,.18)"><span>RELEVANCE</span></button><button onClick="{{ mSortCol }}" style="{{ mSortColS }}" style-hover="background:rgba(34,211,238,.18)"><span>{{ mColLabel }}</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="{{ mSortIcon }}"></path></svg></button></span><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(34,211,238,.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="{{ mPopNote }}">Digestion costs 25% of protein calories, 8% of carbohydrate and 2% of fat. Applied to calories.</span></span></span></sc-if></span>
     </div>
     <div style="{{ mBody }}">
     <div data-scroll="rows" style="{{ mListStyle }}">
@@ -1042,27 +1032,28 @@ class Component extends DCLogic {
       { k: "fb", label: "FIBRE", unit: "g", get: fo => fo.fb, sum: true },
       { k: "wa", label: "WATER", unit: "g", get: fo => fo.wa || 0, sum: true }
     ];
-    const extra = EXTRAS.find(x => x.k === (s.extra || "score")) || EXTRAS[0];
+    // The expanded columns made the swappable extra column redundant: FULLNESS it is.
+    const extra = EXTRAS[0];
     // Mobile's last column does double duty: kcal by default, or one chosen nutrient.
     const MCOLS = [
       { k: "kcal", label: "CALORIES", unit: "kcal", get: fo => kcalOf(fo) },
       { k: "score", label: "FULLNESS SCORE", unit: "/100", get: fo => scoreOf(fo) },
+      { k: "wa", label: "WATER", unit: "g", get: fo => fo.wa || 0 },
       { k: "p", label: "PROTEIN", unit: "g", get: fo => fo.p },
       { k: "f", label: "FAT", unit: "g", get: fo => fo.f },
       { k: "sf", label: "SATURATED FAT", unit: "g", get: fo => fo.sf || 0 },
       { k: "c", label: "CARBS", unit: "g", get: fo => fo.c },
       { k: "sg", label: "SUGAR", unit: "g", get: fo => fo.sg || 0 },
-      { k: "fb", label: "FIBRE", unit: "g", get: fo => fo.fb },
-      { k: "wa", label: "WATER", unit: "g", get: fo => fo.wa || 0 }
+      { k: "fb", label: "FIBRE", unit: "g", get: fo => fo.fb }
     ];
     const mCol = MCOLS.find(x => x.k === (s.mCol || "kcal")) || MCOLS[0];
+    // Which sort key answers for each column - the macro trio ride the desktop's own keys.
+    const M_SORT_OF = { kcal: "kcal", score: "score", p: "s1", c: "s2", f: "s3", sf: "sf", sg: "sg", fb: "fb", wa: "wa" };
     const units = [
-      { k: "TSP", label: "TSP", grams: "5", g: 5, foot: "PER TSP \u00b7 5 G/ML" },
-      { k: "TBSP", label: "TBSP", grams: "15", g: 15, foot: "PER TBSP \u00b7 15 G/ML" },
-      { k: "OZ", label: "OZ", grams: "28", g: 28.35, foot: "PER OZ \u00b7 28.35 G/ML" },
-      { k: "100G", label: "G/ML", grams: "100", g: 100, foot: "PER 100 G/ML" }
+      { k: "100G", label: "100 G", grams: "100", g: 100, foot: "PER 100 G/ML" },
+      { k: "OZ", label: "OZ", grams: "28", g: 28.35, foot: "PER OZ \u00b7 28.35 G/ML" }
     ];
-    const unit = units.find(u => u.k === (s.unit || "100G")) || units[3];
+    const unit = units.find(u => u.k === (s.unit || "100G")) || units[0];
     const uf = unit.g / 100;
     // With OZ as the measure the desktop table speaks ounces wherever it spoke grams:
     // two decimals below ten, because one ounce of food holds fractions of an ounce.
@@ -1291,7 +1282,7 @@ class Component extends DCLogic {
       { k: "recipe", label: "RECIPE BUILDER", note: "Add ingredients, set the servings, get the macros per portion." },
       { k: "compare", label: "FOOD COMPARE", note: "Two or three foods head to head, per 100 g or per calorie." }
     ];
-    const app = s.app || "home";
+    const app = s.app || (s.narrow ? "home" : "search");
     const appDef = APPS.find(a => a.k === app);
     const live = k => k === "search";
     const setApp = k => () => {
@@ -2048,10 +2039,10 @@ class Component extends DCLogic {
       gStyle: { fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", fontVariantNumeric: "tabular-nums", color: unit.k === u.k ? "#22d3ee" : "#94a3b8", flex: "none" },
       style: {
         display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem",
-        width: "100%", boxSizing: "border-box", height: "1.95rem", padding: "0 .7rem",
+        width: "100%", boxSizing: "border-box", height: s.narrow ? "2.4rem" : "1.95rem", padding: "0 .7rem",
         border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left",
-        borderBottom: ui < 2 ? "1px solid rgba(34,211,238,.28)" : "0",
-        borderRight: ui % 2 === 0 ? "1px solid rgba(34,211,238,.28)" : "0",
+        borderBottom: "1px solid rgba(34,211,238,.28)",
+        borderRight: ui === 0 ? "1px solid rgba(34,211,238,.28)" : "0",
         fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", whiteSpace: "nowrap",
         transition: "background 140ms ease, color 140ms ease",
         background: unit.k === u.k ? "rgba(34,211,238,.10)" : "transparent",
@@ -2559,14 +2550,75 @@ class Component extends DCLogic {
       sortMarkStyle: { flex: "none", color: "#22d3ee" },
       mColOpen: !!s.mColOpen,
       mColToggle: () => this.setState({ mColOpen: !s.mColOpen, unitOpen: false, catOpen: false, libOpen: false, mTip: "" }),
+      // SORT: relevance (the default ranking), or the chosen column - press again to
+      // flip between highest-first and lowest-first.
+      // The taps stop where they land: bubbling to the bar would fold the popover
+      // mid-choice, and flipping the direction wants it held open.
+      mSortRel: e => { if (e && e.stopPropagation) e.stopPropagation(); this.setState({ sortKey: "name", sortDir: 1 }); },
+      mSortCol: e => { if (e && e.stopPropagation) e.stopPropagation(); this.setState(st => st.sortKey === M_SORT_OF[mCol.k]
+        ? { sortDir: st.sortDir === 1 ? -1 : 1 }
+        : { sortKey: M_SORT_OF[mCol.k], sortDir: 1 }); },
+      mSortIcon: sortKey === M_SORT_OF[mCol.k] && sortDir === -1
+        ? "M12 19V5M6 11l6-6 6 6" : "M12 5v14M6 13l6 6 6-6",
+      mSortRelS: {
+        display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem",
+        width: "100%", boxSizing: "border-box", height: "2.4rem", padding: "0 .7rem",
+        border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left",
+        borderRight: "1px solid rgba(34,211,238,.28)",
+        borderBottom: "1px solid rgba(34,211,238,.28)",
+        fontFamily: "var(--font-2)", fontSize: ".88rem", letterSpacing: ".12em", whiteSpace: "nowrap",
+        transition: "background 140ms ease, color 140ms ease",
+        background: sortKey === "name" ? "rgba(34,211,238,.10)" : "transparent",
+        color: sortKey === "name" ? "#22d3ee" : "#d7e6ef"
+      },
+      mSortColS: {
+        display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem",
+        width: "100%", boxSizing: "border-box", height: "2.4rem", padding: "0 .7rem",
+        border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left",
+        borderBottom: "1px solid rgba(34,211,238,.28)",
+        fontFamily: "var(--font-2)", fontSize: ".88rem", letterSpacing: ".12em", whiteSpace: "nowrap",
+        transition: "background 140ms ease, color 140ms ease",
+        background: sortKey === M_SORT_OF[mCol.k] ? "rgba(34,211,238,.10)" : "transparent",
+        color: sortKey === M_SORT_OF[mCol.k] ? "#22d3ee" : "#d7e6ef"
+      },
+      // The measure lives above the desktop table now: two words, the active one lit.
+      dMeasWrap: { marginLeft: "auto", display: !s.narrow && app === "search" && !dLanding ? "flex" : "none",
+        alignItems: "center", gap: "1.15rem" },
+      dMeas100: () => this.setState({ unit: "100G" }),
+      dMeasOz: () => this.setState({ unit: "OZ" }),
+      dMeas100S: {
+        display: "flex", alignItems: "center", height: "1.9rem", cursor: "pointer", whiteSpace: "nowrap",
+        transition: "color 160ms ease, text-shadow 160ms ease",
+        color: unit.k === "100G" ? "#22d3ee" : "#5f7688",
+        textShadow: unit.k === "100G" ? "0 0 12px rgba(34,211,238,.45)" : "none"
+      },
+      dMeasOzS: {
+        display: "flex", alignItems: "center", height: "1.9rem", cursor: "pointer", whiteSpace: "nowrap",
+        transition: "color 160ms ease, text-shadow 160ms ease",
+        color: unit.k === "OZ" ? "#22d3ee" : "#5f7688",
+        textShadow: unit.k === "OZ" ? "0 0 12px rgba(34,211,238,.45)" : "none"
+      },
+      // ABOUT holds the corner whether or not the measure pair is on screen.
+      tabAbout: {
+        display: "flex", alignItems: "center", height: "1.9rem",
+        marginLeft: !s.narrow && app === "search" && !dLanding ? "1.4rem" : "auto",
+        cursor: "pointer", whiteSpace: "nowrap", color: "#5f7688", transition: "color 160ms ease"
+      },
       mColOpts: MCOLS.map((x, xi) => ({
         label: x.label, unit: x.unit,
         unitStyle: { fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".06em", color: "#94a3b8", flex: "none" },
-        onClick: () => this.setState({ mCol: x.k, mColOpen: false }),
+        // Picking a column also carries an active column-sort over to it.
+        onClick: () => this.setState(st => {
+          const nk = M_SORT_OF[x.k];
+          return st.sortKey && st.sortKey !== "name" && st.sortKey === M_SORT_OF[mCol.k]
+            ? { mCol: x.k, mColOpen: false, sortKey: nk }
+            : { mCol: x.k, mColOpen: false };
+        }),
         style: {
           display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem",
           height: "2.4rem", padding: "0 .7rem", border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left",
-          borderBottom: xi === MCOLS.length - 1 ? 0 : "1px solid rgba(34,211,238,.28)",
+          borderBottom: xi < MCOLS.length - (MCOLS.length % 2 === 0 ? 2 : 1) ? "1px solid rgba(34,211,238,.28)" : 0,
+          borderRight: xi % 2 === 0 ? "1px solid rgba(34,211,238,.28)" : 0,
           fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", whiteSpace: "nowrap",
           transition: "background 140ms ease, color 140ms ease",
           background: mCol.k === x.k ? "rgba(34,211,238,.10)" : "transparent",

@@ -8,7 +8,20 @@ What is different from the root:
 
 - A launcher screen: the site is a set of small apps rather than one page. FOOD SEARCH is
   the built one; CALORIE CALC, RECIPE BUILDER and FOOD COMPARE are placeholders.
-- Desktop switches app with tabs across the top. Mobile gets a back button to the launcher.
+- Desktop switches app with tabs across the top and opens straight into FOOD SEARCH —
+  the launcher page is mobile's, where a back button returns to it. ABOUT sits in the
+  top-right corner of the tab row on desktop; on mobile it stays a quiet line on the
+  launcher.
+- The measure is two words, not a menu: 100 G or OZ. On desktop they sit above the
+  table's right side, the active one lit like a tab — the SIZE header and its popover
+  are gone, though the column of values stays. Mobile's popover stacks full-width
+  sections: MEASURE (the two options side by side), COLUMN (a two-by-five grid in the
+  donut's own order — water before protein, each macro ahead of its parts), SORT
+  (RELEVANCE, or the chosen column with an arrow that flips between highest-first and
+  lowest-first on a second tap), then the thermic-effect switch. Picking a new column
+  carries an active column-sort with it.
+- The FULLNESS column is fixed now — the expanded sub-columns made a swappable extra
+  column redundant — and hovering its header simply explains the score.
 - The desktop table wears the donut's own colours: each macro column's bar is its slice's
   hue — protein cyan, carbs green, fat coral, water an indigo the donut wears too, moved
   off blue so it could never be read as protein's cyan — sheer enough that the
