@@ -371,7 +371,7 @@ option{background:#070b12;color:#d7e6ef}
                   <span onClick="{{ vr.tap }}" style="{{ vr.row }}">
                     <span style="{{ vr.dot }}"></span>
                     <span style="{{ vr.tagS }}">{{ vr.tag }}</span>
-                    <span onClick="{{ vr.chevTap }}" style="{{ vr.chev }}"></span>
+                    <span onClick="{{ vr.chevTap }}" style="{{ vr.chevBox }}"><span style="{{ vr.chev }}"></span></span>
                     <span style="{{ vr.valS }}"><span style="{{ vr.valIn }}">{{ vr.val }}<span style="{{ unitSuffix }}">g</span></span></span>
                   </span>
                 </sc-for>
@@ -445,7 +445,7 @@ option{background:#070b12;color:#d7e6ef}
                   <span onClick="{{ vr.tap }}" style="{{ vr.row }}">
                     <span style="{{ vr.dot }}"></span>
                     <span style="{{ vr.tagS }}">{{ vr.tag }}</span>
-                    <span onClick="{{ vr.chevTap }}" style="{{ vr.chev }}"></span>
+                    <span onClick="{{ vr.chevTap }}" style="{{ vr.chevBox }}"><span style="{{ vr.chev }}"></span></span>
                     <span style="{{ vr.valS }}"><span style="{{ vr.valIn }}">{{ vr.val }}<span style="{{ unitSuffix }}">g</span></span></span>
                   </span>
                 </sc-for>
@@ -1451,9 +1451,14 @@ class Component extends DCLogic {
             : lit ? (ind ? "#d3e0e8" : "#e2ecf2")
             : dim ? "#5f7484" : ind ? "#9fb3c1" : "#c7d6e0",
           transition: "color 250ms ease", whiteSpace: "nowrap" },
-        // The ringed +, pinned against the gram column; the open macro's is a −.
-        chev: (o && o.exp) ? { flex: "none", alignSelf: "center", width: "16px",
-          height: "16px", marginLeft: "auto", marginRight: ".55rem",
+        // The ringed +, pinned against the gram column; the open macro's is a −. The
+        // ring draws at 16px but answers to a full-height 42px box around it, because a
+        // fingertip is not a cursor.
+        chevBox: (o && o.exp) ? { flex: "none", alignSelf: "stretch",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          width: "42px", marginLeft: "auto", marginRight: ".05rem",
+          cursor: "pointer" } : HID,
+        chev: (o && o.exp) ? { flex: "none", width: "16px", height: "16px",
           borderRadius: "50%", boxSizing: "border-box", border: "1px solid #66808f",
           background: zm === o.exp
             ? "linear-gradient(#c7d6e0,#c7d6e0) center/8px 1.3px no-repeat"
