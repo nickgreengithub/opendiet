@@ -13,12 +13,14 @@ What is different from the root:
   hue — protein cyan, carbs green, fat coral, water its blue — sheer enough that the
   figure stays the loudest thing in the cell. WATER rides its own sortable column left of
   PROT, and the macro headers say CARBS and FATS, as the drawing does. The actions header
-  carries the same ringed + the mobile rows use: pressing it widens the whole app and
-  opens six sub-macro columns — SUGARS FIBRE STARCH ahead of CARBS, SAT MONO POLY ahead
-  of FATS, parts before their sum so each group's header sits over the total it names —
-  named by a second header line that unfolds beneath the first. Every track exists all
+  carries the same ringed + the mobile rows use: pressing it widens the app and trades
+  the CARBS and FATS totals for six sub-macro columns of the same weight as any other —
+  SUGAR FIBRE STARCH, SAT MONO POLY — each header wearing its parent's three-letter mark
+  (CAR, FAT) pinned at the cell's left in darker type, names six characters at most, no
+  unit suffixes, all on the one header line. Every track exists all
   the time (a grid ignores display:none children, which would shuffle every cell that
-  follows); collapsed sub tracks are 0rem wide, and keeping the track count constant is
+  follows); collapsed sub tracks are 0rem wide and the two totals make the reverse
+  journey, and keeping the track count constant is
   what lets grid-template-columns interpolate, so the whole table — rows, headers, plate,
   totals, even the continuation lines below the last row — breathes as one animation
   rather than snapping. Column gaps are gone (a gap beside a 0rem track is dead space

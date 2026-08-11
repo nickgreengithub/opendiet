@@ -233,18 +233,17 @@ option{background:#070b12;color:#d7e6ef}
 </span>
       <span onClick="{{ sortOn.wa }}" style="{{ headWa }}"><span>WATER</span><span style="{{ headUnit }}">g</span><sc-if value="{{ sorted.wa }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if></span>
       <span onMouseEnter="{{ openBasis.s1 }}" onMouseLeave="{{ closeBasis }}" onClick="{{ sortOn.s1 }}" style="{{ head1 }}"><span>PROT</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s1 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-25%</span></sc-if><sc-if value="{{ basisShow.s1 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></span></button></sc-for><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">PROTEIN</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.s1 }}</span></span></span></span></sc-if></span>
+      <span style="{{ subHead }}"><span style="{{ subPre }}">CAR</span><span>SUGAR</span></span>
+      <span style="{{ subHead }}"><span style="{{ subPre }}">CAR</span><span>FIBRE</span></span>
+      <span style="{{ subHead }}"><span style="{{ subPre }}">CAR</span><span>STARCH</span></span>
       <span onMouseEnter="{{ openBasis.s2 }}" onMouseLeave="{{ closeBasis }}" onClick="{{ sortOn.s2 }}" style="{{ head2 }}"><span>CARBS</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s2 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-8%</span></sc-if><sc-if value="{{ basisShow.s2 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></span></button></sc-for><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">CARBS</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.s2 }}</span></span></span></span></sc-if></span>
+      <span style="{{ subHead }}"><span style="{{ subPre }}">FAT</span><span>SAT</span></span>
+      <span style="{{ subHead }}"><span style="{{ subPre }}">FAT</span><span>MONO</span></span>
+      <span style="{{ subHead }}"><span style="{{ subPre }}">FAT</span><span>POLY</span></span>
       <span onMouseEnter="{{ openBasis.s3 }}" onMouseLeave="{{ closeBasis }}" onClick="{{ sortOn.s3 }}" style="{{ head3 }}"><span>FATS</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s3 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-2%</span></sc-if><sc-if value="{{ basisShow.s3 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ basisOpts }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ b.label }}</span><span style="{{ b.unitStyle }}">{{ b.unit }}</span></span></button></sc-for><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">FATS</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.s3 }}</span></span></span></span></sc-if></span>
       <span onMouseEnter="{{ tipOn.kcal }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.kcal }}" style="{{ headTotal }}"><span>KCAL</span><sc-if value="{{ sorted.kcal }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.kcal }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(34,211,238,.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="display:block;padding:0 .7rem .7rem"><span style="font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#94a3b8;text-wrap:pretty">Digestion costs 25% of protein calories, 8% of carbohydrate, 2% of fat. Always applied to KCAL; applied to the macro columns only when they show kcal contribution.</span></span><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">KCAL</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.kcal }}</span></span></span></span></sc-if></span>
       <span onMouseEnter="{{ openExtra }}" onMouseLeave="{{ closeExtra }}" onClick="{{ sortOn.extra }}" style="{{ headIsland }}"><span>{{ extraLabel }}</span><sc-if value="{{ sorted.extra }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ extraOpen }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><sc-for list="{{ extraOpts }}" as="x" hint-placeholder-count="4"><button onClick="{{ x.onClick }}" style="{{ x.style }}" style-hover="background:rgba(34,211,238,.18)"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;width:100%"><span>{{ x.label }}</span><span style="{{ x.unitStyle }}">{{ x.unit }}</span></span><span style="{{ x.descStyle }}">{{ x.desc }}</span></button></sc-for></span></span></sc-if></span>
       <span style="{{ dActHead }}"><span data-dexp onClick="{{ dExpToggle }}" style="{{ dExpBox }}"><span style="{{ dExpChev }}"></span></span></span>
-    </div>
-    <div style="{{ dSubHead }}">
-      <span></span><span></span><span></span><span></span>
-      <span style="{{ subHeadC }}">SUGARS</span><span style="{{ subHeadC }}">FIBRE</span><span style="{{ subHeadC }}">STARCH</span>
-      <span></span>
-      <span style="{{ subHeadF }}">SAT</span><span style="{{ subHeadF }}">MONO</span><span style="{{ subHeadF }}">POLY</span>
-      <span></span><span></span><span></span><span></span>
     </div>
     </div>
     <div style="{{ dBody }}">
@@ -311,11 +310,11 @@ option{background:#070b12;color:#d7e6ef}
               <span style="{{ blankSub }}"></span>
               <span style="{{ blankSub }}"></span>
               <span style="{{ blankSub }}"></span>
-              <span style="{{ blankInner }}"></span>
+              <span style="{{ blankTot }}"></span>
               <span style="{{ blankSub }}"></span>
               <span style="{{ blankSub }}"></span>
               <span style="{{ blankSub }}"></span>
-              <span style="{{ blankInner }}"></span>
+              <span style="{{ blankTot }}"></span>
               <span style="{{ blankInner }}"></span>
               <span style="{{ blankInner }}"></span>
               <span style="{{ blankAct }}"></span>
@@ -1102,7 +1101,9 @@ class Component extends DCLogic {
         mVal: mCol.k === "score" ? String(sc) : mCol.k === "kcal" ? String(Math.round(ekc * uf)) : this.fmt(mCol.get(fo) * uf),
         starStyle: { display: "flex", alignItems: "center", justifyContent: "center", padding: 0, border: 0, borderRadius: 0, background: "transparent", cursor: "pointer", color: inSum(fo.name) ? "#22d3ee" : "#3f5364", transition: "color 140ms ease" },
         starFill: inSum(fo.name) ? "currentColor" : "none",
-        fill1: fillOf(fv[0], fvMax), fill2: fillOf(fv[1], fvMax, CARB_FILL), fill3: fillOf(fv[2], fvMax, FAT_FILL),
+        fill1: fillOf(fv[0], fvMax),
+        fill2: Object.assign(fillOf(fv[1], fvMax, CARB_FILL), dxp ? { display: "none" } : null),
+        fill3: Object.assign(fillOf(fv[2], fvMax, FAT_FILL), dxp ? { display: "none" } : null),
         fillK: fillOf(ekc * uf, rowKcalMax * uf),
         cellK: Object.assign({}, numCell(null, false), { borderLeft: INNER }),
         // One strong rule opens the numeric block (WATER's left edge) and one fences the
@@ -1110,7 +1111,9 @@ class Component extends DCLogic {
         // as a doubled border.
         cellScore: Object.assign({}, numCell(null, false), { borderLeft: INNER, color: "#22d3ee" }),
         v1: vals[0], v2: vals[1], v3: vals[2],
-        cell1: numCell(HUE[0], vals[0] === "0"), cell2: numCell(HUE[1], vals[1] === "0"), cell3: numCell(HUE[2], vals[2] === "0"),
+        cell1: numCell(HUE[0], vals[0] === "0"),
+        cell2: Object.assign(numCell(HUE[1], vals[1] === "0"), xpFold),
+        cell3: Object.assign(numCell(HUE[2], vals[2] === "0"), xpFold),
         // Water rides its own column left of PROT, always in grams: the donut's honest
         // slice, in the donut's own blue.
         vWa: this.fmt((fo.wa || 0) * uf),
@@ -1771,25 +1774,27 @@ class Component extends DCLogic {
     // so the expansion animates only the six sub tracks and the shell. Fewer moving
     // tracks is also what keeps the animation smooth.
     const D_NW = "5.6rem";
-    const D_SW = dxp ? "4.6rem" : "0rem";
+    // Expanded, the sub-macros are columns of the same weight as any other, and they
+    // REPLACE the CARBS and FATS totals: the sub tracks grow to full width while the two
+    // total tracks fold to nothing, so the table trades six figures in for two out.
+    const D_SW = dxp ? D_NW : "0rem";
+    const D_TW = dxp ? "0rem" : D_NW;
     const D_SUB3 = " " + D_SW + " " + D_SW + " " + D_SW;
     // Each group runs parts-then-total — SUGARS FIBRE STARCH then CARBS — so the group
     // header, right-aligned across its span, sits over the total it names.
-    const dCols = "minmax(7.5rem,1fr) 3.4rem " + D_NW + " " + D_NW + D_SUB3 + " " + D_NW +
-      D_SUB3 + " " + D_NW + " " + D_NW + " " + D_NW + " 2.6rem";
+    const dCols = "minmax(7.5rem,1fr) 3.4rem " + D_NW + " " + D_NW + D_SUB3 + " " + D_TW +
+      D_SUB3 + " " + D_TW + " " + D_NW + " " + D_NW + " 2.6rem";
     const D_GRID_T = "grid-template-columns 500ms cubic-bezier(.22,1,.36,1)";
-    const SUB_BC = "rgba(215,230,239,.12)";
-    const dSubBorder = dxp ? "1px solid " + SUB_BC : "1px solid transparent";
     // A sub-macro cell: clipped while its track is 0, padded only when open so the box
     // itself can reach zero width. The display value and the bar's scale are the
     // caller's, since search rows read per-measure and plate rows per their own grams.
     const subCellOf = (vAbs, hue, max, disp) => ({
       c: { position: "relative", overflow: "hidden", minWidth: 0,
         display: "flex", alignItems: "center", justifyContent: "flex-end",
-        fontVariantNumeric: "tabular-nums", fontWeight: 300, fontSize: ".82rem",
-        color: vAbs ? "#b9c8d2" : "#5f7484",
-        borderLeft: dSubBorder,
-        paddingLeft: dxp ? ".4rem" : "0", paddingRight: dxp ? ".5rem" : "0",
+        fontVariantNumeric: "tabular-nums", fontWeight: 300, fontSize: ".875rem",
+        color: vAbs ? "#d7e6ef" : "#7b91a3",
+        borderLeft: dxp ? INNER : "1px solid transparent",
+        paddingLeft: dxp ? ".55rem" : "0", paddingRight: dxp ? ".5rem" : "0",
         transition: "border-color 300ms ease, padding 500ms cubic-bezier(.22,1,.36,1)" },
       f: { position: "absolute", left: 0, top: 0, bottom: 0,
         display: vAbs > 0 && dxp ? "block" : "none",
@@ -1797,6 +1802,18 @@ class Component extends DCLogic {
         background: hue, transition: "width 140ms ease" },
       v: disp
     });
+    // The CARBS and FATS totals make the reverse journey: full columns collapsed,
+    // nothing expanded.
+    const xpFold = {
+      borderLeft: dxp ? "1px solid transparent" : INNER,
+      paddingLeft: dxp ? "0" : ".55rem", paddingRight: dxp ? "0" : ".5rem",
+      transition: "border-color 300ms ease, padding 500ms cubic-bezier(.22,1,.36,1)"
+    };
+    const xpFoldHead = {
+      borderLeft: dxp ? "1px solid transparent" : INNER, overflow: "hidden",
+      padding: dxp ? "0" : "0 .5rem 0 .55rem",
+      transition: "border-color 300ms ease, padding 500ms cubic-bezier(.22,1,.36,1)"
+    };
     // Sub-macro bar shades follow the donut's own ramp: sugars before fibre before
     // starch, saturated before mono before poly.
     const SUB_GRN = ["rgba(126,224,168,.30)", "rgba(126,224,168,.19)", "rgba(126,224,168,.11)"];
@@ -2184,7 +2201,9 @@ class Component extends DCLogic {
         sumKcal: String(Math.round(kcalOf(fo) * g)),
         sumExtra: extra.k === "score" ? String(scoreOf(fo)) : this.fmt(extra.get(fo) * g),
         mSumVal: mSumValOf(fo),
-        sfill1: sumFillOf(sfv[0], sfvMax, "rgba(34,211,238,.24)"), sfill2: sumFillOf(sfv[1], sfvMax, CARB_FILL_S), sfill3: sumFillOf(sfv[2], sfvMax, FAT_FILL_S),
+        sfill1: sumFillOf(sfv[0], sfvMax, "rgba(34,211,238,.24)"),
+        sfill2: Object.assign(sumFillOf(sfv[1], sfvMax, CARB_FILL_S), dxp ? { display: "none" } : null),
+        sfill3: Object.assign(sumFillOf(sfv[2], sfvMax, FAT_FILL_S), dxp ? { display: "none" } : null),
         sfillK: sumFillOf(kcalOf(fo) * g, sumKcalMax),
         // Plate rows restate water and the sub-macros at their own grams, not the
         // header measure.
@@ -2242,11 +2261,14 @@ class Component extends DCLogic {
       u3: isPct ? "%" : isKcalBasis ? "kcal" : "g",
       fb: this.fmt(tFb),
       cellFb: Object.assign({}, totCell, { borderLeft: EDGE }),
-      cell1: totCell, cell2: totCell, cell3: totCell,
+      cell1: totCell,
+      cell2: Object.assign({}, totCell, xpFold), cell3: Object.assign({}, totCell, xpFold),
       kcalVal: String(tKDisp),
       extraVal: extra.k === "score" ? (tScore ? String(tScore) : "\u2014") : this.fmt(sumFoods.reduce((a, fo) => a + extra.get(fo) * gs(fo), 0)),
       mTotVal: mCol.k === "score" ? (tScore ? String(tScore) : "\u2014") : mCol.k === "kcal" ? String(tKDisp) : this.fmt(sumFoods.reduce((a, fo) => a + mCol.get(fo) * gs(fo), 0)),
-      fill1: totFillOf(tfv[0], tfvMax), fill2: totFillOf(tfv[1], tfvMax, CARB_FILL_T), fill3: totFillOf(tfv[2], tfvMax, FAT_FILL_T),
+      fill1: totFillOf(tfv[0], tfvMax),
+      fill2: Object.assign(totFillOf(tfv[1], tfvMax, CARB_FILL_T), dxp ? { display: "none" } : null),
+      fill3: Object.assign(totFillOf(tfv[2], tfvMax, FAT_FILL_T), dxp ? { display: "none" } : null),
       fillK: totFillOf(1, 1),
       cellK: Object.assign({}, totCell, { borderLeft: INNER }),
       cellScore: Object.assign({}, totCell, { borderLeft: INNER, color: "#22d3ee" }),
@@ -2345,16 +2367,17 @@ class Component extends DCLogic {
       // The continuation lines are computed from the same track arithmetic as the grid,
       // right to left, so they follow the columns wherever the expansion puts them.
       gridFill: (() => {
-        const nw = dxp ? 6.4 : 7.2, sw = dxp ? 4.8 : 0;
-        const subLn = dxp ? SUB_BC : "transparent";
+        const nw = 5.6, sw = dxp ? 5.6 : 0, tw = dxp ? 0 : 5.6;
+        const subLn = dxp ? INNER_C : "transparent";
+        const totLn = dxp ? "transparent" : INNER_C;
         const stops = [];
         let gx = 2.6;
         stops.push([gx, EDGE_C, 2]);
         gx += nw; stops.push([gx, INNER_C, 1]);
         gx += nw; stops.push([gx, INNER_C, 1]);
-        gx += nw; stops.push([gx, INNER_C, 1]);
+        gx += tw; stops.push([gx, totLn, 1]);
         for (let i = 0; i < 3; i++) { gx += sw; stops.push([gx, subLn, 1]); }
-        gx += nw; stops.push([gx, INNER_C, 1]);
+        gx += tw; stops.push([gx, totLn, 1]);
         for (let i = 0; i < 3; i++) { gx += sw; stops.push([gx, subLn, 1]); }
         gx += nw; stops.push([gx, INNER_C, 1]);
         gx += nw; stops.push([gx, EDGE_C, 1]);
@@ -2931,36 +2954,22 @@ class Component extends DCLogic {
       tipText: TIPS, tipOn, tipOff: () => this.setState({ tip: "" }),
       tipStyle, tipStyleLeft, tipTitle, tipBody,
       head1: Object.assign(headCell(HUE[0]), dHide),
-      // CARBS and FATS each span their own track plus the three sub tracks beside it —
-      // spanning 0rem tracks costs nothing collapsed, and saves the header from ever
-      // changing shape when they open.
-      head2: Object.assign(headCell(HUE[1]), { gridColumn: "span 4" }, dHide),
-      head3: Object.assign(headCell(HUE[2]), { gridColumn: "span 4" }, dHide),
+      // Expanded, CARBS and FATS give their headers up with their columns; the sub
+      // headers are full citizens of the one header line, each wearing its parent's
+      // three-letter mark pinned at the cell's left in darker type.
+      head2: Object.assign(headCell(HUE[1]), xpFoldHead, dHide),
+      head3: Object.assign(headCell(HUE[2]), xpFoldHead, dHide),
       headWa: Object.assign(headCell(null, true), dHide),
       headTotal: Object.assign({}, headIsland, { borderLeft: INNER }, dHide),
-      // The second header line: sub-macro names under CARBS and FATS, folded to nothing
-      // until the ringed + opens the table out.
-      dSubHead: {
-        display: dLanding ? "none" : "grid", gridTemplateColumns: dCols, columnGap: 0,
-        alignItems: "stretch", overflow: "hidden",
-        height: dxp ? "1.5rem" : "0rem", opacity: dxp ? 1 : 0,
-        borderBottom: "1px solid " + (dxp ? "rgba(34,211,238,.28)" : "transparent"),
-        fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".1em",
-        textTransform: "uppercase",
-        transition: D_GRID_T + ", height 500ms cubic-bezier(.22,1,.36,1), opacity 300ms ease, border-color 300ms ease"
-      },
-      subHeadC: {
-        minWidth: 0, overflow: "hidden", display: "flex", alignItems: "center",
-        justifyContent: "flex-end", whiteSpace: "nowrap", color: "rgba(126,224,168,.75)",
-        borderLeft: dSubBorder, paddingRight: dxp ? ".5rem" : "0",
+      subHead: Object.assign({
+        position: "relative", minWidth: 0, overflow: "hidden",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        gap: ".2rem", whiteSpace: "nowrap", color: "#c3d6e2",
+        borderLeft: dxp ? INNER : "1px solid transparent",
+        padding: dxp ? "0 .4rem 0 .35rem" : "0",
         transition: "border-color 300ms ease, padding 500ms cubic-bezier(.22,1,.36,1)"
-      },
-      subHeadF: {
-        minWidth: 0, overflow: "hidden", display: "flex", alignItems: "center",
-        justifyContent: "flex-end", whiteSpace: "nowrap", color: "rgba(240,140,122,.75)",
-        borderLeft: dSubBorder, paddingRight: dxp ? ".5rem" : "0",
-        transition: "border-color 300ms ease, padding 500ms cubic-bezier(.22,1,.36,1)"
-      },
+      }, dHide),
+      subPre: { fontSize: ".62rem", letterSpacing: ".1em", color: "#54677a" },
       // One grid to rule every desktop row — search, plate and blank alike — so the
       // expansion is a single animation the whole table performs together.
       dRowStyle: {
@@ -2982,13 +2991,14 @@ class Component extends DCLogic {
         borderTop: "1px solid rgba(34,211,238,.55)", fontSize: ".9rem", color: "#d7e6ef",
         transition: D_GRID_T
       },
-      blankSub: { borderLeft: dSubBorder, transition: "border-color 300ms ease" },
+      blankSub: { borderLeft: dxp ? INNER : "1px solid transparent", transition: "border-color 300ms ease" },
+      blankTot: { borderLeft: dxp ? "1px solid transparent" : INNER, transition: "border-color 300ms ease" },
       blankAct: { borderLeft: "2px solid rgba(34,211,238,.55)" },
       // Offscreen rows skip layout entirely, which is what keeps 250 grids animating
       // their tracks at full frame rate.
       dRowWrap: { flex: "none", contentVisibility: "auto", containIntrinsicSize: "auto 29px" },
       dShell: {
-        width: "100%", maxWidth: dxp ? "1400px" : "1120px",
+        width: "100%", maxWidth: dxp ? "1280px" : "1120px",
         display: "flex", flexDirection: "column", flex: 1, minHeight: 0,
         transition: "max-width 560ms cubic-bezier(.22,1,.36,1)"
       },
