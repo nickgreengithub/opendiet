@@ -79,8 +79,12 @@ What is different from the root:
   92/8, parmesan 30/70. With a macro open it says that macro's grams instead, and the two
   figures trade places on the choreography's own clock — the split slips out with the
   flare, the grams arrive as the sweep closes, leave first on the way back, and the split
-  returns with the final brighten, the last macro remembered so the leaving figure still
-  knows what it says while it fades. The table sits against the right edge on a subtle interior grid —
+  returns with the final brighten. Each macro's grams is its own layer, so switching
+  straight from fat to carbs cross-fades the two figures directly. The sub rows' hairline
+  is an inset shadow inside their 30px rather than a border — a border adds height the
+  height transition does not govern, and its snap at the end of a switch was a visible
+  jolt — and opening and closing share one duration and curve, so when a switch runs both
+  at once the two groups' heights cancel exactly and nothing below them moves off-beat. The table sits against the right edge on a subtle interior grid —
   hairlines between rows and before the gram column, no outer border, the gram figures
   held a step off the screen's edge — dot, name, grams,
   with the macro rows indented under MACROS. Fat and carbs are the two slices with more

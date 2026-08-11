@@ -362,7 +362,7 @@ option{background:#070b12;color:#d7e6ef}
                   <circle cx="82" cy="82" r="70" pathLength="100" style="{{ r.viz.swF }}" fill="none" stroke="#f08c7a" stroke-width="21"></circle>
                   <circle cx="82" cy="82" r="70" pathLength="100" style="{{ r.viz.swC }}" fill="none" stroke="#7ee0a8" stroke-width="21"></circle>
                 </svg>
-                <span style="{{ r.viz.holeSplitS }}"><span style="{{ r.viz.holeAS }}">{{ r.viz.holeA }}</span><span style="{{ vHoleSep }}">/</span><span style="{{ r.viz.holeBS }}">{{ r.viz.holeB }}</span></span><span style="{{ r.viz.holeZS }}">{{ r.viz.holeZ }}<span style="{{ vHoleUnit }}">g</span></span>
+                <span style="{{ r.viz.holeSplitS }}"><span style="{{ r.viz.holeAS }}">{{ r.viz.holeA }}</span><span style="{{ vHoleSep }}">/</span><span style="{{ r.viz.holeBS }}">{{ r.viz.holeB }}</span></span><span style="{{ r.viz.holeZFS }}">{{ r.viz.holeZF }}<span style="{{ vHoleUnit }}">g</span></span><span style="{{ r.viz.holeZCS }}">{{ r.viz.holeZC }}<span style="{{ vHoleUnit }}">g</span></span>
               </span>
 
               </span>
@@ -436,7 +436,7 @@ option{background:#070b12;color:#d7e6ef}
                   <circle cx="82" cy="82" r="70" pathLength="100" style="{{ r.viz.swF }}" fill="none" stroke="#f08c7a" stroke-width="21"></circle>
                   <circle cx="82" cy="82" r="70" pathLength="100" style="{{ r.viz.swC }}" fill="none" stroke="#7ee0a8" stroke-width="21"></circle>
                 </svg>
-                <span style="{{ r.viz.holeSplitS }}"><span style="{{ r.viz.holeAS }}">{{ r.viz.holeA }}</span><span style="{{ vHoleSep }}">/</span><span style="{{ r.viz.holeBS }}">{{ r.viz.holeB }}</span></span><span style="{{ r.viz.holeZS }}">{{ r.viz.holeZ }}<span style="{{ vHoleUnit }}">g</span></span>
+                <span style="{{ r.viz.holeSplitS }}"><span style="{{ r.viz.holeAS }}">{{ r.viz.holeA }}</span><span style="{{ vHoleSep }}">/</span><span style="{{ r.viz.holeBS }}">{{ r.viz.holeB }}</span></span><span style="{{ r.viz.holeZFS }}">{{ r.viz.holeZF }}<span style="{{ vHoleUnit }}">g</span></span><span style="{{ r.viz.holeZCS }}">{{ r.viz.holeZC }}<span style="{{ vHoleUnit }}">g</span></span>
               </span>
 
               </span>
@@ -1285,7 +1285,9 @@ class Component extends DCLogic {
     const NO_VIZ = { holeA: "", holeB: "", rows: [], expH: "0px",
       bF: { display: "none" }, bC: { display: "none" },
       swF: NO_SWEEP, swC: NO_SWEEP, holeAS: {}, holeBS: {},
-      holeSplitS: { display: "none" }, holeZ: "", holeZS: { display: "none" } };
+      holeSplitS: { display: "none" },
+      holeZF: "", holeZFS: { display: "none" },
+      holeZC: "", holeZCS: { display: "none" } };
     for (let i = 0; i < 4; i++) NO_VIZ["s" + i] = NO_SLOT;
     for (let i = 0; i < 3; i++) NO_VIZ["o" + i] = NO_CIRC;
     for (let i = 0; i < 5; i++) NO_VIZ["f" + i] = NO_CIRC;
@@ -1302,7 +1304,7 @@ class Component extends DCLogic {
     // row lifts its slice and name above the rest. The drawing is fixed-pixel geometry
     // only, because the framework wraps interpolated text in spans, which SVG will not
     // paint.
-    const vizFor = (fo, grams, zm, onMacro, pk, onPick, wind, mem) => {
+    const vizFor = (fo, grams, zm, onMacro, pk, onPick, wind) => {
       const f = grams / 100, g1 = n => figNum((n || 0) * f);
       const HID = { display: "none" };
       const EASE = "cubic-bezier(.4,0,.2,1)";
@@ -1425,12 +1427,16 @@ class Component extends DCLogic {
           display: "flex", alignItems: "stretch", overflow: "hidden",
           height: zm === o.sub ? "30px" : "0px",
           paddingLeft: (ind * 16) + "px", paddingRight: ".45rem",
-          borderTop: zm === o.sub ? "1px solid rgba(215,230,239,.08)"
-            : "0px solid rgba(215,230,239,0)",
+          // The hairline is an inset shadow inside the 30px, not a border: a border adds
+          // height the height transition does not govern, and its snap at the end of a
+          // switch was the jolt. Opening and closing share one duration and curve, so
+          // both groups' heights cancel exactly and nothing below them moves off-beat.
+          boxShadow: zm === o.sub ? "inset 0 1px 0 rgba(215,230,239,.08)"
+            : "inset 0 1px 0 rgba(215,230,239,0)",
           opacity: zm === o.sub ? 1 : 0,
           transition: zm === o.sub
-            ? "height 520ms cubic-bezier(.22,1,.36,1), opacity 320ms ease 180ms, border-top-width 520ms ease, border-top-color 520ms ease"
-            : "height 480ms cubic-bezier(.22,1,.36,1), opacity 240ms ease, border-top-width 480ms ease, border-top-color 480ms ease",
+            ? "height 500ms cubic-bezier(.22,1,.36,1), opacity 320ms ease 180ms, box-shadow 500ms ease"
+            : "height 500ms cubic-bezier(.22,1,.36,1), opacity 240ms ease, box-shadow 500ms ease",
           cursor: "pointer"
         } : { display: "flex", alignItems: "stretch", height: "30px",
           paddingLeft: (ind * 16) + "px", paddingRight: ".45rem",
@@ -1554,17 +1560,22 @@ class Component extends DCLogic {
         row("FIBRE", g1(fo.fb), GRN(.5), 2, { sub: "c" }),
         row("STARCH", g1(starch), GRN(.28), 2, { sub: "c" }));
       const mm = total1 ? Math.round(100 * macros / total1) : 0;
-      // The hole holds two figures stacked: the split at rest, the open macro's grams
-      // when pressed. They trade places on the choreography's own clock — the split slips
-      // out with the flare, the grams arrive as the sweep closes, and on the way back the
-      // grams leave first while the split returns with the final brighten. `mem` is the
-      // last macro pressed, so the leaving figure still knows what it says while it fades.
-      const mac = zm || mem;
+      // The hole holds three figures stacked: the split at rest, and one grams figure
+      // per macro. They trade places on the choreography's own clock — the split slips
+      // out with the flare, the grams arrive as the sweep closes, leave first on the way
+      // back — and switching macros cross-fades the two grams figures directly, each one
+      // always knowing what it says because each is its own layer.
       const holeL = { position: "absolute", left: 0, right: 0, top: "50%",
         display: "flex", alignItems: "baseline", justifyContent: "center",
         fontWeight: 300, fontSize: "1.05rem", fontVariantNumeric: "tabular-nums",
         pointerEvents: "none" };
       const holeT = vis => "translateY(-52%) scale(" + (vis ? 1 : .88) + ")";
+      const zLayer = (mine, col) => Object.assign({}, holeL, {
+        color: col,
+        opacity: zm === mine ? 1 : 0, transform: holeT(zm === mine),
+        transition: zm === mine
+          ? "opacity 450ms ease 700ms, transform 450ms ease 700ms"
+          : "opacity 280ms ease, transform 280ms ease" });
       // A pick swaps the hole's emphasis with it: water-side picks brighten the left
       // figure, macro picks the right.
       const wSide = pk === "WATER" || pk === "ASH" || pk === "ALC";
@@ -1580,12 +1591,8 @@ class Component extends DCLogic {
           transition: zm ? "opacity 250ms ease, transform 250ms ease"
             : wind ? "opacity 450ms ease 1450ms, transform 450ms ease 1450ms"
             : "opacity 250ms ease, transform 250ms ease" }),
-        holeZ: mac ? g1(mac === "f" ? fo.f : fo.c) : "",
-        holeZS: Object.assign({}, holeL, {
-          color: mac === "f" ? HUE[2] : HUE[1],
-          opacity: zm ? 1 : 0, transform: holeT(!!zm),
-          transition: zm ? "opacity 450ms ease 700ms, transform 450ms ease 700ms"
-            : "opacity 280ms ease, transform 280ms ease" }),
+        holeZF: g1(fo.f), holeZFS: zLayer("f", HUE[2]),
+        holeZC: g1(fo.c), holeZCS: zLayer("c", HUE[1]),
         rows: rows,
         swF: sweepC(fo.p, fo.f, zm === "f", HUE[2], "od-flare-f"),
         swC: sweepC(fo.p + fo.f, fo.c, zm === "c", HUE[1], "od-flare-c") };
@@ -1597,7 +1604,8 @@ class Component extends DCLogic {
         const vw2 = Math.min(typeof window !== "undefined" ? window.innerWidth : 390, 640);
         const tableW = Math.min(220.8, vw2 - 7.2 - 164 - 10.4);
         const bx = vw2 - 3.2 - tableW - 7;
-        const rh = rows.map((x2, k) => x2.row.height === "0px" ? 0 : k ? 31 : 30);
+        const rh = rows.map((x2, k) => x2.row.height === "0px" ? 0
+          : x2.row.overflow === "hidden" ? 30 : k ? 31 : 30);
         const rowY = k => 8 + rh.slice(0, k).reduce((a2, b2) => a2 + b2, 0);
         const brkS = (i0, nSub, on) => {
           const top = rowY(i0) + 2;
@@ -1610,8 +1618,8 @@ class Component extends DCLogic {
             borderBottom: "1px solid rgba(139,166,184,.6)",
             opacity: on ? 1 : 0, pointerEvents: "none",
             transition: on
-              ? "height 520ms cubic-bezier(.22,1,.36,1), top 520ms cubic-bezier(.22,1,.36,1), opacity 250ms ease"
-              : "height 480ms cubic-bezier(.22,1,.36,1), top 480ms cubic-bezier(.22,1,.36,1), opacity 260ms ease 320ms"
+              ? "height 500ms cubic-bezier(.22,1,.36,1), top 500ms cubic-bezier(.22,1,.36,1), opacity 250ms ease"
+              : "height 500ms cubic-bezier(.22,1,.36,1), top 500ms cubic-bezier(.22,1,.36,1), opacity 260ms ease 320ms"
           };
         };
         viz.bF = brkS(iFat, fo.tr ? 5 : 4, zm === "f");
@@ -1623,7 +1631,7 @@ class Component extends DCLogic {
       for (let i = 0; i < 3; i++) viz["c" + i] = cCircs[i] || NO_CIRC;
       // The expansion's height is whatever the taller column needs.
       const visH = rows.reduce((a2, x2, k) =>
-        a2 + (x2.row.height === "0px" ? 0 : k ? 31 : 30), 0);
+        a2 + (x2.row.height === "0px" ? 0 : x2.row.overflow === "hidden" ? 30 : k ? 31 : 30), 0);
       viz.expH = (18 + Math.max(visH, 174) + 52.8).toFixed(1) + "px";
       return viz;
     };
@@ -1665,7 +1673,7 @@ class Component extends DCLogic {
       (p2, coll) => this.setState(st => coll
         ? { vizZoom: null, vizPick: p2, vizWind: false }
         : { vizPick: st.vizPick === p2 ? null : p2 }),
-      s.vizWind, s.vizMacro) : NO_VIZ;
+      s.vizWind) : NO_VIZ;
       const r = mkRow(fo);
       // The figures an open food shows, at the amount it is open at rather than per 100.
       const xv = (() => {
@@ -1920,7 +1928,7 @@ class Component extends DCLogic {
           (p2, coll) => this.setState(st => coll
             ? { vizZoom: null, vizPick: p2, vizWind: false }
             : { vizPick: st.vizPick === p2 ? null : p2 }),
-          s.vizWind, s.vizMacro)
+          s.vizWind)
         : NO_VIZ;
       const g = gramsOf(fo.name) / 100;
       const rmk = macroK(fo);
