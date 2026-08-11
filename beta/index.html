@@ -2292,7 +2292,11 @@ class Component extends DCLogic {
     // The displayed total must sum the rounded row figures, not the raw ones.
     const tKDisp = sumFoods.reduce((a, fo) => a + Math.round(kcalOf(fo) * gs(fo)), 0);
     const tKGross = sumFoods.reduce((a, fo) => a + fo.kcal * gs(fo), 0);
-    const tScore = tKGross > 0 && tQty > 0 ? this.score({ p: tP, c: tC, f: tF, fb: tFb, kcal: tKGross }, tKGross) : 0;
+    // The plate's fullness is the average of its foods' scores, each weighing in at
+    // the grams it was added at.
+    const tScore = tQty > 0 && sumFoods.length
+      ? Math.round(sumFoods.reduce((a, fo) => a + scoreOf(fo) * gramsOf(fo.name), 0) / tQty)
+      : 0;
     const tMkSum = tMk[0] + tMk[1] + tMk[2] || 1;
     const tShares = [tMk[0] / tMkSum, tMk[1] / tMkSum, tMk[2] / tMkSum];
     const tGram = tP + tC + tF || 1;
@@ -2394,7 +2398,13 @@ class Component extends DCLogic {
         dc: Object.assign(tgtCellBase(key), { color: "#c7d6e0" })
       };
     });
-    const dTgtToggle = () => this.setState({ dTgt: !s.dTgt });
+    const dTgtToggle = () => {
+      const opening = !s.dTgt;
+      this.setState({ dTgt: opening });
+      if (opening) setTimeout(() => {
+        try { document.querySelector("[data-tgt]").focus(); } catch (e) {}
+      }, 460);
+    };
     const onTgt = e => this.setState({ tgtKcal: e.target.value.replace(/[^0-9]/g, "").slice(0, 5) });
     // The plate summed as one food: absolute grams re-expressed per 100 g, so the same
     // drawing that explains one food explains the whole plate.
@@ -3191,9 +3201,9 @@ class Component extends DCLogic {
         fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em", color: "#7b91a3" },
       // The target figure is an input dressed exactly like the size inputs above it:
       // pinned right in its column, no chrome of its own.
-      tgtInputS: { width: "3.4rem", textAlign: "right", background: "transparent",
-        border: 0, borderRadius: 0, borderBottom: "1px solid rgba(34,211,238,.5)",
-        padding: "0 0 .1rem", color: "#22d3ee",
+      tgtInputS: { width: "3.6rem", boxSizing: "border-box", textAlign: "right",
+        background: "rgba(34,211,238,.07)", border: "1px solid rgba(34,211,238,.45)",
+        borderRadius: 0, padding: ".12rem .3rem", color: "#22d3ee",
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".875rem",
         fontVariantNumeric: "tabular-nums" },
       blankAct: { borderLeft: "1px solid rgba(34,211,238,.55)" },
@@ -3264,7 +3274,7 @@ class Component extends DCLogic {
       totViz, totWrap, totExpand, totVizTap, totToggle, totChevBox, totChev,
       qtyStyle, headIsland: Object.assign({}, headIsland, dHide), unitSuffix, numWrap, never: false,
       headMeasure: { position: "relative", display: dLanding ? "none" : "flex", alignItems: "center", justifyContent: "flex-start", gap: ".3rem", paddingLeft: ".7rem", paddingRight: ".5rem", color: "#c3d6e2", whiteSpace: "nowrap" },
-      measureCell: { display: "flex", alignItems: "center", justifyContent: "flex-start", paddingLeft: ".7rem", paddingRight: ".5rem", fontWeight: 300, fontSize: ".875rem", fontVariantNumeric: "tabular-nums", color: "#7b91a3", whiteSpace: "nowrap" },
+      measureCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", paddingLeft: ".7rem", paddingRight: ".5rem", fontWeight: 300, fontSize: ".875rem", fontVariantNumeric: "tabular-nums", color: "#7b91a3", whiteSpace: "nowrap" },
       sizeSuffix: { marginLeft: ".2rem", display: "inline-block", width: s.narrow ? "1.35rem" : "1.2rem", textAlign: "left", flex: "none", fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".7rem", letterSpacing: ".06em", color: "#94a3b8" },
       sumSizeCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", paddingLeft: ".7rem", paddingRight: ".5rem", fontWeight: 300, fontSize: ".875rem", fontVariantNumeric: "tabular-nums", color: "#d7e6ef", whiteSpace: "nowrap" },
       catFiltered: s.cat !== "ALL",
