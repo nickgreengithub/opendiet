@@ -143,7 +143,9 @@ What is different from the root:
   and the table are HTML. The chosen column's figure keeps the row's top right corner; the
   reset opens the controls row.
 - While a search food is open, the plate lends it the height: the summary folds to its
-  header line, keeps its total on show, and the copy button gives way to an up chevron.
+  header line, which lays itself on the same three tracks as the rows so the gram and
+  chosen-column totals stay on show, right-aligned where they always are, with the ringed
+  + on the far left of the title; the copy button steps aside while tucked.
   The fold is also the user's to work: tapping the header of an open summary folds it (and
   closes any open plate row, whose height it was), and tapping a folded one anywhere brings
   it back, closing the open search food that had borrowed the room. The fold animates as a
@@ -154,11 +156,12 @@ What is different from the root:
   amount. An open plate row sits on its own lighter ground, so the food being edited
   reads as lifted out of the list it came from.
   Collapsed, a plate row just states its grams — the steppers live in the expansion.
-- The totals line wears the same ringed + as fats and carbs. Pressing it expands the
+- The totals line wears the same ringed + as fats and carbs, on its left so the totals
+  keep their right-hand columns, and the whole bar is the button. Pressing it expands the
   bottom bar into the very drawing an open food gets — donut, hole split, table, macro
   rings, picks, the lot — computed for the plate summed as one food: absolute grams
   re-expressed per 100 g, so the same code that explains one food explains the whole
-  plate at once.
+  plate at once. A tap anywhere outside the open drawing folds it back down.
 - The plate's totals line rides the same three tracks as its rows, so the amount and the
   chosen measure sit under the columns they are totals of rather than in a row of evenly
   spaced figures. Its header carries one control: copy, which puts the plate on the

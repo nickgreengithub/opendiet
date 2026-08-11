@@ -400,7 +400,13 @@ option{background:#070b12;color:#d7e6ef}
     </div>
     <sc-if value="{{ hasSummary }}" hint-placeholder-val="{{ false }}">
     <div data-rise style="{{ mSumPanel }}">
-      <div onClick="{{ sumHeadTap }}" style="flex:none;display:flex;align-items:center;justify-content:space-between;min-height:2.3rem;padding:.15rem .3rem .15rem 0;font-family:var(--font-2);font-size:.9rem;letter-spacing:.14em;color:#7b91a3;cursor:pointer"><span style="flex:1;min-width:0">MY FOOD SUMMARY</span><span style="{{ mSumPeek }}">{{ tot.mTotVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span><span style="{{ mSumHeadEnd }}"><button onClick="{{ sumRestore }}" style="{{ upBtn }}" style-hover="color:#d7e6ef"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M5 15l7-7 7 7"></path></svg></button><button onClick="{{ copyPlate }}" style="{{ copyBtn }}" style-hover="color:#d7e6ef"><sc-if value="{{ copied }}" hint-placeholder-val="{{ false }}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#7ee0a8" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M4.5 12.5l5 5 10-11"></path></svg></sc-if><sc-if value="{{ notCopied }}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><rect x="9" y="9" width="11" height="11" rx="1.6"></rect><path d="M6 15H5a1.6 1.6 0 0 1-1.6-1.6V5A1.6 1.6 0 0 1 5 3.4h8.4A1.6 1.6 0 0 1 15 5v1"></path></svg></sc-if></button></span></div>
+      <div onClick="{{ sumHeadTap }}" style="{{ mSumHead }}">
+        <span style="{{ mSumHeadGrid }}">
+          <span style="{{ mSumTitleCell }}"><sc-if value="{{ sumTuck }}" hint-placeholder-val="{{ false }}"><span style="{{ sumRing }}"></span></sc-if><span style="{{ mSumTitle }}">MY FOOD SUMMARY</span></span>
+          <sc-if value="{{ sumTuck }}" hint-placeholder-val="{{ false }}"><span style="{{ sumTuckQty }}">{{ tot.qty }}<span style="{{ sizeSuffix }}">{{ tot.qtyUnit }}</span></span><span style="{{ sumTuckVal }}">{{ tot.mTotVal }}<span style="{{ unitSuffix }}">{{ mColUnit }}</span></span></sc-if>
+        </span>
+        <sc-if value="{{ notTuck }}" hint-placeholder-val="{{ true }}"><span style="{{ mSumHeadEnd }}"><button onClick="{{ copyPlate }}" style="{{ copyBtn }}" style-hover="color:#d7e6ef"><sc-if value="{{ copied }}" hint-placeholder-val="{{ false }}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#7ee0a8" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M4.5 12.5l5 5 10-11"></path></svg></sc-if><sc-if value="{{ notCopied }}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><rect x="9" y="9" width="11" height="11" rx="1.6"></rect><path d="M6 15H5a1.6 1.6 0 0 1-1.6-1.6V5A1.6 1.6 0 0 1 5 3.4h8.4A1.6 1.6 0 0 1 15 5v1"></path></svg></sc-if></button></span></sc-if>
+      </div>
       <div style="{{ sumBody }}"><div style="{{ sumBodyIn }}">
       <div data-scroll="sum" style="{{ mSumScroll }}">
         <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
@@ -472,8 +478,9 @@ option{background:#070b12;color:#d7e6ef}
           </div>
         </sc-for>
       </div>
-      <div style="{{ totWrap }}">
-      <div style="{{ mSumTotRow }}">
+      <div data-totwrap style="{{ totWrap }}">
+      <div onClick="{{ totToggle }}" style="{{ mSumTotRow }}">
+        <span style="{{ totChevBox }}"><span style="{{ totChev }}"></span></span>
         <span style="{{ mTotRow }}">
           <span style="{{ mTotMacros }}">
             <span><span style="{{ mTotTag }}">PROT</span> {{ tot.v1 }}<span style="{{ mTotUnit }}">{{ tot.u3 }}</span></span>
@@ -483,7 +490,6 @@ option{background:#070b12;color:#d7e6ef}
           <span style="{{ mTotQty }}">{{ tot.qty }}<span style="{{ sizeSuffix }}">{{ tot.qtyUnit }}</span></span>
           <span style="{{ mTotVal }}">{{ tot.mTotVal }}<span style="{{ unitSuffix }}">{{ mColUnit }}</span></span>
         </span>
-        <span onClick="{{ totToggle }}" style="{{ totChevBox }}"><span style="{{ totChev }}"></span></span>
       </div>
       <div onClick="{{ totVizTap }}" style="{{ totExpand }}">
         <span style="{{ mVizBox }}">
@@ -639,6 +645,11 @@ class Component extends DCLogic {
     // bubble click to document from non-interactive elements.
     this._dismiss = e => {
       const s = this.state;
+      // The totals drawing folds itself when attention goes anywhere else.
+      if (s.totOpen && !(e.target && e.target.closest && e.target.closest("[data-totwrap]"))) {
+        this.setState(st => ({ totOpen: false, vizPick: null,
+          vizZoom: st.vizZoom === "__TOT__" ? null : st.vizZoom }));
+      }
       if (!(s.libOpen || s.unitOpen || s.catOpen || s.extraOpen || s.mColOpen || s.mTip)) return;
       if (e.target && e.target.closest && e.target.closest("[data-pop]")) return;
       this.setState({ libOpen: false, unitOpen: false, catOpen: false, extraOpen: false, mColOpen: false, mTip: "" });
@@ -2173,8 +2184,8 @@ class Component extends DCLogic {
         vizZoom: st.vizZoom === "__TOT__" ? null : st.vizZoom }));
     };
     const totChevBox = { flex: "none", alignSelf: "stretch", display: "flex",
-      alignItems: "center", justifyContent: "center", width: "40px",
-      marginRight: "-.3rem", cursor: "pointer" };
+      alignItems: "center", justifyContent: "center", width: "22px",
+      marginLeft: ".1rem", cursor: "pointer" };
     const totChev = { flex: "none", width: "16px", height: "16px", borderRadius: "50%",
       boxSizing: "border-box", border: "1px solid #66808f",
       background: totOpen
@@ -2624,6 +2635,27 @@ class Component extends DCLogic {
         transition: "color 140ms ease"
       },
       sumRestore: () => this.setState({ mOpen: null, sumFold: false }),
+      sumTuck: sumTucked, notTuck: !sumTucked,
+      mSumHead: { flex: "none", display: "flex", alignItems: "center",
+        minHeight: "2.3rem", padding: ".15rem 0", fontFamily: "var(--font-2)",
+        fontSize: ".9rem", letterSpacing: ".14em", color: "#7b91a3", cursor: "pointer" },
+      // The tucked header rides the same three tracks as the rows and the totals line,
+      // so its grams and its chosen column land under the columns they are totals of.
+      mSumHeadGrid: { flex: 1, minWidth: 0, display: "grid",
+        gridTemplateColumns: SUM_COLS, columnGap: ".4rem", alignItems: "center" },
+      mSumTitleCell: { minWidth: 0, display: "flex", alignItems: "center", gap: ".55rem" },
+      mSumTitle: { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
+      sumRing: { flex: "none", width: "16px", height: "16px", borderRadius: "50%",
+        boxSizing: "border-box", border: "1px solid #66808f",
+        background: "linear-gradient(#c7d6e0,#c7d6e0) center/8px 1.3px no-repeat, linear-gradient(#c7d6e0,#c7d6e0) center/1.3px 8px no-repeat" },
+      sumTuckQty: { display: "flex", alignItems: "baseline", justifyContent: "flex-end",
+        paddingRight: ".2rem", fontFamily: "var(--font-1)", fontWeight: 300,
+        fontSize: "1.02rem", letterSpacing: 0, color: "#d7e6ef",
+        fontVariantNumeric: "tabular-nums" },
+      sumTuckVal: { display: "flex", alignItems: "baseline", justifyContent: "flex-end",
+        paddingRight: ".3rem", fontFamily: "var(--font-1)", fontWeight: 300,
+        fontSize: "1.02rem", letterSpacing: 0, color: "#22d3ee",
+        fontVariantNumeric: "tabular-nums" },
       // The header is the switch: tucked, any tap on it brings the plate back; open, a tap
       // folds it away. The copy button stops the tap so copying never folds anything.
       sumHeadTap: () => sumTucked
