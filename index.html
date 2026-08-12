@@ -217,32 +217,37 @@ option{background:#070b12;color:#d7e6ef}
     <sc-if value="{{ gReady }}" hint-placeholder-val="{{ true }}">
       <span style="{{ gHead }}"><span>{{ gRoundLabel }}</span><span style="{{ gHeadScore }}">{{ gHits }} EXACT</span></span>
       <span style="{{ gPhotoBox }}"><img src="{{ gPhoto }}" alt="A plated meal photographed from above" style="{{ gPhotoImg }}"></span>
-      <span style="{{ gOfS }}">{{ gOf }}</span>
-      <sc-if value="{{ gAsk }}" hint-placeholder-val="{{ true }}"><span style="{{ gAskS }}">{{ gAsk }}</span></sc-if>
+      <span style="{{ gHeadRow }}"><span>ON THE PLATE</span><span style="{{ gHeadR }}">GRAMS</span><span style="{{ gHeadR }}">KCAL</span></span>
+      <sc-for list="{{ gRows }}" as="x" hint-placeholder-count="4">
+        <span style="{{ gRowS }}"><span style="{{ x.fill }}"></span><span style="{{ gNameS }}">{{ x.name }}</span><span style="{{ x.g.s }}">{{ x.g.v }}</span><span style="{{ x.kcal.s }}">{{ x.kcal.v }}</span></span>
+      </sc-for>
+      <span style="{{ gTotRowS }}"><span style="{{ gTotNameS }}">{{ gTotName }}</span><span style="{{ gTotGS }}">{{ gTotG }}</span><span style="{{ gTotKS }}">{{ gTotK }}</span></span>
       <span style="{{ gOptsWrap }}">
         <sc-for list="{{ gOpts }}" as="o" hint-placeholder-count="5">
           <button onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</button>
         </sc-for>
       </span>
-      <sc-if value="{{ gRevealed }}" hint-placeholder-val="{{ false }}">
-        <span style="{{ gTruthS }}">{{ gTruth }}<span style="{{ gTruthUnit }}">KCAL</span><span style="{{ gTruthUnit }}">·</span>{{ gTruthG }}<span style="{{ gTruthUnit }}">G</span></span>
+      <span style="{{ gFootS }}">
         <span style="{{ gVerdictS }}">{{ gVerdict }}</span>
-        <span style="{{ gBreakLabS }}">{{ gBreakLab }}</span>
-        <sc-for list="{{ gBreak }}" as="x" hint-placeholder-count="3">
-          <span style="{{ x.row }}"><span style="{{ x.fill }}"></span><span style="{{ x.nameS }}">{{ x.name }}</span><span style="{{ x.kS }}">{{ x.kcal }}</span><span style="{{ x.shS }}">{{ x.share }}</span></span>
-        </sc-for>
         <button onClick="{{ gNext }}" style="{{ gNextS }}">{{ gNextLabel }}</button>
-      </sc-if>
+      </span>
     </sc-if>
     <sc-if value="{{ gDone }}" hint-placeholder-val="{{ false }}">
       <span style="{{ gResTag }}">TEN PLATES</span>
-      <span style="{{ gTotS }}">{{ gTotOff }}</span>
-      <span style="{{ gResPts }}">{{ gTotWord }}</span>
-      <span style="{{ gAxisLab }}"><span>UNDER</span><span>ACTUAL</span><span>OVER</span></span>
-      <span style="{{ gAxis }}"><span style="{{ gAxisMid }}"></span><sc-for list="{{ gDots }}" as="d" hint-placeholder-count="10"><span style="{{ d.style }}"></span></sc-for></span>
-      <span style="{{ gLinesWrap }}"><sc-for list="{{ gLines }}" as="l" hint-placeholder-count="3"><span style="{{ l.style }}">{{ l.text }}</span></sc-for></span>
-      <button onClick="{{ gAgain }}" style="{{ gNextS }}">PLAY AGAIN</button>
-      <span style="{{ gCredit }}">{{ gDeckNote }} Nutrition5k — Thames et al., CVPR 2021, CC BY 4.0.</span>
+      <span style="{{ gAccS }}">{{ gAcc }}<span style="{{ gResOf }}">{{ gAccLab }}</span></span>
+      <span style="{{ gAccSubS }}">{{ gAccSub }}</span>
+      <span style="{{ gResHead }}"><span>PLATE</span><span style="{{ gResHeadR }}">ACTUAL</span><span style="{{ gResHeadR }}">YOURS</span><span style="{{ gResHeadR }}">OUT BY</span></span>
+      <sc-for list="{{ gResRows }}" as="x" hint-placeholder-count="10">
+        <span style="{{ x.row }}"><span style="{{ x.nameS }}">{{ x.name }}</span><span style="{{ x.actual.s }}">{{ x.actual.v }}</span><span style="{{ x.guess.s }}">{{ x.guess.v }}</span><span style="{{ x.diff.s }}">{{ x.diff.v }}</span></span>
+      </sc-for>
+      <span style="{{ gCatLabS }}">{{ gCatLab }}</span>
+      <span style="{{ gCatWrap }}">
+        <span style="{{ gCatMid }}"></span>
+        <sc-for list="{{ gCatRows }}" as="c" hint-placeholder-count="4">
+          <span style="{{ c.row }}"><span style="{{ c.bar }}"></span><span style="{{ c.nameS }}">{{ c.name }}</span><span style="{{ c.nS }}">{{ c.n }}</span><span style="{{ c.valS }}">{{ c.val }}</span></span>
+        </sc-for>
+      </span>
+      <button onClick="{{ gAgain }}" style="{{ gAgainS }}">PLAY AGAIN</button>
     </sc-if>
   </div>
   </sc-if>
@@ -874,8 +879,90 @@ class Component extends DCLogic {
     const o = r.opts[k], off = o.v - r.kcal, err = off / r.kcal;
     const pick = { k: k, err: err, off: off, hit: !!o.truth,
       score: Math.round(100 * Math.max(0, 1 - Math.abs(err))),
-      tags: r.dish.tags, kcal: r.kcal };
+      tags: r.dish.tags, kcal: r.kcal, guess: o.v, cat: r.dish.cat,
+      name: r.dish.top.slice(0, 2).map(x => x[0]).join(" + ") };
     this.setState(s => ({ gSel: k, gPicks: (s.gPicks || []).concat([pick]) }));
+  }
+  // The end of a game is a page of its own: what was played, plate by plate,
+  // and then the same story gathered by the kind of food it was. A tally of
+  // rights and wrongs would say less than either.
+  gResults(picks) {
+    if (!picks || !picks.length) return {};
+    const n = picks.length;
+    const totOff = picks.reduce((a, p) => a + p.off, 0);
+    const meanAbs = picks.reduce((a, p) => a + Math.abs(p.err), 0) / n;
+    const sign = v => (v < 0 ? "\u2212" : "+") + Math.abs(Math.round(v));
+    const cats = {};
+    picks.forEach(p => {
+      const c = cats[p.cat] || (cats[p.cat] = { n: 0, off: 0, err: 0 });
+      c.n++; c.off += p.off; c.err += p.err;
+    });
+    const catRows = Object.keys(cats).map(k => ({ cat: k, d: cats[k] }))
+      .sort((a, b) => b.d.n - a.d.n).slice(0, 5);
+    const num = (v, col) => ({ v: v, s: { textAlign: "right", fontWeight: 300,
+      fontSize: ".88rem", color: col, fontVariantNumeric: "tabular-nums" } });
+    return {
+      gAcc: String(Math.round(meanAbs * 100)) + "%",
+      gAccS: { display: "flex", alignItems: "baseline", gap: ".45rem", padding: "0 .15rem",
+        fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "2.2rem",
+        color: meanAbs < 0.12 ? "#7ee0a8" : "#eaf5fb", fontVariantNumeric: "tabular-nums" },
+      gAccLab: "AVERAGE MISS",
+      gAccSub: picks.filter(p => p.hit).length + " OF " + n + " EXACT  \u00b7  "
+        + Math.abs(Math.round(totOff)) + " KCAL "
+        + (totOff < 0 ? "UNDER" : "OVER") + " ACROSS THE TEN",
+      gAccSubS: { display: "block", padding: ".3rem .15rem .9rem", fontFamily: "var(--font-2)",
+        fontSize: ".68rem", letterSpacing: ".1em", color: "#7b91a3" },
+      gResHead: { flex: "none", display: "grid",
+        gridTemplateColumns: "minmax(0,1fr) 3rem 3rem 3rem", columnGap: ".35rem",
+        padding: "0 .15rem .25rem", fontFamily: "var(--font-2)", fontSize: ".6rem",
+        letterSpacing: ".1em", color: "#54677a" },
+      gResHeadR: { textAlign: "right" },
+      gResRows: picks.map(p => ({
+        name: p.name.toUpperCase(),
+        nameS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          fontFamily: "var(--font-2)", fontSize: ".68rem", letterSpacing: ".04em",
+          color: p.hit ? "#c7d6e0" : "#8ba0ad" },
+        actual: num(String(p.kcal), "#d7e6ef"),
+        guess: num(String(p.guess), p.hit ? "#7ee0a8" : "#c7d6e0"),
+        diff: num(p.hit ? "\u2713" : sign(p.off), p.hit ? "#7ee0a8" : "#f08c7a"),
+        row: { flex: "none", display: "grid",
+          gridTemplateColumns: "minmax(0,1fr) 3rem 3rem 3rem", columnGap: ".35rem",
+          alignItems: "center", height: "1.62rem", padding: "0 .15rem",
+          borderTop: "1px solid rgba(215,230,239,.07)" }
+      })),
+      gCatLab: "BY WHAT CARRIED THE PLATE",
+      gCatLabS: { flex: "none", display: "block", padding: "1rem .15rem .3rem",
+        fontFamily: "var(--font-2)", fontSize: ".64rem", letterSpacing: ".12em", color: "#7b91a3" },
+      gCatRows: catRows.map(c => {
+        const mean = c.d.err / c.d.n, pct = Math.round(Math.abs(mean) * 100);
+        // A bar either side of centre: which way the eye went, and how far.
+        return {
+          name: c.cat.toUpperCase(),
+          nameS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            fontFamily: "var(--font-2)", fontSize: ".68rem", letterSpacing: ".04em", color: "#c7d6e0" },
+          n: c.d.n + (c.d.n === 1 ? " PLATE" : " PLATES"),
+          nS: { textAlign: "right", fontFamily: "var(--font-2)", fontSize: ".62rem",
+            letterSpacing: ".06em", color: "#54677a" },
+          val: (mean < 0 ? "\u2212" : "+") + pct + "%",
+          valS: { textAlign: "right", fontWeight: 300, fontSize: ".88rem",
+            color: pct < 10 ? "#7ee0a8" : mean < 0 ? "#f08c7a" : "#f0c07a",
+            fontVariantNumeric: "tabular-nums" },
+          bar: { position: "absolute", top: "50%", height: "1.15rem", marginTop: "-.575rem",
+            left: mean < 0 ? (50 - Math.min(48, pct * 0.9)) + "%" : "50%",
+            width: Math.min(48, pct * 0.9) + "%",
+            background: pct < 10 ? "rgba(126,224,168,.22)" : "rgba(240,140,122,.20)" },
+          row: { position: "relative", flex: "none", display: "grid",
+            gridTemplateColumns: "minmax(0,1fr) 4.2rem 3rem", columnGap: ".35rem",
+            alignItems: "center", height: "1.75rem", padding: "0 .15rem",
+            borderTop: "1px solid rgba(215,230,239,.07)" }
+        };
+      }),
+      gCatMid: { position: "absolute", left: "50%", top: 0, bottom: 0, width: "1px",
+        background: "rgba(34,211,238,.30)" },
+      gCatWrap: { position: "relative", flex: "none", display: "flex", flexDirection: "column" },
+      gAgain: () => this.gStart(false),
+      gDeckNote: this._deck ? this._deck.note : ""
+    };
   }
   gNext() {
     this.setState(s => ({ gI: (s.gI || 0) + 1, gSel: null }));
@@ -2969,12 +3056,17 @@ class Component extends DCLogic {
       gHeadScore: { fontVariantNumeric: "tabular-nums", color: "#22d3ee" },
       gWaitS: { display: "block", padding: "2.5rem .2rem", fontFamily: "var(--font-2)",
         fontSize: ".76rem", letterSpacing: ".16em", color: "#5b7183" },
-      gResTag: { display: "block", padding: "1.1rem .15rem .3rem", fontFamily: "var(--font-2)",
-        fontSize: ".7rem", letterSpacing: ".18em", color: "#5b7183" },
+      gResTag: { flex: "none", display: "block", padding: ".8rem .15rem .25rem",
+        fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".18em", color: "#5b7183" },
+      gAgainS: { flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
+        width: "100%", boxSizing: "border-box", height: "2.6rem", marginTop: "auto",
+        border: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
+        background: "rgba(34,211,238,.08)", cursor: "pointer", fontFamily: "var(--font-2)",
+        fontSize: ".76rem", letterSpacing: ".16em", color: "#22d3ee" },
       gResScore: { display: "flex", alignItems: "baseline", gap: ".5rem", padding: "0 .2rem",
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "2.4rem", color: "#eaf5fb",
         fontVariantNumeric: "tabular-nums" },
-      gResOf: { fontFamily: "var(--font-2)", fontSize: ".74rem", letterSpacing: ".14em", color: "#7b91a3" },
+      gResOf: { fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".14em", color: "#7b91a3" },
       gResPts: { display: "block", padding: ".45rem .15rem 1.2rem", fontFamily: "var(--font-2)",
         fontSize: ".72rem", letterSpacing: ".12em", color: "#5b7183" },
       // Signed error, not correctness: every round sits on the side of the truth
@@ -3035,27 +3127,76 @@ class Component extends DCLogic {
         const done = i >= 10 || (!r && picks.length >= 10);
         const ready = !!(this._deck && r);
         const fmt = n => String(Math.round(n));
-        const revealed = sel !== null;
+        const shown = sel !== null;
         const last = picks.length ? picks[picks.length - 1] : null;
-        const A = (d) => ({ animation: "od-soon-a 340ms cubic-bezier(.22,1,.36,1) " + d + "ms both" });
-        const totOff = picks.reduce((x, p) => x + p.off, 0);
+        const A = d => ({ animation: "od-soon-a 300ms cubic-bezier(.22,1,.36,1) " + d + "ms both" });
+        const dash = "\u2014";
+        // The table is on screen from the first moment: the same rows, the same
+        // columns, in the same place. Answering fills the figures in rather than
+        // replacing the screen with a different one.
+        const cell = (v, k) => ({
+          v: shown ? v : dash,
+          s: Object.assign({ textAlign: "right", fontWeight: 300, fontSize: ".92rem",
+            fontVariantNumeric: "tabular-nums",
+            color: shown ? "#d7e6ef" : "#3f5364",
+            transition: "color 260ms ease" }, shown ? A(60 + k * 55) : {})
+        });
+        const rows = [];
+        if (r) {
+          r.dish.top.forEach((x, k) => rows.push({
+            name: String(x[0]).toUpperCase(),
+            g: cell(fmt(x[1]) + " g", k), kcal: cell(fmt(x[2]), k),
+            fill: { position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)",
+              height: "1.35rem", width: (shown ? Math.round(x[3] * 100) : 0) + "%",
+              background: "rgba(34,211,238,.10)", transition: "width 420ms cubic-bezier(.22,1,.36,1) " + (80 + k * 70) + "ms" }
+          }));
+          if (r.dish.rest) rows.push({
+            name: "+ " + r.dish.rest[2] + " MORE",
+            g: cell(fmt(r.dish.rest[0]) + " g", 3), kcal: cell(fmt(r.dish.rest[1]), 3),
+            fill: { display: "none" }
+          });
+        }
         return {
           gReady: ready && !done, gDone: done && picks.length > 0,
           gWaiting: !ready && !done, gFailed: !!s.gFailed,
           gRoundLabel: "PLATE " + Math.min(i + 1, 10) + " OF 10",
+          gHits: String(picks.filter(p => p.hit).length),
           gPhoto: r ? DATA + "game/img/" + r.dish.id + ".jpg" : "",
           gPhotoImg: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
-          // The photograph takes whatever room the rest does not, so the screen
-          // never scrolls and the food is still as large as it can be.
-          gPhotoBox: { position: "relative", flex: "1 1 auto", minHeight: "34vh",
+          gPhotoBox: { position: "relative", flex: "1 1 auto", minHeight: "9rem",
             overflow: "hidden", background: "#0a1016",
             border: "1px solid rgba(34,211,238,.14)" },
-          // What is on the plate, named but not weighed: the player is told what
-          // they are looking at and asked to judge how much of it there is.
-          gOf: r ? r.dish.of.join("  ·  ").toUpperCase() : "",
-          gOfS: { flex: "none", display: "block", maxHeight: "2.6rem", overflow: "hidden",
-            padding: ".5rem .1rem .55rem", fontFamily: "var(--font-2)", fontSize: ".68rem",
-            letterSpacing: ".08em", lineHeight: 1.5, color: "#8ba0ad" },
+          gRows: rows,
+          gRowS: { position: "relative", flex: "none", display: "grid",
+            gridTemplateColumns: "minmax(0,1fr) 3.4rem 3rem", columnGap: ".4rem",
+            alignItems: "center", height: "1.75rem", padding: "0 .15rem",
+            borderTop: "1px solid rgba(215,230,239,.07)" },
+          gNameS: { position: "relative", minWidth: 0, overflow: "hidden",
+            textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: "var(--font-2)",
+            fontSize: ".72rem", letterSpacing: ".06em", color: "#c7d6e0" },
+          gHeadRow: { flex: "none", display: "grid",
+            gridTemplateColumns: "minmax(0,1fr) 3.4rem 3rem", columnGap: ".4rem",
+            padding: ".55rem .15rem .25rem", fontFamily: "var(--font-2)", fontSize: ".62rem",
+            letterSpacing: ".12em", color: "#54677a" },
+          gHeadR: { textAlign: "right" },
+          // The plate's own line closes the table: blank while the question
+          // stands, and the answer when it is over.
+          gTotRowS: { position: "relative", flex: "none", display: "grid",
+            gridTemplateColumns: "minmax(0,1fr) 3.4rem 3rem", columnGap: ".4rem",
+            alignItems: "center", height: "2rem", padding: "0 .15rem",
+            borderTop: "1px solid rgba(34,211,238,.45)" },
+          gTotName: "THE PLATE",
+          gTotNameS: { fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".1em",
+            color: shown && last ? (last.hit ? "#7ee0a8" : "#f08c7a") : "#7b91a3",
+            transition: "color 260ms ease" },
+          gTotG: r && shown ? fmt(r.dish.g) + " g" : dash,
+          gTotK: r && shown ? fmt(r.kcal) : dash,
+          gTotGS: { textAlign: "right", fontWeight: 300, fontSize: "1rem",
+            color: shown ? "#8ba0ad" : "#3f5364", fontVariantNumeric: "tabular-nums",
+            transition: "color 260ms ease" },
+          gTotKS: Object.assign({ textAlign: "right", fontWeight: 300, fontSize: "1.15rem",
+            color: shown ? "#eaf5fb" : "#3f5364", fontVariantNumeric: "tabular-nums",
+            transition: "color 260ms ease" }, shown ? A(40) : {}),
           gOpts: (r ? r.opts : []).map((o, k) => {
             const chosen = sel === k, right = !!o.truth;
             return {
@@ -3063,96 +3204,38 @@ class Component extends DCLogic {
               onClick: () => this.gPickOpt(k),
               style: {
                 display: "flex", alignItems: "center", justifyContent: "center",
-                flex: "1 1 0", minWidth: 0, boxSizing: "border-box",
-                height: revealed ? "2.5rem" : "2.9rem", borderRadius: 0,
-                cursor: revealed ? "default" : "pointer",
-                border: "1px solid " + (!revealed ? "rgba(34,211,238,.28)"
-                  : right ? "rgba(126,224,168,.7)" : chosen ? "rgba(240,140,122,.6)" : "rgba(34,211,238,.10)"),
-                background: !revealed ? "transparent"
+                width: "100%", boxSizing: "border-box", height: "2.35rem", borderRadius: 0,
+                cursor: shown ? "default" : "pointer",
+                border: "1px solid " + (!shown ? "rgba(34,211,238,.28)"
+                  : right ? "rgba(126,224,168,.7)" : chosen ? "rgba(240,140,122,.6)" : "rgba(34,211,238,.08)"),
+                background: !shown ? "transparent"
                   : right ? "rgba(126,224,168,.12)" : chosen ? "rgba(240,140,122,.10)" : "transparent",
-                color: !revealed ? "#d7e6ef" : right ? "#7ee0a8" : chosen ? "#f08c7a" : "#54677a",
-                fontFamily: "var(--font-1)", fontWeight: 300,
-                fontSize: revealed ? ".95rem" : "1.05rem", fontVariantNumeric: "tabular-nums",
-                transition: "border-color 240ms ease, background 240ms ease, color 240ms ease, height 240ms ease"
+                color: !shown ? "#d7e6ef" : right ? "#7ee0a8" : chosen ? "#f08c7a" : "#3f5364",
+                fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1rem",
+                fontVariantNumeric: "tabular-nums",
+                transition: "border-color 240ms ease, background 240ms ease, color 240ms ease"
               }
             };
           }),
-          // Before answering the figures stack, each an easy target; after, they
-          // close into one scale so the breakdown has the room.
-          gOptsWrap: { flex: "none", display: "flex",
-            flexDirection: revealed ? "row" : "column", gap: revealed ? ".3rem" : ".4rem" },
-          gAsk: revealed ? "" : "HOW MANY CALORIES?",
-          gAskS: { flex: "none", display: "block", padding: ".1rem .1rem .5rem",
-            fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".16em", color: "#7b91a3" },
-          gRevealed: revealed,
-          gTruth: r ? fmt(r.kcal) : "",
-          gTruthG: r ? fmt(r.dish.g) : "",
-          gTruthS: Object.assign({ flex: "none", display: "flex", alignItems: "baseline",
-            gap: ".4rem", padding: ".55rem .1rem .1rem", fontFamily: "var(--font-1)",
-            fontWeight: 300, fontSize: "1.55rem", color: "#eaf5fb",
-            fontVariantNumeric: "tabular-nums" }, A(30)),
-          gTruthUnit: { fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".12em", color: "#7b91a3" },
-          gVerdict: !last ? "" : last.hit ? "EXACT"
+          gOptsWrap: { flex: "none", display: "flex", flexDirection: "column", gap: ".3rem",
+            padding: ".45rem 0 0" },
+          // The footer holds its height from the start, so answering never moves
+          // the photograph or the table above it.
+          gFootS: { flex: "none", display: "flex", flexDirection: "column",
+            justifyContent: "flex-end", minHeight: "4.1rem", paddingTop: ".3rem" },
+          gVerdict: !shown || !last ? "" : last.hit ? "EXACT"
             : (Math.abs(last.off) + " KCAL " + (last.off < 0 ? "UNDER" : "OVER")),
-          gVerdictS: Object.assign({ flex: "none", fontFamily: "var(--font-2)", fontSize: ".7rem",
-            letterSpacing: ".14em", padding: "0 .1rem .1rem",
-            color: last && last.hit ? "#7ee0a8" : "#f08c7a" }, A(30)),
-          gBreak: (revealed && r ? r.dish.top : []).map((x, k) => ({
-            name: String(x[0]).toUpperCase(), kcal: fmt(x[2]),
-            share: Math.round(x[3] * 100) + "%",
-            row: Object.assign({ position: "relative", flex: "none", display: "grid",
-              gridTemplateColumns: "minmax(0,1fr) 3rem 2.4rem", columnGap: ".4rem",
-              alignItems: "center", height: "1.95rem", padding: "0 .15rem",
-              borderTop: k ? "1px solid rgba(215,230,239,.08)" : "0" }, A(120 + k * 60)),
-            fill: { position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)",
-              height: "1.5rem", width: Math.round(x[3] * 100) + "%", background: "rgba(34,211,238,.10)" },
-            nameS: { position: "relative", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
-              whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: ".74rem",
-              letterSpacing: ".06em", color: "#c7d6e0" },
-            kS: { position: "relative", textAlign: "right", fontWeight: 300, fontSize: ".9rem",
-              color: "#d7e6ef", fontVariantNumeric: "tabular-nums" },
-            shS: { position: "relative", textAlign: "right", fontFamily: "var(--font-2)",
-              fontSize: ".72rem", color: "#22d3ee", fontVariantNumeric: "tabular-nums" }
-          })),
-          gBreakLab: "WHERE THE CALORIES WERE",
-          gBreakLabS: Object.assign({ flex: "none", display: "block", padding: ".6rem .15rem .3rem",
-            fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".14em",
-            color: "#7b91a3" }, A(90)),
+          gVerdictS: { flex: "none", height: "1.1rem", fontFamily: "var(--font-2)",
+            fontSize: ".7rem", letterSpacing: ".14em", textAlign: "center",
+            color: last && last.hit ? "#7ee0a8" : "#f08c7a" },
           gNextLabel: i >= 9 ? "SEE RESULTS" : "NEXT PLATE",
           gNext: () => this.gNext(),
-          gNextS: Object.assign({ flex: "none", display: "flex", alignItems: "center",
-            justifyContent: "center", width: "100%", boxSizing: "border-box", height: "2.7rem",
-            marginTop: ".55rem", border: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
+          gNextS: { flex: "none", display: shown ? "flex" : "none", alignItems: "center",
+            justifyContent: "center", width: "100%", boxSizing: "border-box", height: "2.6rem",
+            border: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
             background: "rgba(34,211,238,.08)", cursor: "pointer", fontFamily: "var(--font-2)",
-            fontSize: ".78rem", letterSpacing: ".16em", color: "#22d3ee" }, A(240)),
-          // ---- results -------------------------------------------------------
-          // The headline is the calories, not the tally: ten plates read this way
-          // is what a day of reading them this way would cost.
-          gTotOff: (totOff < 0 ? "\u2212" : "+") + Math.abs(totOff),
-          gTotWord: totOff < 0 ? "KCAL UNDER, ACROSS TEN PLATES" : "KCAL OVER, ACROSS TEN PLATES",
-          gTotS: { display: "flex", alignItems: "baseline", gap: ".5rem", padding: "0 .15rem",
-            fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "2.5rem",
-            color: Math.abs(totOff) < 150 ? "#7ee0a8" : "#eaf5fb", fontVariantNumeric: "tabular-nums" },
-          gHits: String(picks.filter(p => p.hit).length),
-          gDots: picks.map((p, k) => ({
-            style: { position: "absolute", top: (26 + (k % 5) * 12) + "%", width: "9px",
-              height: "9px", marginTop: "-4.5px", marginLeft: "-4.5px", borderRadius: "50%",
-              left: (50 + Math.max(-46, Math.min(46, p.err * 45))) + "%",
-              background: p.hit ? "#7ee0a8" : "rgba(240,140,122,.85)" }
-          })),
-          gLines: this.gBias(picks).map(b => {
-            const pct = Math.round(Math.abs(b.mean) * 100);
-            const dir = b.mean < 0 ? "under" : "over";
-            return {
-              text: pct < 10 ? "You read " + b.band + " plates well."
-                : "You " + dir + "estimate " + b.band + " plates by about " + pct + "%.",
-              style: { display: "block", padding: ".15rem 0", fontFamily: "var(--font-1)",
-                fontWeight: 300, fontSize: "1rem", lineHeight: 1.45,
-                color: pct < 10 ? "#7b91a3" : "#d7e6ef", textWrap: "pretty" }
-            };
-          }),
-          gAgain: () => this.gStart(false),
-          gDeckNote: this._deck ? this._deck.note : ""
+            fontSize: ".76rem", letterSpacing: ".16em", color: "#22d3ee" },
+          ...this.gResults(picks)
         };
       })(),
       appAbout: app === "about",

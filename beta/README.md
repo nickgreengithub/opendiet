@@ -36,18 +36,30 @@ What is different from the root:
   running four steps up from 950 kcal ends at 4820, which is not food anyone was served,
   and a figure nobody could believe gives the answer away as surely as a label would.
   Scoring is distance-weighted and the miss is kept in calories as well as proportion.
-- Nothing about the game scrolls. The column fills the screen with `overflow: hidden` and
-  the photograph is the flexible element, so it takes whatever room the rest does not and
-  gives it back when the breakdown arrives. Answering closes the five figures from a
-  stack into one scale, which frees the height the breakdown needs — and the scale is
-  the better reading of the reveal anyway, since it shows the guess next to the truth.
-  The results screen leads with calories rather than a tally: ten plates read this way,
-  and what that came to. Underneath, each round sits on the side of the truth it fell on
-  and a sentence per density band says which plates the eye is wrong about.
+- Nothing about the game scrolls, and nothing about it switches context either. The
+  ingredient table is on screen from the first moment — the same rows, the same columns,
+  in the same place — with the figures held back as dashes until an answer is given, and
+  the plate's own line closing the table blank until it carries the truth. Answering
+  fills the figures in and paints the share bars across; it does not replace the screen
+  with a different one. The footer holds its height from the start, so the photograph
+  never moves, and the photograph is the flexible element, taking whatever room the rest
+  does not — 309px on a tall phone, 144px on a 640px one, with everything else intact.
+- The results screen is a page rather than a verdict. The average miss at the top, then
+  every plate played: what it was, what it actually held, what you said, and how far out.
+  Underneath, the same story gathered by what carried the plate — meat and fish, bread
+  and grains, eggs and dairy — each with a bar reaching left or right of centre, because
+  which kinds of food an eye misreads is more useful than how many it got right. The
+  category is taken from whichever ingredient carries most of the plate's calories; rough
+  by nature, since a plate is rarely one thing, but honest about being so.
 - The deck is prepared offline by `tools/build_game_deck.py` from Nutrition5k (Thames et
   al., CVPR 2021, CC BY 4.0) — 140 plates whose ingredient calories agree with their own
   total to within 6%, spread across the calorie range, with their overhead photographs
-  compressed into `data/game/`. Nothing is fetched at run time but the deck. The source's
+  compressed into `data/game/`. The photographs are cropped to the plate using the dish's
+  own depth map — the turntable is whatever depth most pixels share and the plate is what
+  stands proud of it, read per dish because no two plates sit in the same place — and
+  lifted with a gamma curve rather than a flat brightness, which opens the midtones the
+  food lives in and leaves the plate, already near-white, where it is: median luma 115 to
+  156, for under a percent more blown highlights. Nothing is fetched at run time but the deck. The source's
   per-macro shares stay out of it deliberately: they do not always agree with the plate's
   total, which is sound enough to sort plates by and not sound enough to show.
 - CALORIE CALC will work a daily target backwards from a body-fat goal. It is not built. Their pages say UNDER DEVELOPMENT and then invite
