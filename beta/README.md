@@ -26,9 +26,28 @@ What is different from the root:
   right-hand corner. The launcher screen it replaces is gone from both, and ABOUT is a
   page in the same language as the unbuilt ones rather than a dialog over the top: it
   lights its tab like any other, and Escape returns to the search.
-- CALORIE CALC will work a daily target backwards from a body-fat goal; CALORIE GAME will
-  drill guessing a meal's calories from a photograph, the one skill that travels to a
-  restaurant table. Neither is built. Their pages say UNDER DEVELOPMENT and then invite
+- CALORIE GAME is built, on a phone. A photograph of a real plate, three calorie ranges,
+  then the number and a breakdown of where it came from. The distractors are ratios of the
+  truth rather than numbers near it (×2, ×1.4, ×1.2 as the rounds harden), so the spread
+  scales with the plate and every option is ±15% of its own centre — at the hard ratio
+  that is exactly tight enough that only the true option contains the truth, and the
+  widths never leak which one it is. Options always run in ascending order. Scoring is
+  distance-weighted, because how far out you were is the thing worth knowing, and the
+  direction of every miss is kept. The results screen is the point of the whole thing: not
+  a bar chart of correctness but each round plotted on the side of the truth it fell on,
+  and a sentence per density band — you underestimate light plates by about 39%. Density
+  is the axis because a calorie is easy to see when it arrives with bulk and invisible
+  when it does not; the bands are the deck's own tertiles, so each holds a third.
+  Revealing an answer moves nothing above the options: the question and the answer share
+  one slot of reserved height, and the photograph is `flex: none` because a flex column
+  will otherwise shrink it the moment the breakdown appears.
+- The deck is prepared offline by `tools/build_game_deck.py` from Nutrition5k (Thames et
+  al., CVPR 2021, CC BY 4.0) — 140 plates whose ingredient calories agree with their own
+  total to within 6%, spread across the calorie range, with their overhead photographs
+  compressed into `data/game/`. Nothing is fetched at run time but the deck. The source's
+  per-macro shares stay out of it deliberately: they do not always agree with the plate's
+  total, which is sound enough to sort plates by and not sound enough to show.
+- CALORIE CALC will work a daily target backwards from a body-fat goal. It is not built. Their pages say UNDER DEVELOPMENT and then invite
   the reader to follow the project on GitHub or reach Nick Green on LinkedIn, because an
   unbuilt app is a better invitation than a dead end. The lines arrive in turn rather than
   appearing at once — two identical keyframes, picked by which app is open, because

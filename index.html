@@ -206,12 +206,54 @@ option{background:#070b12;color:#d7e6ef}
     <button onClick="{{ openAbout }}" style="{{ homeAbout }}" style-hover="color:#22d3ee">ABOUT OPENDIET.ORG</button>
   </div>
   </sc-if>
-  <sc-if value="{{ appSoon }}" hint-placeholder-val="{{ false }}">
+  <sc-if value="{{ appGame }}" hint-placeholder-val="{{ false }}">
+  <div data-gscroll style="{{ gWrap }}">
+    <sc-if value="{{ gWaiting }}" hint-placeholder-val="{{ false }}">
+      <span style="{{ gWaitS }}">LOADING PLATES</span>
+    </sc-if>
+    <sc-if value="{{ gFailed }}" hint-placeholder-val="{{ false }}">
+      <span style="{{ gWaitS }}">THE DECK DID NOT LOAD. TRY AGAIN LATER.</span>
+    </sc-if>
+    <sc-if value="{{ gReady }}" hint-placeholder-val="{{ true }}">
+      <span style="{{ gHead }}"><span>{{ gRoundLabel }}</span><span style="{{ gHeadScore }}">{{ gScore }}</span></span>
+      <span style="{{ gPhotoBox }}"><img src="{{ gPhoto }}" alt="A plated meal photographed from above" style="{{ gPhotoImg }}"></span>
+      <span style="{{ gSlot }}">
+        <sc-if value="{{ gRevealed }}" hint-placeholder-val="{{ false }}">
+          <span style="{{ gTruthS }}">{{ gTruth }}<span style="{{ gTruthUnit }}">KCAL</span><span style="{{ gTruthUnit }}">·</span>{{ gTruthG }}<span style="{{ gTruthUnit }}">G</span></span>
+          <span style="{{ gVerdictS }}">{{ gVerdict }}</span>
+        </sc-if>
+        <sc-if value="{{ gAsk }}" hint-placeholder-val="{{ true }}"><span style="{{ gAskS }}">{{ gAsk }}</span></sc-if>
+      </span>
+      <sc-for list="{{ gOpts }}" as="o" hint-placeholder-count="3">
+        <button onClick="{{ o.onClick }}" style="{{ o.style }}"><span>{{ o.label }}<span style="{{ o.unitS }}"> KCAL</span></span><span style="{{ o.markS }}">{{ o.mark }}</span></button>
+      </sc-for>
+      <sc-if value="{{ gRevealed }}" hint-placeholder-val="{{ false }}">
+        <span style="{{ gBreakLabS }}">{{ gBreakLab }}</span>
+        <span style="{{ gBreakHead }}"><span></span><span style="{{ gBreakHeadR }}">GRAMS</span><span style="{{ gBreakHeadR }}">KCAL</span><span style="{{ gBreakHeadR }}">SHARE</span></span>
+        <sc-for list="{{ gBreak }}" as="x" hint-placeholder-count="3">
+          <span style="{{ x.row }}"><span style="{{ x.fill }}"></span><span style="{{ x.nameS }}">{{ x.name }}</span><span style="{{ x.gS }}">{{ x.g }}</span><span style="{{ x.kS }}">{{ x.kcal }}</span><span style="{{ x.shS }}">{{ x.share }}</span></span>
+        </sc-for>
+        <button onClick="{{ gNext }}" style="{{ gNextS }}">{{ gNextLabel }}</button>
+      </sc-if>
+    </sc-if>
+    <sc-if value="{{ gDone }}" hint-placeholder-val="{{ false }}">
+      <span style="{{ gResTag }}">TEN PLATES</span>
+      <span style="{{ gResScore }}">{{ gHits }}<span style="{{ gResOf }}">/ 10 READ CORRECTLY</span></span>
+      <span style="{{ gResPts }}">{{ gScore }} POINTS, WEIGHTED BY HOW FAR OUT YOU WERE</span>
+      <span style="{{ gAxisLab }}"><span>UNDER</span><span>ACTUAL</span><span>OVER</span></span>
+      <span style="{{ gAxis }}"><span style="{{ gAxisMid }}"></span><sc-for list="{{ gDots }}" as="d" hint-placeholder-count="10"><span style="{{ d.style }}"></span></sc-for></span>
+      <span style="{{ gLinesWrap }}"><sc-for list="{{ gLines }}" as="l" hint-placeholder-count="3"><span style="{{ l.style }}">{{ l.text }}</span></sc-for></span>
+      <button onClick="{{ gAgain }}" style="{{ gNextS }}">PLAY AGAIN</button>
+      <span style="{{ gCredit }}">{{ gDeckNote }} Photographs and measurements from Nutrition5k — Thames et al., CVPR 2021, CC BY 4.0.</span>
+    </sc-if>
+  </div>
+  </sc-if>
+  <sc-if value="{{ appSoonOrGameDesk }}" hint-placeholder-val="{{ false }}">
   <div style="{{ soonWrap }}">
     <span style="{{ soonTag }}">UNDER DEVELOPMENT</span>
     <span style="{{ soonName }}">{{ appTitle }}</span>
     <span style="{{ soonNote }}">{{ appNote }}</span>
-    <span style="{{ soonJoin }}">Being built in the open. Follow along, or come and build it.</span>
+    <span style="{{ soonJoin }}">{{ soonJoinText }}</span>
     <span style="{{ soonLinks }}">
       <a href="https://github.com/nickgreengithub/opendiet" target="_blank" style="{{ soonLink }}" style-hover="color:#a5f3fc"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="M12 .5C5.73.5.99 5.24.99 11.51c0 4.86 3.15 8.98 7.52 10.44.55.1.75-.24.75-.53v-2.05c-3.06.67-3.71-1.3-3.71-1.3-.5-1.28-1.23-1.62-1.23-1.62-1-.69.08-.67.08-.67 1.11.08 1.69 1.14 1.69 1.14.98 1.69 2.58 1.2 3.21.92.1-.72.39-1.2.7-1.48-2.44-.28-5.01-1.22-5.01-5.44 0-1.2.43-2.18 1.13-2.95-.11-.28-.49-1.4.11-2.92 0 0 .92-.3 3.02 1.13a10.4 10.4 0 0 1 5.5 0c2.1-1.43 3.02-1.13 3.02-1.13.6 1.52.22 2.64.11 2.92.7.77 1.13 1.75 1.13 2.95 0 4.23-2.58 5.16-5.03 5.43.4.34.75 1.02.75 2.06v3.05c0 .3.2.64.76.53a11.03 11.03 0 0 0 7.51-10.44C23.01 5.24 18.27.5 12 .5z"></path></svg>FOLLOW ON GITHUB</a>
       <a href="https://www.linkedin.com/in/analystnickgreen/" target="_blank" style="{{ soonLink }}" style-hover="color:#a5f3fc"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 21h4V9H3v12zM10 21h4v-6.4c0-1.7.32-3.35 2.43-3.35 2.08 0 2.1 1.95 2.1 3.46V21h4v-7.1c0-3.47-.75-6.14-4.8-6.14-1.95 0-3.26 1.07-3.8 2.08h-.05V8.5H10V21z"></path></svg>CONTACT NICK GREEN</a>
@@ -223,6 +265,8 @@ option{background:#070b12;color:#d7e6ef}
     <span style="{{ soonTag }}">V0.1.0-BETA</span>
     <span style="{{ soonName }}">OPENDIET.ORG</span>
     <span style="{{ soonNote }}">An open source project, free to fork for non-commercial use. The values come from USDA FoodData Central and are public domain. Numbers are averages for a generic item — brand, cut, ripeness and cooking method all move them.</span>
+    <span style="{{ aboutDiscLab }}">THE CALORIE GAME</span>
+    <span style="{{ aboutDiscTxt }}">Its plates are photographs and scale measurements from Nutrition5k — Thames et al., CVPR 2021, CC BY 4.0. They are US cafeteria meals on consistent crockery, so an eye trained on them may not read a restaurant portion the same way.</span>
     <span style="{{ aboutDiscLab }}">DISCLAIMER</span>
     <span style="{{ aboutDiscTxt }}">Not medical or nutritional advice. Nothing here diagnoses, treats or prevents anything. Talk to a doctor or a registered dietitian before changing your diet, especially with a medical condition, pregnancy, or a history of disordered eating.</span>
     <span style="{{ soonLinks }}">
@@ -772,6 +816,79 @@ class Component extends DCLogic {
   }
   // Each library is a static JSON file: {cats:[...], foods:[[name,catIdx,kcal,p,c,fb,f,sf,sg,liquid],...]},
   // built from the USDA FoodData Central CSV releases. Values are per 100 g/ml, FDC's own basis.
+  // The calorie game. A photograph of a real plate, three ranges, and then the
+  // number with a breakdown of where it came from. The deck is prepared offline
+  // by tools/build_game_deck.py from Nutrition5k, so nothing is fetched at run
+  // time but the deck itself.
+  loadDeck() {
+    if (this._deck || this._deckPending) return;
+    this._deckPending = true;
+    fetch(DATA + "game/deck.json")
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(d => { this._deck = d; this.setState({ gLoaded: true }); this.gStart(true); })
+      .catch(() => this.setState({ gFailed: true }));
+  }
+  // Ten plates drawn without replacement, hardest last.
+  gStart(quiet) {
+    const deck = this._deck && this._deck.dishes;
+    if (!deck || !deck.length) return;
+    const order = deck.map((_, i) => i);
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = order[i]; order[i] = order[j]; order[j] = t;
+    }
+    const patch = { gOrder: order.slice(0, 10), gI: 0, gPicks: [], gSel: null };
+    if (quiet) Object.assign(this.state, patch); else this.setState(patch);
+    if (quiet) this.setState({ gLoaded: true });
+  }
+  // The three ranges. Distractors are ratios of the truth rather than numbers
+  // near it, so the spread scales with the plate and the widths never leak which
+  // one is right: every option is +/-15% of its own centre. At the hard ratio
+  // that is exactly tight enough that only the true option contains the truth.
+  gRound(i) {
+    const deck = this._deck && this._deck.dishes, order = this.state.gOrder || [];
+    if (!deck || order[i] === undefined) return null;
+    const dish = deck[order[i]];
+    // Three easy, four medium, three hard.
+    const ratio = i < 3 ? 2 : i < 7 ? 1.4 : 1.2;
+    const t = dish.kcal;
+    const centres = [t / ratio, t, t * ratio];
+    const band = c => [Math.round(c * 0.85 / 5) * 5, Math.round(c * 1.15 / 5) * 5];
+    const opts = centres.map((c, k) => ({ c: c, lo: band(c)[0], hi: band(c)[1], truth: k === 1 }));
+    return { dish: dish, opts: opts, ratio: ratio, kcal: t };
+  }
+  // Distance-weighted rather than right or wrong: the near miss costs less than
+  // the wild one, and how far out you were is the thing worth knowing.
+  gPickOpt(k) {
+    if (this.state.gSel !== null) return;
+    const r = this.gRound(this.state.gI);
+    if (!r) return;
+    const o = r.opts[k], err = (o.c - r.kcal) / r.kcal;
+    const pick = { k: k, err: err, hit: !!o.truth,
+      score: Math.round(100 * Math.max(0, 1 - Math.abs(err))),
+      tags: r.dish.tags, kcal: r.kcal };
+    this.setState(s => ({ gSel: k, gPicks: (s.gPicks || []).concat([pick]) }));
+  }
+  gNext() {
+    this.setState(s => ({ gI: (s.gI || 0) + 1, gSel: null }));
+    const el = typeof document !== "undefined" && document.querySelector('[data-gscroll]');
+    if (el) el.scrollTop = 0;
+  }
+  // What the player is actually here for: which side of the truth they sit on,
+  // and on which kind of plate. Reported per density band, since density is what
+  // an eye misreads — a calorie is easy to see when it arrives with bulk.
+  gBias(picks) {
+    const band = {};
+    (picks || []).forEach(p => {
+      const b = p.tags.indexOf("dense") >= 0 ? "dense"
+        : p.tags.indexOf("light") >= 0 ? "light" : "middling";
+      (band[b] || (band[b] = [])).push(p.err);
+    });
+    return Object.keys(band).map(b => {
+      const e = band[b], m = e.reduce((a, x) => a + x, 0) / e.length;
+      return { band: b, n: e.length, mean: m };
+    }).sort((a, b) => b.n - a.n);
+  }
   loadLib(k) {
     const cache = this._libs || (this._libs = {});
     if (cache[k]) return;
@@ -1298,6 +1415,7 @@ class Component extends DCLogic {
     const appDef = APPS.find(a => a.k === app);
     const live = k => k === "search";
     const setApp = k => () => {
+      if (k === "game") this.loadDeck();
       // Re-arm the mobile landing animation, which otherwise only ever plays on first load.
       if (k === "search" && !s.typed) this.setState({ tw: 0 });
       this.setState({ app: k, mOpen: null });
@@ -2756,6 +2874,7 @@ class Component extends DCLogic {
       },
       appHome: app === "home",
       appSoon: !!appDef && !live(app),
+      appSoonOrGameDesk: (!!appDef && !live(app) && !(app === "game" && s.narrow)),
       appTitle: appDef ? appDef.label : "",
       appNote: appDef ? appDef.note : "",
       tabsOn: app !== "home",
@@ -2827,6 +2946,40 @@ class Component extends DCLogic {
       },
       cardTop: { display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: ".6rem" },
       cardNote: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? ".95rem" : "1rem", lineHeight: 1.5, color: "#94a3b8", textWrap: "pretty" },
+      // The game is a single scrolling column: the photograph is the hero, and
+      // revealing an answer must feel like the same screen resolving rather than
+      // a new one arriving, so nothing above the options is allowed to move.
+      gWrap: {
+        flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column",
+        padding: "0 .8rem 2rem", boxSizing: "border-box"
+      },
+      gHead: {
+        display: "flex", alignItems: "baseline", justifyContent: "space-between",
+        padding: ".7rem .2rem .6rem", fontFamily: "var(--font-2)", fontSize: ".72rem",
+        letterSpacing: ".16em", color: "#7b91a3"
+      },
+      gHeadScore: { fontVariantNumeric: "tabular-nums", color: "#22d3ee" },
+      gWaitS: { display: "block", padding: "2.5rem .2rem", fontFamily: "var(--font-2)",
+        fontSize: ".76rem", letterSpacing: ".16em", color: "#5b7183" },
+      gResTag: { display: "block", padding: "1.6rem .2rem .3rem", fontFamily: "var(--font-2)",
+        fontSize: ".7rem", letterSpacing: ".18em", color: "#5b7183" },
+      gResScore: { display: "flex", alignItems: "baseline", gap: ".5rem", padding: "0 .2rem",
+        fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "2.4rem", color: "#eaf5fb",
+        fontVariantNumeric: "tabular-nums" },
+      gResOf: { fontFamily: "var(--font-2)", fontSize: ".74rem", letterSpacing: ".14em", color: "#7b91a3" },
+      gResPts: { display: "block", padding: ".5rem .2rem 1.4rem", fontFamily: "var(--font-2)",
+        fontSize: ".72rem", letterSpacing: ".12em", color: "#5b7183" },
+      // Signed error, not correctness: every round sits on the side of the truth
+      // it fell on, so the shape of the bias is visible before it is described.
+      gAxisLab: { display: "flex", justifyContent: "space-between", padding: "0 .2rem .4rem",
+        fontFamily: "var(--font-2)", fontSize: ".64rem", letterSpacing: ".14em", color: "#54677a" },
+      gAxis: { position: "relative", display: "block", height: "2.6rem", margin: "0 .2rem",
+        borderTop: "1px solid rgba(215,230,239,.10)", borderBottom: "1px solid rgba(215,230,239,.10)" },
+      gAxisMid: { position: "absolute", left: "50%", top: 0, bottom: 0, width: "1px",
+        background: "rgba(34,211,238,.45)" },
+      gLinesWrap: { display: "block", padding: "1.3rem .2rem .4rem" },
+      gCredit: { display: "block", padding: "1.4rem .2rem 0", fontFamily: "var(--font-1)",
+        fontWeight: 300, fontSize: ".8rem", lineHeight: 1.5, color: "#54677a", textWrap: "pretty" },
       aboutWrap: {
         flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column",
         alignItems: "flex-start", justifyContent: "flex-start", gap: ".6rem",
@@ -2842,6 +2995,9 @@ class Component extends DCLogic {
       // Each line arrives in turn. The two keyframes are identical and picked by which
       // app is open, because switching tabs keeps the same DOM node — only a change of
       // animation-name restarts it.
+      soonJoinText: app === "game"
+        ? "Playable on a phone today; the wider screen is still being built. Follow along, or come and build it."
+        : "Being built in the open. Follow along, or come and build it.",
       soonJoin: Object.assign({ maxWidth: "38ch", marginTop: s.narrow ? ".5rem" : ".7rem",
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1rem" : ".98rem",
         lineHeight: 1.55, color: "#7b91a3", textWrap: "pretty" }, soonIn(320)),
@@ -2862,6 +3018,143 @@ class Component extends DCLogic {
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1.06rem" : "1.05rem",
         lineHeight: 1.55, color: "#94a3b8", textWrap: "pretty" }, soonIn(220)),
       isResults: s.view === "results" && app === "search", isSettings: s.view === "settings", isSignin: s.view === "signin",
+      // ---- calorie game ----------------------------------------------------
+      appGame: app === "game" && s.narrow,
+      gameSoon: app === "game" && !s.narrow,
+      ...(() => {
+        if (app !== "game" || !s.narrow) return {};
+        const picks = s.gPicks || [], i = s.gI || 0, sel = s.gSel;
+        const r = this.gRound(i);
+        const done = i >= 10 || (!r && picks.length >= 10);
+        const ready = !!(this._deck && r);
+        const kcal = r ? r.kcal : 0;
+        const fmt = n => String(Math.round(n));
+        const revealed = sel !== null;
+        const A = (ms, d) => ({ animation: "od-soon-a 380ms cubic-bezier(.22,1,.36,1) " + d + "ms both" });
+        return {
+          gReady: ready && !done, gDone: done && picks.length > 0,
+          gWaiting: !ready && !done, gFailed: !!s.gFailed,
+          gRoundLabel: "ROUND " + Math.min(i + 1, 10) + " OF 10",
+          gPhoto: r ? DATA + "game/img/" + r.dish.id + ".jpg" : "",
+          gPhotoBox: {
+            position: "relative", flex: "none", width: "100%", aspectRatio: "4 / 3",
+            overflow: "hidden", background: "#0a1016",
+            border: "1px solid rgba(34,211,238,.14)"
+          },
+          gPhotoImg: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
+          gAsk: revealed ? "" : "HOW MANY CALORIES?",
+          // One slot, two states. Reserving the taller one keeps the options
+          // still when the answer arrives — the reveal is this screen resolving,
+          // not a new screen.
+          gSlot: { flex: "none", display: "flex", flexDirection: "column",
+            justifyContent: "center", minHeight: "4.6rem", padding: ".2rem .2rem .55rem" },
+          gAskS: { display: "block", fontFamily: "var(--font-2)",
+            fontSize: ".76rem", letterSpacing: ".16em", color: "#7b91a3" },
+          gOpts: (r ? r.opts : []).map((o, k) => {
+            const chosen = sel === k, right = !!o.truth;
+            const face = !revealed ? "#d7e6ef" : right ? "#7ee0a8" : chosen ? "#f08c7a" : "#54677a";
+            return {
+              label: fmt(o.lo) + " – " + fmt(o.hi),
+              onClick: () => this.gPickOpt(k),
+              mark: !revealed ? "" : right ? "\u2713" : chosen ? "\u2715" : "",
+              markS: { flex: "none", width: "1.2rem", textAlign: "right",
+                fontSize: ".95rem", color: right ? "#7ee0a8" : "#f08c7a" },
+              style: {
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                gap: ".6rem", width: "100%", boxSizing: "border-box",
+                minHeight: "3.1rem", padding: "0 .85rem", marginBottom: ".45rem",
+                borderRadius: 0, cursor: revealed ? "default" : "pointer", textAlign: "left",
+                border: "1px solid " + (!revealed ? "rgba(34,211,238,.28)"
+                  : right ? "rgba(126,224,168,.55)" : chosen ? "rgba(240,140,122,.5)" : "rgba(34,211,238,.10)"),
+                background: !revealed ? "transparent"
+                  : right ? "rgba(126,224,168,.10)" : chosen ? "rgba(240,140,122,.08)" : "transparent",
+                color: face, fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.06rem",
+                fontVariantNumeric: "tabular-nums",
+                transition: "border-color 260ms ease, background 260ms ease, color 260ms ease"
+              },
+              unitS: { fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".1em",
+                color: revealed && !right && !chosen ? "#3f5364" : "#7b91a3" }
+            };
+          }),
+          gRevealed: revealed,
+          gTruth: r ? fmt(kcal) : "",
+          gTruthG: r ? fmt(r.dish.g) : "",
+          gTruthS: Object.assign({ display: "flex", alignItems: "baseline", gap: ".45rem",
+            fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1.9rem", color: "#eaf5fb", fontVariantNumeric: "tabular-nums" }, A(0, 40)),
+          gTruthUnit: { fontFamily: "var(--font-2)", fontSize: ".8rem", letterSpacing: ".12em", color: "#7b91a3" },
+          gVerdict: !revealed ? "" : picks.length && picks[picks.length - 1].hit ? "CORRECT"
+            : (picks.length && picks[picks.length - 1].err < 0 ? "YOU WENT UNDER" : "YOU WENT OVER"),
+          gVerdictS: Object.assign({ paddingTop: ".3rem", fontFamily: "var(--font-2)", fontSize: ".72rem",
+            letterSpacing: ".16em",
+            color: picks.length && picks[picks.length - 1] && picks[picks.length - 1].hit ? "#7ee0a8" : "#f08c7a" }, A(0, 40)),
+          gBreakLab: "WHERE IT CAME FROM",
+          gBreakLabS: Object.assign({ display: "block", padding: "1rem 0 .5rem",
+            fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".16em",
+            color: "#7b91a3" }, A(0, 160)),
+          gBreak: (revealed && r ? r.dish.top : []).map((x, k) => ({
+            name: String(x[0]).toUpperCase(), g: fmt(x[1]) + " g", kcal: fmt(x[2]),
+            share: Math.round(x[3] * 100) + "%",
+            row: Object.assign({ position: "relative", display: "grid",
+              gridTemplateColumns: "minmax(0,1fr) 3.2rem 3.2rem 2.6rem", columnGap: ".4rem",
+              alignItems: "center", minHeight: "2.4rem", padding: "0 .2rem",
+              borderTop: k ? "1px solid rgba(215,230,239,.08)" : "0" }, A(0, 200 + k * 70)),
+            fill: { position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)",
+              height: "1.7rem", width: Math.round(x[3] * 100) + "%",
+              background: "rgba(34,211,238,.10)" },
+            nameS: { position: "relative", minWidth: 0, overflow: "hidden",
+              textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: "var(--font-2)",
+              fontSize: ".8rem", letterSpacing: ".08em", color: "#c7d6e0" },
+            gS: { position: "relative", textAlign: "right", fontWeight: 300,
+              fontSize: ".95rem", color: "#8ba0ad", fontVariantNumeric: "tabular-nums" },
+            kS: { position: "relative", textAlign: "right", fontWeight: 300,
+              fontSize: ".95rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums" },
+            shS: { position: "relative", textAlign: "right", fontFamily: "var(--font-2)",
+              fontSize: ".76rem", letterSpacing: ".04em", color: "#22d3ee",
+              fontVariantNumeric: "tabular-nums" }
+          })),
+          gBreakHead: { display: "grid", gridTemplateColumns: "minmax(0,1fr) 3.2rem 3.2rem 2.6rem",
+            columnGap: ".4rem", padding: "0 .2rem .3rem", fontFamily: "var(--font-2)",
+            fontSize: ".64rem", letterSpacing: ".12em", color: "#54677a" },
+          gBreakHeadR: { textAlign: "right" },
+          gNextLabel: i >= 9 ? "SEE RESULTS" : "NEXT PLATE",
+          gNext: () => this.gNext(),
+          gNextS: Object.assign({ display: "flex", alignItems: "center",
+            justifyContent: "center", width: "100%", boxSizing: "border-box",
+            minHeight: "3rem", margin: "1.1rem 0 .4rem", padding: "0 1rem",
+            border: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
+            background: "rgba(34,211,238,.08)", cursor: "pointer",
+            fontFamily: "var(--font-2)", fontSize: ".82rem", letterSpacing: ".16em",
+            color: "#22d3ee" }, A(0, 320)),
+          // ---- results -------------------------------------------------------
+          gHits: String(picks.filter(p => p.hit).length),
+          gScore: String(picks.reduce((a, p) => a + p.score, 0)),
+          gDots: picks.map((p, k) => ({
+            style: {
+              // Each round as a mark either side of the truth, so the shape of
+              // the error is visible before any sentence explains it.
+              position: "absolute", top: (26 + (k % 5) * 12) + "%", width: "9px", height: "9px",
+              marginTop: "-4.5px", marginLeft: "-4.5px", borderRadius: "50%",
+              left: (50 + Math.max(-46, Math.min(46, p.err * 45))) + "%",
+              background: p.hit ? "#7ee0a8" : "rgba(240,140,122,.85)"
+            }
+          })),
+          gLines: this.gBias(picks).map(b => {
+            const pct = Math.round(Math.abs(b.mean) * 100);
+            const dir = b.mean < 0 ? "under" : "over";
+            return {
+              text: pct < 10
+                ? "You read " + b.band + " plates well."
+                : "You " + dir + "estimate " + b.band + " plates by about " + pct + "%.",
+              style: { display: "block", padding: ".2rem 0",
+                fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.05rem",
+                lineHeight: 1.5, color: pct < 10 ? "#7b91a3" : "#d7e6ef", textWrap: "pretty" }
+            };
+          }),
+          gAgain: () => this.gStart(false),
+          gDeckNote: this._deck ? this._deck.note : ""
+        };
+      })(),
       appAbout: app === "about",
       openAbout: () => this.setState({ app: "about", mOpen: null }),
       stopProp: e => e.stopPropagation(),
