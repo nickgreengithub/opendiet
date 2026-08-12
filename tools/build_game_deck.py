@@ -116,6 +116,73 @@ def tag(d, light_at, dense_at):
     return tags, round(dens, 3)
 
 
+def plate_box(dep, w, h):
+    """Where the plate is, from the dish's own depth map.
+
+    The turntable is whatever depth most pixels share; the plate and the food
+    stand proud of it. Reading the box per dish rather than cropping to a fixed
+    rectangle is what makes the zoom safe — no two plates sit in quite the same
+    place. The box is drawn around the plate and not the food, because the plate
+    is the size reference the whole guess rests on.
+    """
+    import collections
+    px = dep.load()
+    hist = collections.Counter()
+    for y in range(0, h, 3):
+        for x in range(0, w, 3):
+            v = px[x, y]
+            if 1000 < v < 20000:
+                hist[v // 25 * 25] += 1
+    if not hist:
+        return None
+    table = hist.most_common(1)[0][0]
+    thr = table - 60  # about 6mm proud: enough to catch the rim of the plate
+    xs, ys = [], []
+    for y in range(0, h, 2):
+        for x in range(0, w, 2):
+            v = px[x, y]
+            if 1000 < v < thr:
+                xs.append(x)
+                ys.append(y)
+    if len(xs) < 200:
+        return None
+    xs.sort()
+    ys.sort()
+    # Trim the outer 2% so one stray reading on the rig cannot drag the box out.
+    k = max(1, len(xs) // 50)
+    return xs[k], ys[k], xs[-k], ys[-k]
+
+
+def framed(rgb, dep, out_w, out_h):
+    """Crop to the plate at the output's aspect, then lift the exposure.
+
+    The RealSense underexposes — across the deck the 99th percentile of luma
+    sits near 215 of 255, where a well-exposed frame reaches 250 — and the dark
+    rig around the plate was doing the rest of the damage. Cropping removes most
+    of the gloom; the level stretch takes care of what is left.
+    """
+    from PIL import Image, ImageEnhance, ImageOps
+    w, h = rgb.size
+    box = plate_box(dep, w, h) if dep else None
+    if box:
+        x0, y0, x1, y1 = box
+        cx, cy = (x0 + x1) / 2.0, (y0 + y1) / 2.0
+        bw, bh = (x1 - x0) * 1.10, (y1 - y0) * 1.10   # a little air around the rim
+        ar = out_w / float(out_h)
+        cw = max(bw, bh * ar)
+        ch = cw / ar
+        if ch < bh:
+            ch = bh
+            cw = ch * ar
+        cw, ch = min(cw, w), min(ch, h)
+        x = max(0, min(w - cw, cx - cw / 2))
+        y = max(0, min(h - ch, cy - ch / 2))
+        rgb = rgb.crop((int(x), int(y), int(x + cw), int(y + ch)))
+    rgb = rgb.resize((out_w, out_h), Image.LANCZOS)
+    rgb = ImageOps.autocontrast(rgb, cutoff=(0.4, 0.6))
+    return ImageEnhance.Brightness(rgb).enhance(1.06)
+
+
 def top_ingredients(d, n=3):
     """The two or three that dominate, as a share of the total."""
     ranked = sorted(d["ingr"], key=lambda x: -x["kcal"])[:n]
@@ -181,13 +248,16 @@ def main():
         dest = os.path.join(img_dir, d["id"] + ".jpg")
         # A second run only re-reads the numbers; the photographs stay put.
         if not os.path.exists(dest):
+            base = "%s/imagery/realsense_overhead/%s/" % (BUCKET, d["id"])
             try:
-                im = Image.open(io.BytesIO(fetch("%s/imagery/realsense_overhead/%s/rgb.png"
-                                                % (BUCKET, d["id"]), tries=2))).convert("RGB")
+                im = Image.open(io.BytesIO(fetch(base + "rgb.png", tries=2))).convert("RGB")
             except Exception:
                 continue
-            if im.width > a.width:
-                im.thumbnail((a.width, a.width), Image.LANCZOS)
+            try:
+                dep = Image.open(io.BytesIO(fetch(base + "depth_raw.png", tries=2)))
+            except Exception:
+                dep = None
+            im = framed(im, dep, a.width, int(a.width * 3 / 4))
             im.save(dest, "JPEG", quality=a.quality, optimize=True, progressive=True)
             if len(chosen) % 20 == 0:
                 print("  %d photographs" % len(chosen), flush=True)
@@ -203,8 +273,17 @@ def main():
         # The macro shares stay out of the deck deliberately: Nutrition5k's
         # per-macro figures do not always agree with the plate's own total, so
         # they are sound enough to sort plates by and not sound enough to show.
+        # Names only, and every one of them: the player is told what is on the
+        # plate and asked to judge how much of it there is.
+        names, seen = [], set()
+        for x in sorted(d["ingr"], key=lambda y: -y["kcal"]):
+            nm = x["name"]
+            if nm not in seen:
+                seen.add(nm)
+                names.append(nm)
         deck.append({"id": d["id"], "kcal": round(d["kcal"]), "g": round(d["g"]),
-                     "dens": dens, "tags": tags, "top": top_ingredients(d)})
+                     "dens": dens, "tags": tags, "top": top_ingredients(d),
+                     "of": names[:9]})
 
     deck.sort(key=lambda x: x["kcal"])
     out = {

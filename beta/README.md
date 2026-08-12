@@ -26,21 +26,24 @@ What is different from the root:
   right-hand corner. The launcher screen it replaces is gone from both, and ABOUT is a
   page in the same language as the unbuilt ones rather than a dialog over the top: it
   lights its tab like any other, and Escape returns to the search.
-- CALORIE GAME is built, on a phone. A photograph of a real plate, three calorie ranges,
-  then the number and a breakdown of where it came from. The distractors are ratios of the
-  truth rather than numbers near it (×2, ×1.4, ×1.2 as the rounds harden), so the spread
-  scales with the plate and every option is ±15% of its own centre — at the hard ratio
-  that is exactly tight enough that only the true option contains the truth, and the
-  widths never leak which one it is. Options always run in ascending order. Scoring is
-  distance-weighted, because how far out you were is the thing worth knowing, and the
-  direction of every miss is kept. The results screen is the point of the whole thing: not
-  a bar chart of correctness but each round plotted on the side of the truth it fell on,
-  and a sentence per density band — you underestimate light plates by about 39%. Density
-  is the axis because a calorie is easy to see when it arrives with bulk and invisible
-  when it does not; the bands are the deck's own tertiles, so each holds a third.
-  Revealing an answer moves nothing above the options: the question and the answer share
-  one slot of reserved height, and the photograph is `flex: none` because a flex column
-  will otherwise shrink it the moment the breakdown appears.
+- CALORIE GAME is built, on a phone. A photograph of a real plate, what is on it named
+  but not weighed, and five calorie figures to choose between. Naming the contents is the
+  point: the player is not asked what the food is, but how much of it there is. The
+  figures are a ladder — each step a fixed ratio, so it widens with the plate rather than
+  sitting a flat number either side — and the truth is planted at a position drawn from
+  the dish itself, so the answer is as likely to be the lowest figure as the highest.
+  Only the positions that leave every figure a believable plate are allowed: a ladder
+  running four steps up from 950 kcal ends at 4820, which is not food anyone was served,
+  and a figure nobody could believe gives the answer away as surely as a label would.
+  Scoring is distance-weighted and the miss is kept in calories as well as proportion.
+- Nothing about the game scrolls. The column fills the screen with `overflow: hidden` and
+  the photograph is the flexible element, so it takes whatever room the rest does not and
+  gives it back when the breakdown arrives. Answering closes the five figures from a
+  stack into one scale, which frees the height the breakdown needs — and the scale is
+  the better reading of the reveal anyway, since it shows the guess next to the truth.
+  The results screen leads with calories rather than a tally: ten plates read this way,
+  and what that came to. Underneath, each round sits on the side of the truth it fell on
+  and a sentence per density band says which plates the eye is wrong about.
 - The deck is prepared offline by `tools/build_game_deck.py` from Nutrition5k (Thames et
   al., CVPR 2021, CC BY 4.0) — 140 plates whose ingredient calories agree with their own
   total to within 6%, spread across the calorie range, with their overhead photographs

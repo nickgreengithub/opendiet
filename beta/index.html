@@ -190,7 +190,7 @@ option{background:#070b12;color:#d7e6ef}
   </div>
   </sc-if>
   <sc-if value="{{ appGame }}" hint-placeholder-val="{{ false }}">
-  <div data-gscroll style="{{ gWrap }}">
+  <div style="{{ gWrap }}">
     <sc-if value="{{ gWaiting }}" hint-placeholder-val="{{ false }}">
       <span style="{{ gWaitS }}">LOADING PLATES</span>
     </sc-if>
@@ -198,36 +198,34 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ gWaitS }}">THE DECK DID NOT LOAD. TRY AGAIN LATER.</span>
     </sc-if>
     <sc-if value="{{ gReady }}" hint-placeholder-val="{{ true }}">
-      <span style="{{ gHead }}"><span>{{ gRoundLabel }}</span><span style="{{ gHeadScore }}">{{ gScore }}</span></span>
+      <span style="{{ gHead }}"><span>{{ gRoundLabel }}</span><span style="{{ gHeadScore }}">{{ gHits }} EXACT</span></span>
       <span style="{{ gPhotoBox }}"><img src="{{ gPhoto }}" alt="A plated meal photographed from above" style="{{ gPhotoImg }}"></span>
-      <span style="{{ gSlot }}">
-        <sc-if value="{{ gRevealed }}" hint-placeholder-val="{{ false }}">
-          <span style="{{ gTruthS }}">{{ gTruth }}<span style="{{ gTruthUnit }}">KCAL</span><span style="{{ gTruthUnit }}">·</span>{{ gTruthG }}<span style="{{ gTruthUnit }}">G</span></span>
-          <span style="{{ gVerdictS }}">{{ gVerdict }}</span>
-        </sc-if>
-        <sc-if value="{{ gAsk }}" hint-placeholder-val="{{ true }}"><span style="{{ gAskS }}">{{ gAsk }}</span></sc-if>
+      <span style="{{ gOfS }}">{{ gOf }}</span>
+      <sc-if value="{{ gAsk }}" hint-placeholder-val="{{ true }}"><span style="{{ gAskS }}">{{ gAsk }}</span></sc-if>
+      <span style="{{ gOptsWrap }}">
+        <sc-for list="{{ gOpts }}" as="o" hint-placeholder-count="5">
+          <button onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</button>
+        </sc-for>
       </span>
-      <sc-for list="{{ gOpts }}" as="o" hint-placeholder-count="3">
-        <button onClick="{{ o.onClick }}" style="{{ o.style }}"><span>{{ o.label }}<span style="{{ o.unitS }}"> KCAL</span></span><span style="{{ o.markS }}">{{ o.mark }}</span></button>
-      </sc-for>
       <sc-if value="{{ gRevealed }}" hint-placeholder-val="{{ false }}">
+        <span style="{{ gTruthS }}">{{ gTruth }}<span style="{{ gTruthUnit }}">KCAL</span><span style="{{ gTruthUnit }}">·</span>{{ gTruthG }}<span style="{{ gTruthUnit }}">G</span></span>
+        <span style="{{ gVerdictS }}">{{ gVerdict }}</span>
         <span style="{{ gBreakLabS }}">{{ gBreakLab }}</span>
-        <span style="{{ gBreakHead }}"><span></span><span style="{{ gBreakHeadR }}">GRAMS</span><span style="{{ gBreakHeadR }}">KCAL</span><span style="{{ gBreakHeadR }}">SHARE</span></span>
         <sc-for list="{{ gBreak }}" as="x" hint-placeholder-count="3">
-          <span style="{{ x.row }}"><span style="{{ x.fill }}"></span><span style="{{ x.nameS }}">{{ x.name }}</span><span style="{{ x.gS }}">{{ x.g }}</span><span style="{{ x.kS }}">{{ x.kcal }}</span><span style="{{ x.shS }}">{{ x.share }}</span></span>
+          <span style="{{ x.row }}"><span style="{{ x.fill }}"></span><span style="{{ x.nameS }}">{{ x.name }}</span><span style="{{ x.kS }}">{{ x.kcal }}</span><span style="{{ x.shS }}">{{ x.share }}</span></span>
         </sc-for>
         <button onClick="{{ gNext }}" style="{{ gNextS }}">{{ gNextLabel }}</button>
       </sc-if>
     </sc-if>
     <sc-if value="{{ gDone }}" hint-placeholder-val="{{ false }}">
       <span style="{{ gResTag }}">TEN PLATES</span>
-      <span style="{{ gResScore }}">{{ gHits }}<span style="{{ gResOf }}">/ 10 READ CORRECTLY</span></span>
-      <span style="{{ gResPts }}">{{ gScore }} POINTS, WEIGHTED BY HOW FAR OUT YOU WERE</span>
+      <span style="{{ gTotS }}">{{ gTotOff }}</span>
+      <span style="{{ gResPts }}">{{ gTotWord }}</span>
       <span style="{{ gAxisLab }}"><span>UNDER</span><span>ACTUAL</span><span>OVER</span></span>
       <span style="{{ gAxis }}"><span style="{{ gAxisMid }}"></span><sc-for list="{{ gDots }}" as="d" hint-placeholder-count="10"><span style="{{ d.style }}"></span></sc-for></span>
       <span style="{{ gLinesWrap }}"><sc-for list="{{ gLines }}" as="l" hint-placeholder-count="3"><span style="{{ l.style }}">{{ l.text }}</span></sc-for></span>
       <button onClick="{{ gAgain }}" style="{{ gNextS }}">PLAY AGAIN</button>
-      <span style="{{ gCredit }}">{{ gDeckNote }} Photographs and measurements from Nutrition5k — Thames et al., CVPR 2021, CC BY 4.0.</span>
+      <span style="{{ gCredit }}">{{ gDeckNote }} Nutrition5k — Thames et al., CVPR 2021, CC BY 4.0.</span>
     </sc-if>
   </div>
   </sc-if>
@@ -824,30 +822,40 @@ class Component extends DCLogic {
     if (quiet) Object.assign(this.state, patch); else this.setState(patch);
     if (quiet) this.setState({ gLoaded: true });
   }
-  // The three ranges. Distractors are ratios of the truth rather than numbers
-  // near it, so the spread scales with the plate and the widths never leak which
-  // one is right: every option is +/-15% of its own centre. At the hard ratio
-  // that is exactly tight enough that only the true option contains the truth.
+  // Five figures on a scale, not three ranges. Each step is a fixed ratio, so
+  // the ladder widens with the plate rather than sitting a flat number either
+  // side of it, and the truth is planted at a position derived from the dish
+  // itself — the same plate always sits the same way, but across a round the
+  // answer is as likely to be the lowest figure as the highest.
   gRound(i) {
     const deck = this._deck && this._deck.dishes, order = this.state.gOrder || [];
     if (!deck || order[i] === undefined) return null;
     const dish = deck[order[i]];
-    // Three easy, four medium, three hard.
-    const ratio = i < 3 ? 2 : i < 7 ? 1.4 : 1.2;
+    const ratio = i < 3 ? 1.5 : i < 7 ? 1.32 : 1.2;
+    let h = 0;
+    for (let k = 0; k < dish.id.length; k++) h = (h * 31 + dish.id.charCodeAt(k)) % 100003;
     const t = dish.kcal;
-    const centres = [t / ratio, t, t * ratio];
-    const band = c => [Math.round(c * 0.85 / 5) * 5, Math.round(c * 1.15 / 5) * 5];
-    const opts = centres.map((c, k) => ({ c: c, lo: band(c)[0], hi: band(c)[1], truth: k === 1 }));
-    return { dish: dish, opts: opts, ratio: ratio, kcal: t };
+    // Where the truth sits is drawn from the dish, but only from the positions
+    // that leave every figure a plausible plate. A ladder running four steps up
+    // from 950 kcal ends at 4820, which is not food anyone was served — and a
+    // figure nobody could believe gives the answer away as surely as a label.
+    const L = Math.log(ratio);
+    const up = Math.floor(Math.log(1300 / t) / L), down = Math.floor(Math.log(t / 55) / L);
+    const lo = Math.max(0, 4 - Math.max(0, up)), hi = Math.min(4, Math.max(0, down));
+    const at = hi <= lo ? lo : lo + (h % (hi - lo + 1));
+    const step = n => Math.round(t * Math.pow(ratio, n) / 5) * 5;
+    const opts = [0, 1, 2, 3, 4].map(j => ({ v: j === at ? t : step(j - at), truth: j === at }));
+    return { dish: dish, opts: opts, ratio: ratio, kcal: t, at: at };
   }
-  // Distance-weighted rather than right or wrong: the near miss costs less than
-  // the wild one, and how far out you were is the thing worth knowing.
+  // Distance-weighted rather than right or wrong, and the miss is kept in
+  // calories as well as proportion — how many calories a day of this would cost
+  // is the thing the player came for.
   gPickOpt(k) {
     if (this.state.gSel !== null) return;
     const r = this.gRound(this.state.gI);
     if (!r) return;
-    const o = r.opts[k], err = (o.c - r.kcal) / r.kcal;
-    const pick = { k: k, err: err, hit: !!o.truth,
+    const o = r.opts[k], off = o.v - r.kcal, err = off / r.kcal;
+    const pick = { k: k, err: err, off: off, hit: !!o.truth,
       score: Math.round(100 * Math.max(0, 1 - Math.abs(err))),
       tags: r.dish.tags, kcal: r.kcal };
     this.setState(s => ({ gSel: k, gPicks: (s.gPicks || []).concat([pick]) }));
@@ -2933,24 +2941,24 @@ class Component extends DCLogic {
       // revealing an answer must feel like the same screen resolving rather than
       // a new one arriving, so nothing above the options is allowed to move.
       gWrap: {
-        flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column",
-        padding: "0 .8rem 2rem", boxSizing: "border-box"
+        flex: 1, minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column",
+        padding: "0 .7rem .7rem", boxSizing: "border-box"
       },
       gHead: {
-        display: "flex", alignItems: "baseline", justifyContent: "space-between",
-        padding: ".7rem .2rem .6rem", fontFamily: "var(--font-2)", fontSize: ".72rem",
-        letterSpacing: ".16em", color: "#7b91a3"
+        flex: "none", display: "flex", alignItems: "baseline", justifyContent: "space-between",
+        padding: ".35rem .15rem .45rem", fontFamily: "var(--font-2)", fontSize: ".68rem",
+        letterSpacing: ".14em", color: "#7b91a3"
       },
       gHeadScore: { fontVariantNumeric: "tabular-nums", color: "#22d3ee" },
       gWaitS: { display: "block", padding: "2.5rem .2rem", fontFamily: "var(--font-2)",
         fontSize: ".76rem", letterSpacing: ".16em", color: "#5b7183" },
-      gResTag: { display: "block", padding: "1.6rem .2rem .3rem", fontFamily: "var(--font-2)",
+      gResTag: { display: "block", padding: "1.1rem .15rem .3rem", fontFamily: "var(--font-2)",
         fontSize: ".7rem", letterSpacing: ".18em", color: "#5b7183" },
       gResScore: { display: "flex", alignItems: "baseline", gap: ".5rem", padding: "0 .2rem",
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "2.4rem", color: "#eaf5fb",
         fontVariantNumeric: "tabular-nums" },
       gResOf: { fontFamily: "var(--font-2)", fontSize: ".74rem", letterSpacing: ".14em", color: "#7b91a3" },
-      gResPts: { display: "block", padding: ".5rem .2rem 1.4rem", fontFamily: "var(--font-2)",
+      gResPts: { display: "block", padding: ".45rem .15rem 1.2rem", fontFamily: "var(--font-2)",
         fontSize: ".72rem", letterSpacing: ".12em", color: "#5b7183" },
       // Signed error, not correctness: every round sits on the side of the truth
       // it fell on, so the shape of the bias is visible before it is described.
@@ -3003,135 +3011,127 @@ class Component extends DCLogic {
       isResults: s.view === "results" && app === "search", isSettings: s.view === "settings", isSignin: s.view === "signin",
       // ---- calorie game ----------------------------------------------------
       appGame: app === "game" && s.narrow,
-      gameSoon: app === "game" && !s.narrow,
       ...(() => {
         if (app !== "game" || !s.narrow) return {};
         const picks = s.gPicks || [], i = s.gI || 0, sel = s.gSel;
         const r = this.gRound(i);
         const done = i >= 10 || (!r && picks.length >= 10);
         const ready = !!(this._deck && r);
-        const kcal = r ? r.kcal : 0;
         const fmt = n => String(Math.round(n));
         const revealed = sel !== null;
-        const A = (ms, d) => ({ animation: "od-soon-a 380ms cubic-bezier(.22,1,.36,1) " + d + "ms both" });
+        const last = picks.length ? picks[picks.length - 1] : null;
+        const A = (d) => ({ animation: "od-soon-a 340ms cubic-bezier(.22,1,.36,1) " + d + "ms both" });
+        const totOff = picks.reduce((x, p) => x + p.off, 0);
         return {
           gReady: ready && !done, gDone: done && picks.length > 0,
           gWaiting: !ready && !done, gFailed: !!s.gFailed,
-          gRoundLabel: "ROUND " + Math.min(i + 1, 10) + " OF 10",
+          gRoundLabel: "PLATE " + Math.min(i + 1, 10) + " OF 10",
           gPhoto: r ? DATA + "game/img/" + r.dish.id + ".jpg" : "",
-          gPhotoBox: {
-            position: "relative", flex: "none", width: "100%", aspectRatio: "4 / 3",
-            overflow: "hidden", background: "#0a1016",
-            border: "1px solid rgba(34,211,238,.14)"
-          },
           gPhotoImg: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
-          gAsk: revealed ? "" : "HOW MANY CALORIES?",
-          // One slot, two states. Reserving the taller one keeps the options
-          // still when the answer arrives — the reveal is this screen resolving,
-          // not a new screen.
-          gSlot: { flex: "none", display: "flex", flexDirection: "column",
-            justifyContent: "center", minHeight: "4.6rem", padding: ".2rem .2rem .55rem" },
-          gAskS: { display: "block", fontFamily: "var(--font-2)",
-            fontSize: ".76rem", letterSpacing: ".16em", color: "#7b91a3" },
+          // The photograph takes whatever room the rest does not, so the screen
+          // never scrolls and the food is still as large as it can be.
+          gPhotoBox: { position: "relative", flex: "1 1 auto", minHeight: "34vh",
+            overflow: "hidden", background: "#0a1016",
+            border: "1px solid rgba(34,211,238,.14)" },
+          // What is on the plate, named but not weighed: the player is told what
+          // they are looking at and asked to judge how much of it there is.
+          gOf: r ? r.dish.of.join("  ·  ").toUpperCase() : "",
+          gOfS: { flex: "none", display: "block", maxHeight: "2.6rem", overflow: "hidden",
+            padding: ".5rem .1rem .55rem", fontFamily: "var(--font-2)", fontSize: ".68rem",
+            letterSpacing: ".08em", lineHeight: 1.5, color: "#8ba0ad" },
           gOpts: (r ? r.opts : []).map((o, k) => {
             const chosen = sel === k, right = !!o.truth;
-            const face = !revealed ? "#d7e6ef" : right ? "#7ee0a8" : chosen ? "#f08c7a" : "#54677a";
             return {
-              label: fmt(o.lo) + " – " + fmt(o.hi),
+              label: fmt(o.v),
               onClick: () => this.gPickOpt(k),
-              mark: !revealed ? "" : right ? "\u2713" : chosen ? "\u2715" : "",
-              markS: { flex: "none", width: "1.2rem", textAlign: "right",
-                fontSize: ".95rem", color: right ? "#7ee0a8" : "#f08c7a" },
               style: {
-                display: "flex", alignItems: "center", justifyContent: "space-between",
-                gap: ".6rem", width: "100%", boxSizing: "border-box",
-                minHeight: "3.1rem", padding: "0 .85rem", marginBottom: ".45rem",
-                borderRadius: 0, cursor: revealed ? "default" : "pointer", textAlign: "left",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                flex: "1 1 0", minWidth: 0, boxSizing: "border-box",
+                height: revealed ? "2.5rem" : "2.9rem", borderRadius: 0,
+                cursor: revealed ? "default" : "pointer",
                 border: "1px solid " + (!revealed ? "rgba(34,211,238,.28)"
-                  : right ? "rgba(126,224,168,.55)" : chosen ? "rgba(240,140,122,.5)" : "rgba(34,211,238,.10)"),
+                  : right ? "rgba(126,224,168,.7)" : chosen ? "rgba(240,140,122,.6)" : "rgba(34,211,238,.10)"),
                 background: !revealed ? "transparent"
-                  : right ? "rgba(126,224,168,.10)" : chosen ? "rgba(240,140,122,.08)" : "transparent",
-                color: face, fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.06rem",
-                fontVariantNumeric: "tabular-nums",
-                transition: "border-color 260ms ease, background 260ms ease, color 260ms ease"
-              },
-              unitS: { fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".1em",
-                color: revealed && !right && !chosen ? "#3f5364" : "#7b91a3" }
+                  : right ? "rgba(126,224,168,.12)" : chosen ? "rgba(240,140,122,.10)" : "transparent",
+                color: !revealed ? "#d7e6ef" : right ? "#7ee0a8" : chosen ? "#f08c7a" : "#54677a",
+                fontFamily: "var(--font-1)", fontWeight: 300,
+                fontSize: revealed ? ".95rem" : "1.05rem", fontVariantNumeric: "tabular-nums",
+                transition: "border-color 240ms ease, background 240ms ease, color 240ms ease, height 240ms ease"
+              }
             };
           }),
+          // Before answering the figures stack, each an easy target; after, they
+          // close into one scale so the breakdown has the room.
+          gOptsWrap: { flex: "none", display: "flex",
+            flexDirection: revealed ? "row" : "column", gap: revealed ? ".3rem" : ".4rem" },
+          gAsk: revealed ? "" : "HOW MANY CALORIES?",
+          gAskS: { flex: "none", display: "block", padding: ".1rem .1rem .5rem",
+            fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".16em", color: "#7b91a3" },
           gRevealed: revealed,
-          gTruth: r ? fmt(kcal) : "",
+          gTruth: r ? fmt(r.kcal) : "",
           gTruthG: r ? fmt(r.dish.g) : "",
-          gTruthS: Object.assign({ display: "flex", alignItems: "baseline", gap: ".45rem",
-            fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: "1.9rem", color: "#eaf5fb", fontVariantNumeric: "tabular-nums" }, A(0, 40)),
-          gTruthUnit: { fontFamily: "var(--font-2)", fontSize: ".8rem", letterSpacing: ".12em", color: "#7b91a3" },
-          gVerdict: !revealed ? "" : picks.length && picks[picks.length - 1].hit ? "CORRECT"
-            : (picks.length && picks[picks.length - 1].err < 0 ? "YOU WENT UNDER" : "YOU WENT OVER"),
-          gVerdictS: Object.assign({ paddingTop: ".3rem", fontFamily: "var(--font-2)", fontSize: ".72rem",
-            letterSpacing: ".16em",
-            color: picks.length && picks[picks.length - 1] && picks[picks.length - 1].hit ? "#7ee0a8" : "#f08c7a" }, A(0, 40)),
-          gBreakLab: "WHERE IT CAME FROM",
-          gBreakLabS: Object.assign({ display: "block", padding: "1rem 0 .5rem",
-            fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".16em",
-            color: "#7b91a3" }, A(0, 160)),
+          gTruthS: Object.assign({ flex: "none", display: "flex", alignItems: "baseline",
+            gap: ".4rem", padding: ".55rem .1rem .1rem", fontFamily: "var(--font-1)",
+            fontWeight: 300, fontSize: "1.55rem", color: "#eaf5fb",
+            fontVariantNumeric: "tabular-nums" }, A(30)),
+          gTruthUnit: { fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".12em", color: "#7b91a3" },
+          gVerdict: !last ? "" : last.hit ? "EXACT"
+            : (Math.abs(last.off) + " KCAL " + (last.off < 0 ? "UNDER" : "OVER")),
+          gVerdictS: Object.assign({ flex: "none", fontFamily: "var(--font-2)", fontSize: ".7rem",
+            letterSpacing: ".14em", padding: "0 .1rem .1rem",
+            color: last && last.hit ? "#7ee0a8" : "#f08c7a" }, A(30)),
           gBreak: (revealed && r ? r.dish.top : []).map((x, k) => ({
-            name: String(x[0]).toUpperCase(), g: fmt(x[1]) + " g", kcal: fmt(x[2]),
+            name: String(x[0]).toUpperCase(), kcal: fmt(x[2]),
             share: Math.round(x[3] * 100) + "%",
-            row: Object.assign({ position: "relative", display: "grid",
-              gridTemplateColumns: "minmax(0,1fr) 3.2rem 3.2rem 2.6rem", columnGap: ".4rem",
-              alignItems: "center", minHeight: "2.4rem", padding: "0 .2rem",
-              borderTop: k ? "1px solid rgba(215,230,239,.08)" : "0" }, A(0, 200 + k * 70)),
+            row: Object.assign({ position: "relative", flex: "none", display: "grid",
+              gridTemplateColumns: "minmax(0,1fr) 3rem 2.4rem", columnGap: ".4rem",
+              alignItems: "center", height: "1.95rem", padding: "0 .15rem",
+              borderTop: k ? "1px solid rgba(215,230,239,.08)" : "0" }, A(120 + k * 60)),
             fill: { position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)",
-              height: "1.7rem", width: Math.round(x[3] * 100) + "%",
-              background: "rgba(34,211,238,.10)" },
-            nameS: { position: "relative", minWidth: 0, overflow: "hidden",
-              textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: "var(--font-2)",
-              fontSize: ".8rem", letterSpacing: ".08em", color: "#c7d6e0" },
-            gS: { position: "relative", textAlign: "right", fontWeight: 300,
-              fontSize: ".95rem", color: "#8ba0ad", fontVariantNumeric: "tabular-nums" },
-            kS: { position: "relative", textAlign: "right", fontWeight: 300,
-              fontSize: ".95rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums" },
+              height: "1.5rem", width: Math.round(x[3] * 100) + "%", background: "rgba(34,211,238,.10)" },
+            nameS: { position: "relative", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
+              whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: ".74rem",
+              letterSpacing: ".06em", color: "#c7d6e0" },
+            kS: { position: "relative", textAlign: "right", fontWeight: 300, fontSize: ".9rem",
+              color: "#d7e6ef", fontVariantNumeric: "tabular-nums" },
             shS: { position: "relative", textAlign: "right", fontFamily: "var(--font-2)",
-              fontSize: ".76rem", letterSpacing: ".04em", color: "#22d3ee",
-              fontVariantNumeric: "tabular-nums" }
+              fontSize: ".72rem", color: "#22d3ee", fontVariantNumeric: "tabular-nums" }
           })),
-          gBreakHead: { display: "grid", gridTemplateColumns: "minmax(0,1fr) 3.2rem 3.2rem 2.6rem",
-            columnGap: ".4rem", padding: "0 .2rem .3rem", fontFamily: "var(--font-2)",
-            fontSize: ".64rem", letterSpacing: ".12em", color: "#54677a" },
-          gBreakHeadR: { textAlign: "right" },
+          gBreakLab: "WHERE THE CALORIES WERE",
+          gBreakLabS: Object.assign({ flex: "none", display: "block", padding: ".6rem .15rem .3rem",
+            fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".14em",
+            color: "#7b91a3" }, A(90)),
           gNextLabel: i >= 9 ? "SEE RESULTS" : "NEXT PLATE",
           gNext: () => this.gNext(),
-          gNextS: Object.assign({ display: "flex", alignItems: "center",
-            justifyContent: "center", width: "100%", boxSizing: "border-box",
-            minHeight: "3rem", margin: "1.1rem 0 .4rem", padding: "0 1rem",
-            border: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
-            background: "rgba(34,211,238,.08)", cursor: "pointer",
-            fontFamily: "var(--font-2)", fontSize: ".82rem", letterSpacing: ".16em",
-            color: "#22d3ee" }, A(0, 320)),
+          gNextS: Object.assign({ flex: "none", display: "flex", alignItems: "center",
+            justifyContent: "center", width: "100%", boxSizing: "border-box", height: "2.7rem",
+            marginTop: ".55rem", border: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
+            background: "rgba(34,211,238,.08)", cursor: "pointer", fontFamily: "var(--font-2)",
+            fontSize: ".78rem", letterSpacing: ".16em", color: "#22d3ee" }, A(240)),
           // ---- results -------------------------------------------------------
+          // The headline is the calories, not the tally: ten plates read this way
+          // is what a day of reading them this way would cost.
+          gTotOff: (totOff < 0 ? "\u2212" : "+") + Math.abs(totOff),
+          gTotWord: totOff < 0 ? "KCAL UNDER, ACROSS TEN PLATES" : "KCAL OVER, ACROSS TEN PLATES",
+          gTotS: { display: "flex", alignItems: "baseline", gap: ".5rem", padding: "0 .15rem",
+            fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "2.5rem",
+            color: Math.abs(totOff) < 150 ? "#7ee0a8" : "#eaf5fb", fontVariantNumeric: "tabular-nums" },
           gHits: String(picks.filter(p => p.hit).length),
-          gScore: String(picks.reduce((a, p) => a + p.score, 0)),
           gDots: picks.map((p, k) => ({
-            style: {
-              // Each round as a mark either side of the truth, so the shape of
-              // the error is visible before any sentence explains it.
-              position: "absolute", top: (26 + (k % 5) * 12) + "%", width: "9px", height: "9px",
-              marginTop: "-4.5px", marginLeft: "-4.5px", borderRadius: "50%",
+            style: { position: "absolute", top: (26 + (k % 5) * 12) + "%", width: "9px",
+              height: "9px", marginTop: "-4.5px", marginLeft: "-4.5px", borderRadius: "50%",
               left: (50 + Math.max(-46, Math.min(46, p.err * 45))) + "%",
-              background: p.hit ? "#7ee0a8" : "rgba(240,140,122,.85)"
-            }
+              background: p.hit ? "#7ee0a8" : "rgba(240,140,122,.85)" }
           })),
           gLines: this.gBias(picks).map(b => {
             const pct = Math.round(Math.abs(b.mean) * 100);
             const dir = b.mean < 0 ? "under" : "over";
             return {
-              text: pct < 10
-                ? "You read " + b.band + " plates well."
+              text: pct < 10 ? "You read " + b.band + " plates well."
                 : "You " + dir + "estimate " + b.band + " plates by about " + pct + "%.",
-              style: { display: "block", padding: ".2rem 0",
-                fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.05rem",
-                lineHeight: 1.5, color: pct < 10 ? "#7b91a3" : "#d7e6ef", textWrap: "pretty" }
+              style: { display: "block", padding: ".15rem 0", fontFamily: "var(--font-1)",
+                fontWeight: 300, fontSize: "1rem", lineHeight: 1.45,
+                color: pct < 10 ? "#7b91a3" : "#d7e6ef", textWrap: "pretty" }
             };
           }),
           gAgain: () => this.gStart(false),
