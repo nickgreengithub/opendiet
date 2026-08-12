@@ -9,7 +9,9 @@ What is different from the root:
 - The site is a set of small apps rather than one page, and both layouts open straight
   into the built one. The others sit beside it in a tab row — FOOD SEARCH, CALORIE CALC,
   CALORIE GAME, shortened to SEARCH, CALC, GAME on a phone — with ABOUT holding the
-  right-hand corner. The launcher screen it replaces is gone from both.
+  right-hand corner. The launcher screen it replaces is gone from both, and ABOUT is a
+  page in the same language as the unbuilt ones rather than a dialog over the top: it
+  lights its tab like any other, and Escape returns to the search.
 - CALORIE CALC will work a daily target backwards from a body-fat goal; CALORIE GAME will
   drill guessing a meal's calories from a photograph, the one skill that travels to a
   restaurant table. Neither is built. Their pages say UNDER DEVELOPMENT and then invite

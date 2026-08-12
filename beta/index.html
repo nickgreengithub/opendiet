@@ -71,6 +71,7 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
 @keyframes od-rise{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
 @keyframes od-soon-a{from{transform:translateY(9px);opacity:0}to{transform:none;opacity:1}}
 @keyframes od-soon-b{from{transform:translateY(9px);opacity:0}to{transform:none;opacity:1}}
+@keyframes od-soon-c{from{transform:translateY(9px);opacity:0}to{transform:none;opacity:1}}
 [data-rise]{animation:od-rise 260ms cubic-bezier(.22,1,.36,1)}
 @media (prefers-reduced-motion:reduce){[data-rise]{animation:none}}
 /* First plate of the session: the step controls breathe once or twice so they are noticed.
@@ -200,19 +201,17 @@ option{background:#070b12;color:#d7e6ef}
     </span>
   </div>
   </sc-if>
-  <sc-if value="{{ aboutOpen }}" hint-placeholder-val="{{ false }}">
-  <div onClick="{{ closeAbout }}" style="{{ aboutScrim }}">
-  <div onClick="{{ stopProp }}" style="{{ aboutPanel }}">
-    <div style="{{ aboutMeta }}"><span>V0.1.0-BETA</span><a onClick="{{ closeAbout }}" style="{{ aboutClose }}">CLOSE</a></div>
-    <div style="{{ aboutLead }}">This open source project is free to fork for non-commercial use.</div>
-    <div style="{{ aboutPara }}">Values come from USDA FoodData Central, public domain. Numbers are averages for a generic item — brands, cuts and cooking method move them.</div>
-    <div style="{{ aboutLabel }}">DISCLAIMER</div>
-    <div style="{{ aboutDisc }}">Not medical or nutritional advice. Nothing here diagnoses, treats or prevents anything. Talk to a doctor or a registered dietitian before changing your diet, especially with a medical condition, pregnancy, or a history of disordered eating.</div>
-    <div style="{{ aboutFoot }}">
-      <span style="{{ aboutMade }}">MADE BY <a href="https://www.linkedin.com/in/analystnickgreen/" target="_blank" style="letter-spacing:.12em;cursor:pointer;white-space:nowrap">NICHOLAS GREEN</a> · 2026</span>
-      <a href="https://github.com/nickgreengithub/opendiet" target="_blank" style="{{ aboutGit }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="M12 .5C5.73.5.99 5.24.99 11.51c0 4.86 3.15 8.98 7.52 10.44.55.1.75-.24.75-.53v-2.05c-3.06.67-3.71-1.3-3.71-1.3-.5-1.28-1.23-1.62-1.23-1.62-1-.69.08-.67.08-.67 1.11.08 1.69 1.14 1.69 1.14.98 1.69 2.58 1.2 3.21.92.1-.72.39-1.2.7-1.48-2.44-.28-5.01-1.22-5.01-5.44 0-1.2.43-2.18 1.13-2.95-.11-.28-.49-1.4.11-2.92 0 0 .92-.3 3.02 1.13a10.4 10.4 0 0 1 5.5 0c2.1-1.43 3.02-1.13 3.02-1.13.6 1.52.22 2.64.11 2.92.7.77 1.13 1.75 1.13 2.95 0 4.23-2.58 5.16-5.03 5.43.4.34.75 1.02.75 2.06v3.05c0 .3.2.64.76.53a11.03 11.03 0 0 0 7.51-10.44C23.01 5.24 18.27.5 12 .5z"></path></svg>GITHUB</a>
-    </div>
-  </div>
+  <sc-if value="{{ appAbout }}" hint-placeholder-val="{{ false }}">
+  <div style="{{ aboutWrap }}">
+    <span style="{{ soonTag }}">V0.1.0-BETA</span>
+    <span style="{{ soonName }}">OPENDIET.ORG</span>
+    <span style="{{ soonNote }}">An open source project, free to fork for non-commercial use. The values come from USDA FoodData Central and are public domain. Numbers are averages for a generic item — brand, cut, ripeness and cooking method all move them.</span>
+    <span style="{{ aboutDiscLab }}">DISCLAIMER</span>
+    <span style="{{ aboutDiscTxt }}">Not medical or nutritional advice. Nothing here diagnoses, treats or prevents anything. Talk to a doctor or a registered dietitian before changing your diet, especially with a medical condition, pregnancy, or a history of disordered eating.</span>
+    <span style="{{ soonLinks }}">
+      <a href="https://github.com/nickgreengithub/opendiet" target="_blank" style="{{ soonLink }}" style-hover="color:#a5f3fc"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="M12 .5C5.73.5.99 5.24.99 11.51c0 4.86 3.15 8.98 7.52 10.44.55.1.75-.24.75-.53v-2.05c-3.06.67-3.71-1.3-3.71-1.3-.5-1.28-1.23-1.62-1.23-1.62-1-.69.08-.67.08-.67 1.11.08 1.69 1.14 1.69 1.14.98 1.69 2.58 1.2 3.21.92.1-.72.39-1.2.7-1.48-2.44-.28-5.01-1.22-5.01-5.44 0-1.2.43-2.18 1.13-2.95-.11-.28-.49-1.4.11-2.92 0 0 .92-.3 3.02 1.13a10.4 10.4 0 0 1 5.5 0c2.1-1.43 3.02-1.13 3.02-1.13.6 1.52.22 2.64.11 2.92.7.77 1.13 1.75 1.13 2.95 0 4.23-2.58 5.16-5.03 5.43.4.34.75 1.02.75 2.06v3.05c0 .3.2.64.76.53a11.03 11.03 0 0 0 7.51-10.44C23.01 5.24 18.27.5 12 .5z"></path></svg>GITHUB</a>
+      <a href="https://www.linkedin.com/in/analystnickgreen/" target="_blank" style="{{ soonLink }}" style-hover="color:#a5f3fc"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 21h4V9H3v12zM10 21h4v-6.4c0-1.7.32-3.35 2.43-3.35 2.08 0 2.1 1.95 2.1 3.46V21h4v-7.1c0-3.47-.75-6.14-4.8-6.14-1.95 0-3.26 1.07-3.8 2.08h-.05V8.5H10V21z"></path></svg>MADE BY NICK GREEN · 2026</a>
+    </span>
   </div>
   </sc-if>
   <sc-if value="{{ isResults }}" hint-placeholder-val="{{ true }}">
@@ -648,7 +647,7 @@ class Component extends DCLogic {
       if (u) patch.user = u;
       if (Object.keys(patch).length) this.setState(patch);
     } catch (e) {}
-    this._esc = e => { if (e.key === "Escape") this.setState({ aboutOpen: false }); };
+    this._esc = e => { if (e.key === "Escape" && this.state.app === "about") this.setState({ app: "search" }); };
     document.addEventListener("keydown", this._esc);
     // Desktop popovers close on mouseleave. Mobile has no hover, so they are toggled open
     // and need a tap elsewhere to dismiss them. Triggers and panels carry data-pop; anything
@@ -1264,7 +1263,7 @@ class Component extends DCLogic {
     // measure needs fewer, and the reserve simply goes unused.
     const SOON_LINES = s.narrow ? "9.9rem" : "4.9rem";
     const soonIn = ms => ({
-      animation: (app === "game" ? "od-soon-b" : "od-soon-a") +
+      animation: (app === "game" ? "od-soon-b" : app === "about" ? "od-soon-c" : "od-soon-a") +
         " 420ms cubic-bezier(.22,1,.36,1) " + ms + "ms both"
     });
     const appDef = APPS.find(a => a.k === app);
@@ -2616,9 +2615,11 @@ class Component extends DCLogic {
       // ABOUT holds the corner whether or not the measure pair is on screen.
       tabAbout: {
         display: "flex", alignItems: "center", height: "1.9rem",
+        color: app === "about" ? "#22d3ee" : "#5f7688",
+        textShadow: app === "about" ? "0 0 12px rgba(34,211,238,.45)" : "none",
         marginLeft: !s.narrow && app === "search" && !dLanding ? "1.4rem" : "auto",
         fontSize: s.narrow ? ".8rem" : ".86rem", letterSpacing: s.narrow ? ".1em" : ".14em",
-        cursor: "pointer", whiteSpace: "nowrap", color: "#5f7688", transition: "color 160ms ease"
+        cursor: "pointer", whiteSpace: "nowrap", transition: "color 160ms ease"
       },
       mColOpts: MCOLS.map((x, xi) => ({
         label: x.label, unit: x.unit,
@@ -2644,56 +2645,6 @@ class Component extends DCLogic {
       shell: s.narrow
         ? { position: "fixed", top: 0, left: 0, right: 0, height: s.vvh ? s.vvh + "px" : VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: ".2rem 0 0", boxSizing: "border-box", transition: "height 240ms cubic-bezier(.22,1,.36,1)" }
         : { height: VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: "2.4rem 1.25rem", boxSizing: "border-box" },
-      aboutScrim: {
-        position: "fixed", inset: 0, zIndex: 50, background: "rgba(5,8,13,.75)", display: "flex",
-        alignItems: s.narrow ? "stretch" : "flex-start", justifyContent: "center",
-        padding: s.narrow ? 0 : "2.4rem 1.25rem", boxSizing: "border-box"
-      },
-      aboutPanel: {
-        width: s.narrow ? "100%" : "640px", maxWidth: "100%", maxHeight: s.narrow ? "100%" : "90vh",
-        overflowY: "auto", background: "#070b12",
-        border: s.narrow ? 0 : "1px solid rgba(34,211,238,.28)",
-        boxShadow: s.narrow ? "none" : "inset 0 0 0 1px rgba(34,211,238,.04), 0 0 24px rgba(34,211,238,.05)",
-        padding: s.narrow ? ".9rem .9rem 1.5rem" : "1.15rem 1.25rem", boxSizing: "border-box"
-      },
-      aboutFoot: {
-        display: "flex", flexDirection: s.narrow ? "column" : "row",
-        justifyContent: "space-between", alignItems: s.narrow ? "flex-start" : "baseline",
-        gap: s.narrow ? ".7rem" : "1rem", marginTop: s.narrow ? "1rem" : "1.25rem", paddingTop: ".7rem",
-        borderTop: "1px solid rgba(34,211,238,.28)",
-        fontFamily: "var(--font-2)", fontSize: s.narrow ? ".84rem" : ".72rem", letterSpacing: ".12em", color: "#94a3b8"
-      },
-      // A phone reads this at arm's length like everything else on the page, so the dialog
-      // steps up with it rather than staying at desktop's size.
-      aboutMeta: {
-        display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "1rem",
-        marginBottom: ".4rem", fontFamily: "var(--font-2)",
-        fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", color: "#7b91a3"
-      },
-      aboutClose: { fontSize: s.narrow ? ".92rem" : ".78rem", letterSpacing: ".16em", cursor: "pointer", whiteSpace: "nowrap" },
-      aboutLead: {
-        borderTop: "1px solid rgba(34,211,238,.28)", paddingTop: ".7rem",
-        fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1.06rem" : ".9rem",
-        lineHeight: 1.65, color: "#d7e6ef", textWrap: "pretty"
-      },
-      aboutPara: {
-        marginTop: ".7rem", fontFamily: "var(--font-1)", fontWeight: 300,
-        fontSize: s.narrow ? "1.06rem" : ".9rem", lineHeight: 1.65, color: "#d7e6ef", textWrap: "pretty"
-      },
-      aboutLabel: {
-        marginTop: "1rem", marginBottom: ".4rem", fontFamily: "var(--font-2)",
-        fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", color: "#7b91a3"
-      },
-      aboutDisc: {
-        borderTop: "1px solid rgba(34,211,238,.28)", borderBottom: "1px solid rgba(34,211,238,.14)",
-        padding: ".7rem 0", fontFamily: "var(--font-1)", fontWeight: 300,
-        fontSize: s.narrow ? "1.06rem" : ".9rem", lineHeight: 1.65, color: "#a9c0d0", textWrap: "pretty"
-      },
-      aboutGit: {
-        display: "flex", alignItems: "center", gap: ".4rem", fontFamily: "var(--font-2)",
-        fontSize: s.narrow ? ".84rem" : ".72rem", letterSpacing: ".16em", cursor: "pointer", whiteSpace: "nowrap"
-      },
-      aboutMade: { whiteSpace: s.narrow ? "normal" : "nowrap", lineHeight: 1.6 },
       mName: {
         display: "block", minWidth: 0, fontWeight: 300, fontSize: "1.02rem", color: "#d7e6ef",
         // Given the whole row, show the whole name rather than trailing it off.
@@ -2847,6 +2798,11 @@ class Component extends DCLogic {
       },
       cardTop: { display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: ".6rem" },
       cardNote: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? ".95rem" : "1rem", lineHeight: 1.5, color: "#94a3b8", textWrap: "pretty" },
+      aboutWrap: {
+        flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column",
+        alignItems: "flex-start", justifyContent: "flex-start", gap: ".6rem",
+        padding: s.narrow ? "1.6rem .8rem 2rem" : "3rem 0", boxSizing: "border-box"
+      },
       soonWrap: {
         flex: 1, minHeight: 0, display: "flex", flexDirection: "column", alignItems: "flex-start",
         justifyContent: "center", gap: ".6rem", padding: s.narrow ? "0 .8rem" : "0 0 3rem", boxSizing: "border-box"
@@ -2860,6 +2816,11 @@ class Component extends DCLogic {
       soonJoin: Object.assign({ maxWidth: "38ch", marginTop: s.narrow ? ".5rem" : ".7rem",
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1rem" : ".98rem",
         lineHeight: 1.55, color: "#7b91a3", textWrap: "pretty" }, soonIn(320)),
+      aboutDiscLab: Object.assign({ marginTop: s.narrow ? ".4rem" : ".5rem",
+        fontFamily: "var(--font-2)", fontSize: ".68rem", letterSpacing: ".18em", color: "#5b7183" }, soonIn(300)),
+      aboutDiscTxt: Object.assign({ maxWidth: "44ch", fontFamily: "var(--font-1)", fontWeight: 300,
+        fontSize: s.narrow ? ".92rem" : ".88rem", lineHeight: 1.55, color: "#7b91a3",
+        textWrap: "pretty" }, soonIn(340)),
       soonLinks: Object.assign({ display: "flex", flexWrap: "wrap", gap: s.narrow ? ".9rem" : "1.6rem",
         marginTop: s.narrow ? ".2rem" : ".35rem" }, soonIn(400)),
       soonLink: { display: "flex", alignItems: "center", gap: ".45rem",
@@ -2872,9 +2833,8 @@ class Component extends DCLogic {
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1.06rem" : "1.05rem",
         lineHeight: 1.55, color: "#94a3b8", textWrap: "pretty" }, soonIn(220)),
       isResults: s.view === "results" && app === "search", isSettings: s.view === "settings", isSignin: s.view === "signin",
-      aboutOpen: !!s.aboutOpen,
-      openAbout: () => this.setState({ aboutOpen: true }),
-      closeAbout: () => this.setState({ aboutOpen: false }),
+      appAbout: app === "about",
+      openAbout: () => this.setState({ app: "about", mOpen: null }),
       stopProp: e => e.stopPropagation(),
       goResults: () => this.setState({ view: "results" }),
       goSettings: () => this.setState({ view: "settings" }),
@@ -3214,14 +3174,6 @@ class Component extends DCLogic {
           borderLeft: "0 solid transparent", borderRight: "5.5px solid #c7d6e0", margin: "0 1.5px 0 0" }
         : { width: 0, height: 0, borderTop: "4px solid transparent", borderBottom: "4px solid transparent",
           borderLeft: "5.5px solid #c7d6e0", borderRight: "0 solid transparent", margin: "0 0 0 1.5px" },
-      aboutRowStyle: {
-        display: "flex", alignItems: "center", gap: ".3rem",
-        height: s.narrow ? "2.4rem" : "1.95rem", padding: s.narrow ? "0 .85rem" : "0 .7rem",
-        border: 0, borderTop: "1px solid rgba(34,211,238,.55)", borderRadius: 0, cursor: "pointer",
-        background: "transparent", textAlign: "left", whiteSpace: "nowrap",
-        fontFamily: "var(--font-2)", fontSize: s.narrow ? ".95rem" : ".75rem", letterSpacing: ".12em", color: "#94a3b8",
-        transition: "background 140ms ease"
-      },
       extraLabel: extra.label, extraUnit: extra.unit,
       extraSuffix: { marginLeft: ".25rem", fontFamily: "var(--font-2)", fontSize: s.narrow ? ".84rem" : ".66rem", letterSpacing: ".04em", color: "#5f7f8e" },
       extraOpen: !!s.extraOpen,
