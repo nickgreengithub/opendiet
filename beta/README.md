@@ -6,16 +6,20 @@ links to it.
 
 What is different from the root:
 
-- A launcher screen: the site is a set of small apps rather than one page. FOOD SEARCH is
-  the built one. CALORIE CALC will work a daily target backwards from a body-fat goal, and
-  CALORIE GAME will drill guessing a meal's calories from a photograph — the one skill that
-  travels to a restaurant table. Neither is built: their pages say so plainly and then
-  invite the reader to follow the project on GitHub or reach Nick Green on LinkedIn, since
-  an unbuilt app is a better invitation than a dead end.
-- Desktop switches app with tabs across the top and opens straight into FOOD SEARCH —
-  the launcher page is mobile's, where a back button returns to it. ABOUT sits in the
-  top-right corner of the tab row on desktop; on mobile it stays a quiet line on the
-  launcher.
+- The site is a set of small apps rather than one page, and both layouts open straight
+  into the built one. The others sit beside it in a tab row — FOOD SEARCH, CALORIE CALC,
+  CALORIE GAME, shortened to SEARCH, CALC, GAME on a phone — with ABOUT holding the
+  right-hand corner. The launcher screen it replaces is gone from both.
+- CALORIE CALC will work a daily target backwards from a body-fat goal; CALORIE GAME will
+  drill guessing a meal's calories from a photograph, the one skill that travels to a
+  restaurant table. Neither is built. Their pages say UNDER DEVELOPMENT and then invite
+  the reader to follow the project on GitHub or reach Nick Green on LinkedIn, because an
+  unbuilt app is a better invitation than a dead end. The lines arrive in turn rather than
+  appearing at once — two identical keyframes, picked by which app is open, because
+  switching tabs keeps the same node and only a change of animation-name restarts it —
+  and the sentence reserves room for the longer of the two, so the pages are the same
+  height to the pixel and nothing moves when you switch between them.
+
 - The measure is two words, not a menu: 100 G or OZ. On desktop they sit above the
   table's right side, the active one lit like a tab — the SIZE header and its popover
   are gone, though the column of values stays. Mobile's popover stacks full-width

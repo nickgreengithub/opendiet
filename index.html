@@ -86,6 +86,8 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
 }
 @media (prefers-reduced-motion:reduce){[data-finger]{animation:none;opacity:.9;transform:none}}
 @keyframes od-rise{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+@keyframes od-soon-a{from{transform:translateY(9px);opacity:0}to{transform:none;opacity:1}}
+@keyframes od-soon-b{from{transform:translateY(9px);opacity:0}to{transform:none;opacity:1}}
 [data-rise]{animation:od-rise 260ms cubic-bezier(.22,1,.36,1)}
 @media (prefers-reduced-motion:reduce){[data-rise]{animation:none}}
 /* First plate of the session: the step controls breathe once or twice so they are noticed.
@@ -205,7 +207,7 @@ option{background:#070b12;color:#d7e6ef}
   </sc-if>
   <sc-if value="{{ appSoon }}" hint-placeholder-val="{{ false }}">
   <div style="{{ soonWrap }}">
-    <span style="{{ soonTag }}">NOT BUILT YET</span>
+    <span style="{{ soonTag }}">UNDER DEVELOPMENT</span>
     <span style="{{ soonName }}">{{ appTitle }}</span>
     <span style="{{ soonNote }}">{{ appNote }}</span>
     <span style="{{ soonJoin }}">Being built in the open. Follow along, or come and build it.</span>
@@ -1271,10 +1273,17 @@ class Component extends DCLogic {
         note: "A calorie target built backwards from the body composition you are after: say where your body fat is now and where you want it, and get the daily number and the timeline that reach it.",
         card: "A daily calorie target and timeline, built backwards from your body fat goal." },
       { k: "game", label: "CALORIE GAME",
-        note: "Guess the calories in a photograph of a meal, then see how close you were. Reading a plate by eye is the skill the whole thing rests on \u2014 whether you are cutting fat or adding lean mass, nothing else is portable to a restaurant table \u2014 and it is trainable.",
+        note: "Guess the calories in a photograph of a meal, then see how close you were. Reading a plate by eye is the one skill that travels to a restaurant table, and it is trainable.",
         card: "Guess the calories in a photo of a meal. Eyeballing a plate is trainable \u2014 and it is the skill dieting actually runs on." }
     ];
-    const app = s.app || (s.narrow ? "home" : "search");
+    const app = s.app || "search";
+    // Six lines at the mobile width holds either app's sentence; the desktop's wider
+    // measure needs fewer, and the reserve simply goes unused.
+    const SOON_LINES = s.narrow ? "9.9rem" : "4.9rem";
+    const soonIn = ms => ({
+      animation: (app === "game" ? "od-soon-b" : "od-soon-a") +
+        " 420ms cubic-bezier(.22,1,.36,1) " + ms + "ms both"
+    });
     const appDef = APPS.find(a => a.k === app);
     const live = k => k === "search";
     const setApp = k => () => {
@@ -2625,6 +2634,7 @@ class Component extends DCLogic {
       tabAbout: {
         display: "flex", alignItems: "center", height: "1.9rem",
         marginLeft: !s.narrow && app === "search" && !dLanding ? "1.4rem" : "auto",
+        fontSize: s.narrow ? ".8rem" : ".86rem", letterSpacing: s.narrow ? ".1em" : ".14em",
         cursor: "pointer", whiteSpace: "nowrap", color: "#5f7688", transition: "color 160ms ease"
       },
       mColOpts: MCOLS.map((x, xi) => ({
@@ -2785,11 +2795,12 @@ class Component extends DCLogic {
       appSoon: !!appDef && !live(app),
       appTitle: appDef ? appDef.label : "",
       appNote: appDef ? appDef.note : "",
-      tabsOn: !s.narrow && app !== "home",
-      backOn: !!s.narrow && app !== "home",
+      tabsOn: app !== "home",
+      backOn: false,
       goHome: () => this.setState({ app: "home", mOpen: null }),
       appTabs: APPS.map(a => ({
-        label: a.label, onClick: setApp(a.k),
+        label: s.narrow ? a.label.replace("FOOD ", "").replace("CALORIE ", "") : a.label,
+        onClick: setApp(a.k),
         style: {
           display: "flex", alignItems: "center", height: "1.9rem", padding: "0 .1rem",
           cursor: "pointer", whiteSpace: "nowrap", transition: "color 160ms ease, text-shadow 160ms ease",
@@ -2816,9 +2827,12 @@ class Component extends DCLogic {
         }
       })),
       tabBar: {
-        flex: "none", display: "flex", alignItems: "center", gap: "1.7rem", height: "2.4rem",
-        marginBottom: ".35rem",
-        fontFamily: "var(--font-2)", fontSize: ".86rem", letterSpacing: ".14em"
+        flex: "none", display: "flex", alignItems: "center",
+        gap: s.narrow ? "1.15rem" : "1.7rem", height: s.narrow ? "2.2rem" : "2.4rem",
+        marginBottom: s.narrow ? "0" : ".35rem",
+        padding: s.narrow ? "0 .6rem" : 0, boxSizing: "border-box",
+        fontFamily: "var(--font-2)", fontSize: s.narrow ? ".8rem" : ".86rem",
+        letterSpacing: s.narrow ? ".1em" : ".14em"
       },
       tabVer: { marginLeft: ".35rem", fontSize: ".62rem", letterSpacing: ".16em", color: "#5b7183" },
       mBackRow: {
@@ -2840,7 +2854,7 @@ class Component extends DCLogic {
       homeHead: { flex: "none", display: "flex", flexDirection: "column", gap: ".35rem", marginBottom: s.narrow ? "1.2rem" : "1.6rem" },
       homeMark: { display: "flex", alignItems: "baseline", fontFamily: "var(--font-2)", fontSize: s.narrow ? "1.3rem" : "1.6rem", letterSpacing: ".2em", color: "#d7e6ef" },
       homeSub: { fontFamily: "var(--font-2)", fontSize: s.narrow ? ".8rem" : ".78rem", letterSpacing: ".18em", color: "#5b7183" },
-      homeGrid: { flex: "none", display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: s.narrow ? ".6rem" : "1rem" },
+      homeGrid: { flex: "none", display: "grid", gridTemplateColumns: s.narrow ? "minmax(0,1fr)" : "repeat(2,1fr)", gap: s.narrow ? ".6rem" : "1rem" },
       // ABOUT lives on the launcher now that the library menu that used to hold it is gone.
       homeAbout: {
         alignSelf: "flex-start", marginTop: s.narrow ? "1.1rem" : "1.5rem",
@@ -2854,19 +2868,26 @@ class Component extends DCLogic {
         flex: 1, minHeight: 0, display: "flex", flexDirection: "column", alignItems: "flex-start",
         justifyContent: "center", gap: ".6rem", padding: s.narrow ? "0 .8rem" : "0 0 3rem", boxSizing: "border-box"
       },
-      soonTag: { fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".18em", color: "#5b7183" },
-      soonName: { fontFamily: "var(--font-2)", fontSize: s.narrow ? "1.3rem" : "1.7rem", letterSpacing: ".18em", color: "#22d3ee" },
+      soonTag: Object.assign({ fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".18em", color: "#5b7183" }, soonIn(60)),
+      soonName: Object.assign({ fontFamily: "var(--font-2)", fontSize: s.narrow ? "1.3rem" : "1.7rem", letterSpacing: ".18em", color: "#22d3ee" }, soonIn(140)),
       // The unbuilt apps are an invitation rather than a dead end.
-      soonJoin: { maxWidth: "38ch", marginTop: s.narrow ? ".5rem" : ".7rem",
+      // Each line arrives in turn. The two keyframes are identical and picked by which
+      // app is open, because switching tabs keeps the same DOM node — only a change of
+      // animation-name restarts it.
+      soonJoin: Object.assign({ maxWidth: "38ch", marginTop: s.narrow ? ".5rem" : ".7rem",
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1rem" : ".98rem",
-        lineHeight: 1.55, color: "#7b91a3", textWrap: "pretty" },
-      soonLinks: { display: "flex", flexWrap: "wrap", gap: s.narrow ? ".9rem" : "1.6rem",
-        marginTop: s.narrow ? ".2rem" : ".35rem" },
+        lineHeight: 1.55, color: "#7b91a3", textWrap: "pretty" }, soonIn(320)),
+      soonLinks: Object.assign({ display: "flex", flexWrap: "wrap", gap: s.narrow ? ".9rem" : "1.6rem",
+        marginTop: s.narrow ? ".2rem" : ".35rem" }, soonIn(400)),
       soonLink: { display: "flex", alignItems: "center", gap: ".45rem",
         fontFamily: "var(--font-2)", fontSize: s.narrow ? ".8rem" : ".76rem",
         letterSpacing: ".14em", color: "#22d3ee", cursor: "pointer", whiteSpace: "nowrap",
         transition: "color 140ms ease" },
-      soonNote: { maxWidth: "38ch", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1.06rem" : "1.05rem", lineHeight: 1.55, color: "#94a3b8", textWrap: "pretty" },
+      // The sentence keeps room for the longer of the two apps' copy, so switching
+      // tabs moves nothing beneath it.
+      soonNote: Object.assign({ maxWidth: "38ch", minHeight: SOON_LINES,
+        fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1.06rem" : "1.05rem",
+        lineHeight: 1.55, color: "#94a3b8", textWrap: "pretty" }, soonIn(220)),
       isResults: s.view === "results" && app === "search", isSettings: s.view === "settings", isSignin: s.view === "signin",
       aboutOpen: !!s.aboutOpen,
       openAbout: () => this.setState({ aboutOpen: true }),
