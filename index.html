@@ -217,15 +217,20 @@ option{background:#070b12;color:#d7e6ef}
     <sc-if value="{{ gReady }}" hint-placeholder-val="{{ true }}">
       <span style="{{ gHead }}"><span>{{ gRoundLabel }}</span><span style="{{ gHeadScore }}">{{ gHits }} EXACT</span></span>
       <span style="{{ gPhotoBox }}"><img src="{{ gPhoto }}" alt="A plated meal photographed from above" style="{{ gPhotoImg }}"></span>
-      <span style="{{ gHeadRow }}"><span>ON THE PLATE</span><span style="{{ gHeadR }}">GRAMS</span><span style="{{ gHeadR }}">KCAL</span></span>
-      <sc-for list="{{ gRows }}" as="x" hint-placeholder-count="4">
-        <span style="{{ gRowS }}"><span style="{{ x.fill }}"></span><span style="{{ gNameS }}">{{ x.name }}</span><span style="{{ x.g.s }}">{{ x.g.v }}</span><span style="{{ x.kcal.s }}">{{ x.kcal.v }}</span></span>
-      </sc-for>
-      <span style="{{ gTotRowS }}"><span style="{{ gTotNameS }}">{{ gTotName }}</span><span style="{{ gTotGS }}">{{ gTotG }}</span><span style="{{ gTotKS }}">{{ gTotK }}</span></span>
-      <span style="{{ gOptsWrap }}">
-        <sc-for list="{{ gOpts }}" as="o" hint-placeholder-count="5">
-          <button onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</button>
-        </sc-for>
+      <span style="{{ gPlayRow }}">
+        <span style="{{ gTableCol }}">
+          <span style="{{ gHeadRow }}"><span>ON THE PLATE</span><span style="{{ gHeadR }}">GRAMS</span><span style="{{ gHeadR }}">KCAL</span></span>
+          <sc-for list="{{ gRows }}" as="x" hint-placeholder-count="4">
+            <span style="{{ gRowS }}"><span style="{{ x.fill }}"></span><span style="{{ gNameS }}">{{ x.name }}</span><span style="{{ x.g.s }}">{{ x.g.v }}</span><span style="{{ x.kcal.s }}">{{ x.kcal.v }}</span></span>
+          </sc-for>
+          <span style="{{ gTotRowS }}"><span style="{{ gTotNameS }}">{{ gTotName }}</span><span style="{{ gTotGS }}">{{ gTotG }}</span><span style="{{ gTotKS }}">{{ gTotK }}</span></span>
+        </span>
+        <span style="{{ gOptsWrap }}">
+          <span style="{{ gOptHead }}">KCAL?</span>
+          <sc-for list="{{ gOpts }}" as="o" hint-placeholder-count="5">
+            <button onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</button>
+          </sc-for>
+        </span>
       </span>
       <span style="{{ gFootS }}">
         <span style="{{ gVerdictS }}">{{ gVerdict }}</span>
@@ -910,7 +915,7 @@ class Component extends DCLogic {
       gAccSub: picks.filter(p => p.hit).length + " OF " + n + " EXACT  \u00b7  "
         + Math.abs(Math.round(totOff)) + " KCAL "
         + (totOff < 0 ? "UNDER" : "OVER") + " ACROSS THE TEN",
-      gAccSubS: { display: "block", padding: ".3rem .15rem .9rem", fontFamily: "var(--font-2)",
+      gAccSubS: { display: "block", padding: ".3rem .15rem .75rem", fontFamily: "var(--font-2)",
         fontSize: ".68rem", letterSpacing: ".1em", color: "#7b91a3" },
       gResHead: { flex: "none", display: "grid",
         gridTemplateColumns: "minmax(0,1fr) 3rem 3rem 3rem", columnGap: ".35rem",
@@ -927,11 +932,11 @@ class Component extends DCLogic {
         diff: num(p.hit ? "\u2713" : sign(p.off), p.hit ? "#7ee0a8" : "#f08c7a"),
         row: { flex: "none", display: "grid",
           gridTemplateColumns: "minmax(0,1fr) 3rem 3rem 3rem", columnGap: ".35rem",
-          alignItems: "center", height: "1.62rem", padding: "0 .15rem",
+          alignItems: "center", height: "1.55rem", padding: "0 .15rem",
           borderTop: "1px solid rgba(215,230,239,.07)" }
       })),
       gCatLab: "BY WHAT CARRIED THE PLATE",
-      gCatLabS: { flex: "none", display: "block", padding: "1rem .15rem .3rem",
+      gCatLabS: { flex: "none", display: "block", padding: ".8rem .15rem .3rem",
         fontFamily: "var(--font-2)", fontSize: ".64rem", letterSpacing: ".12em", color: "#7b91a3" },
       gCatRows: catRows.map(c => {
         const mean = c.d.err / c.d.n, pct = Math.round(Math.abs(mean) * 100);
@@ -953,7 +958,7 @@ class Component extends DCLogic {
             background: pct < 10 ? "rgba(126,224,168,.22)" : "rgba(240,140,122,.20)" },
           row: { position: "relative", flex: "none", display: "grid",
             gridTemplateColumns: "minmax(0,1fr) 4.2rem 3rem", columnGap: ".35rem",
-            alignItems: "center", height: "1.75rem", padding: "0 .15rem",
+            alignItems: "center", height: "1.68rem", padding: "0 .15rem",
             borderTop: "1px solid rgba(215,230,239,.07)" }
         };
       }),
@@ -3147,7 +3152,7 @@ class Component extends DCLogic {
             name: String(x[0]).toUpperCase(),
             g: cell(fmt(x[1]) + " g", k), kcal: cell(fmt(x[2]), k),
             fill: { position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)",
-              height: "1.35rem", width: (shown ? Math.round(x[3] * 100) : 0) + "%",
+              height: "62%", width: (shown ? Math.round(x[3] * 100) : 0) + "%",
               background: "rgba(34,211,238,.10)", transition: "width 420ms cubic-bezier(.22,1,.36,1) " + (80 + k * 70) + "ms" }
           }));
           if (r.dish.rest) rows.push({
@@ -3163,27 +3168,43 @@ class Component extends DCLogic {
           gHits: String(picks.filter(p => p.hit).length),
           gPhoto: r ? DATA + "game/img/" + r.dish.id + ".jpg" : "",
           gPhotoImg: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
-          gPhotoBox: { position: "relative", flex: "1 1 auto", minHeight: "9rem",
+          // The photograph is the thing being judged, so it takes every pixel the
+          // rest of the screen does not need and never gives one back. The cap is
+          // there because the frame is wider than it is tall: past about square,
+          // filling the height would start cutting food off the sides.
+          gPhotoBox: { position: "relative", flex: "1 1 auto", minHeight: "11rem",
+            maxHeight: Math.round((Math.min(window.innerWidth, TOUCH_W_PX) - 22) * 0.92) + "px",
             overflow: "hidden", background: "#0a1016",
             border: "1px solid rgba(34,211,238,.14)" },
+          // The plate's contents and the five figures stand side by side: one
+          // glance takes in both, and the height they save is the photograph's.
+          gPlayRow: { flex: "1 1 auto", minHeight: 0, display: "flex", alignItems: "stretch",
+            gap: ".55rem", padding: ".45rem 0 0" },
+          gTableCol: { flex: "1 1 auto", minWidth: 0, display: "flex", flexDirection: "column" },
           gRows: rows,
           gRowS: { position: "relative", flex: "none", display: "grid",
-            gridTemplateColumns: "minmax(0,1fr) 3.4rem 3rem", columnGap: ".4rem",
-            alignItems: "center", height: "1.75rem", padding: "0 .15rem",
-            borderTop: "1px solid rgba(215,230,239,.07)" },
+            gridTemplateColumns: "minmax(0,1fr) 2.9rem 2.5rem", columnGap: ".35rem",
+            alignItems: "center", flex: "1 1 0", minHeight: "1.75rem", maxHeight: "3.4rem",
+            padding: "0 .15rem", borderTop: "1px solid rgba(215,230,239,.07)" },
           gNameS: { position: "relative", minWidth: 0, overflow: "hidden",
             textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: "var(--font-2)",
             fontSize: ".72rem", letterSpacing: ".06em", color: "#c7d6e0" },
           gHeadRow: { flex: "none", display: "grid",
-            gridTemplateColumns: "minmax(0,1fr) 3.4rem 3rem", columnGap: ".4rem",
-            padding: ".55rem .15rem .25rem", fontFamily: "var(--font-2)", fontSize: ".62rem",
+            gridTemplateColumns: "minmax(0,1fr) 2.9rem 2.5rem", columnGap: ".35rem",
+            height: "1.35rem", alignItems: "flex-end", padding: "0 .15rem .25rem",
+            fontFamily: "var(--font-2)", fontSize: ".62rem",
             letterSpacing: ".12em", color: "#54677a" },
           gHeadR: { textAlign: "right" },
+          gOptHead: { flex: "none", display: "flex", alignItems: "flex-end",
+            justifyContent: "center", height: "1.35rem", padding: "0 0 .25rem",
+            fontFamily: "var(--font-2)", fontSize: ".62rem",
+            letterSpacing: ".12em", color: "#54677a" },
           // The plate's own line closes the table: blank while the question
           // stands, and the answer when it is over.
           gTotRowS: { position: "relative", flex: "none", display: "grid",
-            gridTemplateColumns: "minmax(0,1fr) 3.4rem 3rem", columnGap: ".4rem",
-            alignItems: "center", height: "2rem", padding: "0 .15rem",
+            gridTemplateColumns: "minmax(0,1fr) 2.9rem 2.5rem", columnGap: ".35rem",
+            alignItems: "center", flex: "1 1 0", minHeight: "2rem", maxHeight: "3.4rem",
+            padding: "0 .15rem",
             borderTop: "1px solid rgba(34,211,238,.45)" },
           gTotName: "THE PLATE",
           gTotNameS: { fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".1em",
@@ -3191,7 +3212,7 @@ class Component extends DCLogic {
             transition: "color 260ms ease" },
           gTotG: r && shown ? fmt(r.dish.g) + " g" : dash,
           gTotK: r && shown ? fmt(r.kcal) : dash,
-          gTotGS: { textAlign: "right", fontWeight: 300, fontSize: "1rem",
+          gTotGS: { textAlign: "right", fontWeight: 300, fontSize: ".9rem",
             color: shown ? "#8ba0ad" : "#3f5364", fontVariantNumeric: "tabular-nums",
             transition: "color 260ms ease" },
           gTotKS: Object.assign({ textAlign: "right", fontWeight: 300, fontSize: "1.15rem",
@@ -3204,7 +3225,8 @@ class Component extends DCLogic {
               onClick: () => this.gPickOpt(k),
               style: {
                 display: "flex", alignItems: "center", justifyContent: "center",
-                width: "100%", boxSizing: "border-box", height: "2.35rem", borderRadius: 0,
+                width: "100%", boxSizing: "border-box", flex: "1 1 0",
+                minHeight: "2rem", maxHeight: "3.4rem", borderRadius: 0,
                 cursor: shown ? "default" : "pointer",
                 border: "1px solid " + (!shown ? "rgba(34,211,238,.28)"
                   : right ? "rgba(126,224,168,.7)" : chosen ? "rgba(240,140,122,.6)" : "rgba(34,211,238,.08)"),
@@ -3217,12 +3239,13 @@ class Component extends DCLogic {
               }
             };
           }),
-          gOptsWrap: { flex: "none", display: "flex", flexDirection: "column", gap: ".3rem",
-            padding: ".45rem 0 0" },
+          gOptsWrap: { flex: "none", width: "5rem", display: "flex", flexDirection: "column",
+            gap: ".28rem" },
           // The footer holds its height from the start, so answering never moves
           // the photograph or the table above it.
           gFootS: { flex: "none", display: "flex", flexDirection: "column",
-            justifyContent: "flex-end", minHeight: "4.1rem", paddingTop: ".3rem" },
+            justifyContent: "flex-end", minHeight: "4.1rem", marginTop: "auto",
+            paddingTop: ".3rem" },
           gVerdict: !shown || !last ? "" : last.hit ? "EXACT"
             : (Math.abs(last.off) + " KCAL " + (last.off < 0 ? "UNDER" : "OVER")),
           gVerdictS: { flex: "none", height: "1.1rem", fontFamily: "var(--font-2)",

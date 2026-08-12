@@ -15,6 +15,7 @@ commit the result: the site stays static and fetches nothing at runtime.
 import argparse
 import io
 import json
+import math
 import os
 import re
 import sys
@@ -199,7 +200,7 @@ def framed(rgb, dep, out_w, out_h):
     if box:
         x0, y0, x1, y1 = box
         cx, cy = (x0 + x1) / 2.0, (y0 + y1) / 2.0
-        bw, bh = (x1 - x0) * 1.10, (y1 - y0) * 1.10   # a little air around the rim
+        bw, bh = (x1 - x0) * 1.02, (y1 - y0) * 1.02   # a hair of air around the rim
         ar = out_w / float(out_h)
         cw = max(bw, bh * ar)
         ch = cw / ar
@@ -211,12 +212,40 @@ def framed(rgb, dep, out_w, out_h):
         y = max(0, min(h - ch, cy - ch / 2))
         rgb = rgb.crop((int(x), int(y), int(x + cw), int(y + ch)))
     rgb = rgb.resize((out_w, out_h), Image.LANCZOS)
-    # A gamma lift rather than a flat brightness: it opens the midtones the food
-    # lives in and leaves the plate, which is already near-white, where it is.
-    # Across the deck this moves median luma from 115 to 163 while adding well
-    # under a percent of blown highlights.
-    lut = [min(255, int(255 * ((v / 255.0) ** 0.72))) for v in range(256)] * 3
-    return ImageOps.autocontrast(rgb.point(lut), cutoff=(0.5, 1.6))
+    return exposed(rgb)
+
+
+def exposed(rgb):
+    """Bring every plate to the same brightness without bleaching the china.
+
+    One gamma cannot serve the whole deck. The frames run from dim to nearly
+    right, and about a seventh of each one is white plate already sitting at the
+    top of the scale, so a flat gain blows the china long before the food gets
+    anywhere. So the curve is chosen per image — as much gamma as it takes to put
+    that image's own median luma on TARGET — and then rolled off towards the
+    identity as a pixel approaches white, which is exactly where the plate lives.
+    The black point is trimmed first, from the bottom only, so the lift has
+    somewhere to come from and the result does not go milky.
+    """
+    from PIL import ImageEnhance, ImageOps
+    TARGET = 186.0
+    rgb = ImageOps.autocontrast(rgb, cutoff=(0.5, 0.0))
+    hist = rgb.convert("L").histogram()
+    n, acc, med = sum(hist), 0, 128
+    for v, c in enumerate(hist):
+        acc += c
+        if acc >= n * 0.5:
+            med = max(8, min(250, v))
+            break
+    g = max(0.38, min(0.95, math.log(TARGET / 255.0) / math.log(med / 255.0)))
+    lut = []
+    for v in range(256):
+        x = v / 255.0
+        keep = x ** 3                      # near white, the plate is left as shot
+        lut.append(int(round(255 * ((x ** g) * (1 - keep) + x * keep))))
+    out = rgb.point(lut * 3)
+    out = ImageEnhance.Color(out).enhance(1.14)
+    return ImageEnhance.Contrast(out).enhance(1.05)
 
 
 def top_ingredients(d, n=3):
@@ -293,7 +322,7 @@ def main():
                 dep = Image.open(io.BytesIO(fetch(base + "depth_raw.png", tries=2)))
             except Exception:
                 dep = None
-            im = framed(im, dep, a.width, int(a.width * 3 / 4))
+            im = framed(im, dep, a.width, int(a.width * 4 / 5))
             im.save(dest, "JPEG", quality=a.quality, optimize=True, progressive=True)
             if len(chosen) % 20 == 0:
                 print("  %d photographs" % len(chosen), flush=True)

@@ -41,6 +41,26 @@ There is deliberately no daily target to measure a plate against: turning a calo
 into a protein or carbohydrate goal is contested enough that the table would be taking a
 side it has no business taking. It states what is on the plate.
 
+## Calorie game
+
+A second app, on a phone. A photograph of a real plate, what is on it named but not
+weighed, and five calorie figures to choose between — the question is never what the food
+is, only how much of it there is. The figures are a ladder of fixed ratios, so the spread
+widens with the plate, and the truth sits at a position drawn from the dish itself. Ten
+plates, then a page: the average miss, every plate played against what you said, and the
+same story gathered by what carried the plate, because which kinds of food an eye misreads
+is more useful than how many it got right.
+
+Nothing scrolls and nothing switches context. The contents and the five figures stand side
+by side under the photograph, values held back as dashes until an answer is given, so the
+picture keeps the height it deserves and never moves.
+
+The deck is 140 plates from [Nutrition5k](https://github.com/google-research-datasets/Nutrition5k)
+(Thames et al., CVPR 2021, CC BY 4.0), prepared offline by `tools/build_game_deck.py` and
+committed as static JSON and JPEGs. They are US cafeteria trays, photographed overhead on a
+turntable and weighed — the calorie figure is measured rather than estimated, which is the
+whole reason the game can be honest about being right.
+
 ## The data
 
 From USDA FoodData Central, committed to this repo as static JSON:

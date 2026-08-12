@@ -42,8 +42,16 @@ What is different from the root:
   the plate's own line closing the table blank until it carries the truth. Answering
   fills the figures in and paints the share bars across; it does not replace the screen
   with a different one. The footer holds its height from the start, so the photograph
-  never moves, and the photograph is the flexible element, taking whatever room the rest
-  does not — 309px on a tall phone, 144px on a 640px one, with everything else intact.
+  never moves.
+- The contents and the five figures stand side by side, table left and ladder right, and
+  that is what buys the photograph its size: stacked, the two of them cost twelve rems of
+  height and the picture was reduced to a strip. Both columns are five stretching rows
+  against a fixed header, so they fill whatever is left and end level with each other —
+  339px of photograph on a tall phone against 144px before, 273px on a 640px one. The
+  photograph is capped at a little under square rather than taking everything, because
+  the frame is wider than it is tall and filling the height past that point would start
+  cutting food off the sides; what the cap leaves over collects above the footer, so the
+  NEXT button sits at the bottom of the screen where a thumb is.
 - The results screen is a page rather than a verdict. The average miss at the top, then
   every plate played: what it was, what it actually held, what you said, and how far out.
   Underneath, the same story gathered by what carried the plate — meat and fish, bread
@@ -57,9 +65,15 @@ What is different from the root:
   compressed into `data/game/`. The photographs are cropped to the plate using the dish's
   own depth map — the turntable is whatever depth most pixels share and the plate is what
   stands proud of it, read per dish because no two plates sit in the same place — and
-  lifted with a gamma curve rather than a flat brightness, which opens the midtones the
-  food lives in and leaves the plate, already near-white, where it is: median luma 115 to
-  156, for under a percent more blown highlights. Nothing is fetched at run time but the deck. The source's
+  lifted by a curve chosen per photograph rather than one gamma for the deck: as much
+  gamma as it takes to put that image's own median luma on 186, rolled off towards the
+  identity as a pixel approaches white, which is exactly where the plate lives. About a
+  seventh of every frame is white china already at the top of the scale, so a flat gain
+  bleaches it long before the food gets anywhere. Median luma 115 to 178, with the black
+  point trimmed from the bottom only so the lift has somewhere to come from. The crop
+  keeps a hair of air around the rim instead of a tenth, and the frame is five by four
+  rather than four by three, so the plate arrives filling more of the picture than it
+  used to. Nothing is fetched at run time but the deck. The source's
   per-macro shares stay out of it deliberately: they do not always agree with the plate's
   total, which is sound enough to sort plates by and not sound enough to show.
 - CALORIE CALC will work a daily target backwards from a body-fat goal. It is not built. Their pages say UNDER DEVELOPMENT and then invite
