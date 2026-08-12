@@ -14,7 +14,12 @@ What is different from the root:
   since it handles split-screen for free. The touch layout then stops widening at 640px
   and centres, so a tablet shows a comfortable column rather than a stretched phone —
   and 640 is not an arbitrary cap: the donut's bracket geometry was already computed
-  against it, so holding to it keeps that arithmetic true on a tablet too.
+  against it, so holding to it keeps that arithmetic true on a tablet too. Where the cap
+  bites, the panel is inset on all four sides and given a hairline edge, because a column
+  with air either side and none above or below reads as an accident rather than a
+  decision. A phone keeps its screen edge to edge, as an app does; the inset is fixed
+  rather than matched to the side margins, since those grow with the screen and 90px of
+  dead space top and bottom would cost a third of the list to buy nothing.
 - The site is a set of small apps rather than one page, and both layouts open straight
   into the built one. The others sit beside it in a tab row — FOOD SEARCH, CALORIE CALC,
   CALORIE GAME, shortened to SEARCH, CALC, GAME on a phone — with ABOUT holding the

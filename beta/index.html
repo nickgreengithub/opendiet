@@ -628,8 +628,10 @@ const NARROW_AT = 1000;
 // And the touch layout stops widening here rather than stretching a phone across a
 // tablet. 640 is not arbitrary: the donut's bracket geometry is already computed
 // against a 640 cap, so holding to it keeps that arithmetic true on a tablet.
-const TOUCH_W = "640px";
+const TOUCH_W_PX = 640;
+const TOUCH_W = TOUCH_W_PX + "px";
 const isNarrow = () => typeof window !== "undefined" && window.innerWidth < NARROW_AT;
+const isTablet = () => isNarrow() && window.innerWidth > TOUCH_W_PX;
 // A run of capitals is USDA shouting a brand. NFS ("not further specified") and the rest are
 // its own shorthand, and belong to plain foods — "Milk, NFS" is as plain as milk gets.
 const BRANDED = /\b(?!NFS\b|NS\b|USDA\b|RTE\b|UPC\b|I{2,3}\b|IV\b)[A-Z]{2,}\b/;
@@ -639,7 +641,7 @@ const OWNED = /\b[A-Z][a-z]+'s\b/;
 const PICKED_BG = "#0b1a20";
 
 class Component extends DCLogic {
-  state = { view: "results", q: "", cat: "ALL", catOpen: false, email: "", user: null, lib: "LEGACY", narrow: isNarrow() };
+  state = { view: "results", q: "", cat: "ALL", catOpen: false, email: "", user: null, lib: "LEGACY", narrow: isNarrow(), tablet: isTablet() };
   componentDidMount() {
     this.loadLib(this.state.lib);
     try {
@@ -712,8 +714,8 @@ class Component extends DCLogic {
     document.addEventListener("touchstart", this._dismiss, { passive: true });
     this.startTypewriter();
     this._onResize = () => {
-      const n = isNarrow();
-      if (n !== this.state.narrow) this.setState({ narrow: n });
+      const n = isNarrow(), tab = isTablet();
+      if (n !== this.state.narrow || tab !== this.state.tablet) this.setState({ narrow: n, tablet: tab });
     };
     window.addEventListener("resize", this._onResize);
     // When the keyboard opens, iOS shrinks the visual viewport and scrolls the layout
@@ -2653,7 +2655,7 @@ class Component extends DCLogic {
         }
       })),
       shell: s.narrow
-        ? { position: "fixed", top: 0, left: 0, right: 0, height: s.vvh ? s.vvh + "px" : VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: ".2rem 0 0", boxSizing: "border-box", transition: "height 240ms cubic-bezier(.22,1,.36,1)" }
+        ? { position: "fixed", top: 0, left: 0, right: 0, height: s.vvh ? s.vvh + "px" : VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: s.tablet ? "2rem 1.25rem" : ".2rem 0 0", boxSizing: "border-box", transition: "height 240ms cubic-bezier(.22,1,.36,1)" }
         : { height: VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: "2.4rem 1.25rem", boxSizing: "border-box" },
       mName: {
         display: "block", minWidth: 0, fontWeight: 300, fontSize: "1.02rem", color: "#d7e6ef",
@@ -3165,6 +3167,8 @@ class Component extends DCLogic {
       dShell: {
         width: "100%", maxWidth: s.narrow ? TOUCH_W : dxp ? "1280px" : "1120px",
         display: "flex", flexDirection: "column", flex: 1, minHeight: 0,
+        border: s.tablet ? "1px solid rgba(34,211,238,.20)" : "0",
+        boxSizing: "border-box",
         transition: "max-width 560ms cubic-bezier(.22,1,.36,1)"
       },
       dExpToggle: () => this.setState({ dxp: !s.dxp }),
