@@ -7,7 +7,11 @@ links to it.
 What is different from the root:
 
 - A launcher screen: the site is a set of small apps rather than one page. FOOD SEARCH is
-  the built one; CALORIE CALC, RECIPE BUILDER and FOOD COMPARE are placeholders.
+  the built one. CALORIE CALC will work a daily target backwards from a body-fat goal, and
+  CALORIE GAME will drill guessing a meal's calories from a photograph — the one skill that
+  travels to a restaurant table. Neither is built: their pages say so plainly and then
+  invite the reader to follow the project on GitHub or reach Nick Green on LinkedIn, since
+  an unbuilt app is a better invitation than a dead end.
 - Desktop switches app with tabs across the top and opens straight into FOOD SEARCH —
   the launcher page is mobile's, where a back button returns to it. ABOUT sits in the
   top-right corner of the tab row on desktop; on mobile it stays a quiet line on the

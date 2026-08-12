@@ -191,6 +191,11 @@ option{background:#070b12;color:#d7e6ef}
     <span style="{{ soonTag }}">NOT BUILT YET</span>
     <span style="{{ soonName }}">{{ appTitle }}</span>
     <span style="{{ soonNote }}">{{ appNote }}</span>
+    <span style="{{ soonJoin }}">Being built in the open. Follow along, or come and build it.</span>
+    <span style="{{ soonLinks }}">
+      <a href="https://github.com/nickgreengithub/opendiet" target="_blank" style="{{ soonLink }}" style-hover="color:#a5f3fc"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="M12 .5C5.73.5.99 5.24.99 11.51c0 4.86 3.15 8.98 7.52 10.44.55.1.75-.24.75-.53v-2.05c-3.06.67-3.71-1.3-3.71-1.3-.5-1.28-1.23-1.62-1.23-1.62-1-.69.08-.67.08-.67 1.11.08 1.69 1.14 1.69 1.14.98 1.69 2.58 1.2 3.21.92.1-.72.39-1.2.7-1.48-2.44-.28-5.01-1.22-5.01-5.44 0-1.2.43-2.18 1.13-2.95-.11-.28-.49-1.4.11-2.92 0 0 .92-.3 3.02 1.13a10.4 10.4 0 0 1 5.5 0c2.1-1.43 3.02-1.13 3.02-1.13.6 1.52.22 2.64.11 2.92.7.77 1.13 1.75 1.13 2.95 0 4.23-2.58 5.16-5.03 5.43.4.34.75 1.02.75 2.06v3.05c0 .3.2.64.76.53a11.03 11.03 0 0 0 7.51-10.44C23.01 5.24 18.27.5 12 .5z"></path></svg>FOLLOW ON GITHUB</a>
+      <a href="https://www.linkedin.com/in/analystnickgreen/" target="_blank" style="{{ soonLink }}" style-hover="color:#a5f3fc"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 21h4V9H3v12zM10 21h4v-6.4c0-1.7.32-3.35 2.43-3.35 2.08 0 2.1 1.95 2.1 3.46V21h4v-7.1c0-3.47-.75-6.14-4.8-6.14-1.95 0-3.26 1.07-3.8 2.08h-.05V8.5H10V21z"></path></svg>CONTACT NICK GREEN</a>
+    </span>
   </div>
   </sc-if>
   <sc-if value="{{ aboutOpen }}" hint-placeholder-val="{{ false }}">
@@ -1245,9 +1250,12 @@ class Component extends DCLogic {
     // placeholders so the shell around them can be judged before anything is written.
     const APPS = [
       { k: "search", label: "FOOD SEARCH", note: "Search 18,000 foods and read their macros side by side." },
-      { k: "calc", label: "CALORIE CALC", note: "Maintenance calories and a daily target from your own numbers." },
-      { k: "recipe", label: "RECIPE BUILDER", note: "Add ingredients, set the servings, get the macros per portion." },
-      { k: "compare", label: "FOOD COMPARE", note: "Two or three foods head to head, per 100 g or per calorie." }
+      { k: "calc", label: "CALORIE CALC",
+        note: "A calorie target built backwards from the body composition you are after: say where your body fat is now and where you want it, and get the daily number and the timeline that reach it.",
+        card: "A daily calorie target and timeline, built backwards from your body fat goal." },
+      { k: "game", label: "CALORIE GAME",
+        note: "Guess the calories in a photograph of a meal, then see how close you were. Reading a plate by eye is the skill the whole thing rests on \u2014 whether you are cutting fat or adding lean mass, nothing else is portable to a restaurant table \u2014 and it is trainable.",
+        card: "Guess the calories in a photo of a meal. Eyeballing a plate is trainable \u2014 and it is the skill dieting actually runs on." }
     ];
     const app = s.app || (s.narrow ? "home" : "search");
     const appDef = APPS.find(a => a.k === app);
@@ -2773,7 +2781,7 @@ class Component extends DCLogic {
         }
       })),
       appCards: APPS.map(a => ({
-        label: a.label, note: a.note, tag: live(a.k) ? "LIVE" : "SOON",
+        label: a.label, note: a.card || a.note, tag: live(a.k) ? "LIVE" : "SOON",
         onClick: setApp(a.k),
         nameStyle: { fontFamily: "var(--font-2)", fontSize: s.narrow ? ".92rem" : ".95rem", letterSpacing: ".14em", color: live(a.k) ? "#22d3ee" : "#c3d6e2" },
         tagStyle: {
@@ -2831,7 +2839,17 @@ class Component extends DCLogic {
       },
       soonTag: { fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".18em", color: "#5b7183" },
       soonName: { fontFamily: "var(--font-2)", fontSize: s.narrow ? "1.3rem" : "1.7rem", letterSpacing: ".18em", color: "#22d3ee" },
-      soonNote: { maxWidth: "34ch", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1.06rem" : "1.05rem", lineHeight: 1.55, color: "#94a3b8", textWrap: "pretty" },
+      // The unbuilt apps are an invitation rather than a dead end.
+      soonJoin: { maxWidth: "38ch", marginTop: s.narrow ? ".5rem" : ".7rem",
+        fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1rem" : ".98rem",
+        lineHeight: 1.55, color: "#7b91a3", textWrap: "pretty" },
+      soonLinks: { display: "flex", flexWrap: "wrap", gap: s.narrow ? ".9rem" : "1.6rem",
+        marginTop: s.narrow ? ".2rem" : ".35rem" },
+      soonLink: { display: "flex", alignItems: "center", gap: ".45rem",
+        fontFamily: "var(--font-2)", fontSize: s.narrow ? ".8rem" : ".76rem",
+        letterSpacing: ".14em", color: "#22d3ee", cursor: "pointer", whiteSpace: "nowrap",
+        transition: "color 140ms ease" },
+      soonNote: { maxWidth: "38ch", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1.06rem" : "1.05rem", lineHeight: 1.55, color: "#94a3b8", textWrap: "pretty" },
       isResults: s.view === "results" && app === "search", isSettings: s.view === "settings", isSignin: s.view === "signin",
       aboutOpen: !!s.aboutOpen,
       openAbout: () => this.setState({ aboutOpen: true }),
