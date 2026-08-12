@@ -6,6 +6,15 @@ links to it.
 
 What is different from the root:
 
+- A tablet gets the touch layout, not the table. The table's numeric columns are fixed,
+  so every pixel of squeeze lands on the one flexible track — the food name — and below
+  about 960px of viewport every row reads "Cheese, parmes…" and identifies nothing. The
+  line is drawn at 1000px: every iPad in portrait falls under it, landscape tablets stay
+  above it and keep the table. Width is the right signal rather than the user agent,
+  since it handles split-screen for free. The touch layout then stops widening at 640px
+  and centres, so a tablet shows a comfortable column rather than a stretched phone —
+  and 640 is not an arbitrary cap: the donut's bracket geometry was already computed
+  against it, so holding to it keeps that arithmetic true on a tablet too.
 - The site is a set of small apps rather than one page, and both layouts open straight
   into the built one. The others sit beside it in a tab row — FOOD SEARCH, CALORIE CALC,
   CALORIE GAME, shortened to SEARCH, CALC, GAME on a phone — with ABOUT holding the
