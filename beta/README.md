@@ -26,71 +26,34 @@ What is different from the root:
   right-hand corner. The launcher screen it replaces is gone from both, and ABOUT is a
   page in the same language as the unbuilt ones rather than a dialog over the top: it
   lights its tab like any other, and Escape returns to the search.
-- CALORIE GAME is built, on a phone. A photograph of a real plate, what is on it named
-  but not weighed, and five calorie figures to choose between. Naming the contents is the
-  point: the player is not asked what the food is, but how much of it there is. The
-  figures are a ladder — each step a fixed ratio, so it widens with the plate rather than
-  sitting a flat number either side — and the truth is planted at a position drawn from
-  the dish itself, so the answer is as likely to be the lowest figure as the highest.
-  Only the positions that leave every figure a believable plate are allowed: a ladder
-  running four steps up from 950 kcal ends at 4820, which is not food anyone was served,
-  and a figure nobody could believe gives the answer away as surely as a label would.
-  Scoring is distance-weighted and the miss is kept in calories as well as proportion.
-- Nothing about the game scrolls, and nothing about it switches context either. The
-  ingredient table is on screen from the first moment — the same rows, the same columns,
-  in the same place — with the figures held back as dashes until an answer is given, and
-  the plate's own line closing the table blank until it carries the truth. Answering
-  fills the figures in and paints the share bars across; it does not replace the screen
-  with a different one. The footer holds its height from the start, so the photograph
-  never moves.
-- The contents and the five figures stand side by side, table left and ladder right, and
-  that is what buys the photograph its size: stacked, the two of them cost twelve rems of
-  height and the picture was reduced to a strip. Both columns are five stretching rows
-  against a fixed header, so they fill whatever is left and end level with each other —
-  339px of photograph on a tall phone against 144px before, 273px on a 640px one. The
-  photograph is capped at a little under square rather than taking everything, because
-  the frame is wider than it is tall and filling the height past that point would start
-  cutting food off the sides; what the cap leaves over collects above the footer, so the
-  NEXT button sits at the bottom of the screen where a thumb is.
-- The results screen is a page rather than a verdict. The average miss at the top, then
-  every plate played: what it was, what it actually held, what you said, and how far out.
-  Underneath, the same story gathered by what carried the plate — meat and fish, bread
-  and grains, eggs and dairy — each with a bar reaching left or right of centre, because
-  which kinds of food an eye misreads is more useful than how many it got right. The
-  category is taken from whichever ingredient carries most of the plate's calories; rough
-  by nature, since a plate is rarely one thing, but honest about being so.
-- The deck is prepared offline by `tools/build_game_deck.py` from Nutrition5k (Thames et
-  al., CVPR 2021, CC BY 4.0) — 140 plates whose ingredient calories agree with their own
-  total to within 6%, spread across the calorie range, with their photographs compressed
-  into `data/game/`. Nothing is fetched at run time but the deck. The source's per-macro
-  shares stay out of it deliberately: they do not always agree with the plate's total,
-  which is sound enough to sort plates by and not sound enough to show.
-- The pictures come from the rig's side cameras, not its overhead one. The overhead
-  RealSense frame is 640×480 and dim, and no amount of processing was going to fix that —
-  it was the ceiling, and the dataset was being blamed for it. The four side cameras are
-  1920×1080. Camera A is the one worth having: it looks down on the plate at a slight
-  angle, near enough overhead to read how the food is spread and angled enough to show how
-  high it is piled, which is most of what a calorie guess is actually reading. B and C sit
-  low and catch more of the rig than the plate; D is a wider three-quarter view, kept only
-  for the dishes A had nothing usable for. About a twentieth of the dataset was never
-  filmed from the side, and those plates simply do not make the deck.
-- They are H.264 of the turntable turning, so choosing a picture means choosing a frame.
-  The rig does not move and neither does the plate on it, so the crop does not move either:
-  a full-height window of the output's aspect, in the middle of the frame. What moves is
-  the food, which sits wherever it was plated and comes round with the table — so the frame
-  is what gets picked, the one with the most food inside that window and the least hanging
-  out of it. Food is read as colour, since the china is white and the table is dark glass.
-  That mistakes a coloured plate for food, but only by counting the whole plate, which is
-  centred anyway and so cannot move the answer. Half the turn is fetched per dish, which is
-  enough rotation to find a good face, and the build takes four minutes for 140 plates.
-- Exposure is a curve chosen per photograph rather than one gamma for the deck: as much
-  gamma as it takes to put that image's own median luma on the mark, rolled off towards the
-  identity as a pixel approaches white, which is exactly where the plate lives. A seventh
-  of every frame is white china already at the top of the scale, so a flat gain bleaches it
-  long before the food gets anywhere. The side frames start far better exposed than the
-  overhead one, so they are brought to 168 rather than 186 — lifting them as hard washed
-  them out. Median luma across the deck is 162, none below 125, where the overhead
-  photographs sat at 115.
+- CALORIE GAME is built, on a phone, and it asks one question ten times: two foods stacked
+  one above the other, each named with its portion, and which of them is more. Tapping a
+  picture answers it — the winner lights and the loser dims, both figures arrive in the
+  corner the portion was already sitting in, and neither photograph moves. Nothing else
+  is on the screen and nothing scrolls.
+- The pairing is where the difficulty lives. Ten pairs, no food used twice, and the gap
+  between them closing as the game goes on: the first rounds are a banana against a bagel
+  and the last are two things a fifth apart. Nothing closer than 1.12x is ever asked,
+  because past that the honest answer is that nobody could tell. Which of the two goes on
+  top is a coin toss, so the answer is never in the same place.
+- The results page reports the thing a tally would not: how far apart two foods have to
+  be before you can see it. Every pairing played, then the same ten sorted into far apart,
+  some way apart and close, with the hit rate in each. Getting the far ones right and the
+  close ones wrong is the expected shape; where the line falls is the interesting part.
+- The deck is 36 single foods, built by `tools/build_pairs_deck.py` from four generated
+  3x3 grids in `data/pairs/raw/`, cut into tiles. The pictures are generated rather than
+  photographed, which is the opposite trade from the plate deck: clean, consistent and
+  one food at a time, but nothing about them was measured. So the rule is that **the guess
+  is only ever the weight — the calories per 100 g are always USDA**. Each entry names a
+  food in `data/legacy.json` and a portion in grams; where the picture matched what was
+  asked for, the grams are USDA's own household portion times a whole number, and where it
+  did not — nine strawberries instead of eight, one slice of bread instead of two — the
+  grams are read off the picture instead and the entry is flagged. Ten of the 36 are
+  flagged. The energy density is never invented.
+- The Nutrition5k plate deck and `tools/build_game_deck.py` stay in the repo. That game
+  asked how many calories a whole tray held, against a figure that had been weighed; this
+  one asks a smaller question about pictures that were not. They are different trades and
+  the first is one revert away.
 - CALORIE CALC will work a daily target backwards from a body-fat goal. It is not built. Their pages say UNDER DEVELOPMENT and then invite
   the reader to follow the project on GitHub or reach Nick Green on LinkedIn, because an
   unbuilt app is a better invitation than a dead end. The lines arrive in turn rather than
