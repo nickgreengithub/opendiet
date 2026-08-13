@@ -209,39 +209,31 @@ option{background:#070b12;color:#d7e6ef}
   <sc-if value="{{ appGame }}" hint-placeholder-val="{{ false }}">
   <div style="{{ gWrap }}">
     <sc-if value="{{ gWaiting }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ gWaitS }}">LOADING PLATES</span>
+      <span style="{{ gWaitS }}">LOADING FOODS</span>
     </sc-if>
     <sc-if value="{{ gFailed }}" hint-placeholder-val="{{ false }}">
       <span style="{{ gWaitS }}">THE DECK DID NOT LOAD. TRY AGAIN LATER.</span>
     </sc-if>
     <sc-if value="{{ gReady }}" hint-placeholder-val="{{ true }}">
-      <span style="{{ gHead }}"><span>{{ gRoundLabel }}</span><span style="{{ gHeadScore }}">{{ gHits }} EXACT</span></span>
-      <span style="{{ gPhotoBox }}"><img src="{{ gPhoto }}" alt="A plated meal photographed from above" style="{{ gPhotoImg }}"></span>
-      <span style="{{ gPlayRow }}">
-        <span style="{{ gTableCol }}">
-          <span style="{{ gHeadRow }}"><span>ON THE PLATE</span><span style="{{ gHeadR }}">GRAMS</span><span style="{{ gHeadR }}">KCAL</span></span>
-          <sc-for list="{{ gRows }}" as="x" hint-placeholder-count="4">
-            <span style="{{ gRowS }}"><span style="{{ x.fill }}"></span><span style="{{ gNameS }}">{{ x.name }}</span><span style="{{ x.g.s }}">{{ x.g.v }}</span><span style="{{ x.kcal.s }}">{{ x.kcal.v }}</span></span>
-          </sc-for>
-          <span style="{{ gTotRowS }}"><span style="{{ gTotNameS }}">{{ gTotName }}</span><span style="{{ gTotGS }}">{{ gTotG }}</span><span style="{{ gTotKS }}">{{ gTotK }}</span></span>
-        </span>
-        <span style="{{ gOptsWrap }}">
-          <span style="{{ gOptHead }}">KCAL?</span>
-          <sc-for list="{{ gOpts }}" as="o" hint-placeholder-count="5">
-            <button onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</button>
-          </sc-for>
-        </span>
-      </span>
+      <span style="{{ gHead }}"><span>{{ gRoundLabel }}</span><span style="{{ gHeadScore }}">{{ gHits }} RIGHT</span></span>
+      <button onClick="{{ gTop.onClick }}" style="{{ gTop.box }}">
+        <img src="{{ gTop.img }}" alt="{{ gTop.alt }}" style="{{ gShotS }}">
+        <span style="{{ gTop.cap }}"><span style="{{ gNameS }}">{{ gTop.name }}</span><span style="{{ gPortS }}">{{ gTop.portion }}</span><span style="{{ gTop.kS }}">{{ gTop.k }}</span></span>
+      </button>
+      <button onClick="{{ gBot.onClick }}" style="{{ gBot.box }}">
+        <img src="{{ gBot.img }}" alt="{{ gBot.alt }}" style="{{ gShotS }}">
+        <span style="{{ gBot.cap }}"><span style="{{ gNameS }}">{{ gBot.name }}</span><span style="{{ gPortS }}">{{ gBot.portion }}</span><span style="{{ gBot.kS }}">{{ gBot.k }}</span></span>
+      </button>
       <span style="{{ gFootS }}">
         <span style="{{ gVerdictS }}">{{ gVerdict }}</span>
         <button onClick="{{ gNext }}" style="{{ gNextS }}">{{ gNextLabel }}</button>
       </span>
     </sc-if>
     <sc-if value="{{ gDone }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ gResTag }}">TEN PLATES</span>
+      <span style="{{ gResTag }}">TEN PAIRS</span>
       <span style="{{ gAccS }}">{{ gAcc }}<span style="{{ gResOf }}">{{ gAccLab }}</span></span>
       <span style="{{ gAccSubS }}">{{ gAccSub }}</span>
-      <span style="{{ gResHead }}"><span>PLATE</span><span style="{{ gResHeadR }}">ACTUAL</span><span style="{{ gResHeadR }}">YOURS</span><span style="{{ gResHeadR }}">OUT BY</span></span>
+      <span style="{{ gResHead }}"><span>{{ gResH1 }}</span><span style="{{ gResHeadR }}">{{ gResH2 }}</span><span style="{{ gResHeadR }}">{{ gResH3 }}</span><span style="{{ gResHeadR }}">{{ gResH4 }}</span></span>
       <sc-for list="{{ gResRows }}" as="x" hint-placeholder-count="10">
         <span style="{{ x.row }}"><span style="{{ x.nameS }}">{{ x.name }}</span><span style="{{ x.actual.s }}">{{ x.actual.v }}</span><span style="{{ x.guess.s }}">{{ x.guess.v }}</span><span style="{{ x.diff.s }}">{{ x.diff.v }}</span></span>
       </sc-for>
@@ -824,146 +816,134 @@ class Component extends DCLogic {
   }
   // Each library is a static JSON file: {cats:[...], foods:[[name,catIdx,kcal,p,c,fb,f,sf,sg,liquid],...]},
   // built from the USDA FoodData Central CSV releases. Values are per 100 g/ml, FDC's own basis.
-  // The calorie game. A photograph of a real plate, three ranges, and then the
-  // number with a breakdown of where it came from. The deck is prepared offline
-  // by tools/build_game_deck.py from Nutrition5k, so nothing is fetched at run
-  // time but the deck itself.
+  // The calorie game: two foods, one question — which of them is more. The
+  // deck is prepared offline by tools/build_pairs_deck.py, so nothing is
+  // fetched at run time but the deck itself.
   loadDeck() {
     if (this._deck || this._deckPending) return;
     this._deckPending = true;
-    fetch(DATA + "game/deck.json")
+    fetch(DATA + "pairs/deck.json")
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(d => { this._deck = d; this.setState({ gLoaded: true }); this.gStart(true); })
       .catch(() => this.setState({ gFailed: true }));
   }
-  // Ten plates drawn without replacement, hardest last.
+  // Ten pairs, no food twice, and the gap between them closing as the game goes
+  // on: the first rounds are a banana against a bagel and the last are two
+  // things within a fifth of each other. Nothing closer than 1.12x is asked,
+  // because past that the honest answer is that nobody could tell.
   gStart(quiet) {
-    const deck = this._deck && this._deck.dishes;
-    if (!deck || !deck.length) return;
-    const order = deck.map((_, i) => i);
-    for (let i = order.length - 1; i > 0; i--) {
+    const foods = this._deck && this._deck.foods;
+    if (!foods || foods.length < 4) return;
+    const left = foods.map((_, i) => i);
+    for (let i = left.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      const t = order[i]; order[i] = order[j]; order[j] = t;
+      const t = left[i]; left[i] = left[j]; left[j] = t;
     }
-    const patch = { gOrder: order.slice(0, 10), gI: 0, gPicks: [], gSel: null };
+    const pairs = [];
+    for (let r = 0; r < 10 && left.length > 1; r++) {
+      const want = 2.4 - r * 0.13;
+      const a = left.shift();
+      let best = -1, bestD = Infinity;
+      for (let k = 0; k < left.length; k++) {
+        const x = foods[a].kcal, y = foods[left[k]].kcal;
+        const ratio = Math.max(x, y) / Math.max(1, Math.min(x, y));
+        if (ratio < 1.12) continue;
+        const d = Math.abs(ratio - want);
+        if (d < bestD) { bestD = d; best = k; }
+      }
+      if (best < 0) break;
+      const b = left.splice(best, 1)[0];
+      pairs.push(Math.random() < 0.5 ? [a, b] : [b, a]);
+    }
+    const patch = { gPairs: pairs, gI: 0, gPicks: [], gSel: null };
     if (quiet) Object.assign(this.state, patch); else this.setState(patch);
     if (quiet) this.setState({ gLoaded: true });
   }
-  // Five figures on a scale, not three ranges. Each step is a fixed ratio, so
-  // the ladder widens with the plate rather than sitting a flat number either
-  // side of it, and the truth is planted at a position derived from the dish
-  // itself — the same plate always sits the same way, but across a round the
-  // answer is as likely to be the lowest figure as the highest.
   gRound(i) {
-    const deck = this._deck && this._deck.dishes, order = this.state.gOrder || [];
-    if (!deck || order[i] === undefined) return null;
-    const dish = deck[order[i]];
-    const ratio = i < 3 ? 1.5 : i < 7 ? 1.32 : 1.2;
-    let h = 0;
-    for (let k = 0; k < dish.id.length; k++) h = (h * 31 + dish.id.charCodeAt(k)) % 100003;
-    const t = dish.kcal;
-    // Where the truth sits is drawn from the dish, but only from the positions
-    // that leave every figure a plausible plate. A ladder running four steps up
-    // from 950 kcal ends at 4820, which is not food anyone was served — and a
-    // figure nobody could believe gives the answer away as surely as a label.
-    const L = Math.log(ratio);
-    const up = Math.floor(Math.log(1300 / t) / L), down = Math.floor(Math.log(t / 55) / L);
-    const lo = Math.max(0, 4 - Math.max(0, up)), hi = Math.min(4, Math.max(0, down));
-    const at = hi <= lo ? lo : lo + (h % (hi - lo + 1));
-    const step = n => Math.round(t * Math.pow(ratio, n) / 5) * 5;
-    const opts = [0, 1, 2, 3, 4].map(j => ({ v: j === at ? t : step(j - at), truth: j === at }));
-    return { dish: dish, opts: opts, ratio: ratio, kcal: t, at: at };
+    const foods = this._deck && this._deck.foods, pairs = this.state.gPairs || [];
+    if (!foods || !pairs[i]) return null;
+    return { top: foods[pairs[i][0]], bot: foods[pairs[i][1]] };
   }
-  // Distance-weighted rather than right or wrong, and the miss is kept in
-  // calories as well as proportion — how many calories a day of this would cost
-  // is the thing the player came for.
-  gPickOpt(k) {
+  gPickSide(k) {
     if (this.state.gSel !== null) return;
     const r = this.gRound(this.state.gI);
     if (!r) return;
-    const o = r.opts[k], off = o.v - r.kcal, err = off / r.kcal;
-    const pick = { k: k, err: err, off: off, hit: !!o.truth,
-      score: Math.round(100 * Math.max(0, 1 - Math.abs(err))),
-      tags: r.dish.tags, kcal: r.kcal, guess: o.v, cat: r.dish.cat,
-      name: r.dish.top.slice(0, 2).map(x => x[0]).join(" + ") };
+    const more = r.top.kcal >= r.bot.kcal ? 0 : 1;
+    const hi = Math.max(r.top.kcal, r.bot.kcal), lo = Math.min(r.top.kcal, r.bot.kcal);
+    const pick = { k: k, hit: k === more, top: r.top, bot: r.bot,
+      ratio: hi / Math.max(1, lo), gap: hi - lo };
     this.setState(s => ({ gSel: k, gPicks: (s.gPicks || []).concat([pick]) }));
   }
-  // The end of a game is a page of its own: what was played, plate by plate,
-  // and then the same story gathered by the kind of food it was. A tally of
-  // rights and wrongs would say less than either.
+  // The end of a game is a page: every pairing played, and then the thing worth
+  // knowing — how far apart two foods have to be before you can tell. A tally
+  // on its own would not say that.
   gResults(picks) {
     if (!picks || !picks.length) return {};
-    const n = picks.length;
-    const totOff = picks.reduce((a, p) => a + p.off, 0);
-    const meanAbs = picks.reduce((a, p) => a + Math.abs(p.err), 0) / n;
-    const sign = v => (v < 0 ? "\u2212" : "+") + Math.abs(Math.round(v));
-    const cats = {};
-    picks.forEach(p => {
-      const c = cats[p.cat] || (cats[p.cat] = { n: 0, off: 0, err: 0 });
-      c.n++; c.off += p.off; c.err += p.err;
-    });
-    const catRows = Object.keys(cats).map(k => ({ cat: k, d: cats[k] }))
-      .sort((a, b) => b.d.n - a.d.n).slice(0, 5);
+    const n = picks.length, hits = picks.filter(p => p.hit).length;
+    const BANDS = [["FAR APART", 2.0, 99], ["SOME WAY APART", 1.5, 2.0], ["CLOSE", 0, 1.5]];
+    const bands = BANDS.map(b => {
+      const inb = picks.filter(p => p.ratio >= b[1] && p.ratio < b[2]);
+      return { lab: b[0], n: inb.length, hit: inb.filter(p => p.hit).length };
+    }).filter(b => b.n);
     const num = (v, col) => ({ v: v, s: { textAlign: "right", fontWeight: 300,
       fontSize: ".88rem", color: col, fontVariantNumeric: "tabular-nums" } });
     return {
-      gAcc: String(Math.round(meanAbs * 100)) + "%",
+      gAcc: String(hits), gAccLab: "OF " + n + " RIGHT",
       gAccS: { display: "flex", alignItems: "baseline", gap: ".45rem", padding: "0 .15rem",
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "2.2rem",
-        color: meanAbs < 0.12 ? "#7ee0a8" : "#eaf5fb", fontVariantNumeric: "tabular-nums" },
-      gAccLab: "AVERAGE MISS",
-      gAccSub: picks.filter(p => p.hit).length + " OF " + n + " EXACT  \u00b7  "
-        + Math.abs(Math.round(totOff)) + " KCAL "
-        + (totOff < 0 ? "UNDER" : "OVER") + " ACROSS THE TEN",
+        color: hits >= 8 ? "#7ee0a8" : "#eaf5fb", fontVariantNumeric: "tabular-nums" },
+      gAccSub: hits === n ? "EVERY ONE, INCLUDING THE CLOSE ONES"
+        : "THE CLOSER TWO FOODS SIT, THE LESS AN EYE HAS TO GO ON",
       gAccSubS: { display: "block", padding: ".3rem .15rem .75rem", fontFamily: "var(--font-2)",
         fontSize: ".68rem", letterSpacing: ".1em", color: "#7b91a3" },
+      gResH1: "THE PAIR", gResH2: "TOP", gResH3: "BOTTOM", gResH4: "",
       gResHead: { flex: "none", display: "grid",
-        gridTemplateColumns: "minmax(0,1fr) 3rem 3rem 3rem", columnGap: ".35rem",
+        gridTemplateColumns: "minmax(0,1fr) 3rem 3rem 1.6rem", columnGap: ".35rem",
         padding: "0 .15rem .25rem", fontFamily: "var(--font-2)", fontSize: ".6rem",
         letterSpacing: ".1em", color: "#54677a" },
       gResHeadR: { textAlign: "right" },
-      gResRows: picks.map(p => ({
-        name: p.name.toUpperCase(),
-        nameS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-          fontFamily: "var(--font-2)", fontSize: ".68rem", letterSpacing: ".04em",
-          color: p.hit ? "#c7d6e0" : "#8ba0ad" },
-        actual: num(String(p.kcal), "#d7e6ef"),
-        guess: num(String(p.guess), p.hit ? "#7ee0a8" : "#c7d6e0"),
-        diff: num(p.hit ? "\u2713" : sign(p.off), p.hit ? "#7ee0a8" : "#f08c7a"),
-        row: { flex: "none", display: "grid",
-          gridTemplateColumns: "minmax(0,1fr) 3rem 3rem 3rem", columnGap: ".35rem",
-          alignItems: "center", height: "1.55rem", padding: "0 .15rem",
-          borderTop: "1px solid rgba(215,230,239,.07)" }
-      })),
-      gCatLab: "BY WHAT CARRIED THE PLATE",
+      gResRows: picks.map(p => {
+        const upper = p.top.kcal >= p.bot.kcal;
+        return {
+          name: (p.top.name + " / " + p.bot.name).toUpperCase(),
+          nameS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            fontFamily: "var(--font-2)", fontSize: ".68rem", letterSpacing: ".04em",
+            color: p.hit ? "#c7d6e0" : "#8ba0ad" },
+          actual: num(String(p.top.kcal), upper ? "#d7e6ef" : "#5b7183"),
+          guess: num(String(p.bot.kcal), upper ? "#5b7183" : "#d7e6ef"),
+          diff: num(p.hit ? "\u2713" : "\u2715", p.hit ? "#7ee0a8" : "#f08c7a"),
+          row: { flex: "none", display: "grid",
+            gridTemplateColumns: "minmax(0,1fr) 3rem 3rem 1.6rem", columnGap: ".35rem",
+            alignItems: "center", height: "1.55rem", padding: "0 .15rem",
+            borderTop: "1px solid rgba(215,230,239,.07)" }
+        };
+      }),
+      gCatLab: "HOW FAR APART THEY HAD TO BE",
       gCatLabS: { flex: "none", display: "block", padding: ".8rem .15rem .3rem",
         fontFamily: "var(--font-2)", fontSize: ".64rem", letterSpacing: ".12em", color: "#7b91a3" },
-      gCatRows: catRows.map(c => {
-        const mean = c.d.err / c.d.n, pct = Math.round(Math.abs(mean) * 100);
-        // A bar either side of centre: which way the eye went, and how far.
+      gCatRows: bands.map(b => {
+        const pct = Math.round(100 * b.hit / b.n);
         return {
-          name: c.cat.toUpperCase(),
+          name: b.lab,
           nameS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
             fontFamily: "var(--font-2)", fontSize: ".68rem", letterSpacing: ".04em", color: "#c7d6e0" },
-          n: c.d.n + (c.d.n === 1 ? " PLATE" : " PLATES"),
+          n: b.hit + " OF " + b.n,
           nS: { textAlign: "right", fontFamily: "var(--font-2)", fontSize: ".62rem",
             letterSpacing: ".06em", color: "#54677a" },
-          val: (mean < 0 ? "\u2212" : "+") + pct + "%",
+          val: pct + "%",
           valS: { textAlign: "right", fontWeight: 300, fontSize: ".88rem",
-            color: pct < 10 ? "#7ee0a8" : mean < 0 ? "#f08c7a" : "#f0c07a",
+            color: pct >= 80 ? "#7ee0a8" : pct >= 50 ? "#f0c07a" : "#f08c7a",
             fontVariantNumeric: "tabular-nums" },
           bar: { position: "absolute", top: "50%", height: "1.15rem", marginTop: "-.575rem",
-            left: mean < 0 ? (50 - Math.min(48, pct * 0.9)) + "%" : "50%",
-            width: Math.min(48, pct * 0.9) + "%",
-            background: pct < 10 ? "rgba(126,224,168,.22)" : "rgba(240,140,122,.20)" },
+            left: 0, width: Math.max(2, pct) + "%",
+            background: pct >= 80 ? "rgba(126,224,168,.18)" : "rgba(240,140,122,.16)" },
           row: { position: "relative", flex: "none", display: "grid",
             gridTemplateColumns: "minmax(0,1fr) 4.2rem 3rem", columnGap: ".35rem",
             alignItems: "center", height: "1.68rem", padding: "0 .15rem",
             borderTop: "1px solid rgba(215,230,239,.07)" }
         };
       }),
-      gCatMid: { position: "absolute", left: "50%", top: 0, bottom: 0, width: "1px",
-        background: "rgba(34,211,238,.30)" },
+      gCatMid: { display: "none" },
       gCatWrap: { position: "relative", flex: "none", display: "flex", flexDirection: "column" },
       gAgain: () => this.gStart(false),
       gDeckNote: this._deck ? this._deck.note : ""
@@ -971,23 +951,6 @@ class Component extends DCLogic {
   }
   gNext() {
     this.setState(s => ({ gI: (s.gI || 0) + 1, gSel: null }));
-    const el = typeof document !== "undefined" && document.querySelector('[data-gscroll]');
-    if (el) el.scrollTop = 0;
-  }
-  // What the player is actually here for: which side of the truth they sit on,
-  // and on which kind of plate. Reported per density band, since density is what
-  // an eye misreads — a calorie is easy to see when it arrives with bulk.
-  gBias(picks) {
-    const band = {};
-    (picks || []).forEach(p => {
-      const b = p.tags.indexOf("dense") >= 0 ? "dense"
-        : p.tags.indexOf("light") >= 0 ? "light" : "middling";
-      (band[b] || (band[b] = [])).push(p.err);
-    });
-    return Object.keys(band).map(b => {
-      const e = band[b], m = e.reduce((a, x) => a + x, 0) / e.length;
-      return { band: b, n: e.length, mean: m };
-    }).sort((a, b) => b.n - a.n);
   }
   loadLib(k) {
     const cache = this._libs || (this._libs = {});
@@ -3131,127 +3094,70 @@ class Component extends DCLogic {
         const r = this.gRound(i);
         const done = i >= 10 || (!r && picks.length >= 10);
         const ready = !!(this._deck && r);
-        const fmt = n => String(Math.round(n));
         const shown = sel !== null;
         const last = picks.length ? picks[picks.length - 1] : null;
-        const A = d => ({ animation: "od-soon-a 300ms cubic-bezier(.22,1,.36,1) " + d + "ms both" });
-        const dash = "\u2014";
-        // The table is on screen from the first moment: the same rows, the same
-        // columns, in the same place. Answering fills the figures in rather than
-        // replacing the screen with a different one.
-        const cell = (v, k) => ({
-          v: shown ? v : dash,
-          s: Object.assign({ textAlign: "right", fontWeight: 300, fontSize: ".92rem",
-            fontVariantNumeric: "tabular-nums",
-            color: shown ? "#d7e6ef" : "#3f5364",
-            transition: "color 260ms ease" }, shown ? A(60 + k * 55) : {})
+        const more = r ? (r.top.kcal >= r.bot.kcal ? 0 : 1) : -1;
+        // One of the two is right and the other is not, so the reveal says both
+        // at once: the winner lights, the loser dims, and the figures arrive in
+        // the corner the portion was already sitting in.
+        const side = (food, k) => ({
+          img: food ? DATA + food.img : "",
+          alt: food ? ("A plate of " + food.name) : "",
+          // With a placeholder the tile already carries the name, so the caption
+          // drops it rather than saying the same thing twice a hand-span apart.
+          name: food && food.real ? food.name.toUpperCase() : "",
+          portion: food ? food.portion : "",
+          k: shown && food ? String(food.kcal) + " KCAL" : "",
+          onClick: () => this.gPickSide(k),
+          box: {
+            position: "relative", flex: "1 1 0", minHeight: 0, width: "100%",
+            padding: 0, margin: 0, marginTop: k ? ".5rem" : 0,
+            appearance: "none", WebkitAppearance: "none",
+            overflow: "hidden", borderRadius: 0,
+            background: "#0a1016", cursor: shown ? "default" : "pointer",
+            border: "1px solid " + (!shown ? "rgba(34,211,238,.16)"
+              : k === more ? "rgba(126,224,168,.75)"
+              : sel === k ? "rgba(240,140,122,.65)" : "rgba(34,211,238,.06)"),
+            opacity: !shown || k === more ? 1 : 0.55,
+            transition: "border-color 260ms ease, opacity 260ms ease"
+          },
+          cap: {
+            position: "absolute", left: 0, right: 0, bottom: 0,
+            display: "grid", gridTemplateColumns: "minmax(0,1fr) auto",
+            alignItems: "baseline", columnGap: ".5rem", padding: ".9rem .6rem .5rem",
+            textAlign: "left",
+            background: "linear-gradient(to top, rgba(5,8,13,.92), rgba(5,8,13,0))"
+          },
+          kS: Object.assign({ gridColumn: 2, gridRow: "1 / span 2", alignSelf: "center",
+            textAlign: "right", fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1.15rem", fontVariantNumeric: "tabular-nums",
+            color: k === more ? "#7ee0a8" : "#f08c7a" },
+            shown ? { animation: "od-soon-a 320ms cubic-bezier(.22,1,.36,1) 40ms both" } : {})
         });
-        const rows = [];
-        if (r) {
-          r.dish.top.forEach((x, k) => rows.push({
-            name: String(x[0]).toUpperCase(),
-            g: cell(fmt(x[1]) + " g", k), kcal: cell(fmt(x[2]), k),
-            fill: { position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)",
-              height: "62%", width: (shown ? Math.round(x[3] * 100) : 0) + "%",
-              background: "rgba(34,211,238,.10)", transition: "width 420ms cubic-bezier(.22,1,.36,1) " + (80 + k * 70) + "ms" }
-          }));
-          if (r.dish.rest) rows.push({
-            name: "+ " + r.dish.rest[2] + " MORE",
-            g: cell(fmt(r.dish.rest[0]) + " g", 3), kcal: cell(fmt(r.dish.rest[1]), 3),
-            fill: { display: "none" }
-          });
-        }
         return {
           gReady: ready && !done, gDone: done && picks.length > 0,
-          gWaiting: !ready && !done, gFailed: !!s.gFailed,
-          gRoundLabel: "PLATE " + Math.min(i + 1, 10) + " OF 10",
+          gWaiting: !ready && !done && !s.gFailed, gFailed: !!s.gFailed,
+          gRoundLabel: "ROUND " + Math.min(i + 1, 10) + " OF 10",
           gHits: String(picks.filter(p => p.hit).length),
-          gPhoto: r ? DATA + "game/img/" + r.dish.id + ".jpg" : "",
-          gPhotoImg: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
-          // The photograph is the thing being judged, so it takes every pixel the
-          // rest of the screen does not need and never gives one back. The cap is
-          // there because the frame is wider than it is tall: past about square,
-          // filling the height would start cutting food off the sides.
-          gPhotoBox: { position: "relative", flex: "1 1 auto", minHeight: "11rem",
-            maxHeight: Math.round((Math.min(window.innerWidth, TOUCH_W_PX) - 22) * 0.85) + "px",
-            overflow: "hidden", background: "#0a1016",
-            border: "1px solid rgba(34,211,238,.14)" },
-          // The plate's contents and the five figures stand side by side: one
-          // glance takes in both, and the height they save is the photograph's.
-          gPlayRow: { flex: "1 1 auto", minHeight: 0, display: "flex", alignItems: "stretch",
-            gap: ".55rem", padding: ".45rem 0 0" },
-          gTableCol: { flex: "1 1 auto", minWidth: 0, display: "flex", flexDirection: "column" },
-          gRows: rows,
-          gRowS: { position: "relative", flex: "none", display: "grid",
-            gridTemplateColumns: "minmax(0,1fr) 2.9rem 2.5rem", columnGap: ".35rem",
-            alignItems: "center", flex: "1 1 0", minHeight: "1.75rem", maxHeight: "3.4rem",
-            padding: "0 .15rem", borderTop: "1px solid rgba(215,230,239,.07)" },
-          gNameS: { position: "relative", minWidth: 0, overflow: "hidden",
+          gTop: side(r && r.top, 0), gBot: side(r && r.bot, 1),
+          gShotS: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
+          gNameS: { gridColumn: 1, gridRow: 1, minWidth: 0, overflow: "hidden",
             textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: "var(--font-2)",
-            fontSize: ".72rem", letterSpacing: ".06em", color: "#c7d6e0" },
-          gHeadRow: { flex: "none", display: "grid",
-            gridTemplateColumns: "minmax(0,1fr) 2.9rem 2.5rem", columnGap: ".35rem",
-            height: "1.35rem", alignItems: "flex-end", padding: "0 .15rem .25rem",
-            fontFamily: "var(--font-2)", fontSize: ".62rem",
-            letterSpacing: ".12em", color: "#54677a" },
-          gHeadR: { textAlign: "right" },
-          gOptHead: { flex: "none", display: "flex", alignItems: "flex-end",
-            justifyContent: "center", height: "1.35rem", padding: "0 0 .25rem",
-            fontFamily: "var(--font-2)", fontSize: ".62rem",
-            letterSpacing: ".12em", color: "#54677a" },
-          // The plate's own line closes the table: blank while the question
-          // stands, and the answer when it is over.
-          gTotRowS: { position: "relative", flex: "none", display: "grid",
-            gridTemplateColumns: "minmax(0,1fr) 2.9rem 2.5rem", columnGap: ".35rem",
-            alignItems: "center", flex: "1 1 0", minHeight: "2rem", maxHeight: "3.4rem",
-            padding: "0 .15rem",
-            borderTop: "1px solid rgba(34,211,238,.45)" },
-          gTotName: "THE PLATE",
-          gTotNameS: { fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".1em",
-            color: shown && last ? (last.hit ? "#7ee0a8" : "#f08c7a") : "#7b91a3",
-            transition: "color 260ms ease" },
-          gTotG: r && shown ? fmt(r.dish.g) + " g" : dash,
-          gTotK: r && shown ? fmt(r.kcal) : dash,
-          gTotGS: { textAlign: "right", fontWeight: 300, fontSize: ".9rem",
-            color: shown ? "#8ba0ad" : "#3f5364", fontVariantNumeric: "tabular-nums",
-            transition: "color 260ms ease" },
-          gTotKS: Object.assign({ textAlign: "right", fontWeight: 300, fontSize: "1.15rem",
-            color: shown ? "#eaf5fb" : "#3f5364", fontVariantNumeric: "tabular-nums",
-            transition: "color 260ms ease" }, shown ? A(40) : {}),
-          gOpts: (r ? r.opts : []).map((o, k) => {
-            const chosen = sel === k, right = !!o.truth;
-            return {
-              label: fmt(o.v),
-              onClick: () => this.gPickOpt(k),
-              style: {
-                display: "flex", alignItems: "center", justifyContent: "center",
-                width: "100%", boxSizing: "border-box", flex: "1 1 0",
-                minHeight: "2rem", maxHeight: "3.4rem", borderRadius: 0,
-                cursor: shown ? "default" : "pointer",
-                border: "1px solid " + (!shown ? "rgba(34,211,238,.28)"
-                  : right ? "rgba(126,224,168,.7)" : chosen ? "rgba(240,140,122,.6)" : "rgba(34,211,238,.08)"),
-                background: !shown ? "transparent"
-                  : right ? "rgba(126,224,168,.12)" : chosen ? "rgba(240,140,122,.10)" : "transparent",
-                color: !shown ? "#d7e6ef" : right ? "#7ee0a8" : chosen ? "#f08c7a" : "#3f5364",
-                fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1rem",
-                fontVariantNumeric: "tabular-nums",
-                transition: "border-color 240ms ease, background 240ms ease, color 240ms ease"
-              }
-            };
-          }),
-          gOptsWrap: { flex: "none", width: "5rem", display: "flex", flexDirection: "column",
-            gap: ".28rem" },
-          // The footer holds its height from the start, so answering never moves
-          // the photograph or the table above it.
+            fontSize: ".8rem", letterSpacing: ".1em", color: "#eaf5fb" },
+          gPortS: { gridColumn: 1, gridRow: 2, minWidth: 0, overflow: "hidden",
+            textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: "var(--font-2)",
+            fontSize: ".66rem", letterSpacing: ".08em", color: "#8ba0ad" },
+          // The footer holds its height from the first frame, so answering never
+          // moves either photograph.
           gFootS: { flex: "none", display: "flex", flexDirection: "column",
-            justifyContent: "flex-end", minHeight: "4.1rem", marginTop: "auto",
-            paddingTop: ".3rem" },
-          gVerdict: !shown || !last ? "" : last.hit ? "EXACT"
-            : (Math.abs(last.off) + " KCAL " + (last.off < 0 ? "UNDER" : "OVER")),
+            justifyContent: "flex-end", minHeight: "4.1rem", paddingTop: ".45rem" },
+          gVerdict: !shown || !last ? "WHICH IS MORE?"
+            : (last.hit ? "RIGHT" : "NO") + " \u00b7 " + last.gap + " KCAL BETWEEN THEM",
           gVerdictS: { flex: "none", height: "1.1rem", fontFamily: "var(--font-2)",
             fontSize: ".7rem", letterSpacing: ".14em", textAlign: "center",
-            color: last && last.hit ? "#7ee0a8" : "#f08c7a" },
-          gNextLabel: i >= 9 ? "SEE RESULTS" : "NEXT PLATE",
+            color: !shown ? "#7b91a3" : last && last.hit ? "#7ee0a8" : "#f08c7a",
+            transition: "color 220ms ease" },
+          gNextLabel: i >= 9 ? "SEE RESULTS" : "NEXT PAIR",
           gNext: () => this.gNext(),
           gNextS: { flex: "none", display: shown ? "flex" : "none", alignItems: "center",
             justifyContent: "center", width: "100%", boxSizing: "border-box", height: "2.6rem",

@@ -3084,9 +3084,11 @@ class Component extends DCLogic {
         // at once: the winner lights, the loser dims, and the figures arrive in
         // the corner the portion was already sitting in.
         const side = (food, k) => ({
-          img: food ? DATA + "pairs/img/" + food.id + ".jpg" : "",
+          img: food ? DATA + food.img : "",
           alt: food ? ("A plate of " + food.name) : "",
-          name: food ? food.name.toUpperCase() : "",
+          // With a placeholder the tile already carries the name, so the caption
+          // drops it rather than saying the same thing twice a hand-span apart.
+          name: food && food.real ? food.name.toUpperCase() : "",
           portion: food ? food.portion : "",
           k: shown && food ? String(food.kcal) + " KCAL" : "",
           onClick: () => this.gPickSide(k),

@@ -40,16 +40,24 @@ What is different from the root:
   be before you can see it. Every pairing played, then the same ten sorted into far apart,
   some way apart and close, with the hit rate in each. Getting the far ones right and the
   close ones wrong is the expected shape; where the line falls is the interesting part.
-- The deck is 36 single foods, built by `tools/build_pairs_deck.py` from four generated
-  3x3 grids in `data/pairs/raw/`, cut into tiles. The pictures are generated rather than
-  photographed, which is the opposite trade from the plate deck: clean, consistent and
-  one food at a time, but nothing about them was measured. So the rule is that **the guess
-  is only ever the weight — the calories per 100 g are always USDA**. Each entry names a
-  food in `data/legacy.json` and a portion in grams; where the picture matched what was
-  asked for, the grams are USDA's own household portion times a whole number, and where it
-  did not — nine strawberries instead of eight, one slice of bread instead of two — the
-  grams are read off the picture instead and the entry is flagged. Ten of the 36 are
-  flagged. The energy density is never invented.
+- The deck is 36 single foods — four sets of nine, one from each of nine kinds: fruit,
+  vegetable, grain, bread, meat or fish, egg or dairy, nut or fat, legume, and something
+  out of a packet. `tools/build_pairs_deck.py` builds it, and the rule it is built on is
+  that **the weight is never typed in**: it is USDA's own published household portion for
+  that food multiplied by a whole number, and the calories are that weight against USDA's
+  own energy density. So "8 strawberries" is eight times SR Legacy's 12 g medium
+  strawberry, and its 31 kcal is 96 g against SR Legacy's 32 kcal per 100 g. Nothing is
+  anyone's estimate; the tool fails rather than invent a figure. The deck runs 31 kcal
+  (a cup of broccoli) to 733 (a salmon fillet), which gives 388 pairings inside the
+  playable band.
+- The pictures are placeholders for now — a plate outline and the food's name — because
+  the photography is still being made. They say what they are rather than pretending: a
+  tile reads NO PHOTOGRAPH YET, and the game is entirely playable without them, since the
+  question is which of two named portions carries more. The tile carries the name (two
+  identical tiles would read as a fault) and the caption carries the portion and the
+  calories, so nothing is said twice. Dropping four 3x3 grids into `data/pairs/raw/` and
+  re-running the tool cuts the nine tiles out of each and replaces them; the deck, the
+  figures and the game do not change.
 - The Nutrition5k plate deck and `tools/build_game_deck.py` stay in the repo. That game
   asked how many calories a whole tray held, against a figure that had been weighed; this
   one asks a smaller question about pictures that were not. They are different trades and

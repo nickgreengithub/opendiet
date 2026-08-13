@@ -43,29 +43,26 @@ side it has no business taking. It states what is on the plate.
 
 ## Calorie game
 
-A second app, on a phone. A photograph of a real plate, what is on it named but not
-weighed, and five calorie figures to choose between — the question is never what the food
-is, only how much of it there is. The figures are a ladder of fixed ratios, so the spread
-widens with the plate, and the truth sits at a position drawn from the dish itself. Ten
-plates, then a page: the average miss, every plate played against what you said, and the
-same story gathered by what carried the plate, because which kinds of food an eye misreads
-is more useful than how many it got right.
+A second app, on a phone, asking one question ten times: two foods stacked one above the
+other, each with its portion, and which of them carries more calories. Tap a picture and
+both figures arrive at once — the winner lights, the loser dims — and neither picture
+moves. Nothing scrolls.
 
-Nothing scrolls and nothing switches context. The contents and the five figures stand side
-by side under the photograph, values held back as dashes until an answer is given, so the
-picture keeps the height it deserves and never moves.
+The pairing carries the difficulty. Ten pairs, no food twice, and the gap between them
+closing as the game runs: the first rounds are a banana against a bagel, the last are two
+things a fifth apart. Nothing closer than 1.12× is ever asked, because past that the
+honest answer is that nobody could tell. At the end, the thing a tally would not tell you:
+how far apart two foods have to be before you can see it, with your hit rate for the far
+ones, the middling ones and the close ones.
 
-The deck is 140 plates from [Nutrition5k](https://github.com/google-research-datasets/Nutrition5k)
-(Thames et al., CVPR 2021, CC BY 4.0), prepared offline by `tools/build_game_deck.py` and
-committed as static JSON and JPEGs. They are US cafeteria trays, photographed on a turntable
-and weighed — the calorie figure is measured rather than estimated, which is the whole reason
-the game can be honest about being right.
+The deck is 36 single foods, and the weight is never typed in — it is USDA's own published
+household portion for that food multiplied by a whole number, with the calories taken from
+that weight against USDA's own energy density. "8 strawberries" is eight times SR Legacy's
+12 g medium strawberry; its 31 kcal is 96 g against SR Legacy's 32 kcal per 100 g.
 
-The pictures come from the rig's side cameras rather than its overhead one. The overhead
-frame is 640×480 and dim; the side cameras are 1920×1080 and shot at a slight angle, which
-shows how high the food is piled as well as how far it spreads. They are video of the
-turntable turning, so the build decodes half a turn per dish and keeps the frame with the
-most food inside a fixed crop.
+The pictures are placeholders while the photography is made, and they say so rather than
+pretending. The game plays without them: what is being asked is which of two named
+portions is more, and the names and portions answer that on their own.
 
 ## The data
 

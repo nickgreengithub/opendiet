@@ -1,24 +1,26 @@
 #!/usr/bin/env python3
-"""Build the calorie game's second deck: single foods, in stated portions.
+"""Build the calorie game's deck: single foods, in stated portions.
 
-The photographed deck is Nutrition5k — real cafeteria plates, weighed on a
-scale. This one is the opposite trade: the pictures are generated, so they are
-clean and consistent and show one food at a time, but nothing about them was
-measured. That has to be handled rather than glossed over, so the rule here is:
+The rule this deck is built on:
 
-    the guess is only ever the weight; the calories per 100 g are always USDA.
+    the weight is never typed in — it is USDA's own published household portion
+    for that food, multiplied by a whole number — and the calories are that
+    weight against USDA's published energy density.
 
-Every entry names a food in `data/legacy.json` and a portion in grams. Where the
-generated image matched what was asked for, the grams are USDA's own household
-portion times a whole number and `sure` is true. Where it did not — nine
-strawberries instead of eight, one slice of bread instead of two — the grams are
-read off the picture instead, and `sure` is false. Either way the energy density
-is the published figure for that food, never an invention.
+So "8 strawberries" is eight times SR Legacy's 12 g medium strawberry, and its
+31 kcal is 96 g against SR Legacy's 32 kcal per 100 g. Nothing in the deck is
+anyone's estimate; the tool would rather fail than invent a figure.
 
-    python3 tools/build_pairs_deck.py
+    python3 tools/build_pairs_deck.py                 # placeholder pictures
+    python3 tools/build_pairs_deck.py --raw <dir>     # cut from 3x3 grids
 
-Reads data/pairs/raw/set<n>.png — a 3x3 grid of nine tiles — and writes
-data/pairs/img/<slug>.jpg plus data/pairs/deck.json.
+With grids in `data/pairs/raw/set<n>.png` the nine tiles of each are cut out and
+used. Without them the pictures are placeholders — a plate outline and the food's
+name — so the game is playable while the photography is still being made. The
+placeholders say what they are; they are not pretending to be food.
+
+Also builds from the Nutrition5k plate deck with --from-plates, which needs no
+pictures at all because they are already in the repo.
 """
 import argparse
 import json
@@ -30,73 +32,75 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 RAW = os.path.join(ROOT, "data", "pairs", "raw")
 OUT = os.path.join(ROOT, "data", "pairs")
+FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 
-# The gutter between tiles is a few pixels of background; trimming it keeps a
-# pale seam off the edge of the crop, where it would read as part of the cloth.
+# The gutter between tiles in a generated grid is a few pixels of background;
+# trimming it keeps a pale seam off the edge of the crop.
 GUTTER = 8
 
-# name in data/legacy.json | grams | how the portion reads | did the picture
-# match what was asked for. The name has to be the exact USDA description, since
-# that is what carries the energy density.
+# name in data/legacy.json | how many of USDA's own household portions | how the
+# portion reads on screen. Nine foods a set, one from each of nine kinds: fruit,
+# vegetable, grain, bread, meat or fish, egg or dairy, nut or fat, legume, and
+# something out of a packet.
 GRIDS = [
     ("set1", [
-        ("Strawberries, raw", 108, "9 strawberries", False),
-        ("Carrots, raw", 183, "3 carrots", True),
-        ("Rice, white, long-grain, regular, cooked, enriched, with salt", 158, "a cup, cooked", True),
-        ("Bread, whole-wheat, commercially prepared", 64, "2 slices", True),
-        ("Chicken, broilers or fryers, breast, meat only, cooked, fried", 150, "a breast, cooked", False),
-        ("Egg, whole, cooked, hard-boiled", 50, "1 egg, halved", False),
-        ("Nuts, almonds", 27, "22 almonds", False),
-        ("Lentils, raw", 150, "a bowl, dry", False),
-        ("Candies, milk chocolate", 25, "4 squares", False),
+        ("Strawberries, raw", 8, "8 strawberries"),
+        ("Carrots, raw", 3, "3 carrots"),
+        ("Rice, white, long-grain, regular, cooked, enriched, with salt", 1, "a cup, cooked"),
+        ("Bread, whole-wheat, commercially prepared", 2, "2 slices"),
+        ("Chicken, broilers or fryers, breast, meat only, cooked, fried", 1, "a breast, cooked"),
+        ("Egg, whole, cooked, hard-boiled", 2, "2 eggs"),
+        ("Nuts, almonds", 1, "an ounce, about 23"),
+        ("Lentils, mature seeds, cooked, boiled, without salt", 1, "a cup, cooked"),
+        ("Candies, milk chocolate", 1, "a small bar"),
     ]),
     ("set2", [
-        ("Bananas, raw", 118, "1 banana", True),
-        ("Broccoli, raw", 91, "a cup, chopped", True),
-        ("Rice, brown, long-grain, cooked", 202, "a cup, cooked", True),
-        ("Bagels, wheat", 98, "1 bagel", True),
-        ("Pork, cured, bacon, cooked, baked", 32, "4 rashers", True),
-        ("Cheese, cheddar", 56, "2 slices", True),
-        ("Oil, olive, salad or cooking", 14, "a tablespoon", True),
-        ("Beans, black, mature seeds, cooked, boiled, without salt", 172, "a cup, cooked", True),
-        ("Snacks, pretzels, hard, plain, salted", 54, "9 pretzels", False),
+        ("Bananas, raw", 1, "1 banana"),
+        ("Broccoli, raw", 1, "a cup, chopped"),
+        ("Rice, brown, long-grain, cooked", 1, "a cup, cooked"),
+        ("Bagels, wheat", 1, "1 bagel"),
+        ("Pork, cured, bacon, cooked, baked", 4, "4 rashers"),
+        ("Cheese, cheddar", 2, "2 slices"),
+        ("Oil, olive, salad or cooking", 1, "a tablespoon"),
+        ("Beans, black, mature seeds, cooked, boiled, without salt", 1, "a cup, cooked"),
+        ("Snacks, pretzels, hard, plain, salted", 10, "10 pretzels"),
     ]),
     ("set3", [
-        ("Apples, raw, with skin", 182, "1 apple", True),
-        ("Tomatoes, red, ripe, raw, year round average", 246, "2 tomatoes", True),
-        ("Quinoa, cooked", 185, "a cup, cooked", True),
-        ("Bread, white, commercially prepared", 30, "1 slice", False),
-        ("Fish, salmon, Atlantic, farmed, cooked, dry heat", 150, "a fillet, cooked", False),
-        ("Yogurt, Greek, plain, nonfat", 170, "a pot", True),
-        ("Avocados, raw, California", 136, "1 avocado", True),
-        ("Edamame, frozen, prepared", 155, "a cup, podded", True),
-        ("Dates, medjool", 72, "3 dates", True),
+        ("Apples, raw, with skin", 1, "1 apple"),
+        ("Tomatoes, red, ripe, raw, year round average", 2, "2 tomatoes"),
+        ("Quinoa, cooked", 1, "a cup, cooked"),
+        ("Bread, white, commercially prepared", 2, "2 slices"),
+        ("Fish, salmon, Atlantic, farmed, cooked, dry heat", 1, "a fillet, cooked"),
+        ("Yogurt, Greek, plain, nonfat", 1, "a pot"),
+        ("Avocados, raw, California", 1, "1 avocado"),
+        ("Edamame, frozen, prepared", 1, "a cup, podded"),
+        ("Dates, medjool", 3, "3 dates"),
     ]),
     ("set4", [
-        ("Watermelon, raw", 154, "a cup, cubed", True),
-        ("Corn, sweet, yellow, cooked, boiled, drained, without salt", 103, "1 cob", True),
-        ("Pasta, cooked, enriched, with added salt", 124, "a cup, cooked", True),
-        ("Snacks, granola bars, hard, plain", 42, "2 bars", True),
-        ("Turkey, breast, smoked, lemon pepper flavor, 97% fat-free", 112, "4 slices", True),
-        ("Milk, whole, 3.25% milkfat, with added vitamin D", 244, "a glass", True),
-        ("Peanut Butter, smooth", 32, "2 tablespoons", True),
-        ("Hummus, commercial", 80, "a bowl", False),
-        ("Snacks, popcorn, air-popped", 24, "3 cups", True),
+        ("Watermelon, raw", 1, "a cup, cubed"),
+        ("Corn, sweet, yellow, cooked, boiled, drained, without salt", 1, "1 cob"),
+        ("Pasta, cooked, enriched, with added salt", 1, "a cup, cooked"),
+        ("Snacks, granola bars, hard, plain", 2, "2 bars"),
+        ("Turkey, breast, smoked, lemon pepper flavor, 97% fat-free", 4, "4 slices"),
+        ("Milk, whole, 3.25% milkfat, with added vitamin D", 1, "a glass"),
+        ("Peanut Butter, smooth", 2, "2 tablespoons"),
+        ("Hummus, commercial", 4, "4 tablespoons"),
+        ("Snacks, popcorn, air-popped", 3, "3 cups"),
     ]),
 ]
 
-# What the player is shown as the food's name. USDA descriptions are written for
-# a database — "Bananas, raw", "Snacks, popcorn, air-popped" — and reading one of
-# those on a photograph of a banana is absurd.
+# What the player is shown. USDA descriptions are written for a database —
+# "Bananas, raw", "Snacks, popcorn, air-popped" — and reading one of those off a
+# photograph of a banana is absurd.
 SHORT = {
     "Strawberries, raw": "strawberries",
     "Carrots, raw": "carrots",
     "Rice, white, long-grain, regular, cooked, enriched, with salt": "white rice",
     "Bread, whole-wheat, commercially prepared": "wholemeal bread",
     "Chicken, broilers or fryers, breast, meat only, cooked, fried": "chicken breast",
-    "Egg, whole, cooked, hard-boiled": "boiled egg",
+    "Egg, whole, cooked, hard-boiled": "boiled eggs",
     "Nuts, almonds": "almonds",
-    "Lentils, raw": "dry lentils",
+    "Lentils, mature seeds, cooked, boiled, without salt": "lentils",
     "Candies, milk chocolate": "milk chocolate",
     "Bananas, raw": "banana",
     "Broccoli, raw": "broccoli",
@@ -152,8 +156,101 @@ def tiles(path, out_w):
         yield im.crop(box).resize((out_w, out_w), Image.LANCZOS)
 
 
+def placeholder(name, w):
+    """A stand-in that admits to being one: a plate, and the food's name.
+
+    The game works without photographs — the question is which of two foods
+    carries more, and the names and portions answer that on their own — so the
+    deck is playable while the pictures are still being made. The tile carries the
+    name, because two identical tiles would read as a fault; the portion and the
+    calories stay in the caption, so nothing is said twice.
+    """
+    from PIL import Image, ImageDraw, ImageFont
+    im = Image.new("RGB", (w, w), "#0a1016")
+    d = ImageDraw.Draw(im)
+    r = int(w * 0.34)
+    c = w // 2
+    d.ellipse([c - r, c - r, c + r, c + r], outline="#16323d", width=max(2, w // 220))
+    d.ellipse([c - r + w // 22, c - r + w // 22, c + r - w // 22, c + r - w // 22],
+              outline="#122733", width=max(1, w // 340))
+    big = ImageFont.truetype(FONT, int(w * 0.086))
+    tiny = ImageFont.truetype(FONT, int(w * 0.029))
+    words, lines, cur = name.upper().split(), [], ""
+    for word in words:
+        trial = (cur + " " + word).strip()
+        if d.textlength(trial, font=big) > r * 1.75 and cur:
+            lines.append(cur)
+            cur = word
+        else:
+            cur = trial
+    lines.append(cur)
+    step = int(w * 0.105)
+    y = c - (len(lines) - 1) * step // 2 - int(w * 0.025)
+    for line in lines:
+        d.text((c, y), line, font=big, fill="#d7e6ef", anchor="mm")
+        y += step
+    # Inside the circle, well clear of the caption the site lays over the bottom
+    # of the tile, and quiet enough not to compete with the name.
+    d.text((c, y + int(w * 0.03)), "N O   P H O T O G R A P H   Y E T",
+           font=tiny, fill="#3a4c5c", anchor="mm")
+    return im
+
+
+def from_plates():
+    """The other deck the pair game runs on: Nutrition5k's own plates.
+
+    Nothing generated and nothing guessed — every figure was weighed on a scale —
+    and the photographs are already in the repo, so this needs no source images.
+    A plate is named by the two ingredients carrying most of its calories, which
+    is what the player is being asked to price.
+    """
+    src = os.path.join(ROOT, "data", "game", "deck.json")
+    if not os.path.exists(src):
+        sys.exit("no plate deck at " + src)
+    with open(src) as f:
+        plates = json.load(f)["dishes"]
+    out = []
+    for d in plates:
+        top = [x[0] for x in d.get("top", [])][:2]
+        if not top:
+            continue
+        out.append({"id": d["id"], "img": "game/img/" + d["id"] + ".jpg",
+                    "name": " + ".join(top), "portion": str(d["g"]) + " g",
+                    "g": d["g"], "kcal": d["kcal"], "real": True})
+    return out
+
+
+def build(a, foods):
+    """The 36 single foods, with pictures if there are any and marks if not."""
+    os.makedirs(os.path.join(a.out, "img"), exist_ok=True)
+    deck = []
+    for name, items in GRIDS:
+        src = os.path.join(a.raw, name + ".png")
+        cut = list(tiles(src, a.width)) if os.path.exists(src) else [None] * 9
+        for pic, (food, n, portion) in zip(cut, items):
+            row = foods.get(food)
+            if row is None:
+                sys.exit("not in legacy.json: " + food)
+            per100, unit_g = row[2], row[11]
+            if not unit_g:
+                sys.exit("no household portion for: " + food)
+            g = n * unit_g
+            s = slug(food)
+            short = SHORT.get(food, food)
+            (pic if pic is not None else placeholder(short, a.width)).save(
+                os.path.join(a.out, "img", s + ".jpg"),
+                "JPEG", quality=86, optimize=True, progressive=True)
+            deck.append({"id": s, "img": "pairs/img/" + s + ".jpg", "name": short,
+                         "portion": portion, "g": round(g),
+                         "kcal": round(per100 * g / 100.0), "real": pic is not None,
+                         "usda": food})
+    return deck
+
+
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--from-plates", action="store_true",
+                    help="build from the Nutrition5k deck instead")
     ap.add_argument("--raw", default=RAW)
     ap.add_argument("--out", default=OUT)
     ap.add_argument("--width", type=int, default=512)
@@ -162,42 +259,28 @@ def main():
         from PIL import Image  # noqa: F401
     except ImportError:
         sys.exit("Pillow is needed: pip install pillow")
-    foods = usda()
-    os.makedirs(os.path.join(a.out, "img"), exist_ok=True)
-    deck, missing = [], []
-    for name, items in GRIDS:
-        src = os.path.join(a.raw, name + ".png")
-        if not os.path.exists(src):
-            missing.append(src)
-            continue
-        for tile, (food, g, portion, sure) in zip(tiles(src, a.width), items):
-            row = foods.get(food)
-            if row is None:
-                sys.exit("not in legacy.json: " + food)
-            s = slug(food)
-            tile.save(os.path.join(a.out, "img", s + ".jpg"),
-                      "JPEG", quality=86, optimize=True, progressive=True)
-            deck.append({"id": s, "name": SHORT.get(food, food), "portion": portion,
-                         "g": g, "kcal": round(row[2] * g / 100.0), "sure": sure,
-                         "usda": food})
-    if missing:
-        print("no grid at:\n  " + "\n  ".join(missing))
+    if a.from_plates:
+        deck = from_plates()
+        note = ("Nutrition5k plates (Thames et al., CVPR 2021, CC BY 4.0). "
+                "Weighed on a scale, not estimated.")
+    else:
+        deck = build(a, usda())
+        shot = sum(1 for d in deck if d["real"])
+        note = ("Portions are USDA SR Legacy household measures; calories are that "
+                "weight against SR Legacy's own energy density."
+                + ("" if shot == len(deck) else
+                   "  %d of %d pictures are placeholders." % (len(deck) - shot, len(deck))))
     if not deck:
         sys.exit("nothing to build")
-    # Two foods a player cannot separate are not a question, and two they can
-    # separate at a glance are not one either. The pairing lives in the site, but
-    # the deck is checked here so a build cannot quietly produce a dead game.
-    ks = sorted(d["kcal"] for d in deck)
-    pairs = sum(1 for i, a in enumerate(ks) for b in ks[i + 1:] if 1.15 <= b / max(1, a) <= 3.0)
+    os.makedirs(a.out, exist_ok=True)
     with open(os.path.join(a.out, "deck.json"), "w") as f:
-        json.dump({"note": "Generated photographs; USDA SR Legacy energy densities.",
-                   "foods": deck}, f, separators=(",", ":"))
-    kb = sum(os.path.getsize(os.path.join(a.out, "img", d["id"] + ".jpg")) for d in deck) // 1024
-    print("wrote %d foods, %d KB of pictures" % (len(deck), kb))
-    print("%d kcal, low to high: %d to %d" % (len(deck), ks[0], ks[-1]))
-    print("%d playable pairs (between 1.15x and 3x apart)" % pairs)
-    print("%d of %d portions read off the picture rather than asked for"
-          % (sum(1 for d in deck if not d["sure"]), len(deck)))
+        json.dump({"note": note, "foods": deck}, f, separators=(",", ":"))
+    ks = sorted(d["kcal"] for d in deck)
+    pairs = sum(1 for i, x in enumerate(ks) for y in ks[i + 1:] if 1.12 <= y / max(1, x) <= 3.0)
+    print("wrote %d foods, %d to %d kcal, %d playable pairs" % (len(deck), ks[0], ks[-1], pairs))
+    if not a.from_plates:
+        print("%d of %d pictures are placeholders"
+              % (sum(1 for d in deck if not d["real"]), len(deck)))
 
 
 if __name__ == "__main__":
