@@ -11,6 +11,17 @@ say where the calories actually came from.
 
 Writes data/game/deck.json and data/game/img/<dish>.jpg. Run it once and
 commit the result: the site stays static and fetches nothing at runtime.
+
+The photographs come from the rig's side cameras rather than its overhead one.
+The overhead RealSense frame is 640x480 and dim, which is all the game ever had;
+the four side cameras are 1920x1080, better lit, and shot from three quarters,
+where the height of the food is visible — and height is most of what a calorie
+guess is actually reading. They are H.264 of the turntable turning, so this needs
+a decoder:
+
+    pip install pillow numpy av
+
+Pass --source overhead to build the old way, which needs neither av nor numpy.
 """
 import argparse
 import io
@@ -215,20 +226,112 @@ def framed(rgb, dep, out_w, out_h):
     return exposed(rgb)
 
 
-def exposed(rgb):
+# Camera A looks down on the plate at a slight angle — near enough overhead to
+# read the spread of the food, angled enough to show its height. B and C sit low
+# and catch more of the rig than the plate, so they are never used; D is a wider
+# three-quarter view, kept for the dishes where A returned nothing usable.
+SIDE_CAMS = ("A", "D")
+SIDE_ENOUGH = 800      # a score A has to clear before D is not even fetched
+SIDE_BYTES = 6000000   # about half the turn, which is all the rotation we need
+SIDE_EVERY = 3         # every third frame: the turntable is not moving fast
+MW, MH = 192, 108      # the scale the frame is judged at, which is plenty
+
+
+def _dense(m, thr=0.5):
+    """Keep only mask pixels with company, so speckle and colour fringing go."""
+    import numpy as np
+    p = np.pad(m.astype(np.float32), 1, mode="constant")
+    acc = np.zeros(m.shape, dtype=np.float32)
+    for dy in range(3):
+        for dx in range(3):
+            acc += p[dy:dy + m.shape[0], dx:dx + m.shape[1]]
+    return m & (acc / 9.0 >= thr)
+
+
+def frame_score(im, ar):
+    """How well this rotation of the turntable suits a fixed crop.
+
+    The rig does not move and neither does the plate on it, so the crop can be
+    fixed — a full-height window of the output's aspect, in the middle of the
+    frame. What does move is the food, which sits wherever it was plated and
+    comes round with the turntable. So the frame is what gets chosen: the one
+    with the most food inside that window and the least hanging out of it. Food
+    is read as colour, because the china is white and the table is dark glass;
+    that mistakes a coloured plate for food, but only ever by counting the whole
+    plate, which is centred anyway and so does not move the answer.
+    """
+    import numpy as np
+    a = np.asarray(im.resize((MW, MH)).convert("HSV"), dtype=np.float32)
+    s, v = a[..., 1] / 255.0, a[..., 2] / 255.0
+    food = _dense((s > 0.34) & (v > 0.22) & (v < 0.99), 0.6)
+    total = food.sum()
+    if total < 40:
+        return -1e9
+    half = MH * ar / 2.0
+    inside = food[:, int(MW / 2 - half):int(MW / 2 + half)].sum()
+    return inside - 2.2 * (total - inside)
+
+
+def side_photo(dish, out_w, out_h):
+    """The best frame of the best side camera, cropped to the fixed window."""
+    import av
+    from PIL import Image
+    ar = out_w / float(out_h)
+    tmp = os.path.join(os.path.dirname(__file__), ".side.h264")
+    best_score, best_im = -1e9, None
+    for cam in SIDE_CAMS:
+        url = "%s/imagery/side_angles/%s/camera_%s.h264" % (BUCKET, dish, cam)
+        try:
+            req = urllib.request.Request(url, headers={"Range": "bytes=0-%d" % SIDE_BYTES})
+            with open(tmp, "wb") as f:
+                f.write(urllib.request.urlopen(req, timeout=180).read())
+            stream = av.open(tmp, format="h264")
+        except Exception:
+            continue
+        try:
+            n = 0
+            for f in stream.decode(video=0):
+                n += 1
+                if n % SIDE_EVERY:
+                    continue
+                im = f.to_image()
+                sc = frame_score(im, ar)
+                if sc > best_score:
+                    best_score, best_im = sc, im
+        except Exception:
+            pass
+        # A camera that framed the plate well is the end of it; the second one
+        # is for the dishes where the food spent the whole turn out of shot.
+        if best_score > SIDE_ENOUGH:
+            break
+    if os.path.exists(tmp):
+        os.remove(tmp)
+    if best_im is None:
+        return None
+    W, H = best_im.size
+    w = min(W, H * ar)
+    h = w / ar
+    x = (W - w) / 2.0
+    y = (H - h) / 2.0
+    im = best_im.crop((int(x), int(y), int(x + w), int(y + h)))
+    # These frames start far better exposed than the overhead one, so they are
+    # brought to a lower mark: lifting them as hard would wash the plate out.
+    return exposed(im.resize((out_w, out_h), Image.LANCZOS), 168.0)
+
+
+def exposed(rgb, target=186.0):
     """Bring every plate to the same brightness without bleaching the china.
 
     One gamma cannot serve the whole deck. The frames run from dim to nearly
     right, and about a seventh of each one is white plate already sitting at the
     top of the scale, so a flat gain blows the china long before the food gets
     anywhere. So the curve is chosen per image — as much gamma as it takes to put
-    that image's own median luma on TARGET — and then rolled off towards the
+    that image's own median luma on `target` — and then rolled off towards the
     identity as a pixel approaches white, which is exactly where the plate lives.
     The black point is trimmed first, from the bottom only, so the lift has
     somewhere to come from and the result does not go milky.
     """
     from PIL import ImageEnhance, ImageOps
-    TARGET = 186.0
     rgb = ImageOps.autocontrast(rgb, cutoff=(0.5, 0.0))
     hist = rgb.convert("L").histogram()
     n, acc, med = sum(hist), 0, 128
@@ -237,7 +340,7 @@ def exposed(rgb):
         if acc >= n * 0.5:
             med = max(8, min(250, v))
             break
-    g = max(0.38, min(0.95, math.log(TARGET / 255.0) / math.log(med / 255.0)))
+    g = max(0.38, min(1.0, math.log(target / 255.0) / math.log(med / 255.0)))
     lut = []
     for v in range(256):
         x = v / 255.0
@@ -286,8 +389,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--n", type=int, default=140)
     ap.add_argument("--out", default="data/game")
-    ap.add_argument("--width", type=int, default=640)
-    ap.add_argument("--quality", type=int, default=78)
+    ap.add_argument("--width", type=int, default=900)
+    ap.add_argument("--quality", type=int, default=80)
+    ap.add_argument("--source", choices=("side", "overhead"), default="side")
     a = ap.parse_args()
 
     cands = []
@@ -313,16 +417,27 @@ def main():
         dest = os.path.join(img_dir, d["id"] + ".jpg")
         # A second run only re-reads the numbers; the photographs stay put.
         if not os.path.exists(dest):
-            base = "%s/imagery/realsense_overhead/%s/" % (BUCKET, d["id"])
-            try:
-                im = Image.open(io.BytesIO(fetch(base + "rgb.png", tries=2))).convert("RGB")
-            except Exception:
-                continue
-            try:
-                dep = Image.open(io.BytesIO(fetch(base + "depth_raw.png", tries=2)))
-            except Exception:
-                dep = None
-            im = framed(im, dep, a.width, int(a.width * 4 / 5))
+            out_h = int(a.width * 4 / 5)
+            if a.source == "side":
+                # Not every dish was filmed from the side — about a twentieth
+                # were not — and one that was not simply does not make the deck.
+                try:
+                    im = side_photo(d["id"], a.width, out_h)
+                except ImportError:
+                    sys.exit("The side cameras need a decoder: pip install av numpy")
+                if im is None:
+                    continue
+            else:
+                base = "%s/imagery/realsense_overhead/%s/" % (BUCKET, d["id"])
+                try:
+                    im = Image.open(io.BytesIO(fetch(base + "rgb.png", tries=2))).convert("RGB")
+                except Exception:
+                    continue
+                try:
+                    dep = Image.open(io.BytesIO(fetch(base + "depth_raw.png", tries=2)))
+                except Exception:
+                    dep = None
+                im = framed(im, dep, a.width, out_h)
             im.save(dest, "JPEG", quality=a.quality, optimize=True, progressive=True)
             if len(chosen) % 20 == 0:
                 print("  %d photographs" % len(chosen), flush=True)

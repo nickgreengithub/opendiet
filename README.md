@@ -57,9 +57,15 @@ picture keeps the height it deserves and never moves.
 
 The deck is 140 plates from [Nutrition5k](https://github.com/google-research-datasets/Nutrition5k)
 (Thames et al., CVPR 2021, CC BY 4.0), prepared offline by `tools/build_game_deck.py` and
-committed as static JSON and JPEGs. They are US cafeteria trays, photographed overhead on a
-turntable and weighed — the calorie figure is measured rather than estimated, which is the
-whole reason the game can be honest about being right.
+committed as static JSON and JPEGs. They are US cafeteria trays, photographed on a turntable
+and weighed — the calorie figure is measured rather than estimated, which is the whole reason
+the game can be honest about being right.
+
+The pictures come from the rig's side cameras rather than its overhead one. The overhead
+frame is 640×480 and dim; the side cameras are 1920×1080 and shot at a slight angle, which
+shows how high the food is piled as well as how far it spreads. They are video of the
+turntable turning, so the build decodes half a turn per dish and keeps the frame with the
+most food inside a fixed crop.
 
 ## The data
 

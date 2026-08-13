@@ -61,21 +61,36 @@ What is different from the root:
   by nature, since a plate is rarely one thing, but honest about being so.
 - The deck is prepared offline by `tools/build_game_deck.py` from Nutrition5k (Thames et
   al., CVPR 2021, CC BY 4.0) — 140 plates whose ingredient calories agree with their own
-  total to within 6%, spread across the calorie range, with their overhead photographs
-  compressed into `data/game/`. The photographs are cropped to the plate using the dish's
-  own depth map — the turntable is whatever depth most pixels share and the plate is what
-  stands proud of it, read per dish because no two plates sit in the same place — and
-  lifted by a curve chosen per photograph rather than one gamma for the deck: as much
-  gamma as it takes to put that image's own median luma on 186, rolled off towards the
-  identity as a pixel approaches white, which is exactly where the plate lives. About a
-  seventh of every frame is white china already at the top of the scale, so a flat gain
-  bleaches it long before the food gets anywhere. Median luma 115 to 178, with the black
-  point trimmed from the bottom only so the lift has somewhere to come from. The crop
-  keeps a hair of air around the rim instead of a tenth, and the frame is five by four
-  rather than four by three, so the plate arrives filling more of the picture than it
-  used to. Nothing is fetched at run time but the deck. The source's
-  per-macro shares stay out of it deliberately: they do not always agree with the plate's
-  total, which is sound enough to sort plates by and not sound enough to show.
+  total to within 6%, spread across the calorie range, with their photographs compressed
+  into `data/game/`. Nothing is fetched at run time but the deck. The source's per-macro
+  shares stay out of it deliberately: they do not always agree with the plate's total,
+  which is sound enough to sort plates by and not sound enough to show.
+- The pictures come from the rig's side cameras, not its overhead one. The overhead
+  RealSense frame is 640×480 and dim, and no amount of processing was going to fix that —
+  it was the ceiling, and the dataset was being blamed for it. The four side cameras are
+  1920×1080. Camera A is the one worth having: it looks down on the plate at a slight
+  angle, near enough overhead to read how the food is spread and angled enough to show how
+  high it is piled, which is most of what a calorie guess is actually reading. B and C sit
+  low and catch more of the rig than the plate; D is a wider three-quarter view, kept only
+  for the dishes A had nothing usable for. About a twentieth of the dataset was never
+  filmed from the side, and those plates simply do not make the deck.
+- They are H.264 of the turntable turning, so choosing a picture means choosing a frame.
+  The rig does not move and neither does the plate on it, so the crop does not move either:
+  a full-height window of the output's aspect, in the middle of the frame. What moves is
+  the food, which sits wherever it was plated and comes round with the table — so the frame
+  is what gets picked, the one with the most food inside that window and the least hanging
+  out of it. Food is read as colour, since the china is white and the table is dark glass.
+  That mistakes a coloured plate for food, but only by counting the whole plate, which is
+  centred anyway and so cannot move the answer. Half the turn is fetched per dish, which is
+  enough rotation to find a good face, and the build takes four minutes for 140 plates.
+- Exposure is a curve chosen per photograph rather than one gamma for the deck: as much
+  gamma as it takes to put that image's own median luma on the mark, rolled off towards the
+  identity as a pixel approaches white, which is exactly where the plate lives. A seventh
+  of every frame is white china already at the top of the scale, so a flat gain bleaches it
+  long before the food gets anywhere. The side frames start far better exposed than the
+  overhead one, so they are brought to 168 rather than 186 — lifting them as hard washed
+  them out. Median luma across the deck is 162, none below 125, where the overhead
+  photographs sat at 115.
 - CALORIE CALC will work a daily target backwards from a body-fat goal. It is not built. Their pages say UNDER DEVELOPMENT and then invite
   the reader to follow the project on GitHub or reach Nick Green on LinkedIn, because an
   unbuilt app is a better invitation than a dead end. The lines arrive in turn rather than
