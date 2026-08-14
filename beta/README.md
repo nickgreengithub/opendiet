@@ -50,14 +50,22 @@ What is different from the root:
   anyone's estimate; the tool fails rather than invent a figure. The deck runs 31 kcal
   (a cup of broccoli) to 733 (a salmon fillet), which gives 388 pairings inside the
   playable band.
-- The pictures are placeholders for now — a plate outline and the food's name — because
-  the photography is still being made. They say what they are rather than pretending: a
-  tile reads NO PHOTOGRAPH YET, and the game is entirely playable without them, since the
-  question is which of two named portions carries more. The tile carries the name (two
-  identical tiles would read as a fault) and the caption carries the portion and the
-  calories, so nothing is said twice. Dropping four 3x3 grids into `data/pairs/raw/` and
-  re-running the tool cuts the nine tiles out of each and replaces them; the deck, the
-  figures and the game do not change.
+- The pictures are generated rather than photographed, cut nine at a time out of four
+  3x3 grids in `data/pairs/raw/`. Every one was checked against its label before it was
+  used, and four came back holding a different number from the one asked for: nine
+  strawberries not eight, one egg not two, nine pretzels not ten, one slice of white bread
+  not two. Those are relabelled rather than rejected, because the rule survives it — the
+  weight is still a USDA household portion times a whole number, the number just gets
+  counted off the finished picture instead of taken from the prompt. Counting is the only
+  reason any of this can be checked, which is why the deck leans on foods that come in
+  countable units.
+- Two are wrong in kind rather than in number and keep a placeholder until they are made
+  again. The lentils came back dry, and dry lentils are three times the calories of the
+  same cup boiled; the salmon is a dinner-plate portion rather than the 356 g fillet SR
+  Legacy means by "1 fillet". Neither can be weighed by looking, so neither gets a figure.
+  A placeholder says NO PHOTOGRAPH YET over a plate outline and carries the food's name,
+  since two identical tiles would read as a fault; the caption carries the portion and the
+  calories either way, so nothing is said twice.
 - The Nutrition5k plate deck and `tools/build_game_deck.py` stay in the repo. That game
   asked how many calories a whole tray held, against a figure that had been weighed; this
   one asks a smaller question about pictures that were not. They are different trades and

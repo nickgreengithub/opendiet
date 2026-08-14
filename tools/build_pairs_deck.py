@@ -89,6 +89,29 @@ GRIDS = [
     ]),
 ]
 
+# What the picture actually turned out to hold, where that differs from what was
+# asked for. The rule does not bend: the weight is still USDA's own household
+# portion times a whole number — the number is just counted off the finished
+# picture rather than taken from the prompt. Every one of these is countable,
+# which is why it can be checked at all.
+SEEN = {
+    "Strawberries, raw": (9, "9 strawberries"),
+    "Egg, whole, cooked, hard-boiled": (1, "1 egg"),
+    "Snacks, pretzels, hard, plain, salted": (9, "9 pretzels"),
+    "Bread, white, commercially prepared": (1, "1 slice"),
+}
+
+# Pictures that came back showing the wrong thing rather than the wrong number,
+# where no amount of counting can rescue the label. Dry lentils are three times
+# the calories of the same cup boiled, and the salmon is a dinner-plate portion
+# rather than the 356 g fillet SR Legacy means by "1 fillet". Neither can be
+# weighed by looking, so neither gets used: they keep the placeholder until they
+# are made again.
+NO_MATCH = {
+    "Lentils, mature seeds, cooked, boiled, without salt",
+    "Fish, salmon, Atlantic, farmed, cooked, dry heat",
+}
+
 # What the player is shown. USDA descriptions are written for a database —
 # "Bananas, raw", "Snacks, popcorn, air-popped" — and reading one of those off a
 # photograph of a banana is absurd.
@@ -228,6 +251,10 @@ def build(a, foods):
         src = os.path.join(a.raw, name + ".png")
         cut = list(tiles(src, a.width)) if os.path.exists(src) else [None] * 9
         for pic, (food, n, portion) in zip(cut, items):
+            if food in SEEN:
+                n, portion = SEEN[food]
+            if food in NO_MATCH:
+                pic = None
             row = foods.get(food)
             if row is None:
                 sys.exit("not in legacy.json: " + food)
@@ -266,8 +293,8 @@ def main():
     else:
         deck = build(a, usda())
         shot = sum(1 for d in deck if d["real"])
-        note = ("Portions are USDA SR Legacy household measures; calories are that "
-                "weight against SR Legacy's own energy density."
+        note = ("Portions are USDA SR Legacy household measures, counted against the "
+                "picture; calories are that weight against SR Legacy's own energy density."
                 + ("" if shot == len(deck) else
                    "  %d of %d pictures are placeholders." % (len(deck) - shot, len(deck))))
     if not deck:

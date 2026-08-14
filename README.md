@@ -60,9 +60,12 @@ household portion for that food multiplied by a whole number, with the calories 
 that weight against USDA's own energy density. "8 strawberries" is eight times SR Legacy's
 12 g medium strawberry; its 31 kcal is 96 g against SR Legacy's 32 kcal per 100 g.
 
-The pictures are placeholders while the photography is made, and they say so rather than
-pretending. The game plays without them: what is being asked is which of two named
-portions is more, and the names and portions answer that on their own.
+The pictures are generated rather than photographed, and every one was checked against its
+label before it was used. Four came back holding a different number from the one asked for
+and were relabelled to what they actually show; two came back showing the wrong thing
+entirely — dry lentils instead of boiled, a dinner portion of salmon instead of SR Legacy's
+356 g fillet — and those keep a placeholder that says so, because neither can be weighed by
+looking at it.
 
 ## The data
 
