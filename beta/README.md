@@ -27,14 +27,19 @@ What is different from the root:
   page in the same language as the unbuilt ones rather than a dialog over the top: it
   lights its tab like any other, and Escape returns to the search.
 - CALORIE GAME is built, on a phone. It opens by **showing** the game rather than
-  describing it: HOW TO PLAY, one line of instruction, then a working miniature of a round
-  that plays itself on a loop — two cards, a hand that comes in and presses the lower one, both
-  figures arriving, the winner lighting and the loser dimming — and BEGIN. Three
-  paragraphs of rules said less than watching it happen once. The pair it demonstrates
-  with is three tablespoons of olive oil against three cups of courgette, which is the
-  whole lesson in one frame: the small plate is 358 and the big one is 81. It is CSS
-  keyframes on a static mock, so nothing about it can drift out of step with the game, and
-  it stops entirely under prefers-reduced-motion.
+  describing it: HOW TO PLAY, one line of instruction — select the food with the highest
+  calories — then a working miniature of two cards with a hand drifting from one to the
+  other, and BEGIN. The hand does not press either of them. The page is saying what the
+  choice is, not making it: a demonstration that answers its own question tells the reader
+  the wrong thing about what is being asked of them, so no figure appears on it at all. The
+  pair it uses is three tablespoons of olive oil against three cups of courgette, read from
+  the live deck by id so the mock can never drift from the real thing.
+- The miniature's pictures are near enough square, because the plate sits in the middle of
+  a square tile and a letterbox crop of one is a photograph of the tablecloth. The block is
+  centred where there is room and pinned below the tabs where there is not — with the
+  demonstration in it, it very nearly fills a 640px screen, and a centred block that
+  overflows spills equally at both ends, which had put the heading underneath the tab row.
+  Measured clear at 844, 640 and 568px tall.
 - Then it asks one question six times: two foods stacked one above the other, and which of
   them is more. Six rather than ten because every pair carries the same size of lesson, so
   the tenth teaches nothing the sixth did not, and a game that ends while it is still
@@ -61,6 +66,10 @@ What is different from the root:
   `pathLength="100"` turns the dash arithmetic into percentages. The figure in the hole is
   HTML over the drawing rather than SVG text, because the template engine wraps interpolated
   text in a span and SVG will not paint one.
+- The two cards are the same <img> nodes every round, so advancing only swaps their src —
+  and a browser keeps painting the old picture until the new one has decoded, which is why
+  the pair used to slide out and then flash to the next one part way through. All twelve
+  are fetched and decoded up front, during the intro, when there is nothing else to do.
 - Both halves of the pass are keyframes, not transitions. The cards always carry an
   animation with fill-mode both, and an animation's value beats a transition on the same
   property — so setting a transform and removing the animation in one update does not
