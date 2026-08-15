@@ -86,6 +86,11 @@ What is different from the root:
   and the sentence reserves room for the longer of the two, so the pages are the same
   height to the pixel and nothing moves when you switch between them.
 
+- ADD and the bin are drawn as the same object in opposite colours: a bordered box, a mark
+  and a word — a plus and ADD in cyan on a search food, a bin and DEL in coral on a plate
+  row. They were a bare word and a bare icon, which read as decoration sitting next to the
+  steppers: the one control on the row that actually commits anything looked the least like
+  a control. Same size as each other, so neither is the louder of the two.
 - The measure is two words, not a menu: 100 G or OZ. On desktop they sit above the
   table's right side, the active one lit like a tab — the SIZE header and its popover
   are gone, though the column of values stays. Mobile's popover stacks full-width
