@@ -119,6 +119,13 @@ The layout rules below were the first things it was built to test, and still hol
   the top at three rem, which is the only number on the page that has to be read from arm's
   length. What was there before — a hit rate broken down by how far apart the two foods
   were — was analysis nobody asked for, printed too small to take in.
+- **Each line carries the share the donut drew.** The figure has its percentage of the
+  session's highest beneath it, and a bar runs the width of the row at the same
+  proportion, green for the food that carried more and coral for the other — the ring's
+  own colours. It is the same scale the reveal used, settled before a card was seen, so a
+  bar here means what the ring meant during the round and the six read against each other:
+  brown rice at 497 fills the row, an apple at 95 barely starts it. The bar is positioned
+  rather than given a column, so the share costs no room the portion could have used.
 - **Each line carries its portion, at the name's size.** For a while it did not, and the
   page was worthless for the one thing it exists to do: BROWN RICE 497 teaches nobody
   anything until it says two cups. The portion is told apart from the name by colour alone,

@@ -289,7 +289,7 @@ option{background:#070b12;color:#d7e6ef}
     <sc-if value="{{ gDone }}" hint-placeholder-val="{{ false }}">
       <span style="{{ gAccS }}">{{ gAcc }}<span style="{{ gResOf }}">{{ gAccLab }}</span></span>
       <sc-for list="{{ gResRows }}" as="x" hint-placeholder-count="12">
-        <span style="{{ x.row }}"><span style="{{ x.nameS }}">{{ x.name }}</span><span style="{{ x.portS }}">{{ x.portion }}</span><span style="{{ x.kS }}">{{ x.k }}</span><span style="{{ x.markS }}">{{ x.mark }}</span></span>
+        <span style="{{ x.row }}"><span style="{{ x.nameS }}">{{ x.name }}</span><span style="{{ x.portS }}">{{ x.portion }}</span><span style="{{ x.kWrap }}"><span style="{{ x.kS }}">{{ x.k }}</span><span style="{{ x.pctS }}">{{ x.pct }}</span></span><span style="{{ x.markS }}">{{ x.mark }}</span><span style="{{ x.barS }}"></span></span>
       </sc-for>
       <button onClick="{{ gAgain }}" style="{{ gAgainS }}">PLAY AGAIN</button>
     </sc-if>
@@ -1007,6 +1007,11 @@ class Component extends DCLogic {
   gResults(picks) {
     if (!picks || !picks.length) return {};
     const n = picks.length, hits = picks.filter(p => p.hit).length;
+    // The same scale the donut used: this food against the largest figure in the
+    // whole game, settled before a card was seen. So a bar here means exactly what
+    // the ring meant during the round, and the six can be read against each other.
+    const gMax = this.state.gMax || picks.reduce((m, p) =>
+      Math.max(m, p.top.kcal, p.bot.kcal), 1);
     const rows = [];
     picks.forEach((p, i) => {
       const upper = p.top.kcal >= p.bot.kcal;
@@ -1019,6 +1024,7 @@ class Component extends DCLogic {
           name: food.name.toUpperCase(),
           portion: food.portion || "",
           k: String(food.kcal),
+          pct: Math.round(100 * food.kcal / gMax) + "%",
           nameS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
             whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: "1rem",
             letterSpacing: ".03em", color: won ? "#f2f8fc" : "#b4c6d2" },
@@ -1027,15 +1033,24 @@ class Component extends DCLogic {
           portS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
             whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: "1rem",
             letterSpacing: ".03em", color: won ? "#a9bcc8" : "#8fa3b0" },
-          kS: { textAlign: "right", fontFamily: "var(--font-1)", fontWeight: 300,
+          kWrap: { display: "flex", flexDirection: "column", alignItems: "flex-end",
+            justifyContent: "center", lineHeight: 1.05 },
+          kS: { fontFamily: "var(--font-1)", fontWeight: 300,
             fontSize: "1.24rem", fontVariantNumeric: "tabular-nums",
             color: won ? "#f2f8fc" : "#b4c6d2" },
+          pctS: { fontFamily: "var(--font-2)", fontSize: ".64rem", letterSpacing: ".08em",
+            fontVariantNumeric: "tabular-nums", color: won ? "#9db2c0" : "#8296a3" },
+          // The bar runs the width of the row rather than sitting in a column of
+          // its own, so the share costs no room the portion could have used.
+          barS: { position: "absolute", left: 0, bottom: 0, height: "2px",
+            width: Math.max(1.5, 100 * food.kcal / gMax) + "%",
+            background: won ? "#7ee0a8" : "#f08c7a", opacity: won ? .55 : .4 },
           mark: first ? (p.hit ? "\u2713" : "\u2715") : "",
           markS: { textAlign: "right", fontSize: "1.15rem",
             color: p.hit ? "#7ee0a8" : "#f08c7a" },
-          row: { flex: "none", display: "grid",
+          row: { position: "relative", flex: "none", display: "grid",
             gridTemplateColumns: "auto minmax(0,1fr) 3.2rem 1.3rem",
-            columnGap: ".42rem", alignItems: "center", height: "2.5rem",
+            columnGap: ".42rem", alignItems: "center", height: "2.75rem",
             padding: "0 .15rem",
             // The pair is the unit, so the rule goes above the first of the two
             // and the second is tucked under it rather than floating free.
