@@ -251,6 +251,7 @@ option{background:#070b12;color:#d7e6ef}
     </sc-if>
     <sc-if value="{{ gIntro }}" hint-placeholder-val="{{ false }}">
       <span style="{{ gIntroWrap }}">
+        <span style="{{ gIntroTag }}">HOW TO PLAY</span>
         <span style="{{ gIntroLead }}">{{ gIntroLeadTxt }}</span>
         <span data-demo style="{{ gDemoWrap }}">
           <span style="{{ gDemoCardA }}">
@@ -3265,11 +3266,18 @@ class Component extends DCLogic {
           gWaiting: !ready && !done && !s.gFailed, gFailed: !!s.gFailed,
           gIntroWrap: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column",
             justifyContent: "center", padding: "0 .3rem 1.4rem" },
-          gIntroLeadTxt: "Which of these two is more?",
-          gIntroLead: Object.assign({ display: "block", maxWidth: "18ch",
-            paddingBottom: "1.2rem", fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: "1.9rem", lineHeight: 1.2, color: "#eaf5fb", textWrap: "balance" },
+          // A heading that says what the page is for, then the instruction. The
+          // page used to open by asking the question the game asks, which read as
+          // the first round rather than as the explanation of one.
+          gIntroTag: Object.assign({ display: "block", paddingBottom: ".55rem",
+            fontFamily: "var(--font-2)", fontSize: "1.02rem", letterSpacing: ".2em",
+            color: "#8ba0ad" },
             { animation: "od-soon-a 420ms cubic-bezier(.22,1,.36,1) both" }),
+          gIntroLeadTxt: "Select the food with the highest Calories",
+          gIntroLead: Object.assign({ display: "block", maxWidth: "20ch",
+            paddingBottom: "1.2rem", fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1.62rem", lineHeight: 1.25, color: "#eaf5fb", textWrap: "balance" },
+            { animation: "od-soon-a 420ms cubic-bezier(.22,1,.36,1) 90ms both" }),
           // Two cards at a third the height, a hand that presses the lower one,
           // and the figures arriving. Three paragraphs of rules said less than
           // watching it happen once, and this says it in five seconds.

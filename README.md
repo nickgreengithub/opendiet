@@ -43,8 +43,8 @@ side it has no business taking. It states what is on the plate.
 
 ## Calorie game
 
-A second app, on a phone. It opens by showing the game rather than describing it — a
-working miniature of a round that plays itself on a loop, a hand pressing one of two cards
+A second app, on a phone. It opens by showing the game rather than describing it — HOW TO PLAY, one line of
+instruction, and a working miniature of a round that plays itself on a loop, a hand pressing one of two cards
 and the figures arriving — and then asks one question six times: two foods stacked one
 above the other, each with the portion it is, and which of them carries more calories.
 

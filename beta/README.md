@@ -27,8 +27,8 @@ What is different from the root:
   page in the same language as the unbuilt ones rather than a dialog over the top: it
   lights its tab like any other, and Escape returns to the search.
 - CALORIE GAME is built, on a phone. It opens by **showing** the game rather than
-  describing it: the question in one line, then a working miniature of a round that plays
-  itself on a loop — two cards, a hand that comes in and presses the lower one, both
+  describing it: HOW TO PLAY, one line of instruction, then a working miniature of a round
+  that plays itself on a loop — two cards, a hand that comes in and presses the lower one, both
   figures arriving, the winner lighting and the loser dimming — and BEGIN. Three
   paragraphs of rules said less than watching it happen once. The pair it demonstrates
   with is three tablespoons of olive oil against three cups of courgette, which is the
