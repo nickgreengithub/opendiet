@@ -33,23 +33,25 @@ What is different from the root:
   carries the same size of lesson, so the tenth teaches nothing the sixth did not, and a
   game that ends while it is still interesting gets played twice.
 - Each food is a card — the picture, and under it a solid bar with the name, the portion
-  and, once answered, the calories. The label used to be a wash laid over the bottom of
-  the photograph, which is why it could not be read: type on a photograph has to survive
-  whatever is behind it, so it ends up small and half-transparent. On ground of its own it
-  can be the size it should be. The bar takes the card's colour when the answer lands, so
-  the picture, the label and the figure all say the same thing at once.
+  and, once answered, the calories. **The portion is set at the name's size**, told apart by
+  colour alone. It is half the question — a cup of one thing against three cups of another —
+  and at two thirds the size it read as a footnote on the name rather than part of it. The
+  bar takes the card's colour when the answer lands, so the picture, the label and the
+  figure all say the same thing at once, and the losing card dims to about two thirds rather
+  than half, which was dim enough to stop being readable.
 - Answering is the whole interaction. Tapping a card lights the one that carried more and
   dims the other, both figures arrive, and after a moment the next pair comes on its own —
   no button to press, because the player has already decided and a second action for the
   same decision is one too many. How many calories separated them is not reported: it was
   never what was asked.
 - Which round it is and how many are right sit at the bottom. They are a thing to glance
-  at between pairs rather than the first thing on the screen, and moving them off the top
-  gave the pictures the height the label bars took.
-- The results page reports the thing a tally would not: how far apart two foods have to
-  be before you can see it. Every pairing played, then the same six sorted into far apart,
-  some way apart and close, with the hit rate in each. Getting the far ones right and the
-  close ones wrong is the expected shape; where the line falls is the interesting part.
+  at between pairs rather than the first thing on the screen.
+- The results page is the six pairs again, in the order they were played, one food to a
+  line as it stood on the screen — the one that carried more in white above its figure, the
+  other tucked under it in grey, and a tick or a cross against the pair. The score sits at
+  the top at three rem, which is the only number on the page that has to be read from arm's
+  length. What was there before — a hit rate broken down by how far apart the two foods
+  were — was analysis nobody asked for, printed too small to take in.
 - **The deck is built so that size cannot answer the question.** That is the whole design,
   and it is a measured property rather than a hope: across the 399 playable pairings, the
   bigger portion carries more calories 51% of the time. A player who knows nothing and

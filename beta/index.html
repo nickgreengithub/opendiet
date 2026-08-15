@@ -221,18 +221,9 @@ option{background:#070b12;color:#d7e6ef}
     <sc-if value="{{ gDone }}" hint-placeholder-val="{{ false }}">
       <span style="{{ gResTag }}">{{ gResTagTxt }}</span>
       <span style="{{ gAccS }}">{{ gAcc }}<span style="{{ gResOf }}">{{ gAccLab }}</span></span>
-      <span style="{{ gAccSubS }}">{{ gAccSub }}</span>
-      <span style="{{ gResHead }}"><span>{{ gResH1 }}</span><span style="{{ gResHeadR }}">{{ gResH2 }}</span><span style="{{ gResHeadR }}">{{ gResH3 }}</span><span style="{{ gResHeadR }}">{{ gResH4 }}</span></span>
-      <sc-for list="{{ gResRows }}" as="x" hint-placeholder-count="6">
-        <span style="{{ x.row }}"><span style="{{ x.nameS }}">{{ x.name }}</span><span style="{{ x.actual.s }}">{{ x.actual.v }}</span><span style="{{ x.guess.s }}">{{ x.guess.v }}</span><span style="{{ x.diff.s }}">{{ x.diff.v }}</span></span>
+      <sc-for list="{{ gResRows }}" as="x" hint-placeholder-count="12">
+        <span style="{{ x.row }}"><span style="{{ x.nameS }}">{{ x.name }}</span><span style="{{ x.kS }}">{{ x.k }}</span><span style="{{ x.markS }}">{{ x.mark }}</span></span>
       </sc-for>
-      <span style="{{ gCatLabS }}">{{ gCatLab }}</span>
-      <span style="{{ gCatWrap }}">
-        <span style="{{ gCatMid }}"></span>
-        <sc-for list="{{ gCatRows }}" as="c" hint-placeholder-count="4">
-          <span style="{{ c.row }}"><span style="{{ c.bar }}"></span><span style="{{ c.nameS }}">{{ c.name }}</span><span style="{{ c.nS }}">{{ c.n }}</span><span style="{{ c.valS }}">{{ c.val }}</span></span>
-        </sc-for>
-      </span>
       <button onClick="{{ gAgain }}" style="{{ gAgainS }}">PLAY AGAIN</button>
     </sc-if>
   </div>
@@ -882,75 +873,46 @@ class Component extends DCLogic {
   // The end of a game is a page: every pairing played, and then the thing worth
   // knowing — how far apart two foods have to be before you can tell. A tally
   // on its own would not say that.
+  // The end of a game is the six pairs again, in the order they were played, one
+  // food to a line as they stood on the screen. A tally of rights and wrongs is
+  // the score at the top; everything else was analysis nobody asked for.
   gResults(picks) {
     if (!picks || !picks.length) return {};
     const n = picks.length, hits = picks.filter(p => p.hit).length;
-    const BANDS = [["FAR APART", 2.0, 99], ["SOME WAY APART", 1.5, 2.0], ["CLOSE", 0, 1.5]];
-    const bands = BANDS.map(b => {
-      const inb = picks.filter(p => p.ratio >= b[1] && p.ratio < b[2]);
-      return { lab: b[0], n: inb.length, hit: inb.filter(p => p.hit).length };
-    }).filter(b => b.n);
-    const num = (v, col) => ({ v: v, s: { textAlign: "right", fontWeight: 300,
-      fontSize: ".95rem", color: col, fontVariantNumeric: "tabular-nums" } });
+    const rows = [];
+    picks.forEach((p, i) => {
+      const upper = p.top.kcal >= p.bot.kcal;
+      [[p.top, upper, true], [p.bot, !upper, false]].forEach(([food, won, first]) => {
+        rows.push({
+          name: food.name.toUpperCase(),
+          k: String(food.kcal),
+          nameS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
+            whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: ".92rem",
+            letterSpacing: ".05em", color: won ? "#eaf5fb" : "#8ba0ad" },
+          kS: { textAlign: "right", fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1.12rem", fontVariantNumeric: "tabular-nums",
+            color: won ? "#eaf5fb" : "#8ba0ad" },
+          mark: first ? (p.hit ? "\u2713" : "\u2715") : "",
+          markS: { textAlign: "right", fontSize: "1.05rem",
+            color: p.hit ? "#7ee0a8" : "#f08c7a" },
+          row: { flex: "none", display: "grid",
+            gridTemplateColumns: "minmax(0,1fr) 3.2rem 1.6rem", columnGap: ".5rem",
+            alignItems: "center", height: "1.95rem", padding: "0 .15rem",
+            // The pair is the unit, so the rule goes above the first of the two
+            // and the second is tucked under it rather than floating free.
+            borderTop: first ? "1px solid rgba(215,230,239,.14)" : "0",
+            paddingLeft: first ? ".15rem" : ".9rem" }
+        });
+      });
+    });
     return {
       gAcc: String(hits), gAccLab: "OF " + n + " RIGHT",
       gResTagTxt: n + " PAIRS",
-      gAccS: { display: "flex", alignItems: "baseline", gap: ".45rem", padding: "0 .15rem",
-        fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "2.2rem",
-        color: hits >= 8 ? "#7ee0a8" : "#eaf5fb", fontVariantNumeric: "tabular-nums" },
-      gAccSub: hits === n ? "EVERY ONE, INCLUDING THE CLOSE ONES"
-        : "SIZE WAS NO HELP: THE BIGGER PLATE CARRIES MORE ABOUT HALF THE TIME",
-      gAccSubS: { display: "block", padding: ".3rem .15rem .75rem", fontFamily: "var(--font-2)",
-        fontSize: ".74rem", letterSpacing: ".1em", color: "#7b91a3" },
-      gResH1: "THE PAIR", gResH2: "TOP", gResH3: "BOTTOM", gResH4: "",
-      gResHead: { flex: "none", display: "grid",
-        gridTemplateColumns: "minmax(0,1fr) 3rem 3rem 1.6rem", columnGap: ".35rem",
-        padding: "0 .15rem .3rem", fontFamily: "var(--font-2)", fontSize: ".67rem",
-        letterSpacing: ".1em", color: "#54677a" },
-      gResHeadR: { textAlign: "right" },
-      gResRows: picks.map(p => {
-        const upper = p.top.kcal >= p.bot.kcal;
-        return {
-          name: (p.top.name + " / " + p.bot.name).toUpperCase(),
-          nameS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-            fontFamily: "var(--font-2)", fontSize: ".78rem", letterSpacing: ".04em",
-            color: p.hit ? "#c7d6e0" : "#8ba0ad" },
-          actual: num(String(p.top.kcal), upper ? "#d7e6ef" : "#5b7183"),
-          guess: num(String(p.bot.kcal), upper ? "#5b7183" : "#d7e6ef"),
-          diff: num(p.hit ? "\u2713" : "\u2715", p.hit ? "#7ee0a8" : "#f08c7a"),
-          row: { flex: "none", display: "grid",
-            gridTemplateColumns: "minmax(0,1fr) 3rem 3rem 1.6rem", columnGap: ".35rem",
-            alignItems: "center", height: "1.74rem", padding: "0 .15rem",
-            borderTop: "1px solid rgba(215,230,239,.07)" }
-        };
-      }),
-      gCatLab: "HOW FAR APART THEY HAD TO BE",
-      gCatLabS: { flex: "none", display: "block", padding: ".8rem .15rem .3rem",
-        fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".12em", color: "#7b91a3" },
-      gCatRows: bands.map(b => {
-        const pct = Math.round(100 * b.hit / b.n);
-        return {
-          name: b.lab,
-          nameS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-            fontFamily: "var(--font-2)", fontSize: ".78rem", letterSpacing: ".04em", color: "#c7d6e0" },
-          n: b.hit + " OF " + b.n,
-          nS: { textAlign: "right", fontFamily: "var(--font-2)", fontSize: ".7rem",
-            letterSpacing: ".06em", color: "#54677a" },
-          val: pct + "%",
-          valS: { textAlign: "right", fontWeight: 300, fontSize: ".95rem",
-            color: pct >= 80 ? "#7ee0a8" : pct >= 50 ? "#f0c07a" : "#f08c7a",
-            fontVariantNumeric: "tabular-nums" },
-          bar: { position: "absolute", top: "50%", height: "1.15rem", marginTop: "-.575rem",
-            left: 0, width: Math.max(2, pct) + "%",
-            background: pct >= 80 ? "rgba(126,224,168,.18)" : "rgba(240,140,122,.16)" },
-          row: { position: "relative", flex: "none", display: "grid",
-            gridTemplateColumns: "minmax(0,1fr) 4.2rem 3rem", columnGap: ".35rem",
-            alignItems: "center", height: "1.95rem", padding: "0 .15rem",
-            borderTop: "1px solid rgba(215,230,239,.07)" }
-        };
-      }),
-      gCatMid: { display: "none" },
-      gCatWrap: { position: "relative", flex: "none", display: "flex", flexDirection: "column" },
+      gAccS: { display: "flex", alignItems: "baseline", gap: ".55rem",
+        padding: "0 .15rem 1rem", fontFamily: "var(--font-1)", fontWeight: 300,
+        fontSize: "3rem", color: hits >= n - 1 ? "#7ee0a8" : "#eaf5fb",
+        fontVariantNumeric: "tabular-nums" },
+      gResRows: rows,
       gAgain: () => this.gStart(false),
       gDeckNote: this._deck ? this._deck.note : ""
     };
@@ -3036,18 +2998,18 @@ class Component extends DCLogic {
       },
       gHeadScore: { fontVariantNumeric: "tabular-nums", color: "#22d3ee" },
       gWaitS: { display: "block", padding: "2.5rem .2rem", fontFamily: "var(--font-2)",
-        fontSize: ".76rem", letterSpacing: ".16em", color: "#5b7183" },
+        fontSize: ".9rem", letterSpacing: ".16em", color: "#a9bcc8" },
       gResTag: { flex: "none", display: "block", padding: ".8rem .15rem .25rem",
-        fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".18em", color: "#5b7183" },
+        fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".18em", color: "#8ba0ad" },
       gAgainS: { flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
-        width: "100%", boxSizing: "border-box", height: "2.6rem", marginTop: "auto",
+        width: "100%", boxSizing: "border-box", height: "3.1rem", marginTop: "auto",
         border: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
         background: "rgba(34,211,238,.08)", cursor: "pointer", fontFamily: "var(--font-2)",
-        fontSize: ".82rem", letterSpacing: ".16em", color: "#22d3ee" },
+        fontSize: ".95rem", letterSpacing: ".16em", color: "#3fdcf2" },
       gResScore: { display: "flex", alignItems: "baseline", gap: ".5rem", padding: "0 .2rem",
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "2.4rem", color: "#eaf5fb",
         fontVariantNumeric: "tabular-nums" },
-      gResOf: { fontFamily: "var(--font-2)", fontSize: ".74rem", letterSpacing: ".14em", color: "#7b91a3" },
+      gResOf: { fontFamily: "var(--font-2)", fontSize: ".92rem", letterSpacing: ".12em", color: "#a9bcc8" },
       gResPts: { display: "block", padding: ".45rem .15rem 1.2rem", fontFamily: "var(--font-2)",
         fontSize: ".72rem", letterSpacing: ".12em", color: "#5b7183" },
       // Signed error, not correctness: every round sits on the side of the truth
@@ -3129,13 +3091,13 @@ class Component extends DCLogic {
             border: "1px solid " + (!shown ? "rgba(34,211,238,.16)"
               : k === more ? "rgba(126,224,168,.8)"
               : sel === k ? "rgba(240,140,122,.7)" : "rgba(34,211,238,.06)"),
-            opacity: !shown || k === more ? 1 : 0.5,
+            opacity: !shown || k === more ? 1 : 0.68,
             transition: "border-color 240ms ease, opacity 240ms ease"
           },
           bar: {
             flex: "none", display: "grid",
             gridTemplateColumns: "auto minmax(0,1fr) auto", columnGap: ".5rem",
-            alignItems: "baseline", height: "2.4rem", padding: "0 .6rem",
+            alignItems: "baseline", height: "2.9rem", padding: "0 .65rem",
             boxSizing: "border-box", alignContent: "center",
             borderTop: "1px solid " + (!shown ? "rgba(34,211,238,.16)"
               : k === more ? "rgba(126,224,168,.5)"
@@ -3145,22 +3107,25 @@ class Component extends DCLogic {
               : sel === k ? "rgba(240,140,122,.09)" : "#0d151d",
             transition: "background 240ms ease, border-color 240ms ease"
           },
+          // The portion is half the question — a cup of one thing against three of
+          // another — so it is set at the name's size and told apart by colour
+          // alone. At two thirds the size it read as a footnote on the name.
           nameS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
-            whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: ".92rem",
-            letterSpacing: ".08em", color: "#eaf5fb" },
+            whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: "1.02rem",
+            letterSpacing: ".06em", color: "#f2f8fc" },
           portS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
-            whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: ".76rem",
-            letterSpacing: ".04em", color: "#8ba0ad" },
+            whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: "1.02rem",
+            letterSpacing: ".04em", color: "#a9bcc8" },
           kS: Object.assign({ textAlign: "right", fontFamily: "var(--font-1)",
-            fontWeight: 300, fontSize: "1.3rem", fontVariantNumeric: "tabular-nums",
+            fontWeight: 300, fontSize: "1.5rem", fontVariantNumeric: "tabular-nums",
             whiteSpace: "nowrap",
             color: k === more ? "#7ee0a8" : "#f08c7a" },
             shown ? { animation: "od-soon-a 300ms cubic-bezier(.22,1,.36,1) 30ms both" } : {})
         });
         const introLine = (t, d) => ({ t: t, s: Object.assign({
-          display: "block", maxWidth: "32ch", padding: ".5rem 0 0",
-          fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1rem",
-          lineHeight: 1.55, color: "#94a3b8", textWrap: "pretty" },
+          display: "block", maxWidth: "32ch", padding: ".62rem 0 0",
+          fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.15rem",
+          lineHeight: 1.5, color: "#b6c6d2", textWrap: "pretty" },
           { animation: "od-soon-a 420ms cubic-bezier(.22,1,.36,1) " + d + "ms both" }) });
         return {
           gIntro: !!s.gIntro && ready,
@@ -3169,7 +3134,7 @@ class Component extends DCLogic {
           gIntroWrap: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column",
             justifyContent: "center", padding: "0 .3rem 2rem" },
           gIntroTag: { display: "block", paddingBottom: ".7rem", fontFamily: "var(--font-2)",
-            fontSize: ".72rem", letterSpacing: ".2em", color: "#5b7183" },
+            fontSize: ".82rem", letterSpacing: ".2em", color: "#8ba0ad" },
           gIntroLeadTxt: "Which of these two is more?",
           gIntroLead: Object.assign({ display: "block", maxWidth: "18ch",
             fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.9rem",
@@ -3186,8 +3151,8 @@ class Component extends DCLogic {
             padding: "0 2.2rem", height: "3rem", boxSizing: "border-box",
             border: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
             background: "rgba(34,211,238,.08)", cursor: "pointer",
-            fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".18em",
-            color: "#22d3ee",
+            fontFamily: "var(--font-2)", fontSize: ".98rem", letterSpacing: ".18em",
+            color: "#3fdcf2",
             animation: "od-soon-a 420ms cubic-bezier(.22,1,.36,1) 560ms both" },
           gRoundLabel: "ROUND " + Math.min(i + 1, GAME_ROUNDS) + " OF " + GAME_ROUNDS,
           gHits: picks.filter(p => p.hit).length + " RIGHT",
@@ -3198,9 +3163,9 @@ class Component extends DCLogic {
           // Where the round stands belongs at the bottom: it is a thing to glance
           // at between pairs, not the first thing on the screen.
           gStatusS: { flex: "none", display: "flex", alignItems: "center",
-            justifyContent: "space-between", height: "1.9rem", padding: "0 .15rem",
-            fontFamily: "var(--font-2)", fontSize: ".76rem", letterSpacing: ".14em",
-            color: "#7b91a3" },
+            justifyContent: "space-between", height: "2.1rem", padding: "0 .15rem",
+            fontFamily: "var(--font-2)", fontSize: ".88rem", letterSpacing: ".12em",
+            color: "#a9bcc8" },
           gStatusR: { color: "#22d3ee", fontVariantNumeric: "tabular-nums" },
           ...this.gResults(picks)
         };
