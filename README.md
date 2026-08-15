@@ -72,7 +72,10 @@ to be a fail. Under it, one tile per pair in the order they were played, each ho
 two foods as they stood on the screen with their portions and calories, a tick or a cross,
 and a border in lime or red. Under the grade, one sentence: how much you underestimated
 by, on average, since picking the lighter plate means the heavier one was worth more than
-you gave it credit for and the gap is exactly how much.
+you gave it credit for and the gap is exactly how much. It closes on a caveat — calories
+are one number among many, a good diet is a balanced one rather than a small one, and this
+is a game and not health advice — which sits at the end rather than the start, because
+that is the moment someone might take a score about calories for a verdict about food.
 
 **The deck is built so that size cannot answer the question**, and that is measured rather
 than hoped for: across its 399 playable pairings the bigger portion carries more calories

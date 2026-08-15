@@ -292,6 +292,7 @@ option{background:#070b12;color:#d7e6ef}
       <sc-for list="{{ gResTiles }}" as="t" hint-placeholder-count="6">
         <span style="{{ t.s }}"><span style="{{ t.col }}"><span style="{{ t.rowS }}"><span style="{{ t.a.nameS }}">{{ t.a.name }}</span><span style="{{ t.a.portS }}">{{ t.a.portion }}</span><span style="{{ t.a.kS }}">{{ t.a.k }}</span></span><span style="{{ t.rowS }}"><span style="{{ t.b.nameS }}">{{ t.b.name }}</span><span style="{{ t.b.portS }}">{{ t.b.portion }}</span><span style="{{ t.b.kS }}">{{ t.b.k }}</span></span></span><span style="{{ t.markS }}">{{ t.mark }}</span></span>
       </sc-for>
+      <span style="{{ gNoteS }}">Calories are one number among many, and a good diet is a balanced one rather than a small one. This is a game, not health advice.</span>
       <button onClick="{{ gAgain }}" style="{{ gAgainS }}">PLAY AGAIN</button>
     </sc-if>
   </div>
@@ -1052,7 +1053,7 @@ class Component extends DCLogic {
         markS: { flex: "none", width: "1.05rem", textAlign: "right", fontSize: "1.05rem",
           lineHeight: 1, color: edge },
         s: { flex: "none", display: "flex", alignItems: "center", gap: ".3rem",
-          padding: ".4rem .35rem", marginBottom: ".42rem",
+          padding: ".34rem .35rem", marginBottom: ".32rem",
           border: "1px solid " + edge + "88", background: edge + "0f" },
         col: { flex: "1 1 auto", minWidth: 0, display: "flex", flexDirection: "column",
           gap: ".1rem" },
@@ -1068,7 +1069,7 @@ class Component extends DCLogic {
       // The score sits level with the top of the letter rather than on its baseline,
       // which had it reading as a footnote hung off the bottom of the grade.
       gHeadS: { flex: "none", display: "flex", alignItems: "flex-start", gap: ".75rem",
-        padding: ".85rem .15rem .28rem" },
+        padding: ".7rem .15rem .24rem" },
       gGradeS: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "3rem",
         lineHeight: .8, color: hue },
       gTallyS: { fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".12em",
@@ -1076,9 +1077,15 @@ class Component extends DCLogic {
       // A sentence, so it is set in the reading face rather than the label face —
       // which is also the narrower of the two, and at 360px that is the difference
       // between one line and a lonely "kcalories" on a second.
-      gMissS: { flex: "none", display: "block", padding: "0 .15rem .8rem",
+      gMissS: { flex: "none", display: "block", padding: "0 .15rem .65rem",
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".93rem",
         letterSpacing: 0, whiteSpace: "nowrap", color: "#b4c6d2" },
+      // The caveat goes here rather than on the way in. Before a game it is throat
+      // clearing nobody reads; after a grade it lands, because that is the moment
+      // someone might take a score about calories for a verdict about food.
+      gNoteS: { flex: "none", display: "block", marginTop: "auto",
+        padding: ".65rem .15rem .55rem", fontFamily: "var(--font-1)", fontWeight: 300,
+        fontSize: ".84rem", lineHeight: 1.4, color: "#8fa3b0" },
       gResTiles: tiles,
       gAgain: () => this.gStart(false),
       gDeckNote: this._deck ? this._deck.note : ""
@@ -3167,7 +3174,7 @@ class Component extends DCLogic {
       gWaitS: { display: "block", padding: "2.5rem .2rem", fontFamily: "var(--font-2)",
         fontSize: ".9rem", letterSpacing: ".16em", color: "#a9bcc8" },
       gAgainS: { flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
-        width: "100%", boxSizing: "border-box", height: "3.1rem", marginTop: "auto",
+        width: "100%", boxSizing: "border-box", height: "3.1rem", marginTop: 0,
         border: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
         background: "rgba(34,211,238,.08)", cursor: "pointer", fontFamily: "var(--font-2)",
         fontSize: ".95rem", letterSpacing: ".16em", color: "#3fdcf2" },

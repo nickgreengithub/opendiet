@@ -142,6 +142,23 @@ The layout rules below were the first things it was built to test, and still hol
   (.35rem), the column gap (.3rem) and the calorie column (2.5rem), and the name track was
   changed from `auto` to `minmax(0,auto)` so a long name gives ground instead of the
   portion always paying. Ten games at 360x640 and five at 390x844, 30 distinct pairs, clean.
+- The page ends on a caveat, and it goes here rather than on the way in. Before a game it
+  is throat-clearing nobody reads; after a grade it lands, because that is the moment
+  someone might take a score about calories for a verdict about food. It says calories are
+  one number among many, that a good diet is a balanced one rather than a small one, and
+  that this is a game and not health advice — three lines, quieter than the tiles, sat
+  above PLAY AGAIN.
+- **The clipping check was broken too, in the other direction.** The narrow shell is
+  `position: fixed` with `overflow: hidden`, so content that does not fit is not an
+  overflow — the document never grows and `scrollHeight` never exceeds the viewport. The
+  caveat pushed PLAY AGAIN 45px off the bottom of a 640px screen and the check called it
+  clean. It now finds the button and asserts its rect is on screen, which is the honest
+  question: is the last thing on the page reachable. The 45px came back out of the tile
+  padding and margins, the header, and the caveat's own wording, which wanted shortening
+  anyway.
+- **Known limit: 320x568.** At that size — an iPhone SE of the first generation — the tile
+  layout clips portions badly and the button is still pushed off. 360x640 and up is clean
+  and is what the layout is built to.
 - **The truncation check that cleared the earlier versions of this page was broken.** It
   skipped any element with children, and this framework wraps every interpolated string in
   a `<span class="sc-interp">` — so it was scanning the styled label, finding one child, and
