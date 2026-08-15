@@ -284,10 +284,11 @@ option{background:#070b12;color:#d7e6ef}
         </span>
         <span style="{{ gBot.bar }}"><span style="{{ gBot.nameS }}">{{ gBot.name }}</span><span style="{{ gBot.portS }}">{{ gBot.portion }}</span><span style="{{ gPipRow }}"><sc-for list="{{ gBot.pips }}" as="p" hint-placeholder-count="2"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="{{ p.s }}"><path d="{{ p.d }}"></path></svg></sc-for></span></span>
       </button>
-      <span style="{{ gStatusS }}"><span>{{ gRoundLabel }}</span><span style="{{ gStatusR }}">{{ gHits }}</span></span>
+      <span style="{{ gStatusS }}"><span>{{ gRoundLabel }}</span><span style="{{ gDotRow }}"><sc-for list="{{ gDots }}" as="d" hint-placeholder-count="6"><span style="{{ d.s }}">{{ d.mark }}</span></sc-for></span></span>
     </sc-if>
     <sc-if value="{{ gDone }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ gAccS }}">{{ gGrade }}<span style="{{ gResOf }}">{{ gAccLab }}</span></span>
+      <span style="{{ gHeadS }}"><span style="{{ gGradeS }}">{{ gGrade }}</span><span style="{{ gTallyS }}">{{ gAccLab }}</span></span>
+      <span style="{{ gMissS }}">{{ gMissLine }}</span>
       <sc-for list="{{ gResTiles }}" as="t" hint-placeholder-count="6">
         <span style="{{ t.s }}"><span style="{{ t.col }}"><span style="{{ t.rowS }}"><span style="{{ t.a.nameS }}">{{ t.a.name }}</span><span style="{{ t.a.portS }}">{{ t.a.portion }}</span><span style="{{ t.a.kS }}">{{ t.a.k }}</span></span><span style="{{ t.rowS }}"><span style="{{ t.b.nameS }}">{{ t.b.name }}</span><span style="{{ t.b.portS }}">{{ t.b.portion }}</span><span style="{{ t.b.kS }}">{{ t.b.k }}</span></span></span><span style="{{ t.markS }}">{{ t.mark }}</span></span>
       </sc-for>
@@ -1017,6 +1018,10 @@ class Component extends DCLogic {
     // so that guessing scores about half, so half is an F, and it takes five of six
     // to reach a B. Nobody has to be told what an A- means.
     const grade = (GRADE_BANDS.find(g => pct >= g[0]) || GRADE_BANDS[GRADE_BANDS.length - 1])[1];
+    // Picking the lighter plate means the heavier one was worth more than you gave it
+    // credit for, and the gap is exactly how much. Averaged over the whole game rather
+    // than over the misses alone, so a right answer counts as the nothing it cost.
+    const avgMiss = Math.round(picks.reduce((m, p) => m + (p.hit ? 0 : p.gap), 0) / n);
     const hue = grade[0] === "A" ? "#7ee0a8" : grade[0] === "B" ? "#b6e88f"
       : grade[0] === "C" ? "#e8c37a" : "#f08c7a";
     const tiles = picks.map(p => {
@@ -1057,9 +1062,23 @@ class Component extends DCLogic {
     });
     return {
       gGrade: grade, gAccLab: pct + "% \u00b7 " + hits + " OF " + n + " RIGHT",
-      gAccS: { display: "flex", alignItems: "baseline", gap: ".7rem",
-        padding: ".9rem .15rem .85rem", fontFamily: "var(--font-1)", fontWeight: 300,
-        fontSize: "3rem", color: hue },
+      gMissLine: avgMiss > 0
+        ? "On average, you underestimated by " + avgMiss + " kcalories"
+        : "You did not underestimate a single plate",
+      // The score sits level with the top of the letter rather than on its baseline,
+      // which had it reading as a footnote hung off the bottom of the grade.
+      gHeadS: { flex: "none", display: "flex", alignItems: "flex-start", gap: ".75rem",
+        padding: ".85rem .15rem .28rem" },
+      gGradeS: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "3rem",
+        lineHeight: .8, color: hue },
+      gTallyS: { fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".12em",
+        color: "#c3d3dd", fontVariantNumeric: "tabular-nums" },
+      // A sentence, so it is set in the reading face rather than the label face —
+      // which is also the narrower of the two, and at 360px that is the difference
+      // between one line and a lonely "kcalories" on a second.
+      gMissS: { flex: "none", display: "block", padding: "0 .15rem .8rem",
+        fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".93rem",
+        letterSpacing: 0, whiteSpace: "nowrap", color: "#b4c6d2" },
       gResTiles: tiles,
       gAgain: () => this.gStart(false),
       gDeckNote: this._deck ? this._deck.note : ""
@@ -3393,7 +3412,19 @@ class Component extends DCLogic {
             color: "#3fdcf2",
             animation: "od-soon-a 420ms cubic-bezier(.22,1,.36,1) 480ms both" },
           gRoundLabel: "ROUND " + Math.min(i + 1, GAME_ROUNDS) + " OF " + GAME_ROUNDS,
-          gHits: picks.filter(p => p.hit).length + " RIGHT",
+          // Six boxes rather than a count. A tally says how many; the boxes say
+          // which, and how much of the game is left, in the same glance.
+          gDots: Array.from({ length: GAME_ROUNDS }, (unused, di) => {
+            const done = picks[di];
+            const edge = !done ? "rgba(215,230,239,.22)" : done.hit ? "#7ee0a8" : "#f08c7a";
+            return {
+              mark: !done ? "" : done.hit ? "\u2713" : "\u2715",
+              s: { display: "flex", alignItems: "center", justifyContent: "center",
+                flex: "none", width: "1.35rem", height: "1.35rem", fontSize: ".92rem",
+                lineHeight: 1, border: "1px solid " + edge, color: edge,
+                background: done ? edge + "14" : "transparent" }
+            };
+          }),
           gTop: side(r && r.top, 0), gBot: side(r && r.bot, 1),
           gShotWrap: { position: "relative", flex: "1 1 auto", minHeight: 0,
             overflow: "hidden" },
@@ -3409,7 +3440,7 @@ class Component extends DCLogic {
             justifyContent: "space-between", height: "2.1rem", padding: "0 .15rem",
             fontFamily: "var(--font-2)", fontSize: ".88rem", letterSpacing: ".12em",
             color: "#a9bcc8" },
-          gStatusR: { color: "#22d3ee", fontVariantNumeric: "tabular-nums" },
+          gDotRow: { display: "flex", alignItems: "center", gap: ".22rem" },
           ...this.gResults(picks)
         };
       })(),

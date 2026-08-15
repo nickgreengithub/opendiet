@@ -61,12 +61,18 @@ rather than against its own partner, so a three-quarter ring means the same thin
 round and the sixth reveal can be compared with the first. The pair then slides out to the
 left as the next arrives from the right. There is no button to press and nothing scrolls.
 
+Which round it is sits at the bottom left, and six boxes at the bottom right fill with a
+tick or a cross as the game goes, so how you are doing and how much is left read in one
+glance.
+
 The end is a grade and six tiles. The grade is the ordinary school scale — A+ down to F
 on percentage correct, with the percentage and the tally beside it — which suits this game
 exactly, since the deck is built so that guessing scores about half and half therefore has
 to be a fail. Under it, one tile per pair in the order they were played, each holding its
 two foods as they stood on the screen with their portions and calories, a tick or a cross,
-and a border in lime or red.
+and a border in lime or red. Under the grade, one sentence: how much you underestimated
+by, on average, since picking the lighter plate means the heavier one was worth more than
+you gave it credit for and the gap is exactly how much.
 
 **The deck is built so that size cannot answer the question**, and that is measured rather
 than hoped for: across its 399 playable pairings the bigger portion carries more calories

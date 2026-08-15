@@ -113,12 +113,24 @@ The layout rules below were the first things it was built to test, and still hol
   dead screen followed by a jump.
 - Which round it is and how many are right sit at the bottom. They are a thing to glance
   at between pairs rather than the first thing on the screen.
+- During a round, the bottom right carries **six boxes rather than a count**. A tally says
+  how many; the boxes say which ones, and how much of the game is left, in the same glance —
+  filled with a tick or a cross as each answer lands, faint and empty ahead of it.
 - The results page is a grade and six tiles. The grade is the ordinary school scale — A+
   down to F on percentage correct, with the percentage and the tally printed beside it —
   which happens to suit this game exactly: the deck is built so that guessing scores about
   half, so half has to be a failing mark for the letter to mean anything. Six rounds gives
   seven possible scores, so in practice only A+, B, D+ and F ever appear; that is the scale
   being honest rather than coarse, since four of six is barely above chance.
+- The score sits level with the top of the grade rather than on its baseline, where it had
+  been reading as a footnote hung off the bottom of the letter, and under both is one
+  sentence: how much you underestimated by, on average. Picking the lighter plate means the
+  heavier one was worth more than you gave it credit for, and the gap is exactly how much;
+  it is averaged over the whole game rather than over the misses alone, so a right answer
+  counts as the nothing it cost. A clean sweep says so instead of claiming an average of
+  zero. It is set in the reading face rather than the label face, that being the narrower
+  of the two — at 360px, with a three-figure average, the difference between one line and a
+  lonely "kcalories" on a second.
 - Each pair is a tile, stacked in the order it was played, holding its two foods in the
   order they stood on the screen — name, portion, calories — with a tick or a cross and a
   border in lime or red. The answer is legible from the shape of the page before a word of
