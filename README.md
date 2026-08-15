@@ -44,29 +44,29 @@ side it has no business taking. It states what is on the plate.
 ## Calorie game
 
 A second app, on a phone. It opens on a page saying what the game is, and then asks one
-question ten times: two foods stacked one above the other, each with the portion it is,
+question six times: two foods stacked one above the other, each with the portion it is,
 and which of them carries more calories. Tap a card — the one that carried more lights,
 the other dims, both figures arrive in the bar under the picture — and after a moment the
 next pair comes on its own. There is no button to press and nothing scrolls.
 
-The pairing carries the difficulty. Ten pairs, no food twice, and the gap between them
-closing as the game runs: the first rounds are a banana against a bagel, the last are two
-things a fifth apart. Nothing closer than 1.12× is ever asked, because past that the
-honest answer is that nobody could tell. At the end, the thing a tally would not tell you:
-how far apart two foods have to be before you can see it, with your hit rate for the far
-ones, the middling ones and the close ones.
+**The deck is built so that size cannot answer the question**, and that is measured rather
+than hoped for: across its 399 playable pairings the bigger portion carries more calories
+51% of the time, so always picking the fuller plate scores a coin toss. Getting there is
+not a matter of matching sizes or matching calories — either of those just hands the
+player the opposite shortcut. It is a matter of having, at every size, both a cheap food
+and an expensive one. One carrot is 25 kcal and half a cup of almonds is 428, and both sit
+on a small plate. Three cups of cucumber is 47 and two cups of brown rice is 497, and both
+fill a large one.
 
-The deck is 36 single foods, and the weight is never typed in — it is USDA's own published
+36 foods in portions a person would actually serve — three tablespoons of olive oil is a
+dressed salad, not a thimble — and the weight is never typed in: it is USDA's own published
 household portion for that food multiplied by a whole number, with the calories taken from
-that weight against USDA's own energy density. "8 strawberries" is eight times SR Legacy's
-12 g medium strawberry; its 31 kcal is 96 g against SR Legacy's 32 kcal per 100 g.
+that weight against USDA's own energy density.
 
-The pictures are generated rather than photographed, and every one was checked against its
-label before it was used. Four came back holding a different number from the one asked for
-and were relabelled to what they actually show; two came back showing the wrong thing
-entirely — dry lentils instead of boiled, a dinner portion of salmon instead of SR Legacy's
-356 g fillet — and those keep a placeholder that says so, because neither can be weighed by
-looking at it.
+The pictures are generated rather than photographed, and every one is counted against its
+label before it is used. Three of the 36 came back holding something other than what was
+asked — seven strawberries not eight, four rashers not three, a whole bar of chocolate
+rather than half of one — and were relabelled to what they actually show.
 
 ## The data
 

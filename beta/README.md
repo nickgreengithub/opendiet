@@ -28,8 +28,10 @@ What is different from the root:
   lights its tab like any other, and Escape returns to the search.
 - CALORIE GAME is built, on a phone. It opens on a page that says what the game is and
   waits for BEGIN, because a screen that starts scoring you before it has said what it
-  wants is a poor greeting. Then it asks one question ten times: two foods stacked one
-  above the other, and which of them is more.
+  wants is a poor greeting. Then it asks one question six times: two foods stacked one
+  above the other, and which of them is more. Six rather than ten because every pair
+  carries the same size of lesson, so the tenth teaches nothing the sixth did not, and a
+  game that ends while it is still interesting gets played twice.
 - Each food is a card — the picture, and under it a solid bar with the name, the portion
   and, once answered, the calories. The label used to be a wash laid over the bottom of
   the photograph, which is why it could not be read: type on a photograph has to survive
@@ -45,35 +47,32 @@ What is different from the root:
   at between pairs rather than the first thing on the screen, and moving them off the top
   gave the pictures the height the label bars took.
 - The results page reports the thing a tally would not: how far apart two foods have to
-  be before you can see it. Every pairing played, then the same ten sorted into far apart,
+  be before you can see it. Every pairing played, then the same six sorted into far apart,
   some way apart and close, with the hit rate in each. Getting the far ones right and the
   close ones wrong is the expected shape; where the line falls is the interesting part.
-- The deck is 36 single foods — four sets of nine, one from each of nine kinds: fruit,
-  vegetable, grain, bread, meat or fish, egg or dairy, nut or fat, legume, and something
-  out of a packet. `tools/build_pairs_deck.py` builds it, and the rule it is built on is
-  that **the weight is never typed in**: it is USDA's own published household portion for
-  that food multiplied by a whole number, and the calories are that weight against USDA's
-  own energy density. So "8 strawberries" is eight times SR Legacy's 12 g medium
-  strawberry, and its 31 kcal is 96 g against SR Legacy's 32 kcal per 100 g. Nothing is
-  anyone's estimate; the tool fails rather than invent a figure. The deck runs 31 kcal
-  (a cup of broccoli) to 733 (a salmon fillet), which gives 388 pairings inside the
-  playable band.
-- The pictures are generated rather than photographed, cut nine at a time out of four
-  3x3 grids in `data/pairs/raw/`. Every one was checked against its label before it was
-  used, and four came back holding a different number from the one asked for: nine
-  strawberries not eight, one egg not two, nine pretzels not ten, one slice of white bread
-  not two. Those are relabelled rather than rejected, because the rule survives it — the
-  weight is still a USDA household portion times a whole number, the number just gets
-  counted off the finished picture instead of taken from the prompt. Counting is the only
-  reason any of this can be checked, which is why the deck leans on foods that come in
-  countable units.
-- Two are wrong in kind rather than in number and keep a placeholder until they are made
-  again. The lentils came back dry, and dry lentils are three times the calories of the
-  same cup boiled; the salmon is a dinner-plate portion rather than the 356 g fillet SR
-  Legacy means by "1 fillet". Neither can be weighed by looking, so neither gets a figure.
-  A placeholder says NO PHOTOGRAPH YET over a plate outline and carries the food's name,
-  since two identical tiles would read as a fault; the caption carries the portion and the
-  calories either way, so nothing is said twice.
+- **The deck is built so that size cannot answer the question.** That is the whole design,
+  and it is a measured property rather than a hope: across the 399 playable pairings, the
+  bigger portion carries more calories 51% of the time. A player who knows nothing and
+  always picks the fuller plate scores a coin toss. The first deck scored 58% that way,
+  which is a real shortcut; matching the calories instead only inverts it — always pick
+  the smaller plate scored 56% on that version. Neither matching sizes nor matching
+  calories is the answer. What works is having, at every size, both a cheap food and an
+  expensive one: one carrot is 25 kcal and half a cup of almonds is 428, both a small
+  plate; three cups of cucumber is 47 and two cups of brown rice is 497, both a large one.
+  Calories still run 25 to 604, which is what keeps a pair answerable at all.
+- 36 foods, four sets of nine, portions that are what a person would actually serve —
+  three tablespoons of olive oil is a dressed salad, not a thimble. `tools/build_pairs_deck.py`
+  builds it from four 3x3 grids in `data/pairs/raw/`, and the rule it is built on is that
+  **the weight is never typed in**: it is USDA's own published household portion for that
+  food multiplied by a whole number, and the calories are that weight against USDA's own
+  energy density. The tool fails rather than invent a figure.
+- Every tile is counted against its label before it is used. Three of the 36 came back
+  holding something other than what was asked: seven strawberries rather than eight, four
+  rashers of bacon rather than three, and a whole bar of dark chocolate rather than half
+  of one — which alone moved that card from 302 kcal to 604. They are relabelled rather
+  than rejected, because the rule survives it: the number is simply counted off the
+  finished picture instead of taken from the prompt. Counting is the only reason any of
+  this can be checked, which is why the deck leans on foods that arrive in countable units.
 - The Nutrition5k plate deck and `tools/build_game_deck.py` stay in the repo. That game
   asked how many calories a whole tray held, against a figure that had been weighed; this
   one asks a smaller question about pictures that were not. They are different trades and

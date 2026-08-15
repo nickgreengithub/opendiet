@@ -236,11 +236,11 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ gStatusS }}"><span>{{ gRoundLabel }}</span><span style="{{ gStatusR }}">{{ gHits }}</span></span>
     </sc-if>
     <sc-if value="{{ gDone }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ gResTag }}">TEN PAIRS</span>
+      <span style="{{ gResTag }}">{{ gResTagTxt }}</span>
       <span style="{{ gAccS }}">{{ gAcc }}<span style="{{ gResOf }}">{{ gAccLab }}</span></span>
       <span style="{{ gAccSubS }}">{{ gAccSub }}</span>
       <span style="{{ gResHead }}"><span>{{ gResH1 }}</span><span style="{{ gResHeadR }}">{{ gResH2 }}</span><span style="{{ gResHeadR }}">{{ gResH3 }}</span><span style="{{ gResHeadR }}">{{ gResH4 }}</span></span>
-      <sc-for list="{{ gResRows }}" as="x" hint-placeholder-count="10">
+      <sc-for list="{{ gResRows }}" as="x" hint-placeholder-count="6">
         <span style="{{ x.row }}"><span style="{{ x.nameS }}">{{ x.name }}</span><span style="{{ x.actual.s }}">{{ x.actual.v }}</span><span style="{{ x.guess.s }}">{{ x.guess.v }}</span><span style="{{ x.diff.s }}">{{ x.diff.v }}</span></span>
       </sc-for>
       <span style="{{ gCatLabS }}">{{ gCatLab }}</span>
@@ -695,6 +695,10 @@ const NARROW_AT = 1000;
 // How long the answer stays up before the next pair arrives. Long enough to read
 // two figures and see which way it went, short enough not to be a wait.
 const GAME_HOLD = 1650;
+// Six pairs, not ten. Each one carries the same size of lesson, so the tenth
+// teaches nothing the sixth did not, and a game that ends while it is still
+// interesting gets played twice.
+const GAME_ROUNDS = 6;
 // And the touch layout stops widening here rather than stretching a phone across a
 // tablet. 640 is not arbitrary: the donut's bracket geometry is already computed
 // against a 640 cap, so holding to it keeps that arithmetic true on a tablet.
@@ -849,8 +853,10 @@ class Component extends DCLogic {
       const t = left[i]; left[i] = left[j]; left[j] = t;
     }
     const pairs = [];
-    for (let r = 0; r < 10 && left.length > 1; r++) {
-      const want = 2.4 - r * 0.13;
+    for (let r = 0; r < GAME_ROUNDS && left.length > 1; r++) {
+      // Wide apart first, close together last, spread over however many rounds
+      // there are: the ramp is a fraction of the way through, not a round count.
+      const want = 2.6 - 1.25 * (r / (GAME_ROUNDS - 1));
       const a = left.shift();
       let best = -1, bestD = Infinity;
       for (let k = 0; k < left.length; k++) {
@@ -905,11 +911,12 @@ class Component extends DCLogic {
       fontSize: ".95rem", color: col, fontVariantNumeric: "tabular-nums" } });
     return {
       gAcc: String(hits), gAccLab: "OF " + n + " RIGHT",
+      gResTagTxt: n + " PAIRS",
       gAccS: { display: "flex", alignItems: "baseline", gap: ".45rem", padding: "0 .15rem",
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "2.2rem",
         color: hits >= 8 ? "#7ee0a8" : "#eaf5fb", fontVariantNumeric: "tabular-nums" },
       gAccSub: hits === n ? "EVERY ONE, INCLUDING THE CLOSE ONES"
-        : "THE CLOSER TWO FOODS SIT, THE LESS AN EYE HAS TO GO ON",
+        : "SIZE WAS NO HELP: THE BIGGER PLATE CARRIES MORE ABOUT HALF THE TIME",
       gAccSubS: { display: "block", padding: ".3rem .15rem .75rem", fontFamily: "var(--font-2)",
         fontSize: ".74rem", letterSpacing: ".1em", color: "#7b91a3" },
       gResH1: "THE PAIR", gResH2: "TOP", gResH3: "BOTTOM", gResH4: "",
@@ -3115,7 +3122,7 @@ class Component extends DCLogic {
         if (app !== "game" || !s.narrow) return {};
         const picks = s.gPicks || [], i = s.gI || 0, sel = s.gSel;
         const r = this.gRound(i);
-        const done = i >= 10 || (!r && picks.length >= 10);
+        const done = i >= GAME_ROUNDS || (!r && picks.length >= GAME_ROUNDS);
         const ready = !!(this._deck && r);
         const shown = sel !== null;
         const more = r ? (r.top.kcal >= r.bot.kcal ? 0 : 1) : -1;
@@ -3187,8 +3194,8 @@ class Component extends DCLogic {
             { animation: "od-soon-a 420ms cubic-bezier(.22,1,.36,1) both" }),
           gIntroLines: [
             introLine("Two foods, one above the other, each with the portion it is. Tap the one you think carries more calories.", 140),
-            introLine("The answer shows for a moment and the next pair arrives on its own. Ten of them, getting closer together as you go.", 280),
-            introLine("Portions are USDA household measures \u2014 a cup, a slice, three dates \u2014 and the calories are that weight against USDA\u2019s own figures.", 420)
+            introLine("The answer shows for a moment and the next pair arrives on its own. Six of them, getting closer together as you go.", 280),
+            introLine("The portions are deliberately uneven, and the bigger plate is the answer about half the time \u2014 so size will not tell you. Only what the food is made of will.", 420)
           ],
           gBegin: () => this.gBegin(),
           gBeginS: { flex: "none", alignSelf: "flex-start", display: "flex",
@@ -3199,7 +3206,7 @@ class Component extends DCLogic {
             fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".18em",
             color: "#22d3ee",
             animation: "od-soon-a 420ms cubic-bezier(.22,1,.36,1) 560ms both" },
-          gRoundLabel: "ROUND " + Math.min(i + 1, 10) + " OF 10",
+          gRoundLabel: "ROUND " + Math.min(i + 1, GAME_ROUNDS) + " OF " + GAME_ROUNDS,
           gHits: picks.filter(p => p.hit).length + " RIGHT",
           gTop: side(r && r.top, 0), gBot: side(r && r.bot, 1),
           gShotWrap: { position: "relative", flex: "1 1 auto", minHeight: 0,

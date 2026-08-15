@@ -44,114 +44,102 @@ GUTTER = 8
 # something out of a packet.
 GRIDS = [
     ("set1", [
+        ("Carrots, raw", 1, "1 carrot"),
         ("Strawberries, raw", 8, "8 strawberries"),
-        ("Carrots, raw", 3, "3 carrots"),
-        ("Rice, white, long-grain, regular, cooked, enriched, with salt", 1, "a cup, cooked"),
-        ("Bread, whole-wheat, commercially prepared", 2, "2 slices"),
-        ("Chicken, broilers or fryers, breast, meat only, cooked, fried", 1, "a breast, cooked"),
+        ("Squash, summer, zucchini, includes skin, cooked, boiled, drained, without salt", 3, "3 cups, sliced"),
+        ("Croutons, plain", 1, "a cup"),
         ("Egg, whole, cooked, hard-boiled", 2, "2 eggs"),
-        ("Nuts, almonds", 1, "an ounce, about 23"),
-        ("Lentils, mature seeds, cooked, boiled, without salt", 1, "a cup, cooked"),
-        ("Candies, milk chocolate", 1, "a small bar"),
+        ("Pasta, cooked, enriched, without added salt", 1, "a cup, cooked"),
+        ("Cheese, cheddar", 2, "2 slices"),
+        ("Potatoes, boiled, cooked in skin, flesh, without salt", 2, "2 cups"),
+        ("Nuts, cashew nuts, dry roasted, without salt added", 0.5, "half a cup"),
     ]),
     ("set2", [
-        ("Bananas, raw", 1, "1 banana"),
-        ("Broccoli, raw", 1, "a cup, chopped"),
-        ("Rice, brown, long-grain, cooked", 1, "a cup, cooked"),
-        ("Bagels, wheat", 1, "1 bagel"),
-        ("Pork, cured, bacon, cooked, baked", 4, "4 rashers"),
-        ("Cheese, cheddar", 2, "2 slices"),
-        ("Oil, olive, salad or cooking", 1, "a tablespoon"),
-        ("Beans, black, mature seeds, cooked, boiled, without salt", 1, "a cup, cooked"),
-        ("Snacks, pretzels, hard, plain, salted", 10, "10 pretzels"),
+        ("Avocados, raw, California", 1, "1 avocado"),
+        ("Grapes, red or green (European type, such as Thompson seedless), raw", 2, "2 cups"),
+        ("Cucumber, with peel, raw", 3, "3 cups, sliced"),
+        ("Broccoli, raw", 2, "2 cups, chopped"),
+        ("Snacks, popcorn, cakes", 2, "2 cakes"),
+        ("Edamame, frozen, prepared", 1, "a cup, podded"),
+        ("Bread, whole-wheat, commercially prepared", 2, "2 slices"),
+        ("Chocolate, dark, 70-85% cacao solids", 0.5, "half a bar"),
+        ("Rice, brown, long-grain, cooked", 2, "2 cups, cooked"),
     ]),
     ("set3", [
+        ("Blueberries, raw", 1, "a cup"),
         ("Apples, raw, with skin", 1, "1 apple"),
-        ("Tomatoes, red, ripe, raw, year round average", 2, "2 tomatoes"),
-        ("Quinoa, cooked", 1, "a cup, cooked"),
-        ("Bread, white, commercially prepared", 2, "2 slices"),
-        ("Fish, salmon, Atlantic, farmed, cooked, dry heat", 1, "a fillet, cooked"),
         ("Yogurt, Greek, plain, nonfat", 1, "a pot"),
-        ("Avocados, raw, California", 1, "1 avocado"),
-        ("Edamame, frozen, prepared", 1, "a cup, podded"),
-        ("Dates, medjool", 3, "3 dates"),
+        ("Snacks, tortilla chips, unsalted, white corn", 1, "a cup"),
+        ("Couscous, cooked", 1, "a cup, cooked"),
+        ("Corn, sweet, yellow, cooked, boiled, drained, without salt", 2, "2 cobs"),
+        ("Milk, whole, 3.25% milkfat, with added vitamin D", 1.5, "a tall glass"),
+        ("Raisins, golden, seedless", 0.5, "half a cup"),
+        ("Nuts, almonds, blanched", 0.5, "half a cup"),
     ]),
     ("set4", [
-        ("Watermelon, raw", 1, "a cup, cubed"),
-        ("Corn, sweet, yellow, cooked, boiled, drained, without salt", 1, "1 cob"),
-        ("Pasta, cooked, enriched, with added salt", 1, "a cup, cooked"),
-        ("Snacks, granola bars, hard, plain", 2, "2 bars"),
-        ("Turkey, breast, smoked, lemon pepper flavor, 97% fat-free", 4, "4 slices"),
-        ("Milk, whole, 3.25% milkfat, with added vitamin D", 1, "a glass"),
-        ("Peanut Butter, smooth", 2, "2 tablespoons"),
-        ("Hummus, commercial", 4, "4 tablespoons"),
-        ("Snacks, popcorn, air-popped", 3, "3 cups"),
+        ("Watermelon, raw", 2, "2 cups, cubed"),
+        ("Dates, medjool", 2, "2 dates"),
+        ("Pork, cured, bacon, cooked, baked", 3, "3 rashers"),
+        ("Melons, honeydew, raw", 3, "3 cups, cubed"),
+        ("Butter, salted", 2, "2 tablespoons"),
+        ("Rice, white, long-grain, regular, cooked, unenriched, with salt", 1, "a cup, cooked"),
+        ("Turkey, breast, smoked, lemon pepper flavor, 97% fat-free", 8, "8 slices"),
+        ("Peanut Butter, smooth", 3, "3 tablespoons"),
+        ("Oil, olive, salad or cooking", 3, "3 tablespoons"),
     ]),
 ]
 
 # What the picture actually turned out to hold, where that differs from what was
 # asked for. The rule does not bend: the weight is still USDA's own household
 # portion times a whole number — the number is just counted off the finished
-# picture rather than taken from the prompt. Every one of these is countable,
-# which is why it can be checked at all.
+# picture rather than taken from the prompt.
 SEEN = {
-    "Strawberries, raw": (9, "9 strawberries"),
-    "Egg, whole, cooked, hard-boiled": (1, "1 egg"),
-    "Snacks, pretzels, hard, plain, salted": (9, "9 pretzels"),
-    "Bread, white, commercially prepared": (1, "1 slice"),
+    "Strawberries, raw": (7, "7 strawberries"),
+    "Pork, cured, bacon, cooked, baked": (4, "4 rashers"),
+    "Chocolate, dark, 70-85% cacao solids": (1, "a whole bar"),
 }
 
-# Pictures that came back showing the wrong thing rather than the wrong number,
-# where no amount of counting can rescue the label. Dry lentils are three times
-# the calories of the same cup boiled, and the salmon is a dinner-plate portion
-# rather than the 356 g fillet SR Legacy means by "1 fillet". Neither can be
-# weighed by looking, so neither gets used: they keep the placeholder until they
-# are made again.
-NO_MATCH = {
-    "Lentils, mature seeds, cooked, boiled, without salt",
-    "Fish, salmon, Atlantic, farmed, cooked, dry heat",
-}
+# Pictures showing the wrong thing rather than the wrong number, where no amount
+# of counting can rescue the label. None at present.
+NO_MATCH = set()
 
-# What the player is shown. USDA descriptions are written for a database —
-# "Bananas, raw", "Snacks, popcorn, air-popped" — and reading one of those off a
-# photograph of a banana is absurd.
 SHORT = {
+    "Carrots, raw": "carrot",
     "Strawberries, raw": "strawberries",
-    "Carrots, raw": "carrots",
-    "Rice, white, long-grain, regular, cooked, enriched, with salt": "white rice",
-    "Bread, whole-wheat, commercially prepared": "wholemeal bread",
-    "Chicken, broilers or fryers, breast, meat only, cooked, fried": "chicken breast",
+    "Squash, summer, zucchini, includes skin, cooked, boiled, drained, without salt": "courgette",
+    "Croutons, plain": "croutons",
     "Egg, whole, cooked, hard-boiled": "boiled eggs",
-    "Nuts, almonds": "almonds",
-    "Lentils, mature seeds, cooked, boiled, without salt": "lentils",
-    "Candies, milk chocolate": "milk chocolate",
-    "Bananas, raw": "banana",
-    "Broccoli, raw": "broccoli",
-    "Rice, brown, long-grain, cooked": "brown rice",
-    "Bagels, wheat": "bagel",
-    "Pork, cured, bacon, cooked, baked": "bacon",
+    "Pasta, cooked, enriched, without added salt": "pasta",
     "Cheese, cheddar": "cheddar",
-    "Oil, olive, salad or cooking": "olive oil",
-    "Beans, black, mature seeds, cooked, boiled, without salt": "black beans",
-    "Snacks, pretzels, hard, plain, salted": "pretzels",
-    "Apples, raw, with skin": "apple",
-    "Tomatoes, red, ripe, raw, year round average": "tomatoes",
-    "Quinoa, cooked": "quinoa",
-    "Bread, white, commercially prepared": "white bread",
-    "Fish, salmon, Atlantic, farmed, cooked, dry heat": "salmon",
-    "Yogurt, Greek, plain, nonfat": "greek yogurt",
+    "Potatoes, boiled, cooked in skin, flesh, without salt": "boiled potato",
+    "Nuts, cashew nuts, dry roasted, without salt added": "cashews",
     "Avocados, raw, California": "avocado",
+    "Grapes, red or green (European type, such as Thompson seedless), raw": "grapes",
+    "Cucumber, with peel, raw": "cucumber",
+    "Broccoli, raw": "broccoli",
+    "Snacks, popcorn, cakes": "popcorn cakes",
     "Edamame, frozen, prepared": "edamame",
-    "Dates, medjool": "dates",
-    "Watermelon, raw": "watermelon",
+    "Bread, whole-wheat, commercially prepared": "wholemeal bread",
+    "Chocolate, dark, 70-85% cacao solids": "dark chocolate",
+    "Rice, brown, long-grain, cooked": "brown rice",
+    "Blueberries, raw": "blueberries",
+    "Apples, raw, with skin": "apple",
+    "Yogurt, Greek, plain, nonfat": "greek yogurt",
+    "Snacks, tortilla chips, unsalted, white corn": "tortilla chips",
+    "Couscous, cooked": "couscous",
     "Corn, sweet, yellow, cooked, boiled, drained, without salt": "sweetcorn",
-    "Pasta, cooked, enriched, with added salt": "pasta",
-    "Snacks, granola bars, hard, plain": "granola bars",
-    "Turkey, breast, smoked, lemon pepper flavor, 97% fat-free": "turkey breast",
     "Milk, whole, 3.25% milkfat, with added vitamin D": "whole milk",
+    "Raisins, golden, seedless": "raisins",
+    "Nuts, almonds, blanched": "almonds",
+    "Watermelon, raw": "watermelon",
+    "Dates, medjool": "dates",
+    "Pork, cured, bacon, cooked, baked": "bacon",
+    "Melons, honeydew, raw": "honeydew melon",
+    "Butter, salted": "butter",
+    "Rice, white, long-grain, regular, cooked, unenriched, with salt": "white rice",
+    "Turkey, breast, smoked, lemon pepper flavor, 97% fat-free": "turkey breast",
     "Peanut Butter, smooth": "peanut butter",
-    "Hummus, commercial": "hummus",
-    "Snacks, popcorn, air-popped": "popcorn",
+    "Oil, olive, salad or cooking": "olive oil",
 }
 
 
@@ -248,8 +236,9 @@ def build(a, foods):
     os.makedirs(os.path.join(a.out, "img"), exist_ok=True)
     deck = []
     for name, items in GRIDS:
-        src = os.path.join(a.raw, name + ".png")
-        cut = list(tiles(src, a.width)) if os.path.exists(src) else [None] * 9
+        src = next((q for q in (os.path.join(a.raw, name + e)
+                                for e in (".png", ".jpg", ".jpeg")) if os.path.exists(q)), "")
+        cut = list(tiles(src, a.width)) if src else [None] * 9
         for pic, (food, n, portion) in zip(cut, items):
             if food in SEEN:
                 n, portion = SEEN[food]
