@@ -111,15 +111,20 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
 @media (prefers-reduced-motion:reduce){
   [data-demo] *{animation:none !important}
 }
-/* A pair arrives from the right. Two names alternating by round, because the
-   cards are the same nodes each time and only a change of animation-name
-   restarts an animation on a node that was never unmounted. */
+/* A pair leaves to the left and the next arrives from the right. Both halves are
+   keyframes rather than transitions: the cards always carry an animation with
+   fill-mode both, and an animation's value beats a transition on the same
+   property, so a transition set in the same update simply jumps to its end. Two
+   names each, alternating by round, because the cards are the same nodes every
+   time and only a change of animation-name restarts an animation on a node that
+   was never unmounted. */
 @keyframes od-card-in-a{from{transform:translateX(26%);opacity:0}to{transform:none;opacity:1}}
-@media (prefers-reduced-motion:reduce){
-  [data-gcard]{animation:none !important;transform:none !important;
-    transition:opacity 200ms ease, border-color 200ms ease !important}
-}
 @keyframes od-card-in-b{from{transform:translateX(26%);opacity:0}to{transform:none;opacity:1}}
+@keyframes od-card-out-a{from{transform:none;opacity:1}to{transform:translateX(-30%);opacity:0}}
+@keyframes od-card-out-b{from{transform:none;opacity:1}to{transform:translateX(-30%);opacity:0}}
+@media (prefers-reduced-motion:reduce){
+  [data-gcard]{animation:none !important;transform:none !important}
+}
 @keyframes od-rise{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
 @keyframes od-soon-a{from{transform:translateY(9px);opacity:0}to{transform:none;opacity:1}}
 @keyframes od-soon-b{from{transform:translateY(9px);opacity:0}to{transform:none;opacity:1}}
@@ -747,8 +752,8 @@ const NARROW_AT = 1000;
 // The reveal, then the pair leaves and the next slides in. LEAVE is when the two
 // cards start sliding out; HOLD is when the round actually advances, so the gap
 // between them is the length of the slide.
-const GAME_HOLD = 2050;
-const GAME_LEAVE = 1720;
+const GAME_HOLD = 1780;
+const GAME_LEAVE = 1500;
 // Six pairs, not ten. Each one carries the same size of lesson, so the tenth
 // teaches nothing the sixth did not, and a game that ends while it is still
 // interesting gets played twice.
@@ -3186,22 +3191,30 @@ class Component extends DCLogic {
           portion: food ? food.portion : "",
           k: shown && food ? String(food.kcal) : "",
           onClick: () => this.gPickSide(k),
+          // Every part of the reveal is animated on the way in and snapped on the
+          // way out. Without that, the next question arrives with its own donut
+          // un-drawing itself and its photograph lightening — the whole reveal
+          // played backwards over the top of the new pair.
           shot: { width: "100%", height: "100%", objectFit: "cover", display: "block",
             filter: shown ? "saturate(.25)" : "none",
-            transition: "filter 420ms ease" },
+            transition: shown ? "filter 380ms ease" : "none" },
           scrim: { position: "absolute", inset: 0, pointerEvents: "none",
             background: "#050810", opacity: shown ? 0.68 : 0,
-            transition: "opacity 380ms ease" },
+            transition: shown ? "opacity 320ms ease" : "none" },
           dial: { position: "absolute", left: "50%", top: "50%",
             width: "8.6rem", height: "8.6rem", marginLeft: "-4.3rem", marginTop: "-4.3rem",
             pointerEvents: "none", opacity: shown ? 1 : 0,
-            transform: shown ? "scale(1)" : "scale(.86)",
-            transition: "opacity 300ms ease 60ms, transform 420ms cubic-bezier(.22,1,.36,1) 60ms" },
+            transform: shown ? "scale(1)" : "scale(.88)",
+            transition: shown
+              ? "opacity 240ms ease 40ms, transform 380ms cubic-bezier(.22,1,.36,1) 40ms"
+              : "none" },
           arc: { stroke: hue, strokeWidth: 7,
             strokeDasharray: share + " 100",
             strokeDashoffset: shown ? 0 : share,
             filter: "drop-shadow(0 0 6px " + (win ? "rgba(126,224,168,.45)" : "rgba(240,140,122,.4)") + ")",
-            transition: "stroke-dashoffset 760ms cubic-bezier(.22,1,.36,1) 120ms" },
+            transition: shown
+              ? "stroke-dashoffset 620ms cubic-bezier(.22,1,.36,1) 60ms"
+              : "none" },
           hole: { position: "absolute", inset: 0, display: "flex",
             flexDirection: "column", alignItems: "center", justifyContent: "center",
             gap: ".1rem", pointerEvents: "none" },
@@ -3217,15 +3230,10 @@ class Component extends DCLogic {
             border: "1px solid " + (!shown ? "rgba(34,211,238,.16)"
               : k === more ? "rgba(126,224,168,.8)"
               : sel === k ? "rgba(240,140,122,.7)" : "rgba(240,140,122,.35)"),
-            // The pair slides out to the left, and the next arrives from the right
-            // on an alternating animation name — the cards are the same nodes each
-            // round, and only a change of name restarts an animation on a node
-            // that was never unmounted.
-            transform: leaving ? "translateX(-26%)" : "none",
-            opacity: leaving ? 0 : 1,
-            animation: leaving ? "none"
-              : "od-card-in-" + (i % 2 ? "a" : "b") + " 340ms cubic-bezier(.22,1,.36,1) both",
-            transition: "transform 300ms cubic-bezier(.5,0,.75,0), opacity 300ms ease, border-color 240ms ease"
+            animation: (leaving
+              ? "od-card-out-" + (i % 2 ? "a" : "b") + " 280ms cubic-bezier(.45,0,.9,.5) both"
+              : "od-card-in-" + (i % 2 ? "a" : "b") + " 320ms cubic-bezier(.22,1,.36,1) both"),
+            transition: "border-color 220ms ease"
           },
           bar: {
             flex: "none", display: "grid",

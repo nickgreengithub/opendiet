@@ -61,11 +61,21 @@ What is different from the root:
   `pathLength="100"` turns the dash arithmetic into percentages. The figure in the hole is
   HTML over the drawing rather than SVG text, because the template engine wraps interpolated
   text in a span and SVG will not paint one.
-- The pair arrives on an animation name that alternates by round. The two cards are the
-  same nodes every round — nothing unmounts — and only a change of animation-name restarts
-  an animation on a node that was never removed. Leaving is a transition instead, which
-  re-runs on every value change and needs no such trick. Both stop under
-  prefers-reduced-motion, which leaves the reveal as a plain cross-fade.
+- Both halves of the pass are keyframes, not transitions. The cards always carry an
+  animation with fill-mode both, and an animation's value beats a transition on the same
+  property — so setting a transform and removing the animation in one update does not
+  interpolate, it jumps. Sampling every frame showed exactly that: the card sat at 0 and
+  was fully 95px away one frame later. Out and in are now four keyframe names, two each,
+  alternating by round, because the cards are the same nodes every time and only a change
+  of animation-name restarts an animation on a node that was never unmounted.
+- The reveal animates on the way in and snaps on the way out. Without that, the next
+  question arrived with its own donut un-drawing itself from full to empty and its
+  photograph lightening — the whole reveal playing backwards over the top of the new pair,
+  which is what made the pass look broken rather than merely quick.
+- The round is 1.78s: the arc sweeps for the first 0.68s, the pair holds for 0.8s, and the
+  last 0.28s is the slide out, which the next pair's arrival overlaps. Before, the sweep
+  finished at 0.98s and nothing happened at all until 1.72s — three quarters of a second of
+  dead screen followed by a jump.
 - Which round it is and how many are right sit at the bottom. They are a thing to glance
   at between pairs rather than the first thing on the screen.
 - The results page is the six pairs again, in the order they were played, one food to a
