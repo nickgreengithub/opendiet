@@ -94,6 +94,15 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
 @media (prefers-reduced-motion:reduce){
   [data-demo] *{animation:none !important}
 }
+/* A pair arrives from the right. Two names alternating by round, because the
+   cards are the same nodes each time and only a change of animation-name
+   restarts an animation on a node that was never unmounted. */
+@keyframes od-card-in-a{from{transform:translateX(26%);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){
+  [data-gcard]{animation:none !important;transform:none !important;
+    transition:opacity 200ms ease, border-color 200ms ease !important}
+}
+@keyframes od-card-in-b{from{transform:translateX(26%);opacity:0}to{transform:none;opacity:1}}
 @keyframes od-rise{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
 @keyframes od-soon-a{from{transform:translateY(9px);opacity:0}to{transform:none;opacity:1}}
 @keyframes od-soon-b{from{transform:translateY(9px);opacity:0}to{transform:none;opacity:1}}
@@ -243,13 +252,27 @@ option{background:#070b12;color:#d7e6ef}
       </span>
     </sc-if>
     <sc-if value="{{ gReady }}" hint-placeholder-val="{{ true }}">
-      <button onClick="{{ gTop.onClick }}" style="{{ gTop.card }}">
-        <span style="{{ gShotWrap }}"><img src="{{ gTop.img }}" alt="{{ gTop.alt }}" style="{{ gShotS }}"></span>
-        <span style="{{ gTop.bar }}"><span style="{{ gTop.nameS }}">{{ gTop.name }}</span><span style="{{ gTop.portS }}">{{ gTop.portion }}</span><span style="{{ gTop.kS }}">{{ gTop.k }}</span></span>
+      <button data-gcard onClick="{{ gTop.onClick }}" style="{{ gTop.card }}">
+        <span style="{{ gShotWrap }}">
+          <img src="{{ gTop.img }}" alt="{{ gTop.alt }}" style="{{ gTop.shot }}">
+          <span style="{{ gTop.scrim }}"></span>
+          <span style="{{ gTop.dial }}">
+            <svg viewBox="0 0 100 100" style="{{ gDialSvg }}"><circle cx="50" cy="50" r="42" pathLength="100" fill="none" stroke="rgba(215,230,239,.18)" stroke-width="7"></circle><circle cx="50" cy="50" r="42" pathLength="100" fill="none" stroke-linecap="butt" transform="rotate(-90 50 50)" style="{{ gTop.arc }}"></circle></svg>
+            <span style="{{ gTop.hole }}"><span style="{{ gTop.holeK }}">{{ gTop.k }}</span><span style="{{ gHoleLab }}">KCAL</span></span>
+          </span>
+        </span>
+        <span style="{{ gTop.bar }}"><span style="{{ gTop.nameS }}">{{ gTop.name }}</span><span style="{{ gTop.portS }}">{{ gTop.portion }}</span></span>
       </button>
-      <button onClick="{{ gBot.onClick }}" style="{{ gBot.card }}">
-        <span style="{{ gShotWrap }}"><img src="{{ gBot.img }}" alt="{{ gBot.alt }}" style="{{ gShotS }}"></span>
-        <span style="{{ gBot.bar }}"><span style="{{ gBot.nameS }}">{{ gBot.name }}</span><span style="{{ gBot.portS }}">{{ gBot.portion }}</span><span style="{{ gBot.kS }}">{{ gBot.k }}</span></span>
+      <button data-gcard onClick="{{ gBot.onClick }}" style="{{ gBot.card }}">
+        <span style="{{ gShotWrap }}">
+          <img src="{{ gBot.img }}" alt="{{ gBot.alt }}" style="{{ gBot.shot }}">
+          <span style="{{ gBot.scrim }}"></span>
+          <span style="{{ gBot.dial }}">
+            <svg viewBox="0 0 100 100" style="{{ gDialSvg }}"><circle cx="50" cy="50" r="42" pathLength="100" fill="none" stroke="rgba(215,230,239,.18)" stroke-width="7"></circle><circle cx="50" cy="50" r="42" pathLength="100" fill="none" stroke-linecap="butt" transform="rotate(-90 50 50)" style="{{ gBot.arc }}"></circle></svg>
+            <span style="{{ gBot.hole }}"><span style="{{ gBot.holeK }}">{{ gBot.k }}</span><span style="{{ gHoleLab }}">KCAL</span></span>
+          </span>
+        </span>
+        <span style="{{ gBot.bar }}"><span style="{{ gBot.nameS }}">{{ gBot.name }}</span><span style="{{ gBot.portS }}">{{ gBot.portion }}</span></span>
       </button>
       <span style="{{ gStatusS }}"><span>{{ gRoundLabel }}</span><span style="{{ gStatusR }}">{{ gHits }}</span></span>
     </sc-if>
@@ -703,7 +726,11 @@ const VH = typeof CSS !== "undefined" && CSS.supports && CSS.supports("height", 
 const NARROW_AT = 1000;
 // How long the answer stays up before the next pair arrives. Long enough to read
 // two figures and see which way it went, short enough not to be a wait.
-const GAME_HOLD = 1650;
+// The reveal, then the pair leaves and the next slides in. LEAVE is when the two
+// cards start sliding out; HOLD is when the round actually advances, so the gap
+// between them is the length of the slide.
+const GAME_HOLD = 2050;
+const GAME_LEAVE = 1720;
 // Six pairs, not ten. Each one carries the same size of lesson, so the tenth
 // teaches nothing the sixth did not, and a game that ends while it is still
 // interesting gets played twice.
@@ -879,8 +906,15 @@ class Component extends DCLogic {
       const b = left.splice(best, 1)[0];
       pairs.push(Math.random() < 0.5 ? [a, b] : [b, a]);
     }
-    if (this._gTimer) { clearTimeout(this._gTimer); this._gTimer = null; }
-    const patch = { gPairs: pairs, gI: 0, gPicks: [], gSel: null, gIntro: quiet !== false };
+    this.gClearTimers();
+    // Every donut in a game is drawn against the same figure — the largest of the
+    // twelve foods in play — so the sixth reveal can be compared with the first
+    // rather than only with its own partner. It is settled here, before a card is
+    // seen, so the scale cannot shift under the player mid-game.
+    const gMax = pairs.reduce((m, pr) =>
+      Math.max(m, foods[pr[0]].kcal, foods[pr[1]].kcal), 1);
+    const patch = { gPairs: pairs, gMax: gMax, gI: 0, gPicks: [], gSel: null,
+      gLeaving: false, gIntro: quiet !== false };
     if (quiet) Object.assign(this.state, patch); else this.setState(patch);
     if (quiet) this.setState({ gLoaded: true });
   }
@@ -901,8 +935,15 @@ class Component extends DCLogic {
     const pick = { k: k, hit: k === more, top: r.top, bot: r.bot,
       ratio: hi / Math.max(1, lo), gap: hi - lo };
     this.setState(s => ({ gSel: k, gPicks: (s.gPicks || []).concat([pick]) }));
-    if (this._gTimer) clearTimeout(this._gTimer);
+    this.gClearTimers();
+    this._gLeave = setTimeout(() => {
+      this._gLeave = null; this.setState({ gLeaving: true });
+    }, GAME_LEAVE);
     this._gTimer = setTimeout(() => { this._gTimer = null; this.gNext(); }, GAME_HOLD);
+  }
+  gClearTimers() {
+    if (this._gTimer) { clearTimeout(this._gTimer); this._gTimer = null; }
+    if (this._gLeave) { clearTimeout(this._gLeave); this._gLeave = null; }
   }
   gBegin() { this.setState({ gIntro: false }); }
   // The end of a game is a page: every pairing played, and then the thing worth
@@ -953,8 +994,8 @@ class Component extends DCLogic {
     };
   }
   gNext() {
-    if (this._gTimer) { clearTimeout(this._gTimer); this._gTimer = null; }
-    this.setState(s => ({ gI: (s.gI || 0) + 1, gSel: null }));
+    this.gClearTimers();
+    this.setState(s => ({ gI: (s.gI || 0) + 1, gSel: null, gLeaving: false }));
   }
   loadLib(k) {
     const cache = this._libs || (this._libs = {});
@@ -3109,13 +3150,45 @@ class Component extends DCLogic {
         // The label is a bar under the picture rather than a wash over it. Type
         // laid on a photograph has to survive whatever is behind it, so it ends
         // up small and half-transparent; on its own ground it can be read.
-        const side = (food, k) => ({
+        const gMax = s.gMax || 1;
+        const leaving = !!s.gLeaving;
+        const side = (food, k) => {
+          const win = k === more;
+          const hue = win ? "#7ee0a8" : "#f08c7a";
+          // The arc is this food against the largest figure in the whole game, so
+          // every donut in a session is on one scale. It sweeps because the circle
+          // is already mounted at a full offset and only the offset changes when
+          // the answer lands — a transition, not a keyframe, so the value can be
+          // per-food. pathLength=100 makes the dash arithmetic percentages.
+          const share = Math.max(3, Math.round(100 * (food ? food.kcal : 0) / gMax));
+          return {
           img: food ? DATA + food.img : "",
           alt: food ? ("A plate of " + food.name) : "",
           name: food ? food.name.toUpperCase() : "",
           portion: food ? food.portion : "",
-          k: shown && food ? String(food.kcal) + " KCAL" : "",
+          k: shown && food ? String(food.kcal) : "",
           onClick: () => this.gPickSide(k),
+          shot: { width: "100%", height: "100%", objectFit: "cover", display: "block",
+            filter: shown ? "saturate(.25)" : "none",
+            transition: "filter 420ms ease" },
+          scrim: { position: "absolute", inset: 0, pointerEvents: "none",
+            background: "#050810", opacity: shown ? 0.68 : 0,
+            transition: "opacity 380ms ease" },
+          dial: { position: "absolute", left: "50%", top: "50%",
+            width: "8.6rem", height: "8.6rem", marginLeft: "-4.3rem", marginTop: "-4.3rem",
+            pointerEvents: "none", opacity: shown ? 1 : 0,
+            transform: shown ? "scale(1)" : "scale(.86)",
+            transition: "opacity 300ms ease 60ms, transform 420ms cubic-bezier(.22,1,.36,1) 60ms" },
+          arc: { stroke: hue, strokeWidth: 7,
+            strokeDasharray: share + " 100",
+            strokeDashoffset: shown ? 0 : share,
+            filter: "drop-shadow(0 0 6px " + (win ? "rgba(126,224,168,.45)" : "rgba(240,140,122,.4)") + ")",
+            transition: "stroke-dashoffset 760ms cubic-bezier(.22,1,.36,1) 120ms" },
+          hole: { position: "absolute", inset: 0, display: "flex",
+            flexDirection: "column", alignItems: "center", justifyContent: "center",
+            gap: ".1rem", pointerEvents: "none" },
+          holeK: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "2.5rem",
+            lineHeight: 1, color: hue, fontVariantNumeric: "tabular-nums" },
           card: {
             position: "relative", flex: "1 1 0", minHeight: 0, width: "100%",
             display: "flex", flexDirection: "column",
@@ -3125,13 +3198,20 @@ class Component extends DCLogic {
             background: "#0a1016", cursor: shown ? "default" : "pointer",
             border: "1px solid " + (!shown ? "rgba(34,211,238,.16)"
               : k === more ? "rgba(126,224,168,.8)"
-              : sel === k ? "rgba(240,140,122,.7)" : "rgba(34,211,238,.06)"),
-            opacity: !shown || k === more ? 1 : 0.68,
-            transition: "border-color 240ms ease, opacity 240ms ease"
+              : sel === k ? "rgba(240,140,122,.7)" : "rgba(240,140,122,.35)"),
+            // The pair slides out to the left, and the next arrives from the right
+            // on an alternating animation name — the cards are the same nodes each
+            // round, and only a change of name restarts an animation on a node
+            // that was never unmounted.
+            transform: leaving ? "translateX(-26%)" : "none",
+            opacity: leaving ? 0 : 1,
+            animation: leaving ? "none"
+              : "od-card-in-" + (i % 2 ? "a" : "b") + " 340ms cubic-bezier(.22,1,.36,1) both",
+            transition: "transform 300ms cubic-bezier(.5,0,.75,0), opacity 300ms ease, border-color 240ms ease"
           },
           bar: {
             flex: "none", display: "grid",
-            gridTemplateColumns: "auto minmax(0,1fr) auto", columnGap: ".5rem",
+            gridTemplateColumns: "auto minmax(0,1fr)", columnGap: ".5rem",
             alignItems: "baseline", height: "2.9rem", padding: "0 .65rem",
             boxSizing: "border-box", alignContent: "center",
             borderTop: "1px solid " + (!shown ? "rgba(34,211,238,.16)"
@@ -3151,12 +3231,7 @@ class Component extends DCLogic {
           portS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
             whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: "1.02rem",
             letterSpacing: ".04em", color: "#a9bcc8" },
-          kS: Object.assign({ textAlign: "right", fontFamily: "var(--font-1)",
-            fontWeight: 300, fontSize: "1.5rem", fontVariantNumeric: "tabular-nums",
-            whiteSpace: "nowrap",
-            color: k === more ? "#7ee0a8" : "#f08c7a" },
-            shown ? { animation: "od-soon-a 300ms cubic-bezier(.22,1,.36,1) 30ms both" } : {})
-        });
+        }; };
         // The demonstration uses the pair that states the point most plainly: a
         // little oil against a plate of vegetable. Falls back to the first two
         // foods if the deck ever stops carrying them.
@@ -3241,7 +3316,10 @@ class Component extends DCLogic {
           gTop: side(r && r.top, 0), gBot: side(r && r.bot, 1),
           gShotWrap: { position: "relative", flex: "1 1 auto", minHeight: 0,
             overflow: "hidden" },
-          gShotS: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
+          gDialSvg: { display: "block", width: "100%", height: "100%",
+            transform: "rotate(0deg)" },
+          gHoleLab: { fontFamily: "var(--font-2)", fontSize: ".68rem",
+            letterSpacing: ".18em", color: "#a9bcc8" },
           // Where the round stands belongs at the bottom: it is a thing to glance
           // at between pairs, not the first thing on the screen.
           gStatusS: { flex: "none", display: "flex", alignItems: "center",

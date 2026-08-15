@@ -46,11 +46,26 @@ What is different from the root:
   bar takes the card's colour when the answer lands, so the picture, the label and the
   figure all say the same thing at once, and the losing card dims to about two thirds rather
   than half, which was dim enough to stop being readable.
-- Answering is the whole interaction. Tapping a card lights the one that carried more and
-  dims the other, both figures arrive, and after a moment the next pair comes on its own —
-  no button to press, because the player has already decided and a second action for the
-  same decision is one too many. How many calories separated them is not reported: it was
-  never what was asked.
+- Answering is where the game does its teaching, so it is where the motion is. Tapping a
+  card drops both photographs to a third of their brightness and most of their colour, and
+  a donut rises over each one with the food's calories in the hole. The pair holds for
+  about a second and a quarter, then slides out to the left while the next arrives from the
+  right.
+- The donut is drawn against **the largest figure in that whole game**, not against its own
+  partner, and the maximum is settled at the start from the twelve foods in play — before a
+  card has been seen — so the scale cannot shift under the player mid-game. That is what
+  makes the sixth reveal comparable with the first: a three-quarter ring means the same
+  thing in every round. The arc sweeps because the circle is mounted from the first frame
+  at a full dash offset and only the offset changes when the answer lands, which is a
+  transition rather than a keyframe and so can carry a different value per food.
+  `pathLength="100"` turns the dash arithmetic into percentages. The figure in the hole is
+  HTML over the drawing rather than SVG text, because the template engine wraps interpolated
+  text in a span and SVG will not paint one.
+- The pair arrives on an animation name that alternates by round. The two cards are the
+  same nodes every round — nothing unmounts — and only a change of animation-name restarts
+  an animation on a node that was never removed. Leaving is a transition instead, which
+  re-runs on every value change and needs no such trick. Both stop under
+  prefers-reduced-motion, which leaves the reveal as a plain cross-fade.
 - Which round it is and how many are right sit at the bottom. They are a thing to glance
   at between pairs rather than the first thing on the screen.
 - The results page is the six pairs again, in the order they were played, one food to a
