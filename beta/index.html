@@ -197,20 +197,26 @@ option{background:#070b12;color:#d7e6ef}
     <sc-if value="{{ gFailed }}" hint-placeholder-val="{{ false }}">
       <span style="{{ gWaitS }}">THE DECK DID NOT LOAD. TRY AGAIN LATER.</span>
     </sc-if>
-    <sc-if value="{{ gReady }}" hint-placeholder-val="{{ true }}">
-      <span style="{{ gHead }}"><span>{{ gRoundLabel }}</span><span style="{{ gHeadScore }}">{{ gHits }} RIGHT</span></span>
-      <button onClick="{{ gTop.onClick }}" style="{{ gTop.box }}">
-        <img src="{{ gTop.img }}" alt="{{ gTop.alt }}" style="{{ gShotS }}">
-        <span style="{{ gTop.cap }}"><span style="{{ gNameS }}">{{ gTop.name }}</span><span style="{{ gPortS }}">{{ gTop.portion }}</span><span style="{{ gTop.kS }}">{{ gTop.k }}</span></span>
-      </button>
-      <button onClick="{{ gBot.onClick }}" style="{{ gBot.box }}">
-        <img src="{{ gBot.img }}" alt="{{ gBot.alt }}" style="{{ gShotS }}">
-        <span style="{{ gBot.cap }}"><span style="{{ gNameS }}">{{ gBot.name }}</span><span style="{{ gPortS }}">{{ gBot.portion }}</span><span style="{{ gBot.kS }}">{{ gBot.k }}</span></span>
-      </button>
-      <span style="{{ gFootS }}">
-        <span style="{{ gVerdictS }}">{{ gVerdict }}</span>
-        <button onClick="{{ gNext }}" style="{{ gNextS }}">{{ gNextLabel }}</button>
+    <sc-if value="{{ gIntro }}" hint-placeholder-val="{{ false }}">
+      <span style="{{ gIntroWrap }}">
+        <span style="{{ gIntroTag }}">CALORIE GAME</span>
+        <span style="{{ gIntroLead }}">{{ gIntroLeadTxt }}</span>
+        <sc-for list="{{ gIntroLines }}" as="l" hint-placeholder-count="3">
+          <span style="{{ l.s }}">{{ l.t }}</span>
+        </sc-for>
+        <button onClick="{{ gBegin }}" style="{{ gBeginS }}">BEGIN</button>
       </span>
+    </sc-if>
+    <sc-if value="{{ gReady }}" hint-placeholder-val="{{ true }}">
+      <button onClick="{{ gTop.onClick }}" style="{{ gTop.card }}">
+        <span style="{{ gShotWrap }}"><img src="{{ gTop.img }}" alt="{{ gTop.alt }}" style="{{ gShotS }}"></span>
+        <span style="{{ gTop.bar }}"><span style="{{ gTop.nameS }}">{{ gTop.name }}</span><span style="{{ gTop.portS }}">{{ gTop.portion }}</span><span style="{{ gTop.kS }}">{{ gTop.k }}</span></span>
+      </button>
+      <button onClick="{{ gBot.onClick }}" style="{{ gBot.card }}">
+        <span style="{{ gShotWrap }}"><img src="{{ gBot.img }}" alt="{{ gBot.alt }}" style="{{ gShotS }}"></span>
+        <span style="{{ gBot.bar }}"><span style="{{ gBot.nameS }}">{{ gBot.name }}</span><span style="{{ gBot.portS }}">{{ gBot.portion }}</span><span style="{{ gBot.kS }}">{{ gBot.k }}</span></span>
+      </button>
+      <span style="{{ gStatusS }}"><span>{{ gRoundLabel }}</span><span style="{{ gStatusR }}">{{ gHits }}</span></span>
     </sc-if>
     <sc-if value="{{ gDone }}" hint-placeholder-val="{{ false }}">
       <span style="{{ gResTag }}">TEN PAIRS</span>
@@ -669,6 +675,9 @@ const VH = typeof CSS !== "undefined" && CSS.supports && CSS.supports("height", 
 // to "Cheese, parmes…" and the table identifies nothing. Every iPad in portrait sits
 // under this line; landscape tablets sit above it and keep the table.
 const NARROW_AT = 1000;
+// How long the answer stays up before the next pair arrives. Long enough to read
+// two figures and see which way it went, short enough not to be a wait.
+const GAME_HOLD = 1650;
 // And the touch layout stops widening here rather than stretching a phone across a
 // tablet. 640 is not arbitrary: the donut's bracket geometry is already computed
 // against a 640 cap, so holding to it keeps that arithmetic true on a tablet.
@@ -838,7 +847,8 @@ class Component extends DCLogic {
       const b = left.splice(best, 1)[0];
       pairs.push(Math.random() < 0.5 ? [a, b] : [b, a]);
     }
-    const patch = { gPairs: pairs, gI: 0, gPicks: [], gSel: null };
+    if (this._gTimer) { clearTimeout(this._gTimer); this._gTimer = null; }
+    const patch = { gPairs: pairs, gI: 0, gPicks: [], gSel: null, gIntro: quiet !== false };
     if (quiet) Object.assign(this.state, patch); else this.setState(patch);
     if (quiet) this.setState({ gLoaded: true });
   }
@@ -847,6 +857,9 @@ class Component extends DCLogic {
     if (!foods || !pairs[i]) return null;
     return { top: foods[pairs[i][0]], bot: foods[pairs[i][1]] };
   }
+  // Answering is the whole interaction: the figures arrive, they are read, and
+  // the next pair comes on its own. A button to advance would be a second thing
+  // to do for something the player has already decided.
   gPickSide(k) {
     if (this.state.gSel !== null) return;
     const r = this.gRound(this.state.gI);
@@ -856,7 +869,10 @@ class Component extends DCLogic {
     const pick = { k: k, hit: k === more, top: r.top, bot: r.bot,
       ratio: hi / Math.max(1, lo), gap: hi - lo };
     this.setState(s => ({ gSel: k, gPicks: (s.gPicks || []).concat([pick]) }));
+    if (this._gTimer) clearTimeout(this._gTimer);
+    this._gTimer = setTimeout(() => { this._gTimer = null; this.gNext(); }, GAME_HOLD);
   }
+  gBegin() { this.setState({ gIntro: false }); }
   // The end of a game is a page: every pairing played, and then the thing worth
   // knowing — how far apart two foods have to be before you can tell. A tally
   // on its own would not say that.
@@ -869,7 +885,7 @@ class Component extends DCLogic {
       return { lab: b[0], n: inb.length, hit: inb.filter(p => p.hit).length };
     }).filter(b => b.n);
     const num = (v, col) => ({ v: v, s: { textAlign: "right", fontWeight: 300,
-      fontSize: ".88rem", color: col, fontVariantNumeric: "tabular-nums" } });
+      fontSize: ".95rem", color: col, fontVariantNumeric: "tabular-nums" } });
     return {
       gAcc: String(hits), gAccLab: "OF " + n + " RIGHT",
       gAccS: { display: "flex", alignItems: "baseline", gap: ".45rem", padding: "0 .15rem",
@@ -878,11 +894,11 @@ class Component extends DCLogic {
       gAccSub: hits === n ? "EVERY ONE, INCLUDING THE CLOSE ONES"
         : "THE CLOSER TWO FOODS SIT, THE LESS AN EYE HAS TO GO ON",
       gAccSubS: { display: "block", padding: ".3rem .15rem .75rem", fontFamily: "var(--font-2)",
-        fontSize: ".68rem", letterSpacing: ".1em", color: "#7b91a3" },
+        fontSize: ".74rem", letterSpacing: ".1em", color: "#7b91a3" },
       gResH1: "THE PAIR", gResH2: "TOP", gResH3: "BOTTOM", gResH4: "",
       gResHead: { flex: "none", display: "grid",
         gridTemplateColumns: "minmax(0,1fr) 3rem 3rem 1.6rem", columnGap: ".35rem",
-        padding: "0 .15rem .25rem", fontFamily: "var(--font-2)", fontSize: ".6rem",
+        padding: "0 .15rem .3rem", fontFamily: "var(--font-2)", fontSize: ".67rem",
         letterSpacing: ".1em", color: "#54677a" },
       gResHeadR: { textAlign: "right" },
       gResRows: picks.map(p => {
@@ -890,31 +906,31 @@ class Component extends DCLogic {
         return {
           name: (p.top.name + " / " + p.bot.name).toUpperCase(),
           nameS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-            fontFamily: "var(--font-2)", fontSize: ".68rem", letterSpacing: ".04em",
+            fontFamily: "var(--font-2)", fontSize: ".78rem", letterSpacing: ".04em",
             color: p.hit ? "#c7d6e0" : "#8ba0ad" },
           actual: num(String(p.top.kcal), upper ? "#d7e6ef" : "#5b7183"),
           guess: num(String(p.bot.kcal), upper ? "#5b7183" : "#d7e6ef"),
           diff: num(p.hit ? "\u2713" : "\u2715", p.hit ? "#7ee0a8" : "#f08c7a"),
           row: { flex: "none", display: "grid",
             gridTemplateColumns: "minmax(0,1fr) 3rem 3rem 1.6rem", columnGap: ".35rem",
-            alignItems: "center", height: "1.55rem", padding: "0 .15rem",
+            alignItems: "center", height: "1.74rem", padding: "0 .15rem",
             borderTop: "1px solid rgba(215,230,239,.07)" }
         };
       }),
       gCatLab: "HOW FAR APART THEY HAD TO BE",
       gCatLabS: { flex: "none", display: "block", padding: ".8rem .15rem .3rem",
-        fontFamily: "var(--font-2)", fontSize: ".64rem", letterSpacing: ".12em", color: "#7b91a3" },
+        fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".12em", color: "#7b91a3" },
       gCatRows: bands.map(b => {
         const pct = Math.round(100 * b.hit / b.n);
         return {
           name: b.lab,
           nameS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-            fontFamily: "var(--font-2)", fontSize: ".68rem", letterSpacing: ".04em", color: "#c7d6e0" },
+            fontFamily: "var(--font-2)", fontSize: ".78rem", letterSpacing: ".04em", color: "#c7d6e0" },
           n: b.hit + " OF " + b.n,
-          nS: { textAlign: "right", fontFamily: "var(--font-2)", fontSize: ".62rem",
+          nS: { textAlign: "right", fontFamily: "var(--font-2)", fontSize: ".7rem",
             letterSpacing: ".06em", color: "#54677a" },
           val: pct + "%",
-          valS: { textAlign: "right", fontWeight: 300, fontSize: ".88rem",
+          valS: { textAlign: "right", fontWeight: 300, fontSize: ".95rem",
             color: pct >= 80 ? "#7ee0a8" : pct >= 50 ? "#f0c07a" : "#f08c7a",
             fontVariantNumeric: "tabular-nums" },
           bar: { position: "absolute", top: "50%", height: "1.15rem", marginTop: "-.575rem",
@@ -922,7 +938,7 @@ class Component extends DCLogic {
             background: pct >= 80 ? "rgba(126,224,168,.18)" : "rgba(240,140,122,.16)" },
           row: { position: "relative", flex: "none", display: "grid",
             gridTemplateColumns: "minmax(0,1fr) 4.2rem 3rem", columnGap: ".35rem",
-            alignItems: "center", height: "1.68rem", padding: "0 .15rem",
+            alignItems: "center", height: "1.95rem", padding: "0 .15rem",
             borderTop: "1px solid rgba(215,230,239,.07)" }
         };
       }),
@@ -933,6 +949,7 @@ class Component extends DCLogic {
     };
   }
   gNext() {
+    if (this._gTimer) { clearTimeout(this._gTimer); this._gTimer = null; }
     this.setState(s => ({ gI: (s.gI || 0) + 1, gSel: null }));
   }
   loadLib(k) {
@@ -3008,16 +3025,16 @@ class Component extends DCLogic {
       gWaitS: { display: "block", padding: "2.5rem .2rem", fontFamily: "var(--font-2)",
         fontSize: ".76rem", letterSpacing: ".16em", color: "#5b7183" },
       gResTag: { flex: "none", display: "block", padding: ".8rem .15rem .25rem",
-        fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".18em", color: "#5b7183" },
+        fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".18em", color: "#5b7183" },
       gAgainS: { flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
         width: "100%", boxSizing: "border-box", height: "2.6rem", marginTop: "auto",
         border: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
         background: "rgba(34,211,238,.08)", cursor: "pointer", fontFamily: "var(--font-2)",
-        fontSize: ".76rem", letterSpacing: ".16em", color: "#22d3ee" },
+        fontSize: ".82rem", letterSpacing: ".16em", color: "#22d3ee" },
       gResScore: { display: "flex", alignItems: "baseline", gap: ".5rem", padding: "0 .2rem",
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "2.4rem", color: "#eaf5fb",
         fontVariantNumeric: "tabular-nums" },
-      gResOf: { fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".14em", color: "#7b91a3" },
+      gResOf: { fontFamily: "var(--font-2)", fontSize: ".74rem", letterSpacing: ".14em", color: "#7b91a3" },
       gResPts: { display: "block", padding: ".45rem .15rem 1.2rem", fontFamily: "var(--font-2)",
         fontSize: ".72rem", letterSpacing: ".12em", color: "#5b7183" },
       // Signed error, not correctness: every round sits on the side of the truth
@@ -3078,75 +3095,100 @@ class Component extends DCLogic {
         const done = i >= 10 || (!r && picks.length >= 10);
         const ready = !!(this._deck && r);
         const shown = sel !== null;
-        const last = picks.length ? picks[picks.length - 1] : null;
         const more = r ? (r.top.kcal >= r.bot.kcal ? 0 : 1) : -1;
-        // One of the two is right and the other is not, so the reveal says both
-        // at once: the winner lights, the loser dims, and the figures arrive in
-        // the corner the portion was already sitting in.
+        // The label is a bar under the picture rather than a wash over it. Type
+        // laid on a photograph has to survive whatever is behind it, so it ends
+        // up small and half-transparent; on its own ground it can be read.
         const side = (food, k) => ({
           img: food ? DATA + food.img : "",
           alt: food ? ("A plate of " + food.name) : "",
-          // With a placeholder the tile already carries the name, so the caption
-          // drops it rather than saying the same thing twice a hand-span apart.
-          name: food && food.real ? food.name.toUpperCase() : "",
+          name: food ? food.name.toUpperCase() : "",
           portion: food ? food.portion : "",
           k: shown && food ? String(food.kcal) + " KCAL" : "",
           onClick: () => this.gPickSide(k),
-          box: {
+          card: {
             position: "relative", flex: "1 1 0", minHeight: 0, width: "100%",
-            padding: 0, margin: 0, marginTop: k ? ".5rem" : 0,
+            display: "flex", flexDirection: "column",
+            padding: 0, margin: 0, marginTop: k ? ".45rem" : 0,
             appearance: "none", WebkitAppearance: "none",
-            overflow: "hidden", borderRadius: 0,
+            overflow: "hidden", borderRadius: 0, textAlign: "left",
             background: "#0a1016", cursor: shown ? "default" : "pointer",
             border: "1px solid " + (!shown ? "rgba(34,211,238,.16)"
-              : k === more ? "rgba(126,224,168,.75)"
-              : sel === k ? "rgba(240,140,122,.65)" : "rgba(34,211,238,.06)"),
-            opacity: !shown || k === more ? 1 : 0.55,
-            transition: "border-color 260ms ease, opacity 260ms ease"
+              : k === more ? "rgba(126,224,168,.8)"
+              : sel === k ? "rgba(240,140,122,.7)" : "rgba(34,211,238,.06)"),
+            opacity: !shown || k === more ? 1 : 0.5,
+            transition: "border-color 240ms ease, opacity 240ms ease"
           },
-          cap: {
-            position: "absolute", left: 0, right: 0, bottom: 0,
-            display: "grid", gridTemplateColumns: "minmax(0,1fr) auto",
-            alignItems: "baseline", columnGap: ".5rem", padding: ".9rem .6rem .5rem",
-            textAlign: "left",
-            background: "linear-gradient(to top, rgba(5,8,13,.92), rgba(5,8,13,0))"
+          bar: {
+            flex: "none", display: "grid",
+            gridTemplateColumns: "auto minmax(0,1fr) auto", columnGap: ".5rem",
+            alignItems: "baseline", height: "2.4rem", padding: "0 .6rem",
+            boxSizing: "border-box", alignContent: "center",
+            borderTop: "1px solid " + (!shown ? "rgba(34,211,238,.16)"
+              : k === more ? "rgba(126,224,168,.5)"
+              : sel === k ? "rgba(240,140,122,.45)" : "rgba(34,211,238,.06)"),
+            background: !shown ? "#0d151d"
+              : k === more ? "rgba(126,224,168,.10)"
+              : sel === k ? "rgba(240,140,122,.09)" : "#0d151d",
+            transition: "background 240ms ease, border-color 240ms ease"
           },
-          kS: Object.assign({ gridColumn: 2, gridRow: "1 / span 2", alignSelf: "center",
-            textAlign: "right", fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: "1.15rem", fontVariantNumeric: "tabular-nums",
+          nameS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
+            whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: ".92rem",
+            letterSpacing: ".08em", color: "#eaf5fb" },
+          portS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
+            whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: ".76rem",
+            letterSpacing: ".04em", color: "#8ba0ad" },
+          kS: Object.assign({ textAlign: "right", fontFamily: "var(--font-1)",
+            fontWeight: 300, fontSize: "1.3rem", fontVariantNumeric: "tabular-nums",
+            whiteSpace: "nowrap",
             color: k === more ? "#7ee0a8" : "#f08c7a" },
-            shown ? { animation: "od-soon-a 320ms cubic-bezier(.22,1,.36,1) 40ms both" } : {})
+            shown ? { animation: "od-soon-a 300ms cubic-bezier(.22,1,.36,1) 30ms both" } : {})
         });
+        const introLine = (t, d) => ({ t: t, s: Object.assign({
+          display: "block", maxWidth: "32ch", padding: ".5rem 0 0",
+          fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1rem",
+          lineHeight: 1.55, color: "#94a3b8", textWrap: "pretty" },
+          { animation: "od-soon-a 420ms cubic-bezier(.22,1,.36,1) " + d + "ms both" }) });
         return {
-          gReady: ready && !done, gDone: done && picks.length > 0,
+          gIntro: !!s.gIntro && ready,
+          gReady: ready && !done && !s.gIntro, gDone: done && picks.length > 0,
           gWaiting: !ready && !done && !s.gFailed, gFailed: !!s.gFailed,
-          gRoundLabel: "ROUND " + Math.min(i + 1, 10) + " OF 10",
-          gHits: String(picks.filter(p => p.hit).length),
-          gTop: side(r && r.top, 0), gBot: side(r && r.bot, 1),
-          gShotS: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
-          gNameS: { gridColumn: 1, gridRow: 1, minWidth: 0, overflow: "hidden",
-            textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: "var(--font-2)",
-            fontSize: ".8rem", letterSpacing: ".1em", color: "#eaf5fb" },
-          gPortS: { gridColumn: 1, gridRow: 2, minWidth: 0, overflow: "hidden",
-            textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: "var(--font-2)",
-            fontSize: ".66rem", letterSpacing: ".08em", color: "#8ba0ad" },
-          // The footer holds its height from the first frame, so answering never
-          // moves either photograph.
-          gFootS: { flex: "none", display: "flex", flexDirection: "column",
-            justifyContent: "flex-end", minHeight: "4.1rem", paddingTop: ".45rem" },
-          gVerdict: !shown || !last ? "WHICH IS MORE?"
-            : (last.hit ? "RIGHT" : "NO") + " \u00b7 " + last.gap + " KCAL BETWEEN THEM",
-          gVerdictS: { flex: "none", height: "1.1rem", fontFamily: "var(--font-2)",
-            fontSize: ".7rem", letterSpacing: ".14em", textAlign: "center",
-            color: !shown ? "#7b91a3" : last && last.hit ? "#7ee0a8" : "#f08c7a",
-            transition: "color 220ms ease" },
-          gNextLabel: i >= 9 ? "SEE RESULTS" : "NEXT PAIR",
-          gNext: () => this.gNext(),
-          gNextS: { flex: "none", display: shown ? "flex" : "none", alignItems: "center",
-            justifyContent: "center", width: "100%", boxSizing: "border-box", height: "2.6rem",
+          gIntroWrap: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column",
+            justifyContent: "center", padding: "0 .3rem 2rem" },
+          gIntroTag: { display: "block", paddingBottom: ".7rem", fontFamily: "var(--font-2)",
+            fontSize: ".72rem", letterSpacing: ".2em", color: "#5b7183" },
+          gIntroLeadTxt: "Which of these two is more?",
+          gIntroLead: Object.assign({ display: "block", maxWidth: "18ch",
+            fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.9rem",
+            lineHeight: 1.2, color: "#eaf5fb", textWrap: "balance" },
+            { animation: "od-soon-a 420ms cubic-bezier(.22,1,.36,1) both" }),
+          gIntroLines: [
+            introLine("Two foods, one above the other, each with the portion it is. Tap the one you think carries more calories.", 140),
+            introLine("The answer shows for a moment and the next pair arrives on its own. Ten of them, getting closer together as you go.", 280),
+            introLine("Portions are USDA household measures \u2014 a cup, a slice, three dates \u2014 and the calories are that weight against USDA\u2019s own figures.", 420)
+          ],
+          gBegin: () => this.gBegin(),
+          gBeginS: { flex: "none", alignSelf: "flex-start", display: "flex",
+            alignItems: "center", justifyContent: "center", marginTop: "1.7rem",
+            padding: "0 2.2rem", height: "3rem", boxSizing: "border-box",
             border: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
-            background: "rgba(34,211,238,.08)", cursor: "pointer", fontFamily: "var(--font-2)",
-            fontSize: ".76rem", letterSpacing: ".16em", color: "#22d3ee" },
+            background: "rgba(34,211,238,.08)", cursor: "pointer",
+            fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".18em",
+            color: "#22d3ee",
+            animation: "od-soon-a 420ms cubic-bezier(.22,1,.36,1) 560ms both" },
+          gRoundLabel: "ROUND " + Math.min(i + 1, 10) + " OF 10",
+          gHits: picks.filter(p => p.hit).length + " RIGHT",
+          gTop: side(r && r.top, 0), gBot: side(r && r.bot, 1),
+          gShotWrap: { position: "relative", flex: "1 1 auto", minHeight: 0,
+            overflow: "hidden" },
+          gShotS: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
+          // Where the round stands belongs at the bottom: it is a thing to glance
+          // at between pairs, not the first thing on the screen.
+          gStatusS: { flex: "none", display: "flex", alignItems: "center",
+            justifyContent: "space-between", height: "1.9rem", padding: "0 .15rem",
+            fontFamily: "var(--font-2)", fontSize: ".76rem", letterSpacing: ".14em",
+            color: "#7b91a3" },
+          gStatusR: { color: "#22d3ee", fontVariantNumeric: "tabular-nums" },
           ...this.gResults(picks)
         };
       })(),

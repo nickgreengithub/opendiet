@@ -43,10 +43,11 @@ side it has no business taking. It states what is on the plate.
 
 ## Calorie game
 
-A second app, on a phone, asking one question ten times: two foods stacked one above the
-other, each with its portion, and which of them carries more calories. Tap a picture and
-both figures arrive at once — the winner lights, the loser dims — and neither picture
-moves. Nothing scrolls.
+A second app, on a phone. It opens on a page saying what the game is, and then asks one
+question ten times: two foods stacked one above the other, each with the portion it is,
+and which of them carries more calories. Tap a card — the one that carried more lights,
+the other dims, both figures arrive in the bar under the picture — and after a moment the
+next pair comes on its own. There is no button to press and nothing scrolls.
 
 The pairing carries the difficulty. Ten pairs, no food twice, and the gap between them
 closing as the game runs: the first rounds are a banana against a bagel, the last are two

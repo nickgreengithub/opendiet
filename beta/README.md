@@ -26,16 +26,24 @@ What is different from the root:
   right-hand corner. The launcher screen it replaces is gone from both, and ABOUT is a
   page in the same language as the unbuilt ones rather than a dialog over the top: it
   lights its tab like any other, and Escape returns to the search.
-- CALORIE GAME is built, on a phone, and it asks one question ten times: two foods stacked
-  one above the other, each named with its portion, and which of them is more. Tapping a
-  picture answers it — the winner lights and the loser dims, both figures arrive in the
-  corner the portion was already sitting in, and neither photograph moves. Nothing else
-  is on the screen and nothing scrolls.
-- The pairing is where the difficulty lives. Ten pairs, no food used twice, and the gap
-  between them closing as the game goes on: the first rounds are a banana against a bagel
-  and the last are two things a fifth apart. Nothing closer than 1.12x is ever asked,
-  because past that the honest answer is that nobody could tell. Which of the two goes on
-  top is a coin toss, so the answer is never in the same place.
+- CALORIE GAME is built, on a phone. It opens on a page that says what the game is and
+  waits for BEGIN, because a screen that starts scoring you before it has said what it
+  wants is a poor greeting. Then it asks one question ten times: two foods stacked one
+  above the other, and which of them is more.
+- Each food is a card — the picture, and under it a solid bar with the name, the portion
+  and, once answered, the calories. The label used to be a wash laid over the bottom of
+  the photograph, which is why it could not be read: type on a photograph has to survive
+  whatever is behind it, so it ends up small and half-transparent. On ground of its own it
+  can be the size it should be. The bar takes the card's colour when the answer lands, so
+  the picture, the label and the figure all say the same thing at once.
+- Answering is the whole interaction. Tapping a card lights the one that carried more and
+  dims the other, both figures arrive, and after a moment the next pair comes on its own —
+  no button to press, because the player has already decided and a second action for the
+  same decision is one too many. How many calories separated them is not reported: it was
+  never what was asked.
+- Which round it is and how many are right sit at the bottom. They are a thing to glance
+  at between pairs rather than the first thing on the screen, and moving them off the top
+  gave the pictures the height the label bars took.
 - The results page reports the thing a tally would not: how far apart two foods have to
   be before you can see it. Every pairing played, then the same ten sorted into far apart,
   some way apart and close, with the hit rate in each. Getting the far ones right and the
