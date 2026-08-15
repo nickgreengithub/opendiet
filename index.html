@@ -85,6 +85,32 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
   animation:od-point 2500ms cubic-bezier(.22,1,.36,1) both;
 }
 @media (prefers-reduced-motion:reduce){[data-finger]{animation:none;opacity:.9;transform:none}}
+/* The intro demonstrates rather than describes: a hand comes in, presses the
+   lower card, both figures arrive, and it starts over. One loop of 5.2s. */
+@keyframes od-demo-hand{
+  0%{opacity:0;transform:translate(46px,44px)}
+  10%{opacity:1;transform:translate(24px,22px)}
+  26%{opacity:1;transform:translate(0,0) scale(1)}
+  32%{transform:translate(0,0) scale(.84)}
+  40%{transform:translate(0,0) scale(1)}
+  84%{opacity:1;transform:translate(0,0) scale(1)}
+  94%,100%{opacity:0;transform:translate(46px,44px)}
+}
+@keyframes od-demo-ring{
+  0%,30%{opacity:0;transform:scale(.4)}
+  36%{opacity:.75;transform:scale(1)}
+  52%,100%{opacity:0;transform:scale(1.5)}
+}
+@keyframes od-demo-kcal{0%,36%{opacity:0}46%,88%{opacity:1}96%,100%{opacity:0}}
+@keyframes od-demo-win{
+  0%,36%{border-color:rgba(34,211,238,.16);background:#0d151d}
+  46%,88%{border-color:rgba(126,224,168,.8);background:rgba(126,224,168,.10)}
+  96%,100%{border-color:rgba(34,211,238,.16);background:#0d151d}
+}
+@keyframes od-demo-lose{0%,36%{opacity:1}46%,88%{opacity:.5}96%,100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){
+  [data-demo] *{animation:none !important}
+}
 @keyframes od-rise{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
 @keyframes od-soon-a{from{transform:translateY(9px);opacity:0}to{transform:none;opacity:1}}
 @keyframes od-soon-b{from{transform:translateY(9px);opacity:0}to{transform:none;opacity:1}}
@@ -216,11 +242,20 @@ option{background:#070b12;color:#d7e6ef}
     </sc-if>
     <sc-if value="{{ gIntro }}" hint-placeholder-val="{{ false }}">
       <span style="{{ gIntroWrap }}">
-        <span style="{{ gIntroTag }}">CALORIE GAME</span>
         <span style="{{ gIntroLead }}">{{ gIntroLeadTxt }}</span>
-        <sc-for list="{{ gIntroLines }}" as="l" hint-placeholder-count="3">
-          <span style="{{ l.s }}">{{ l.t }}</span>
-        </sc-for>
+        <span data-demo style="{{ gDemoWrap }}">
+          <span style="{{ gDemoCardA }}">
+            <img src="{{ gDemoA.img }}" alt="" style="{{ gDemoShot }}">
+            <span style="{{ gDemoBarA }}"><span style="{{ gDemoName }}">{{ gDemoA.name }}</span><span style="{{ gDemoPort }}">{{ gDemoA.portion }}</span><span style="{{ gDemoKA }}">{{ gDemoA.k }}</span></span>
+          </span>
+          <span style="{{ gDemoCardB }}">
+            <img src="{{ gDemoB.img }}" alt="" style="{{ gDemoShot }}">
+            <span style="{{ gDemoBarB }}"><span style="{{ gDemoName }}">{{ gDemoB.name }}</span><span style="{{ gDemoPort }}">{{ gDemoB.portion }}</span><span style="{{ gDemoKB }}">{{ gDemoB.k }}</span></span>
+            <span style="{{ gDemoRing }}"></span>
+            <span style="{{ gDemoHand }}"><svg width="36" height="42" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span>
+          </span>
+        </span>
+        <span style="{{ gIntroFoot }}">{{ gIntroFootTxt }}</span>
         <button onClick="{{ gBegin }}" style="{{ gBeginS }}">BEGIN</button>
       </span>
     </sc-if>
@@ -3139,38 +3174,85 @@ class Component extends DCLogic {
             color: k === more ? "#7ee0a8" : "#f08c7a" },
             shown ? { animation: "od-soon-a 300ms cubic-bezier(.22,1,.36,1) 30ms both" } : {})
         });
-        const introLine = (t, d) => ({ t: t, s: Object.assign({
-          display: "block", maxWidth: "32ch", padding: ".62rem 0 0",
-          fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.15rem",
-          lineHeight: 1.5, color: "#b6c6d2", textWrap: "pretty" },
-          { animation: "od-soon-a 420ms cubic-bezier(.22,1,.36,1) " + d + "ms both" }) });
+        // The demonstration uses the pair that states the point most plainly: a
+        // little oil against a plate of vegetable. Falls back to the first two
+        // foods if the deck ever stops carrying them.
+        const byId = id => (this._deck && this._deck.foods || []).find(f => f.id === id);
+        const all = (this._deck && this._deck.foods) || [];
+        const pick = (id, n) => byId(id) || all[n] || { id: "", name: "", portion: "", kcal: 0, img: "" };
+        const dA = pick("courgette", 0), dB = pick("olive-oil", 1);
+        const demoOf = f => ({ img: f.img ? DATA + f.img : "", name: (f.name || "").toUpperCase(),
+          portion: f.portion || "", k: String(f.kcal || "") });
+        const demoA = demoOf(dA), demoB = demoOf(dB);
         return {
           gIntro: !!s.gIntro && ready,
           gReady: ready && !done && !s.gIntro, gDone: done && picks.length > 0,
           gWaiting: !ready && !done && !s.gFailed, gFailed: !!s.gFailed,
           gIntroWrap: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column",
-            justifyContent: "center", padding: "0 .3rem 2rem" },
-          gIntroTag: { display: "block", paddingBottom: ".7rem", fontFamily: "var(--font-2)",
-            fontSize: ".82rem", letterSpacing: ".2em", color: "#8ba0ad" },
+            justifyContent: "center", padding: "0 .3rem 1.4rem" },
           gIntroLeadTxt: "Which of these two is more?",
           gIntroLead: Object.assign({ display: "block", maxWidth: "18ch",
-            fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.9rem",
-            lineHeight: 1.2, color: "#eaf5fb", textWrap: "balance" },
+            paddingBottom: "1.2rem", fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1.9rem", lineHeight: 1.2, color: "#eaf5fb", textWrap: "balance" },
             { animation: "od-soon-a 420ms cubic-bezier(.22,1,.36,1) both" }),
-          gIntroLines: [
-            introLine("Two foods, one above the other, each with the portion it is. Tap the one you think carries more calories.", 140),
-            introLine("The answer shows for a moment and the next pair arrives on its own. Six of them, getting closer together as you go.", 280),
-            introLine("The portions are deliberately uneven, and the bigger plate is the answer about half the time \u2014 so size will not tell you. Only what the food is made of will.", 420)
-          ],
+          // Two cards at a third the height, a hand that presses the lower one,
+          // and the figures arriving. Three paragraphs of rules said less than
+          // watching it happen once, and this says it in five seconds.
+          gDemoWrap: { flex: "none", display: "flex", flexDirection: "column",
+            gap: ".35rem", maxWidth: "16rem",
+            animation: "od-soon-a 420ms cubic-bezier(.22,1,.36,1) 160ms both" },
+          gDemoA: demoA, gDemoB: demoB,
+          gDemoShot: { width: "100%", height: "4.8rem", objectFit: "cover", display: "block" },
+          gDemoCardA: { position: "relative", display: "flex", flexDirection: "column",
+            overflow: "hidden", border: "1px solid rgba(34,211,238,.16)",
+            background: "#0a1016", animation: "od-demo-lose 5200ms linear infinite" },
+          gDemoCardB: { position: "relative", display: "flex", flexDirection: "column",
+            overflow: "hidden", border: "1px solid rgba(34,211,238,.16)",
+            background: "#0a1016" },
+          gDemoBarA: { display: "grid", gridTemplateColumns: "auto minmax(0,1fr) auto",
+            columnGap: ".35rem", alignItems: "baseline", alignContent: "center",
+            height: "1.85rem", padding: "0 .4rem", boxSizing: "border-box",
+            borderTop: "1px solid rgba(34,211,238,.16)", background: "#0d151d" },
+          gDemoBarB: { display: "grid", gridTemplateColumns: "auto minmax(0,1fr) auto",
+            columnGap: ".35rem", alignItems: "baseline", alignContent: "center",
+            height: "1.85rem", padding: "0 .4rem", boxSizing: "border-box",
+            borderTop: "1px solid rgba(34,211,238,.16)", background: "#0d151d",
+            animation: "od-demo-win 5200ms linear infinite" },
+          gDemoName: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
+            whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: ".7rem",
+            letterSpacing: ".04em", color: "#f2f8fc" },
+          gDemoPort: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
+            whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: ".7rem",
+            color: "#a9bcc8" },
+          gDemoKA: { textAlign: "right", fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1rem", fontVariantNumeric: "tabular-nums", color: "#f08c7a",
+            animation: "od-demo-kcal 5200ms linear infinite" },
+          gDemoKB: { textAlign: "right", fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1rem", fontVariantNumeric: "tabular-nums", color: "#7ee0a8",
+            animation: "od-demo-kcal 5200ms linear infinite" },
+          gDemoRing: { position: "absolute", left: "50%", top: "42%",
+            width: "2.6rem", height: "2.6rem", marginLeft: "-1.3rem", marginTop: "-1.3rem",
+            borderRadius: "50%", border: "1px solid rgba(34,211,238,.9)",
+            pointerEvents: "none",
+            animation: "od-demo-ring 5200ms cubic-bezier(.22,1,.36,1) infinite" },
+          gDemoHand: { position: "absolute", left: "50%", top: "42%", color: "#22d3ee",
+            pointerEvents: "none",
+            filter: "drop-shadow(0 0 7px rgba(34,211,238,.55))",
+            animation: "od-demo-hand 5200ms cubic-bezier(.22,1,.36,1) infinite" },
+          gIntroFootTxt: "Six pairs. The bigger plate is the answer about half the time, so only what the food is made of will tell you.",
+          gIntroFoot: Object.assign({ display: "block", maxWidth: "30ch",
+            padding: "1.2rem 0 0", fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1.05rem", lineHeight: 1.5, color: "#b6c6d2", textWrap: "pretty" },
+            { animation: "od-soon-a 420ms cubic-bezier(.22,1,.36,1) 320ms both" }),
           gBegin: () => this.gBegin(),
           gBeginS: { flex: "none", alignSelf: "flex-start", display: "flex",
-            alignItems: "center", justifyContent: "center", marginTop: "1.7rem",
-            padding: "0 2.2rem", height: "3rem", boxSizing: "border-box",
+            alignItems: "center", justifyContent: "center", marginTop: "1.4rem",
+            padding: "0 2.2rem", height: "3.1rem", boxSizing: "border-box",
             border: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
             background: "rgba(34,211,238,.08)", cursor: "pointer",
             fontFamily: "var(--font-2)", fontSize: ".98rem", letterSpacing: ".18em",
             color: "#3fdcf2",
-            animation: "od-soon-a 420ms cubic-bezier(.22,1,.36,1) 560ms both" },
+            animation: "od-soon-a 420ms cubic-bezier(.22,1,.36,1) 480ms both" },
           gRoundLabel: "ROUND " + Math.min(i + 1, GAME_ROUNDS) + " OF " + GAME_ROUNDS,
           gHits: picks.filter(p => p.hit).length + " RIGHT",
           gTop: side(r && r.top, 0), gBot: side(r && r.bot, 1),

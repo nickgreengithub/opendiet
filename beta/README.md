@@ -26,12 +26,19 @@ What is different from the root:
   right-hand corner. The launcher screen it replaces is gone from both, and ABOUT is a
   page in the same language as the unbuilt ones rather than a dialog over the top: it
   lights its tab like any other, and Escape returns to the search.
-- CALORIE GAME is built, on a phone. It opens on a page that says what the game is and
-  waits for BEGIN, because a screen that starts scoring you before it has said what it
-  wants is a poor greeting. Then it asks one question six times: two foods stacked one
-  above the other, and which of them is more. Six rather than ten because every pair
-  carries the same size of lesson, so the tenth teaches nothing the sixth did not, and a
-  game that ends while it is still interesting gets played twice.
+- CALORIE GAME is built, on a phone. It opens by **showing** the game rather than
+  describing it: the question in one line, then a working miniature of a round that plays
+  itself on a loop — two cards, a hand that comes in and presses the lower one, both
+  figures arriving, the winner lighting and the loser dimming — and BEGIN. Three
+  paragraphs of rules said less than watching it happen once. The pair it demonstrates
+  with is three tablespoons of olive oil against three cups of courgette, which is the
+  whole lesson in one frame: the small plate is 358 and the big one is 81. It is CSS
+  keyframes on a static mock, so nothing about it can drift out of step with the game, and
+  it stops entirely under prefers-reduced-motion.
+- Then it asks one question six times: two foods stacked one above the other, and which of
+  them is more. Six rather than ten because every pair carries the same size of lesson, so
+  the tenth teaches nothing the sixth did not, and a game that ends while it is still
+  interesting gets played twice.
 - Each food is a card — the picture, and under it a solid bar with the name, the portion
   and, once answered, the calories. **The portion is set at the name's size**, told apart by
   colour alone. It is half the question — a cup of one thing against three cups of another —
