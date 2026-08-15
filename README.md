@@ -45,12 +45,14 @@ side it has no business taking. It states what is on the plate.
 
 A second app, on a phone. It opens by showing the game rather than describing it — a
 working miniature of a round that plays itself on a loop, a hand pressing one of two cards
-and the figures arriving — and then asks one question six times: two foods stacked one above the other, each with the portion it is,
-and which of them carries more calories. Tap a card — the one that carried more lights,
-the other dims, both figures arrive in the bar under the picture — and after a moment the
-next pair comes on its own. There is no button to press and nothing scrolls. The portion
-is set at the same size as the food's name, because a cup of one thing against three cups
-of another is half of what is being asked.
+and the figures arriving — and then asks one question six times: two foods stacked one
+above the other, each with the portion it is, and which of them carries more calories.
+
+Tap a card and both photographs fall away into the dark while a donut rises over each, with
+the calories in the hole. The donut is drawn against the largest figure in that whole game
+rather than against its own partner, so a three-quarter ring means the same thing in every
+round and the sixth reveal can be compared with the first. The pair then slides out to the
+left as the next arrives from the right. There is no button to press and nothing scrolls.
 
 The end is the six pairs again in the order they were played, one food to a line as it
 stood on the screen, with the score at the top.
