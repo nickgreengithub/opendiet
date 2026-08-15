@@ -67,6 +67,16 @@ The layout rules below were the first things it was built to test, and still hol
   since the words beside it already say "8 slices". The glyphs are 14px and the name's
   letter spacing came down to .03em to pay for them — swept over twelve games at 360px
   wide with nothing truncated.
+- The four marks are **Material Design Icons** (Apache 2.0): `cup-outline`,
+  `silverware-spoon`, `bread-slice-outline`, `food-apple-outline`, inlined as paths rather
+  than loaded, since the only thing this site fetches from anywhere else is React. Drawn
+  ones sat here first and looked drawn: the cup wore a floating lid, the slice was a
+  tombstone, the whole item a circle on a stick. Tabler, Lucide, Phosphor, Iconoir, Solar
+  and Material Symbols were all rendered side by side at 12, 13 and 16px against the real
+  bar first; MDI was the only set of them carrying all four families in one hand — none of
+  the stroke sets has a plain spoon at all, and Tabler's nearest is a fork and spoon
+  together. The spoon keeps its diagonal: stood upright it stops reading as a spoon and
+  starts reading as a pin.
 - Answering is where the game does its teaching, so it is where the motion is. Tapping a
   card drops both photographs to a third of their brightness and most of their colour, and
   a donut rises over each one with the food's calories in the hole. The pair holds for

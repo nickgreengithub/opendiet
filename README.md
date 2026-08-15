@@ -52,7 +52,8 @@ The portion is drawn as well as written. USDA measures these 36 foods in 14 diff
 units — cups, tablespoons, slices, fruit, halves, containers, rashers — which collapse to
 four shapes on the card: a cup, a spoon, a slice, a whole item, repeated as many times as
 the portion says and set to the right of the label. Three cups of courgette is three cups.
-A tall glass of milk is one and a half, so the half is drawn faint.
+A tall glass of milk is one and a half, so the half is drawn faint. The marks themselves
+are Material Design Icons, inlined as paths.
 
 Tap a card and both photographs fall away into the dark while a donut rises over each, with
 the calories in the hole. The donut is drawn against the largest figure in that whole game
@@ -149,3 +150,7 @@ permit a restriction on commercial use.
 
 The USDA data itself carries no such restriction — it is public domain and you can do anything
 you like with it.
+
+The four portion marks in the calorie game are from
+[Material Design Icons](https://pictogrammers.com/library/mdi/), used under the Apache
+License 2.0 and inlined as SVG paths.
