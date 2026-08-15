@@ -128,7 +128,11 @@ support.js          the small framework index.html is written against
 ds/                 design system — tokens, stylesheet, fonts
 data/               the three food libraries as JSON, plus their provenance
 tools/              one-off generators (data build, preview image); not part of the site
+DESIGN.md           why it is built this way — the long version of this README
 ```
+
+One copy of the site, at the root, deployed by GitHub Pages from `main`. There is no
+staging copy and no promotion step.
 
 ## Licence
 

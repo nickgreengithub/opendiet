@@ -1,10 +1,15 @@
-# beta
+# Design notes
 
-Served at **opendiet.org/beta/**. A copy of the live site, used to try changes without
-touching the version at the root. It is `noindex`, carries no social cards, and nothing
-links to it.
+Why the site is built the way it is. `index.html` at the root is the whole app and the
+only copy of it; this file is the reasoning behind it, kept apart so the README can stay
+short.
 
-What is different from the root:
+There used to be a second copy at `opendiet.org/beta/` to try changes against. It is gone:
+there are no users to protect from a bad change, and a staging copy that has to be promoted
+by hand is a way to ship the wrong file, not a safety net. Changes go to `index.html` and
+to `main`.
+
+The layout rules below were the first things it was built to test, and still hold:
 
 - A tablet gets the touch layout, not the table. The table's numeric columns are fixed,
   so every pixel of squeeze lands on the one flexible track — the food name — and below
@@ -382,10 +387,5 @@ What is different from the root:
   gets pasted is a message, not a spreadsheet. Removal mode is gone with the bin that
   opened it; a food leaves from the bin in its own expansion.
 
-The food libraries are **not** copied into this folder. `index.html` reads them from the
-site root via `const DATA = "../data/"`, so the two versions can never drift apart.
-
-The root is now built from this folder: the same app, with the site's own head (title,
-canonical, link previews) in place of the beta's `noindex`, and `DATA` set back to
-`"data/"`. Promote again the same way — take `beta/index.html`, swap the head, swap the
-data path.
+There is one `index.html`, at the root, and it is what opendiet.org serves. Edit it and
+push to `main`; GitHub Pages builds from `main` and there is no promotion step to forget.

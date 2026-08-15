@@ -714,9 +714,8 @@ option{background:#070b12;color:#d7e6ef}
 <script type="text/x-dc" data-dc-script>
 // iOS Safari counts 100vh as the viewport with the URL bar retracted, so a full-height
 // shell puts its last rows underneath the bar. dvh tracks what is actually visible.
-// The food libraries are not copied into this folder — they are read from the live site
-// root, so the two versions can never drift apart. Promoting the beta to the root means setting
-// this back to "data/".
+// Every path the app fetches hangs off this one, so the whole site can be served from a
+// subdirectory without touching anything else.
 const DATA = "data/";
 
 // Apples is apple. Enough of a stemmer for a shopping list: USDA pluralises the food and
