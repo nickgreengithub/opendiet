@@ -48,6 +48,12 @@ instruction, and a working miniature of a round that plays itself on a loop, a h
 and the figures arriving — and then asks one question six times: two foods stacked one
 above the other, each with the portion it is, and which of them carries more calories.
 
+The portion is drawn as well as written. USDA measures these 36 foods in 14 different
+units — cups, tablespoons, slices, fruit, halves, containers, rashers — which collapse to
+four shapes on the card: a cup, a spoon, a slice, a whole item, repeated as many times as
+the portion says and set to the right of the label. Three cups of courgette is three cups.
+A tall glass of milk is one and a half, so the half is drawn faint.
+
 Tap a card and both photographs fall away into the dark while a donut rises over each, with
 the calories in the hole. The donut is drawn against the largest figure in that whole game
 rather than against its own partner, so a three-quarter ring means the same thing in every

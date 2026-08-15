@@ -134,13 +134,29 @@ SHORT = {
     "Watermelon, raw": "watermelon",
     "Dates, medjool": "dates",
     "Pork, cured, bacon, cooked, baked": "bacon",
-    "Melons, honeydew, raw": "honeydew melon",
+    "Melons, honeydew, raw": "honeydew",
     "Butter, salted": "butter",
     "Rice, white, long-grain, regular, cooked, unenriched, with salt": "white rice",
     "Turkey, breast, smoked, lemon pepper flavor, 97% fat-free": "turkey breast",
     "Peanut Butter, smooth": "peanut butter",
     "Oil, olive, salad or cooking": "olive oil",
 }
+
+
+# Four families, taken from USDA's own unit rather than from the prose, so the
+# mark on a card cannot drift from the figure behind it. The deck's seventeen unit
+# strings collapse to these without anything being forced: a container of yogurt is
+# a cup-shaped thing, a rasher is a slice, and everything counted as an object —
+# medium, large, fruit, cake, bar, date, ear — is whole.
+def family(unit):
+    u = (unit or "").upper()
+    if "TBSP" in u or "TABLESPOON" in u:
+        return "spoon"
+    if "CUP" in u or "CONTAINER" in u:
+        return "cup"
+    if "SLICE" in u:
+        return "slice"
+    return "whole"
 
 
 def usda():
@@ -259,7 +275,7 @@ def build(a, foods):
             deck.append({"id": s, "img": "pairs/img/" + s + ".jpg", "name": short,
                          "portion": portion, "g": round(g),
                          "kcal": round(per100 * g / 100.0), "real": pic is not None,
-                         "usda": food})
+                         "unit": family(row[12]), "n": n, "usda": food})
     return deck
 
 

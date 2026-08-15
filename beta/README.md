@@ -51,6 +51,17 @@ What is different from the root:
   bar takes the card's colour when the answer lands, so the picture, the label and the
   figure all say the same thing at once, and the losing card dims to about two thirds rather
   than half, which was dim enough to stop being readable.
+- The right of that bar carries the portion drawn rather than written: a cup, a spoon, a
+  slice or a whole item, repeated as many times as the portion says. USDA hands the deck
+  14 distinct unit strings across 26 phrasings — cups, tablespoons, slices, fruit, halves,
+  containers, rashers — which is far too many shapes to read at a glance on a phone, so
+  they collapse to **four families**: cup (20 of the 36 foods, a tub of yogurt among them),
+  whole (9), slice (4, bacon rashers included), spoon (3). Three cups of courgette is three
+  cups; a tall glass of milk is one and a half, so the half is the same glyph at 42%
+  opacity. Above five the count stops being countable and one glyph stands for the lot,
+  since the words beside it already say "8 slices". The glyphs are 14px and the name's
+  letter spacing came down to .03em to pay for them — swept over twelve games at 360px
+  wide with nothing truncated.
 - Answering is where the game does its teaching, so it is where the motion is. Tapping a
   card drops both photographs to a third of their brightness and most of their colour, and
   a donut rises over each one with the food's calories in the hole. The pair holds for
