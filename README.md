@@ -61,14 +61,12 @@ rather than against its own partner, so a three-quarter ring means the same thin
 round and the sixth reveal can be compared with the first. The pair then slides out to the
 left as the next arrives from the right. There is no button to press and nothing scrolls.
 
-The end is the six pairs again in the order they were played, one food to a line as it
-stood on the screen, with the score at the top. Each line carries the share the donut
-drew — its percentage of the highest figure in that game, printed under the calories and
-run along the row as a bar in the ring's own colours, so the six pairs can be read against
-each other on one scale. Every line carries its portion beside the
-name and at the same size — 497 for brown rice teaches nobody anything until it says two
-cups — and nothing on the page is set dim enough to be hard to read, since it is the only
-record of what the six pairs were.
+The end is a grade and six tiles. The grade is the ordinary school scale — A+ down to F
+on percentage correct, with the percentage and the tally beside it — which suits this game
+exactly, since the deck is built so that guessing scores about half and half therefore has
+to be a fail. Under it, one tile per pair in the order they were played, each holding its
+two foods as they stood on the screen with their portions and calories, a tick or a cross,
+and a border in lime or red.
 
 **The deck is built so that size cannot answer the question**, and that is measured rather
 than hoped for: across its 399 playable pairings the bigger portion carries more calories

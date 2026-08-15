@@ -287,9 +287,9 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ gStatusS }}"><span>{{ gRoundLabel }}</span><span style="{{ gStatusR }}">{{ gHits }}</span></span>
     </sc-if>
     <sc-if value="{{ gDone }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ gAccS }}">{{ gAcc }}<span style="{{ gResOf }}">{{ gAccLab }}</span></span>
-      <sc-for list="{{ gResRows }}" as="x" hint-placeholder-count="12">
-        <span style="{{ x.row }}"><span style="{{ x.nameS }}">{{ x.name }}</span><span style="{{ x.portS }}">{{ x.portion }}</span><span style="{{ x.kWrap }}"><span style="{{ x.kS }}">{{ x.k }}</span><span style="{{ x.pctS }}">{{ x.pct }}</span></span><span style="{{ x.markS }}">{{ x.mark }}</span><span style="{{ x.barS }}"></span></span>
+      <span style="{{ gAccS }}">{{ gGrade }}<span style="{{ gResOf }}">{{ gAccLab }}</span></span>
+      <sc-for list="{{ gResTiles }}" as="t" hint-placeholder-count="6">
+        <span style="{{ t.s }}"><span style="{{ t.col }}"><span style="{{ t.rowS }}"><span style="{{ t.a.nameS }}">{{ t.a.name }}</span><span style="{{ t.a.portS }}">{{ t.a.portion }}</span><span style="{{ t.a.kS }}">{{ t.a.k }}</span></span><span style="{{ t.rowS }}"><span style="{{ t.b.nameS }}">{{ t.b.name }}</span><span style="{{ t.b.portS }}">{{ t.b.portion }}</span><span style="{{ t.b.kS }}">{{ t.b.k }}</span></span></span><span style="{{ t.markS }}">{{ t.mark }}</span></span>
       </sc-for>
       <button onClick="{{ gAgain }}" style="{{ gAgainS }}">PLAY AGAIN</button>
     </sc-if>
@@ -744,6 +744,13 @@ const GAME_LEAVE = 1500;
 // interesting gets played twice.
 const GAME_ROUNDS = 6;
 
+// Six rounds means seven possible scores, so the bands below only ever yield A+,
+// B, D+ or F. That is not a rounding accident: guessing scores about half on this
+// deck by construction, so half has to be a failing mark for the letter to mean
+// anything at all.
+const GRADE_BANDS = [[97,"A+"],[93,"A"],[90,"A-"],[87,"B+"],[83,"B"],[80,"B-"],
+  [77,"C+"],[73,"C"],[70,"C-"],[67,"D+"],[63,"D"],[60,"D-"],[0,"F"]];
+
 // The portion drawn as well as written. USDA measures these foods in fourteen
 // different unit strings; four shapes cover all of them, and the count comes
 // from USDA's own household portion, so a mark can never disagree with the
@@ -998,74 +1005,62 @@ class Component extends DCLogic {
     if (this._gLeave) { clearTimeout(this._gLeave); this._gLeave = null; }
   }
   gBegin() { this.setState({ gIntro: false }); }
-  // The end of a game is a page: every pairing played, and then the thing worth
-  // knowing — how far apart two foods have to be before you can tell. A tally
-  // on its own would not say that.
-  // The end of a game is the six pairs again, in the order they were played, one
-  // food to a line as they stood on the screen. A tally of rights and wrongs is
-  // the score at the top; everything else was analysis nobody asked for.
+  // The end of a game is a grade and the six pairs as tiles, stacked in the order
+  // they were played, each holding its two foods as they stood on the screen and
+  // wearing its answer on its border. A tally on its own does not tell you how you
+  // did; a letter does, and everyone already knows how to read one.
   gResults(picks) {
     if (!picks || !picks.length) return {};
     const n = picks.length, hits = picks.filter(p => p.hit).length;
-    // The same scale the donut used: this food against the largest figure in the
-    // whole game, settled before a card was seen. So a bar here means exactly what
-    // the ring meant during the round, and the six can be read against each other.
-    const gMax = this.state.gMax || picks.reduce((m, p) =>
-      Math.max(m, p.top.kcal, p.bot.kcal), 1);
-    const rows = [];
-    picks.forEach((p, i) => {
+    const pct = Math.round(100 * hits / n);
+    // The ordinary school scale, which happens to suit this game: the deck is built
+    // so that guessing scores about half, so half is an F, and it takes five of six
+    // to reach a B. Nobody has to be told what an A- means.
+    const grade = (GRADE_BANDS.find(g => pct >= g[0]) || GRADE_BANDS[GRADE_BANDS.length - 1])[1];
+    const hue = grade[0] === "A" ? "#7ee0a8" : grade[0] === "B" ? "#b6e88f"
+      : grade[0] === "C" ? "#e8c37a" : "#f08c7a";
+    const tiles = picks.map(p => {
       const upper = p.top.kcal >= p.bot.kcal;
-      [[p.top, upper, true], [p.bot, !upper, false]].forEach(([food, won, first]) => {
-        // A name without its portion is not a fact anyone can learn from — 497 for
-        // brown rice only means something once it says two cups. So the line here
-        // carries exactly what the card carried: name, portion at the same size a
-        // shade greyer, and the portion drawn beside it.
-        rows.push({
-          name: food.name.toUpperCase(),
-          portion: food.portion || "",
-          k: String(food.kcal),
-          pct: Math.round(100 * food.kcal / gMax) + "%",
-          nameS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
-            whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: "1rem",
-            letterSpacing: ".03em", color: won ? "#f2f8fc" : "#b4c6d2" },
-          // The losing side is told apart by weight, never by being too dark to
-          // read: this page is the only record of what the six pairs were.
-          portS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
-            whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: "1rem",
-            letterSpacing: ".03em", color: won ? "#a9bcc8" : "#8fa3b0" },
-          kWrap: { display: "flex", flexDirection: "column", alignItems: "flex-end",
-            justifyContent: "center", lineHeight: 1.05 },
-          kS: { fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: "1.24rem", fontVariantNumeric: "tabular-nums",
-            color: won ? "#f2f8fc" : "#b4c6d2" },
-          pctS: { fontFamily: "var(--font-2)", fontSize: ".64rem", letterSpacing: ".08em",
-            fontVariantNumeric: "tabular-nums", color: won ? "#9db2c0" : "#8296a3" },
-          // The bar runs the width of the row rather than sitting in a column of
-          // its own, so the share costs no room the portion could have used.
-          barS: { position: "absolute", left: 0, bottom: 0, height: "2px",
-            width: Math.max(1.5, 100 * food.kcal / gMax) + "%",
-            background: won ? "#7ee0a8" : "#f08c7a", opacity: won ? .55 : .4 },
-          mark: first ? (p.hit ? "\u2713" : "\u2715") : "",
-          markS: { textAlign: "right", fontSize: "1.15rem",
-            color: p.hit ? "#7ee0a8" : "#f08c7a" },
-          row: { position: "relative", flex: "none", display: "grid",
-            gridTemplateColumns: "auto minmax(0,1fr) 3.2rem 1.3rem",
-            columnGap: ".42rem", alignItems: "center", height: "2.75rem",
-            padding: "0 .15rem",
-            // The pair is the unit, so the rule goes above the first of the two
-            // and the second is tucked under it rather than floating free.
-            borderTop: first ? "1px solid rgba(215,230,239,.14)" : "0",
-            paddingLeft: first ? ".15rem" : ".8rem" }
-        });
+      // Lime or red on the border, so the answer is legible from the shape of the
+      // page before a word of it is read.
+      const edge = p.hit ? "#7ee0a8" : "#f08c7a";
+      // The foods stay in the order they were shown. Which of them actually carried
+      // more is told by weight, never by being too dark to read: this page is the
+      // only record of what the six pairs were.
+      const line = (food, won) => ({
+        name: food.name.toUpperCase(),
+        portion: food.portion || "",
+        k: String(food.kcal),
+        nameS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
+          whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: "1rem",
+          letterSpacing: ".03em", color: won ? "#f2f8fc" : "#b4c6d2" },
+        portS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
+          whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: "1rem",
+          letterSpacing: ".03em", color: won ? "#a9bcc8" : "#8fa3b0" },
+        kS: { textAlign: "right", fontFamily: "var(--font-1)", fontWeight: 300,
+          fontSize: "1.2rem", fontVariantNumeric: "tabular-nums",
+          color: won ? "#f2f8fc" : "#b4c6d2" }
       });
+      return {
+        a: line(p.top, upper), b: line(p.bot, !upper),
+        mark: p.hit ? "\u2713" : "\u2715",
+        markS: { flex: "none", width: "1.05rem", textAlign: "right", fontSize: "1.05rem",
+          lineHeight: 1, color: edge },
+        s: { flex: "none", display: "flex", alignItems: "center", gap: ".3rem",
+          padding: ".4rem .35rem", marginBottom: ".42rem",
+          border: "1px solid " + edge + "88", background: edge + "0f" },
+        col: { flex: "1 1 auto", minWidth: 0, display: "flex", flexDirection: "column",
+          gap: ".1rem" },
+        rowS: { display: "grid", gridTemplateColumns: "minmax(0,auto) minmax(0,1fr) 2.5rem",
+          columnGap: ".3rem", alignItems: "baseline" }
+      };
     });
     return {
-      gAcc: String(hits), gAccLab: "OF " + n + " RIGHT",
-      gAccS: { display: "flex", alignItems: "baseline", gap: ".55rem",
-        padding: "1.1rem .15rem 1rem", fontFamily: "var(--font-1)", fontWeight: 300,
-        fontSize: "3rem", color: hits >= n - 1 ? "#7ee0a8" : "#eaf5fb",
-        fontVariantNumeric: "tabular-nums" },
-      gResRows: rows,
+      gGrade: grade, gAccLab: pct + "% \u00b7 " + hits + " OF " + n + " RIGHT",
+      gAccS: { display: "flex", alignItems: "baseline", gap: ".7rem",
+        padding: ".9rem .15rem .85rem", fontFamily: "var(--font-1)", fontWeight: 300,
+        fontSize: "3rem", color: hue },
+      gResTiles: tiles,
       gAgain: () => this.gStart(false),
       gDeckNote: this._deck ? this._deck.note : ""
     };

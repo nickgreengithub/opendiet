@@ -113,33 +113,31 @@ The layout rules below were the first things it was built to test, and still hol
   dead screen followed by a jump.
 - Which round it is and how many are right sit at the bottom. They are a thing to glance
   at between pairs rather than the first thing on the screen.
-- The results page is the six pairs again, in the order they were played, one food to a
-  line as it stood on the screen — the one that carried more in white above its figure, the
-  other tucked under it in grey, and a tick or a cross against the pair. The score sits at
-  the top at three rem, which is the only number on the page that has to be read from arm's
-  length. What was there before — a hit rate broken down by how far apart the two foods
-  were — was analysis nobody asked for, printed too small to take in.
-- **Each line carries the share the donut drew.** The figure has its percentage of the
-  session's highest beneath it, and a bar runs the width of the row at the same
-  proportion, green for the food that carried more and coral for the other — the ring's
-  own colours. It is the same scale the reveal used, settled before a card was seen, so a
-  bar here means what the ring meant during the round and the six read against each other:
-  brown rice at 497 fills the row, an apple at 95 barely starts it. The bar is positioned
-  rather than given a column, so the share costs no room the portion could have used.
-- **Each line carries its portion, at the name's size.** For a while it did not, and the
-  page was worthless for the one thing it exists to do: BROWN RICE 497 teaches nobody
-  anything until it says two cups. The portion is told apart from the name by colour alone,
-  the same treatment the card gives it.
-- The portion marks are on the card and not here. They are the same fact as the words beside
-  them and only one of the two fits on a list line — with the marks in, "2 cups, cooked" came
-  out as "2 cups, cook…", which is the half of the pair that actually teaches. The card can
-  afford both because a photograph is carrying the meaning and the bar is a caption; a line
-  in a list has nothing else. Checked across nine games at 390 and 360px with nothing clipped.
-- Nothing on this page is dimmer than #8fa3b0. The losing side of a pair is told apart by
-  weight and by its figure, not by being hard to read: this is the only record of what the
-  six pairs were, and it was previously set at .92rem in a grey that disappeared against the
-  background on a phone in daylight. The heading that read "6 PAIRS" above "4 OF 6 RIGHT" is
-  gone — it was the same fact twice.
+- The results page is a grade and six tiles. The grade is the ordinary school scale — A+
+  down to F on percentage correct, with the percentage and the tally printed beside it —
+  which happens to suit this game exactly: the deck is built so that guessing scores about
+  half, so half has to be a failing mark for the letter to mean anything. Six rounds gives
+  seven possible scores, so in practice only A+, B, D+ and F ever appear; that is the scale
+  being honest rather than coarse, since four of six is barely above chance.
+- Each pair is a tile, stacked in the order it was played, holding its two foods in the
+  order they stood on the screen — name, portion, calories — with a tick or a cross and a
+  border in lime or red. The answer is legible from the shape of the page before a word of
+  it is read. Which food actually carried more is told by weight, never by being too dark
+  to read: this page is the only record of what the six pairs were.
+- The tile costs about 40px of width that a flat row did not — two borders, side padding,
+  the gap and the mark's column — and at 360px that is the difference between "3
+  tablespoons" fitting and not. It was paid for out of the mark (1.05rem), the tile padding
+  (.35rem), the column gap (.3rem) and the calorie column (2.5rem), and the name track was
+  changed from `auto` to `minmax(0,auto)` so a long name gives ground instead of the
+  portion always paying. Ten games at 360x640 and five at 390x844, 30 distinct pairs, clean.
+- **The truncation check that cleared the earlier versions of this page was broken.** It
+  skipped any element with children, and this framework wraps every interpolated string in
+  a `<span class="sc-interp">` — so it was scanning the styled label, finding one child, and
+  moving on. It reported "(none)" for pages that were visibly clipping. It now walks every
+  element and compares `scrollWidth` against `clientWidth` with no filter, and was validated
+  by forcing a 300px viewport and confirming it fires. Six rounds are also drawn from a
+  reshuffled deck each run, so a single clean game proves nothing; the sweep plays five
+  games per browser session and reports the pair count it actually saw.
 - **The deck is built so that size cannot answer the question.** That is the whole design,
   and it is a measured property rather than a hope: across the 399 playable pairings, the
   bigger portion carries more calories 51% of the time. A player who knows nothing and
