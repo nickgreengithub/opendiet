@@ -287,10 +287,9 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ gStatusS }}"><span>{{ gRoundLabel }}</span><span style="{{ gStatusR }}">{{ gHits }}</span></span>
     </sc-if>
     <sc-if value="{{ gDone }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ gResTag }}">{{ gResTagTxt }}</span>
       <span style="{{ gAccS }}">{{ gAcc }}<span style="{{ gResOf }}">{{ gAccLab }}</span></span>
       <sc-for list="{{ gResRows }}" as="x" hint-placeholder-count="12">
-        <span style="{{ x.row }}"><span style="{{ x.nameS }}">{{ x.name }}</span><span style="{{ x.kS }}">{{ x.k }}</span><span style="{{ x.markS }}">{{ x.mark }}</span></span>
+        <span style="{{ x.row }}"><span style="{{ x.nameS }}">{{ x.name }}</span><span style="{{ x.portS }}">{{ x.portion }}</span><span style="{{ x.kS }}">{{ x.k }}</span><span style="{{ x.markS }}">{{ x.mark }}</span></span>
       </sc-for>
       <button onClick="{{ gAgain }}" style="{{ gAgainS }}">PLAY AGAIN</button>
     </sc-if>
@@ -744,6 +743,36 @@ const GAME_LEAVE = 1500;
 // teaches nothing the sixth did not, and a game that ends while it is still
 // interesting gets played twice.
 const GAME_ROUNDS = 6;
+
+// The portion drawn as well as written. USDA measures these foods in fourteen
+// different unit strings; four shapes cover all of them, and the count comes
+// from USDA's own household portion, so a mark can never disagree with the
+// figure beside it. Above five they stop counting and state the family only —
+// eight of anything is a smear at this size, and the words already say eight.
+// A half is the same mark at less than full strength. Module scope because both
+// the card and the results page draw them.
+const GLYPH = {
+  cup:   ["M3.4 3.6h9.2l-1 9.4a1.7 1.7 0 0 1-1.7 1.5H6.1a1.7 1.7 0 0 1-1.7-1.5z",
+          "M2.5 3.6h11"],
+  spoon: ["M8 2.1c1.8 0 3.1 1.6 3.1 3.5S9.8 9.1 8 9.1 4.9 7.5 4.9 5.6 6.2 2.1 8 2.1z",
+          "M8 9.1v4.8"],
+  slice: ["M3.5 7.4c0-2.1 1.7-3.8 3.8-3.8h1.4c2.1 0 3.8 1.7 3.8 3.8v6a.9.9 0 0 1-.9.9H4.4a.9.9 0 0 1-.9-.9z",
+          ""],
+  whole: ["M8 4.8a4.6 4.6 0 1 1 0 9.2 4.6 4.6 0 0 1 0-9.2z", "M8 4.8V2.3"]
+};
+const pipsFor = food => {
+  if (!food) return [];
+  const g = GLYPH[food.unit] || GLYPH.whole;
+  const n = food.n || 1;
+  const ops = [];
+  if (n > 5) ops.push(1);
+  else {
+    for (let q = 0; q < Math.floor(n); q++) ops.push(1);
+    if (n % 1) ops.push(0.42);
+  }
+  return ops.map(op => ({ d: g[0], d2: g[1],
+    s: { display: "block", flex: "none", opacity: op } }));
+};
 // And the touch layout stops widening here rather than stretching a phone across a
 // tablet. 640 is not arbitrary: the donut's bracket geometry is already computed
 // against a 640 cap, so holding to it keeps that arithmetic true on a tablet.
@@ -979,33 +1008,43 @@ class Component extends DCLogic {
     picks.forEach((p, i) => {
       const upper = p.top.kcal >= p.bot.kcal;
       [[p.top, upper, true], [p.bot, !upper, false]].forEach(([food, won, first]) => {
+        // A name without its portion is not a fact anyone can learn from — 497 for
+        // brown rice only means something once it says two cups. So the line here
+        // carries exactly what the card carried: name, portion at the same size a
+        // shade greyer, and the portion drawn beside it.
         rows.push({
           name: food.name.toUpperCase(),
+          portion: food.portion || "",
           k: String(food.kcal),
           nameS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
-            whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: ".92rem",
-            letterSpacing: ".05em", color: won ? "#eaf5fb" : "#8ba0ad" },
+            whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: "1rem",
+            letterSpacing: ".03em", color: won ? "#f2f8fc" : "#b4c6d2" },
+          // The losing side is told apart by weight, never by being too dark to
+          // read: this page is the only record of what the six pairs were.
+          portS: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
+            whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: "1rem",
+            letterSpacing: ".03em", color: won ? "#a9bcc8" : "#8fa3b0" },
           kS: { textAlign: "right", fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: "1.12rem", fontVariantNumeric: "tabular-nums",
-            color: won ? "#eaf5fb" : "#8ba0ad" },
+            fontSize: "1.24rem", fontVariantNumeric: "tabular-nums",
+            color: won ? "#f2f8fc" : "#b4c6d2" },
           mark: first ? (p.hit ? "\u2713" : "\u2715") : "",
-          markS: { textAlign: "right", fontSize: "1.05rem",
+          markS: { textAlign: "right", fontSize: "1.15rem",
             color: p.hit ? "#7ee0a8" : "#f08c7a" },
           row: { flex: "none", display: "grid",
-            gridTemplateColumns: "minmax(0,1fr) 3.2rem 1.6rem", columnGap: ".5rem",
-            alignItems: "center", height: "1.95rem", padding: "0 .15rem",
+            gridTemplateColumns: "auto minmax(0,1fr) 3.2rem 1.3rem",
+            columnGap: ".42rem", alignItems: "center", height: "2.5rem",
+            padding: "0 .15rem",
             // The pair is the unit, so the rule goes above the first of the two
             // and the second is tucked under it rather than floating free.
             borderTop: first ? "1px solid rgba(215,230,239,.14)" : "0",
-            paddingLeft: first ? ".15rem" : ".9rem" }
+            paddingLeft: first ? ".15rem" : ".8rem" }
         });
       });
     });
     return {
       gAcc: String(hits), gAccLab: "OF " + n + " RIGHT",
-      gResTagTxt: n + " PAIRS",
       gAccS: { display: "flex", alignItems: "baseline", gap: ".55rem",
-        padding: "0 .15rem 1rem", fontFamily: "var(--font-1)", fontWeight: 300,
+        padding: "1.1rem .15rem 1rem", fontFamily: "var(--font-1)", fontWeight: 300,
         fontSize: "3rem", color: hits >= n - 1 ? "#7ee0a8" : "#eaf5fb",
         fontVariantNumeric: "tabular-nums" },
       gResRows: rows,
@@ -3095,8 +3134,6 @@ class Component extends DCLogic {
       gHeadScore: { fontVariantNumeric: "tabular-nums", color: "#22d3ee" },
       gWaitS: { display: "block", padding: "2.5rem .2rem", fontFamily: "var(--font-2)",
         fontSize: ".9rem", letterSpacing: ".16em", color: "#a9bcc8" },
-      gResTag: { flex: "none", display: "block", padding: ".8rem .15rem .25rem",
-        fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".18em", color: "#8ba0ad" },
       gAgainS: { flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
         width: "100%", boxSizing: "border-box", height: "3.1rem", marginTop: "auto",
         border: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
@@ -3177,28 +3214,6 @@ class Component extends DCLogic {
         // figure it sits beside. Above five they stop counting and state the family
         // only — eight of anything is a smear at this size, and the words already
         // say eight. A half is the same mark at less than full strength.
-        const GLYPH = {
-          cup:   ["M3.4 3.6h9.2l-1 9.4a1.7 1.7 0 0 1-1.7 1.5H6.1a1.7 1.7 0 0 1-1.7-1.5z",
-                  "M2.5 3.6h11"],
-          spoon: ["M8 2.1c1.8 0 3.1 1.6 3.1 3.5S9.8 9.1 8 9.1 4.9 7.5 4.9 5.6 6.2 2.1 8 2.1z",
-                  "M8 9.1v4.8"],
-          slice: ["M3.5 7.4c0-2.1 1.7-3.8 3.8-3.8h1.4c2.1 0 3.8 1.7 3.8 3.8v6a.9.9 0 0 1-.9.9H4.4a.9.9 0 0 1-.9-.9z",
-                  ""],
-          whole: ["M8 4.8a4.6 4.6 0 1 1 0 9.2 4.6 4.6 0 0 1 0-9.2z", "M8 4.8V2.3"]
-        };
-        const pipsFor = food => {
-          if (!food) return [];
-          const g = GLYPH[food.unit] || GLYPH.whole;
-          const n = food.n || 1;
-          const ops = [];
-          if (n > 5) ops.push(1);
-          else {
-            for (let q = 0; q < Math.floor(n); q++) ops.push(1);
-            if (n % 1) ops.push(0.42);
-          }
-          return ops.map(op => ({ d: g[0], d2: g[1],
-            s: { display: "block", flex: "none", opacity: op } }));
-        };
         const leaving = !!s.gLeaving;
         const side = (food, k) => {
           const win = k === more;

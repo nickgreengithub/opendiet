@@ -61,7 +61,10 @@ round and the sixth reveal can be compared with the first. The pair then slides 
 left as the next arrives from the right. There is no button to press and nothing scrolls.
 
 The end is the six pairs again in the order they were played, one food to a line as it
-stood on the screen, with the score at the top.
+stood on the screen, with the score at the top. Every line carries its portion beside the
+name and at the same size — 497 for brown rice teaches nobody anything until it says two
+cups — and nothing on the page is set dim enough to be hard to read, since it is the only
+record of what the six pairs were.
 
 **The deck is built so that size cannot answer the question**, and that is measured rather
 than hoped for: across its 399 playable pairings the bigger portion carries more calories

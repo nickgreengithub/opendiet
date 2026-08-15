@@ -109,6 +109,20 @@ The layout rules below were the first things it was built to test, and still hol
   the top at three rem, which is the only number on the page that has to be read from arm's
   length. What was there before — a hit rate broken down by how far apart the two foods
   were — was analysis nobody asked for, printed too small to take in.
+- **Each line carries its portion, at the name's size.** For a while it did not, and the
+  page was worthless for the one thing it exists to do: BROWN RICE 497 teaches nobody
+  anything until it says two cups. The portion is told apart from the name by colour alone,
+  the same treatment the card gives it.
+- The portion marks are on the card and not here. They are the same fact as the words beside
+  them and only one of the two fits on a list line — with the marks in, "2 cups, cooked" came
+  out as "2 cups, cook…", which is the half of the pair that actually teaches. The card can
+  afford both because a photograph is carrying the meaning and the bar is a caption; a line
+  in a list has nothing else. Checked across nine games at 390 and 360px with nothing clipped.
+- Nothing on this page is dimmer than #8fa3b0. The losing side of a pair is told apart by
+  weight and by its figure, not by being hard to read: this is the only record of what the
+  six pairs were, and it was previously set at .92rem in a grey that disappeared against the
+  background on a phone in daylight. The heading that read "6 PAIRS" above "4 OF 6 RIGHT" is
+  gone — it was the same fact twice.
 - **The deck is built so that size cannot answer the question.** That is the whole design,
   and it is a measured property rather than a hope: across the 399 playable pairings, the
   bigger portion carries more calories 51% of the time. A player who knows nothing and
