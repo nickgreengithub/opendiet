@@ -91,6 +91,7 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
    of them: the page is telling you what the choice is, not making it for you, and
    a demonstration that answers its own question gives the wrong idea about what
    the game wants. The travel is the card pitch, so it tracks the sizes below. */
+@keyframes od-msg-in{from{opacity:0}to{opacity:1}}
 @keyframes od-cmp-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 @keyframes od-demo-hand{
   0%,6%{transform:translateY(0)}
@@ -289,6 +290,9 @@ option{background:#070b12;color:#d7e6ef}
         </span>
         <span style="{{ gBot.bar }}"><span style="{{ gBot.nameS }}">{{ gBot.name }}</span><span style="{{ gBot.portS }}">{{ gBot.portion }}</span><span style="{{ gPipRow }}"><sc-for list="{{ gBot.pips }}" as="p" hint-placeholder-count="2"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="{{ p.s }}"><path d="{{ p.d }}"></path></svg></sc-for></span></span>
       </button>
+      <sc-if value="{{ gMsgOn }}" hint-placeholder-val="{{ false }}">
+        <span onClick="{{ gMsgDismiss }}" style="{{ gMsgScrim }}"><span style="{{ gMsgCard }}"><span style="{{ gMsgTagS }}">{{ gMsgTag }}</span><span style="{{ gMsgLineS }}">{{ gMsgLine }}</span><span style="{{ gMsgHintS }}">TAP TO CONTINUE</span></span></span>
+      </sc-if>
       <span style="{{ gStatusS }}"><span>{{ gRoundLabel }}</span><span style="{{ gDotRow }}"><sc-for list="{{ gDots }}" as="d" hint-placeholder-count="6"><span style="{{ d.s }}">{{ d.mark }}</span></sc-for></span></span>
     </sc-if>
     <sc-if value="{{ gDone }}" hint-placeholder-val="{{ false }}">
@@ -1035,10 +1039,43 @@ class Component extends DCLogic {
       ratio: hi / Math.max(1, lo), gap: hi - lo };
     this.setState(s => ({ gSel: k, gPicks: (s.gPicks || []).concat([pick]) }));
     this.gClearTimers();
+    // The first answer anyone ever gives is the one that has to teach what just
+    // happened: the donut and the two figures mean nothing yet. It holds the round
+    // rather than racing the auto-advance, because 1.78s is not long enough to read a
+    // sentence, and it happens once a session — a returning player is told nothing.
+    if (this.gFirstEver()) {
+      const chosen = k === 0 ? r.top : r.bot, other = k === 0 ? r.bot : r.top;
+      const big = chosen.kcal >= other.kcal ? chosen : other;
+      const small = big === chosen ? other : chosen;
+      this.setState({ gMsg: { hit: pick.hit, big: big.name, small: small.name } });
+      return;
+    }
+    this.gAdvance();
+  }
+  // A flag per browsing session rather than per game: play again in the same tab and
+  // the lesson does not repeat, open the site fresh tomorrow and it does.
+  gFirstEver() {
+    if (this._gTold) return false;
+    let seen = false;
+    try { seen = !!sessionStorage.getItem("od-game-taught"); } catch (e) { seen = false; }
+    if (seen) { this._gTold = true; return false; }
+    this._gTold = true;
+    try { sessionStorage.setItem("od-game-taught", "1"); } catch (e) {}
+    return true;
+  }
+  gAdvance() {
+    this.gClearTimers();
     this._gLeave = setTimeout(() => {
       this._gLeave = null; this.setState({ gLeaving: true });
     }, GAME_LEAVE);
     this._gTimer = setTimeout(() => { this._gTimer = null; this.gNext(); }, GAME_HOLD);
+  }
+  gDismissMsg() {
+    if (!this.state.gMsg) return;
+    this.setState({ gMsg: null, gLeaving: true });
+    this.gClearTimers();
+    this._gTimer = setTimeout(() => { this._gTimer = null; this.gNext(); },
+      GAME_HOLD - GAME_LEAVE);
   }
   gClearTimers() {
     if (this._gTimer) { clearTimeout(this._gTimer); this._gTimer = null; }
@@ -3374,6 +3411,7 @@ class Component extends DCLogic {
       // revealing an answer must feel like the same screen resolving rather than
       // a new one arriving, so nothing above the options is allowed to move.
       gWrap: {
+        position: "relative",
         flex: 1, minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column",
         padding: "0 .7rem .7rem", boxSizing: "border-box"
       },
@@ -3668,6 +3706,32 @@ class Component extends DCLogic {
             fontFamily: "var(--font-2)", fontSize: ".88rem", letterSpacing: ".12em",
             color: "#a9bcc8" },
           gDotRow: { display: "flex", alignItems: "center", gap: ".22rem" },
+          // "X has more calories than Y" needs the verb to agree with the food, and half
+          // this deck is plural — almonds have, brown rice has. Putting the foods after
+          // the preposition sidesteps an agreement bug that would read as sloppy on
+          // every other round.
+          gMsgOn: !!s.gMsg,
+          gMsgTag: s.gMsg && s.gMsg.hit ? "CORRECT" : "NOT THAT ONE",
+          gMsgLine: s.gMsg
+            ? "More calories in " + s.gMsg.big + " than in " + s.gMsg.small + "."
+            : "",
+          gMsgDismiss: () => this.gDismissMsg(),
+          gMsgScrim: { position: "absolute", inset: 0, zIndex: 60, display: "flex",
+            alignItems: "center", justifyContent: "center", padding: "0 1rem",
+            background: "rgba(5,8,13,.72)", cursor: "pointer",
+            animation: "od-msg-in 220ms ease both" },
+          gMsgCard: { width: "100%", maxWidth: "20rem", boxSizing: "border-box",
+            padding: "1.1rem 1.1rem 1.2rem", background: "#070d15",
+            border: "1px solid " + (s.gMsg && s.gMsg.hit
+              ? "rgba(126,224,168,.55)" : "rgba(240,140,122,.5)") },
+          gMsgTagS: { display: "block", marginBottom: ".55rem",
+            fontFamily: "var(--font-2)", fontSize: ".8rem", letterSpacing: ".18em",
+            color: s.gMsg && s.gMsg.hit ? "#7ee0a8" : "#f08c7a" },
+          gMsgLineS: { display: "block", fontWeight: 300, fontSize: "1.05rem",
+            lineHeight: 1.45, color: "#eaf5fb" },
+          gMsgHintS: { display: "block", marginTop: ".9rem",
+            fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".16em",
+            color: "#5f7688" },
           ...this.gResults(picks, {
             vizFor: vizFor, lib: (this._libs && this._libs.LEGACY) || null
           })

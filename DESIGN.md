@@ -118,6 +118,20 @@ The layout rules below were the first things it was built to test, and still hol
   the stroke sets has a plain spoon at all, and Tabler's nearest is a fork and spoon
   together. The spoon keeps its diagonal: stood upright it stops reading as a spoon and
   starts reading as a pin.
+- **The first answer of a session gets a sentence.** A donut and two figures mean nothing to
+  someone who has never played: they show what the answer was without saying what the
+  question tested. So the first pick — and only the first — holds the round and puts up a
+  card: CORRECT or NOT THAT ONE, then which food actually carried more. It holds rather than
+  racing the 1.78s auto-advance, because that is not long enough to read a sentence, and it
+  goes on a tap.
+- The sentence is "More calories in X than in Y" rather than "X has more calories than Y",
+  because the verb has to agree with the food and half this deck is plural — almonds have,
+  brown rice has. Putting the foods after the preposition sidesteps an agreement bug that
+  would read as sloppy on every other round.
+- Once a session, tracked in `sessionStorage`: play again in the same tab and the lesson does
+  not repeat; open the site fresh tomorrow and it does. A runtime flag alone would repeat it
+  on every reload, and `localStorage` would mean a player who cleared nothing never saw it
+  twice in their life, which is too stingy for a thing this short.
 - Answering is where the game does its teaching, so it is where the motion is. Tapping a
   card drops both photographs to a third of their brightness and most of their colour, and
   a donut rises over each one with the food's calories in the hole. The pair holds for

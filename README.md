@@ -66,6 +66,11 @@ rather than against its own partner, so a three-quarter ring means the same thin
 round and the sixth reveal can be compared with the first. The pair then slides out to the
 left as the next arrives from the right. There is no button to press and nothing scrolls.
 
+The first answer of a session — and only the first — holds the round and puts up a card
+saying whether it was right and which food actually carried more, since a donut and two
+figures mean nothing to someone who has never played. It goes on a tap and does not come
+back until a fresh session.
+
 Which round it is sits at the bottom left, and six boxes at the bottom right fill with a
 tick or a cross as the game goes, so how you are doing and how much is left read in one
 glance.
