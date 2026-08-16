@@ -200,7 +200,23 @@ The layout rules below were the first things it was built to test, and still hol
   which is some 40px wider. "On average, you underestimated by 144 kcalories" does not fit;
   "Underestimated by 144 kcal a round" does, with room, and says the same thing. The worst
   case was measured rather than reasoned about, by forcing every band to A+ for one run.
-- Each pair is a tile, stacked in the order it was played, holding its two foods in the
+- **The list is the search list.** Same 1.02rem name in the reading weight, same #d7e6ef,
+  same 1.04rem tabular figure right-aligned, same hairline under every row, and the same
+  kind of head naming the column once above a heavier rule. Nothing is set in capitals: the
+  site reserves those for labels, and these are food names, so they are sentence case here
+  exactly as they are in the table. The bordered lime and red tiles are gone — two screens
+  listing foods should not look like two different products.
+- **The pair is told by the gap above it, not by a box around it.** Every row carries the
+  same rule whether its partner follows or the next pair does, and pairs are separated by a
+  .95rem margin. Which food carried more is told by weight, 400 against 300, the way the
+  table tells a sorted column. The tick or cross rides the pair's first line; centred
+  between the two it landed exactly on the rule and read as a smudge on it.
+- **The list scrolls, and that is the point of copying the search screen.** Twelve rows, a
+  head, a caveat and a button do not fit 640px — PLAY AGAIN finished 218px below the fold —
+  and the screen this borrows from has always scrolled its rows under a fixed head. So the
+  head is pinned, the rows take the space that is left, and the caveat and the button hold
+  the floor.
+- Each pair used to be a tile, stacked in the order it was played, holding its two foods in the
   order they stood on the screen — name, portion, calories — with a tick or a cross and a
   border in lime or red. The answer is legible from the shape of the page before a word of
   it is read. Which food actually carried more is told by weight, never by being too dark
