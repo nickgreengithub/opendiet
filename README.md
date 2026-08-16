@@ -80,10 +80,11 @@ hairline and real air between the blocks, both foods set identically since the f
 bigger, and a tick or a cross against the pair. The caveat sits behind a mark rather than
 on the page.
 
-Tap a pair and both of its foods unfold into the same drawing the food table uses — the
-donut, the macros, the amount control — because it is the same code, not a copy of it. It is
-fixed at the portion the round showed, with no amount control and no ADD button: that
-portion is the question, and there is no plate in the game. Set against the grade itself are two lines: the score, and the
+Tap a pair and it unfolds into a comparison: the two foods in two columns, every macro and
+sub-macro the site lists, calories at the foot, both at the portion the round showed. In each
+row only the larger figure is lit, so a column of white shows where a food is heavy before a
+number is read. There is no amount control and no ADD button — the portion is the question,
+and there is no plate in the game. Set against the grade itself are two lines: the score, and the
 plate that surprised you most — the widest gap you got wrong, named, since picking the
 lighter plate means the heavier one was worth more than you gave it credit for. It closes
 on a caveat: calories drive body fat, but a healthy diet also means hitting macro and

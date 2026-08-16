@@ -296,75 +296,15 @@ option{background:#070b12;color:#d7e6ef}
       <sc-for list="{{ gResTiles }}" as="t" hint-placeholder-count="6">
         <span style="{{ t.s }}">
           <span onClick="{{ t.onTap }}" style="{{ t.a.rowS }}"><span style="{{ t.a.nameS }}">{{ t.a.name }}</span><span style="{{ t.a.portS }}">{{ t.a.portion }}</span><span style="{{ t.a.kS }}">{{ t.a.k }}</span><span style="{{ t.markS }}">{{ t.mark }}</span></span>
-          <span style="{{ t.a.expand }}">
-            <span onClick="{{ t.a.detail.vizTap }}" style="{{ mVizBox }}">
-              <span style="{{ t.a.detail.viz.bF }}"></span>
-              <span style="{{ t.a.detail.viz.bC }}"></span>
-              <span style="{{ vLeft }}">
-              <span style="{{ vRing }}">
-                <svg width="164" height="164" viewBox="0 0 164 164" style="{{ vSvg }}">
-                  <path d="{{ t.a.detail.viz.s0.d }}" style="{{ t.a.detail.viz.s0.st }}" fill="none" stroke="{{ t.a.detail.viz.s0.col }}" stroke-width="21"></path>
-                  <path d="{{ t.a.detail.viz.s1.d }}" style="{{ t.a.detail.viz.s1.st }}" fill="none" stroke="{{ t.a.detail.viz.s1.col }}" stroke-width="21"></path>
-                  <path d="{{ t.a.detail.viz.s2.d }}" style="{{ t.a.detail.viz.s2.st }}" fill="none" stroke="{{ t.a.detail.viz.s2.col }}" stroke-width="21"></path>
-                  <path d="{{ t.a.detail.viz.s3.d }}" style="{{ t.a.detail.viz.s3.st }}" fill="none" stroke="{{ t.a.detail.viz.s3.col }}" stroke-width="21"></path>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.a.detail.viz.o0.st }}" fill="none" stroke="{{ t.a.detail.viz.o0.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.a.detail.viz.o1.st }}" fill="none" stroke="{{ t.a.detail.viz.o1.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.a.detail.viz.o2.st }}" fill="none" stroke="{{ t.a.detail.viz.o2.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.a.detail.viz.f0.st }}" fill="none" stroke="{{ t.a.detail.viz.f0.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.a.detail.viz.f1.st }}" fill="none" stroke="{{ t.a.detail.viz.f1.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.a.detail.viz.f2.st }}" fill="none" stroke="{{ t.a.detail.viz.f2.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.a.detail.viz.f3.st }}" fill="none" stroke="{{ t.a.detail.viz.f3.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.a.detail.viz.f4.st }}" fill="none" stroke="{{ t.a.detail.viz.f4.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.a.detail.viz.c0.st }}" fill="none" stroke="{{ t.a.detail.viz.c0.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.a.detail.viz.c1.st }}" fill="none" stroke="{{ t.a.detail.viz.c1.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.a.detail.viz.c2.st }}" fill="none" stroke="{{ t.a.detail.viz.c2.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.a.detail.viz.swF }}" fill="none" stroke="#f08c7a" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.a.detail.viz.swC }}" fill="none" stroke="#7ee0a8" stroke-width="21"></circle>
-                </svg>
-                <span style="{{ t.a.detail.viz.holeSplitS }}"><span style="{{ t.a.detail.viz.holeAS }}">{{ t.a.detail.viz.holeA }}</span><span style="{{ vHoleSep }}">/</span><span style="{{ t.a.detail.viz.holeBS }}">{{ t.a.detail.viz.holeB }}</span></span><span style="{{ t.a.detail.viz.holeZFS }}">{{ t.a.detail.viz.holeZF }}<span style="{{ vHoleUnit }}">{{ vzUnit }}</span></span><span style="{{ t.a.detail.viz.holeZCS }}">{{ t.a.detail.viz.holeZC }}<span style="{{ vHoleUnit }}">{{ vzUnit }}</span></span>
-              </span>
-
-              </span>
-              <span style="{{ vTable }}">
-                <sc-for list="{{ t.a.detail.viz.rows }}" as="vr" hint-placeholder-count="7">
-                  <span onClick="{{ vr.tap }}" style="{{ vr.row }}">
-                    <span style="{{ vr.dot }}"></span>
-                    <span style="{{ vr.tagS }}">{{ vr.tag }}</span>
-                    <span onClick="{{ vr.chevTap }}" style="{{ vr.chevBox }}"><span style="{{ vr.chev }}"></span></span>
-                    <span style="{{ vr.valS }}"><span style="{{ vr.valIn }}">{{ vr.val }}<span style="{{ unitSuffix }}">{{ vzUnit }}</span></span></span>
-                  </span>
-                </sc-for>
-              </span>
-            </span>
-          </span>
           <span onClick="{{ t.onTap }}" style="{{ t.b.rowS }}"><span style="{{ t.b.nameS }}">{{ t.b.name }}</span><span style="{{ t.b.portS }}">{{ t.b.portion }}</span><span style="{{ t.b.kS }}">{{ t.b.k }}</span><span></span></span>
-          <span style="{{ t.b.expand }}">
-            <span onClick="{{ t.b.detail.vizTap }}" style="{{ mVizBox }}">
-              <span style="{{ t.b.detail.viz.bF }}"></span>
-              <span style="{{ t.b.detail.viz.bC }}"></span>
-              <span style="{{ vLeft }}">
-              <span style="{{ vRing }}">
-                <svg width="164" height="164" viewBox="0 0 164 164" style="{{ vSvg }}">
-                  <path d="{{ t.b.detail.viz.s0.d }}" style="{{ t.b.detail.viz.s0.st }}" fill="none" stroke="{{ t.b.detail.viz.s0.col }}" stroke-width="21"></path>
-                  <path d="{{ t.b.detail.viz.s1.d }}" style="{{ t.b.detail.viz.s1.st }}" fill="none" stroke="{{ t.b.detail.viz.s1.col }}" stroke-width="21"></path>
-                  <path d="{{ t.b.detail.viz.s2.d }}" style="{{ t.b.detail.viz.s2.st }}" fill="none" stroke="{{ t.b.detail.viz.s2.col }}" stroke-width="21"></path>
-                  <path d="{{ t.b.detail.viz.s3.d }}" style="{{ t.b.detail.viz.s3.st }}" fill="none" stroke="{{ t.b.detail.viz.s3.col }}" stroke-width="21"></path>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.b.detail.viz.o0.st }}" fill="none" stroke="{{ t.b.detail.viz.o0.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.b.detail.viz.o1.st }}" fill="none" stroke="{{ t.b.detail.viz.o1.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.b.detail.viz.o2.st }}" fill="none" stroke="{{ t.b.detail.viz.o2.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.b.detail.viz.f0.st }}" fill="none" stroke="{{ t.b.detail.viz.f0.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.b.detail.viz.f1.st }}" fill="none" stroke="{{ t.b.detail.viz.f1.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.b.detail.viz.f2.st }}" fill="none" stroke="{{ t.b.detail.viz.f2.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.b.detail.viz.f3.st }}" fill="none" stroke="{{ t.b.detail.viz.f3.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.b.detail.viz.f4.st }}" fill="none" stroke="{{ t.b.detail.viz.f4.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.b.detail.viz.c0.st }}" fill="none" stroke="{{ t.b.detail.viz.c0.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.b.detail.viz.c1.st }}" fill="none" stroke="{{ t.b.detail.viz.c1.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.b.detail.viz.c2.st }}" fill="none" stroke="{{ t.b.detail.viz.c2.col }}" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.b.detail.viz.swF }}" fill="none" stroke="#f08c7a" stroke-width="21"></circle>
-                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ t.b.detail.viz.swC }}" fill="none" stroke="#7ee0a8" stroke-width="21"></circle>
-                </svg>
-                <span style="{{ t.b.detail.viz.holeSplitS }}"><span style="{{ t.b.detail.viz.holeAS }}">{{ t.b.detail.viz.holeA }}</span><span style="{{ vHoleSep }}">/</span><span style="{{ t.b.detail.viz.holeBS }}">{{ t.b.detail.viz.holeB }}</span></span><span style="{{ t.b.detail.viz.holeZFS }}">{{ t.b.detail.viz.holeZF }}<span style="{{ vHoleUnit }}">{{ vzUnit }}</span></span><span style="{{ t.b.detail.viz.holeZCS }}">{{ t.b.detail.viz.holeZC }}<span style="{{ vHoleUnit }}">{{ vzUnit }}</span></span>
-              </span>
+          <span style="{{ t.cmpWrap }}">
+            <span style="{{ t.cmp.head }}"><span></span><span style="{{ t.cmp.headS }}"><span style="{{ t.cmp.headNameS }}">{{ t.cmp.nameA }}</span><span style="{{ t.cmp.headPortS }}">{{ t.cmp.portA }}</span></span><span style="{{ t.cmp.headS }}"><span style="{{ t.cmp.headNameS }}">{{ t.cmp.nameB }}</span><span style="{{ t.cmp.headPortS }}">{{ t.cmp.portB }}</span></span></span>
+            <sc-for list="{{ t.cmp.rows }}" as="cr" hint-placeholder-count="12">
+              <span style="{{ cr.row }}"><span style="display:flex;align-items:center;min-width:0"><span style="{{ cr.dot }}"></span><span style="{{ cr.tagS }}">{{ cr.tag }}</span></span><span style="{{ cr.a.s }}">{{ cr.a.txt }}<span style="{{ t.cmp.unitS }}"> g</span></span><span style="{{ cr.b.s }}">{{ cr.b.txt }}<span style="{{ t.cmp.unitS }}"> g</span></span></span>
+            </sc-for>
+            <span style="{{ t.cmp.kcalRow }}"><span style="{{ t.cmp.kcalTagS }}">CALORIES</span><span style="{{ t.cmp.kcalAS }}">{{ t.cmp.kcalA }}</span><span style="{{ t.cmp.kcalBS }}">{{ t.cmp.kcalB }}</span></span>
+          </span>
+        </span>
 
               </span>
               <span style="{{ vTable }}">
@@ -1139,27 +1079,92 @@ class Component extends DCLogic {
       // The pair is told by the gap above it, not by a box around it — which is why
       // the rule under a food is the same rule whether its partner follows or the
       // next pair does.
-      // The detail is the search table's detail, drawn by the same vizFor and driven by
-      // the same amountCtl. What differs is where it starts: at the portion the game
-      // showed, with the serving side of the control lit rather than the grams side,
-      // because the portion is the thing the round was about. No ADD — there is no plate
-      // in the game.
-      const detailOf = food => {
-        const fo = libIndex[food.usda];
-        if (!fo || !kit) return null;
-        const grams = food.g;
+      // Opening a pair asks a comparison, so it answers with one: the two foods in two
+      // columns, every macro and sub-macro the site lists, both at the portion the round
+      // showed. A donut each would have been two separate readings side by side; a table
+      // is the only shape where the eye can run along a row and see which is bigger.
+      const HUE2 = ["#22d3ee", "#7ee0a8", "#f08c7a"];
+      const CORAL2 = a2 => "rgba(240,140,122," + a2 + ")";
+      const GRN2 = a2 => "rgba(126,224,168," + a2 + ")";
+      const g1 = v => { const n2 = v || 0;
+        return n2 === 0 ? "0" : n2 < 1 ? n2.toFixed(1) : n2 < 10 ? n2.toFixed(1) : String(Math.round(n2)); };
+      const cmpOf = (fA, fB) => {
+        const a = libIndex[fA.usda], b2 = libIndex[fB.usda];
+        if (!a || !b2) return null;
+        const fa = fA.g / 100, fb = fB.g / 100;
+        const stch = fo => Math.max(0, fo.c - (fo.sg || 0) - (fo.fb || 0));
+        const defs = [
+          ["WATER", f2 => f2.wa, "#7b87e0", 0],
+          ["ASH", f2 => f2.ah, "#465865", 0],
+          ["MACROS", f2 => f2.p + f2.c + f2.f, "#b9cbd8", 0],
+          ["PROTEIN", f2 => f2.p, HUE2[0], 1],
+          ["FATS", f2 => f2.f, HUE2[2], 1],
+          ["SAT", f2 => f2.sf, CORAL2(.9), 2],
+          ["MONO", f2 => f2.mo, CORAL2(.55), 2],
+          ["POLY", f2 => f2.po, CORAL2(.3), 2],
+          ["CARBS", f2 => f2.c, HUE2[1], 1],
+          ["SUGARS", f2 => f2.sg, GRN2(.85), 2],
+          ["FIBRE", f2 => f2.fb, GRN2(.5), 2],
+          ["STARCH", stch, GRN2(.28), 2]
+        ];
+        if ((a.al || 0) > 0 || (b2.al || 0) > 0)
+          defs.splice(2, 0, ["ALC", f2 => f2.al, "#a58ee0", 0]);
+        // A figure is lit only when it is the larger of the two and the two differ.
+        // Equal values light neither, which is the honest reading of a tie.
+        const val = (v, other, dp) => ({
+          txt: g1(v), lit: v > other + 1e-9,
+          s: { textAlign: "right", fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: dp ? ".95rem" : "1rem", fontVariantNumeric: "tabular-nums",
+            whiteSpace: "nowrap", color: v > other + 1e-9 ? "#eaf5fb" : "#7b91a3" }
+        });
+        const rows = defs.map(d => {
+          const va = d[1](a) * fa, vb = d[1](b2) * fb;
+          return {
+            tag: d[0], depth: d[3],
+            dot: { flex: "none", width: ".42rem", height: ".42rem", borderRadius: "50%",
+              background: d[2], marginRight: ".45rem" },
+            tagS: { minWidth: 0, whiteSpace: "nowrap", overflow: "hidden",
+              textOverflow: "ellipsis", fontFamily: "var(--font-2)",
+              fontSize: d[3] === 2 ? ".72rem" : ".78rem", letterSpacing: ".12em",
+              color: d[3] === 0 ? "#9fb3c0" : d[3] === 1 ? "#c3d3dd" : "#7b91a3" },
+            a: val(va, vb, d[3] === 2), b: val(vb, va, d[3] === 2),
+            row: { display: "grid", gridTemplateColumns: "minmax(0,1fr) 4.9rem 4.9rem",
+              columnGap: ".5rem", alignItems: "center", height: "2rem",
+              paddingLeft: d[3] === 0 ? 0 : d[3] === 1 ? ".7rem" : "1.5rem",
+              borderTop: "1px solid rgba(34,211,238,.10)" }
+          };
+        });
+        const ka = fA.kcal, kb = fB.kcal;
         return {
-          viz: kit.vizFor(fo, grams, this.state.gZoom === food.id ? this.state.gMacro : null,
-            m => this.setState(st => ({
-              gZoom: st.gZoom === food.id && st.gMacro === m ? null : food.id,
-              gMacro: st.gZoom === food.id && st.gMacro === m ? null : m })),
-            this.state.gPick === food.id ? this.state.gPickTag : null,
-            t => this.setState(st => ({
-              gPick: st.gPick === food.id && st.gPickTag === t ? null : food.id,
-              gPickTag: st.gPick === food.id && st.gPickTag === t ? null : t }))),
-          // Tapping the drawing closes whatever it opened, the way it does in the table.
-          vizTap: () => this.setState(st =>
-            st.gPick ? { gPick: null, gPickTag: null } : { gZoom: null, gMacro: null })
+          rows: rows,
+          head: { display: "grid", gridTemplateColumns: "minmax(0,1fr) 4.9rem 4.9rem",
+            columnGap: ".5rem", alignItems: "flex-end", padding: ".3rem 0 .45rem" },
+          nameA: cap(fA.name), nameB: cap(fB.name),
+          portA: fA.portion, portB: fB.portion,
+          headS: { minWidth: 0, overflow: "hidden", display: "flex",
+            flexDirection: "column", alignItems: "stretch", gap: ".1rem" },
+          headNameS: { display: "block", width: "100%", textAlign: "right",
+            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+            fontFamily: "var(--font-2)", fontSize: ".76rem", letterSpacing: ".08em",
+            color: "#d7e6ef" },
+          headPortS: { display: "block", width: "100%", textAlign: "right",
+            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+            fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".04em",
+            color: "#7b91a3" },
+          unitS: { fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".1em",
+            color: "#5f7f8e" },
+          kcalRow: { display: "grid", gridTemplateColumns: "minmax(0,1fr) 4.9rem 4.9rem",
+            columnGap: ".5rem", alignItems: "center", height: "2.3rem",
+            borderTop: "1px solid rgba(34,211,238,.28)" },
+          kcalTagS: { fontFamily: "var(--font-2)", fontSize: ".78rem",
+            letterSpacing: ".12em", color: "#9fb3c0" },
+          kcalA: String(ka), kcalB: String(kb),
+          kcalAS: { textAlign: "right", fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1.15rem", fontVariantNumeric: "tabular-nums",
+            color: ka >= kb ? "#eaf5fb" : "#7b91a3" },
+          kcalBS: { textAlign: "right", fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1.15rem", fontVariantNumeric: "tabular-nums",
+            color: kb >= ka ? "#eaf5fb" : "#7b91a3" },
         };
       };
       const line = (food, last) => ({
@@ -1180,13 +1185,13 @@ class Component extends DCLogic {
           columnGap: ".45rem", alignItems: "center", minHeight: "2rem", cursor: "pointer",
           borderTop: last && isOpen ? "1px solid rgba(34,211,238,.14)" : 0,
           borderBottom: last && !isOpen ? "1px solid rgba(34,211,238,.14)" : 0 },
-        detail: isOpen ? detailOf(food) : null,
-        open: isOpen,
-        expand: { display: isOpen ? "block" : "none", overflow: "hidden",
-          background: PICKED_BG }
+        open: isOpen
       });
       return {
         a: line(p.top, false), b: line(p.bot, true),
+        cmp: isOpen ? cmpOf(p.top, p.bot) : null,
+        cmpWrap: { display: isOpen ? "block" : "none", overflow: "hidden",
+          background: PICKED_BG, padding: ".2rem .55rem .7rem" },
         // A pair is one question, so it opens as one thing rather than two.
         onTap: () => this.setState(st => ({ gOpen: st.gOpen === pi ? null : pi })),
         mark: p.hit ? "\u2713" : "\u2715",

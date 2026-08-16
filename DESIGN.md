@@ -206,25 +206,29 @@ The layout rules below were the first things it was built to test, and still hol
   site reserves those for labels, and these are food names, so they are sentence case here
   exactly as they are in the table. The bordered lime and red tiles are gone — two screens
   listing foods should not look like two different products.
-- **A pair opens into the food table's own drawing.** Tap either line and both foods of the
-  pair unfold beneath their own rows: the donut, the ring, the macro table, the amount
-  control — not a copy of them, the same `vizFor()` and the same `amountCtl()` the search
-  rows and the plate summary call, passed into `gResults` from the scope that owns them.
-  One donut for the whole site, so the two screens cannot drift.
+- **A pair opens into a comparison, not two readings.** Tap either line and the pair unfolds
+  into one table: the two foods in two columns, every macro and sub-macro the site lists —
+  water, ash, macros, protein, fats with saturated, mono and poly under it, carbs with
+  sugars, fibre and starch — and calories on a heavier rule at the foot. Both at the portion
+  the round showed. A donut each was the first attempt and it was the wrong shape: two
+  drawings side by side are two separate readings, and the question a pair asks is which is
+  bigger. A table is the only form where the eye runs along a row and answers that.
+- **Only the larger figure in a row is lit.** White against the grey of the smaller one, so
+  a column of white tells you where a food is heavy before a single number is read. Equal
+  values light neither, which is the honest reading of a tie.
 - The join costs nothing: the deck carries USDA's own name for every food, and all 36 match
   a row in the legacy library exactly, so `deck.usda -> library row` is a lookup rather than
-  a guess. What the game does not take is the amount control. The drawing is fixed at
-  the portion the round showed, because that portion is the whole question — a control that
-  can walk the figures away from it turns the answer into a different question, and there is
-  nothing here to weigh out. The reading is simply what half a cup of cashews or two cups of
-  grapes actually contains. There is no ADD either, because there is no plate in the game.
-- An open food sits on the table's own picked background, the same #0b1a20 panel the search
-  rows use, so the two screens read as one thing rather than two. The panel does most of the
-  separating once it is there, and the pair's rule changes job with it: closed, it sits under
-  the second food and closes the pair; open, it moves above the second food, parting it from
-  the first food's drawing, and the rule that closes the pair drops to the foot of the whole
-  block. Under the second food with the pair open, it read as the top edge of that food's own
-  drawing rather than as a boundary.
+  a guess. There is no amount control and no ADD: the portion is the question, and there is
+  no plate in the game.
+- Two things the layout had to be told. A grid item will not let its child ellipsis until
+  the item itself may shrink, so the header names collided until `min-width: 0` and
+  `overflow: hidden` went on the cell. And aligning that cell to `flex-end` made an
+  over-long name lose its *beginning* — "·k chocolate" — so the cells stretch and the text
+  is right-aligned inside them instead, which puts the ellipsis at the end of the word where
+  it reads as truncation.
+- The wrapper's style is built on the tile rather than inside the comparison model, because
+  a closed pair has no model and an undefined style is not `display: none` — the first
+  version leaked a stray CALORIES onto every closed pair.
 - The library is 937KB and the game does not otherwise need it, so it is fetched when a game
   begins rather than at boot — a player who never reaches the results page never pays for it.
 - **The rule falls where the pair ends, not through the middle of it.** Two foods joined
