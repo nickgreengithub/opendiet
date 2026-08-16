@@ -309,7 +309,7 @@ option{background:#070b12;color:#d7e6ef}
                 <span style="{{ cr.row }}"><span style="{{ cr.labCell }}"><span style="{{ cr.dot }}"></span><span style="{{ cr.tagS }}">{{ cr.tag }}</span></span><span style="{{ cr.numCell }}"><span style="{{ cr.a.s }}">{{ cr.a.txt }}<span style="{{ t.cmp.unitS }}"> g</span></span></span><span style="{{ cr.numCell }}"><span style="{{ cr.b.s }}">{{ cr.b.txt }}<span style="{{ t.cmp.unitS }}"> g</span></span></span></span>
               </sc-for>
               <span style="{{ t.cmp.gramsLab }}"><span style="{{ t.cmp.gutter }}"></span><span style="{{ t.cmp.gramsTagS }}">GRAMS</span></span><span style="{{ t.cmp.gramsNum }}"><span style="{{ t.cmp.gramsA.s }}">{{ t.cmp.gramsA.txt }}<span style="{{ t.cmp.unitS }}"> g</span></span></span><span style="{{ t.cmp.gramsNum }}"><span style="{{ t.cmp.gramsB.s }}">{{ t.cmp.gramsB.txt }}<span style="{{ t.cmp.unitS }}"> g</span></span></span>
-              <span style="{{ t.cmp.kcalLab }}"><span style="{{ t.cmp.markS }}">{{ t.cmp.mark }}</span><span style="{{ t.cmp.kcalTagS }}">CALORIES</span></span><span style="{{ t.cmp.kcalNum }}"><span style="{{ t.cmp.kcalAS }}">{{ t.cmp.kcalA }}</span></span><span style="{{ t.cmp.kcalNum }}"><span style="{{ t.cmp.kcalBS }}">{{ t.cmp.kcalB }}</span></span>
+              <span style="{{ t.cmp.kcalLab }}"><span style="{{ t.cmp.gutter }}"></span><span style="{{ t.cmp.kcalTagS }}">CALORIES</span></span><span style="{{ t.cmp.kcalNum }}"><span style="{{ t.cmp.kcalMarkAS }}">{{ t.cmp.mark }}</span><span style="{{ t.cmp.kcalAS }}">{{ t.cmp.kcalA }}</span></span><span style="{{ t.cmp.kcalNum }}"><span style="{{ t.cmp.kcalMarkBS }}">{{ t.cmp.mark }}</span><span style="{{ t.cmp.kcalBS }}">{{ t.cmp.kcalB }}</span></span>
             </span>
           </span>
         </span>
@@ -1129,7 +1129,7 @@ class Component extends DCLogic {
       const GRN2 = a2 => "rgba(126,224,168," + a2 + ")";
       const g1 = v => { const n2 = v || 0;
         return n2 === 0 ? "0" : n2 < 1 ? n2.toFixed(1) : n2 < 10 ? n2.toFixed(1) : String(Math.round(n2)); };
-      const cmpOf = (fA, fB, hit) => {
+      const cmpOf = (fA, fB, hit, pickedA) => {
         const a = libIndex[fA.usda], b2 = libIndex[fB.usda];
         if (!a || !b2) return null;
         const fa = fA.g / 100, fb = fB.g / 100;
@@ -1204,12 +1204,18 @@ class Component extends DCLogic {
           kcalLab: totCell("2.1rem", false), kcalNum: totNum("2.1rem", false),
           gramsTagS: { fontFamily: "var(--font-2)", fontSize: ".78rem",
             letterSpacing: ".12em", color: "#9fb3c0" },
-          // Both totals keep the same left edge; the mark sits in a gutter of its own
-          // ahead of them, empty on the grams line, so the two words start together.
+          // The mark belongs against the figure the player chose, not against the word
+          // CALORIES. A tick beside 95 says "you picked the apple and you were right",
+          // which is the whole sentence; on the label it said only that the round went
+          // well, which the grade at the top of the page had already said.
           gutter: { flex: "none", width: ".95rem", textAlign: "left" },
           mark: hit ? "\u2713" : "\u2715",
-          markS: { flex: "none", width: ".95rem", textAlign: "left", fontSize: ".82rem",
-            lineHeight: 1, color: hit ? "#7ee0a8" : "#f08c7a" },
+          kcalMarkAS: { display: pickedA ? "block" : "none", flex: "none",
+            marginRight: ".38rem", fontSize: ".88rem", lineHeight: 1,
+            color: hit ? "#7ee0a8" : "#f08c7a" },
+          kcalMarkBS: { display: pickedA ? "none" : "block", flex: "none",
+            marginRight: ".38rem", fontSize: ".88rem", lineHeight: 1,
+            color: hit ? "#7ee0a8" : "#f08c7a" },
           rows: rows,
           headCell: { display: "flex", flexDirection: "column", justifyContent: "flex-end",
             minWidth: 0, overflow: "hidden", padding: ".3rem 0 .45rem .5rem" },
@@ -1263,7 +1269,7 @@ class Component extends DCLogic {
       });
       return {
         a: line(p.top, false), b: line(p.bot, true),
-        cmp: isOpen ? cmpOf(p.top, p.bot, p.hit) : null,
+        cmp: isOpen ? cmpOf(p.top, p.bot, p.hit, p.k === 0) : null,
         cmpWrap: { display: isOpen ? "block" : "none", overflow: "hidden",
           background: PICKED_BG, padding: ".2rem .55rem .7rem",
           animation: isOpen ? "od-cmp-in 260ms cubic-bezier(.22,1,.36,1) both" : "none" },

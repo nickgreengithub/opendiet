@@ -248,9 +248,18 @@ The layout rules below were the first things it was built to test, and still hol
   above them, so one `auto` is measured for the whole table. The column gap went to zero
   with it and the space moved inside the cells, because per-cell borders across a gap draw a
   broken rule.
-- The two totals share the left edge of the nutrient names, and the round's tick sits in a
-  gutter ahead of them — .95rem, the same indent the colour dots occupy — so GRAMS and
-  CALORIES start together instead of the mark shunting one of them right.
+- The two totals share the left edge of the nutrient names: each carries an empty gutter the
+  width of the colour dots, .95rem.
+- **The tick or cross prefixes the figure the player chose**, in that food's own column, not
+  the word CALORIES. A tick beside 95 in the apple's column says "you picked the apple and
+  you were right", which is the whole sentence. Against the label it said only that the round
+  went well, which the grade at the top of the page had already said. On a miss the cross
+  lands on the food that was chosen — the lighter one — which is the point being made.
+- **The summary is in play order, and so is each pair.** The picks are appended in the order
+  they were answered and the pair is written `top` then `bot`, the two cards as they stood on
+  the screen; the comparison's two columns are the same two in the same order. Checked end to
+  end rather than reasoned about: a test records the upper and lower card of every round as
+  it is played and compares them against the twelve summary rows in sequence.
 - The foot is two lines: **grams first, calories under it as the secondary total**, with the
   round's tick or cross against the calories, since calories are what the round turned on.
   Grams is the heavier line because it is the thing the two plates are actually being weighed
