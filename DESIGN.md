@@ -77,11 +77,28 @@ The layout rules below were the first things it was built to test, and still hol
   principle as the phone's, which is that the photographs are the question and everything
   else is a caption; it just falls the other way when the screen is wider than it is tall.
 - What changed with it: the donut grows from 8.6rem to 14rem and its figure from 2.5 to
-  3.9rem, since a dial sized for a phone card is a coin on a desktop plate; the intro
+  3.9rem, since a dial sized for a phone card is a coin on a desktop plate; and the intro
   centres and its demonstration lays the two plates side by side, with the hand travelling
-  across instead of down (a second keyframe, `od-demo-hand-x`); and the results go the other
-  way, capped at a 46rem reading measure and centred, because a list of twelve short lines
-  stretched across a metre of glass is not more readable, only wider.
+  across instead of down (a second keyframe, `od-demo-hand-x`).
+- **The desktop intro shows the plates at the size the game will play them** — 15.5rem tall
+  in a 44rem row — and the hand is wrong on a desktop, so it is not a hand: a cursor arrow
+  sweeps between the two plates instead, the same shape the reader's own pointer is. The
+  cards themselves take a hover — the border lights to cyan with a ring outside it — because
+  a desktop reader expects a thing that can be clicked to say so before it is clicked, and a
+  phone has no way to ask.
+- **The desktop end screen is the food table, not the phone's list blown up.** The grade and
+  the score keep their header, and under it the same thirteen columns the dictionary reads —
+  food, portion, water, protein, sugar, fibre, starch, carbs, saturated, mono, poly, fats,
+  calories — one row per food, two rows per pair, in the order they were played. Nothing
+  opens: with every column already on screen there is nothing left to reveal, so the phone's
+  tap-to-compare and its donuts are simply absent rather than ported. The calorie column is
+  lit — a tinted ground, a brighter rule down its left and a size up on the figures — since
+  that is the column the game was about, and the tick or cross prefixes the chosen food's
+  calories there, in that food's own row. In every other column the larger of the pair's two
+  figures is the lit one, so a run of white down a row says which food is heavy before a
+  number is read. The head rides inside the scroller as a sticky row rather than above it,
+  so its columns are measured against the same width the rows are and cannot drift by a
+  scrollbar's width.
 - Two scoping traps, both the same trap: the game's view-model and `gResults` are different
   scopes, and only the first has the render's `s`. The view-model was returning `{}` unless
   `s.narrow`, which is why the desktop game rendered as an empty div; and `gResults` had to

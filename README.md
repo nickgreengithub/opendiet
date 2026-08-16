@@ -51,7 +51,7 @@ with the others a tab away.
 A second app. On a phone the pair is stacked; on a desktop it is side by side, the two
 photographs taking the whole screen between them. It opens by showing the game rather than describing it — HOW TO PLAY, one line of
 instruction, and a working miniature of a round that plays itself on a loop, a hand pressing one of two cards
-and the figures arriving — and then asks one question six times: two foods stacked one
+and the figures arriving, the hand a cursor sweeping between them on a desktop — and then asks one question six times: two foods stacked one
 above the other, each with the portion it is, and which of them carries more calories.
 
 The portion is drawn as well as written. USDA measures these 36 foods in 14 different
@@ -86,7 +86,14 @@ hairline and real air between the blocks, both foods set identically since the f
 bigger, and a tick or a cross against the pair. The caveat sits behind a mark rather than
 on the page.
 
-Tap a pair and it unfolds into a comparison: the two foods in two columns, every macro and
+That is the phone. A desktop ends on the food table instead: the same grade and score,
+then the site's own thirteen columns — water, protein, sugar, fibre, starch, carbs,
+saturated, mono, poly, fats, calories — one row per food and two rows per pair, in the
+order they were played. The calorie column is lit, because it is the column the game was
+about, and the tick or cross sits against the chosen food's calories in that food's row.
+Nothing opens, since every figure is already on the page.
+
+On a phone, tap a pair and it unfolds into a comparison: the two foods in two columns, every macro and
 sub-macro the site lists, calories at the foot, both at the portion the round showed. The table stands in
 place of the two rows rather than under them, and the two names travel from their rows into
 the column heads as it opens — and back again when a tap anywhere else puts them away. In each

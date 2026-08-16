@@ -98,9 +98,9 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
   44%,56%{transform:translateY(9.1rem)}
   94%,100%{transform:translateY(0)}
 @keyframes od-demo-hand-x{
-  0%,6%{transform:translateX(-8.2rem)}
-  44%,56%{transform:translateX(8.2rem)}
-  94%,100%{transform:translateX(-8.2rem)}
+  0%,6%{transform:translateX(-11rem)}
+  44%,56%{transform:translateX(11rem)}
+  94%,100%{transform:translateX(-11rem)}
 }
 @media (prefers-reduced-motion:reduce){
   [data-demo] *{animation:none !important}
@@ -265,7 +265,7 @@ option{background:#070b12;color:#d7e6ef}
             <img src="{{ gDemoB.img }}" alt="" loading="lazy" decoding="async" style="{{ gDemoShot }}">
             <span style="{{ gDemoBarB }}"><span style="{{ gDemoName }}">{{ gDemoB.name }}</span><span style="{{ gDemoPort }}">{{ gDemoB.portion }}</span></span>
           </span>
-          <span style="{{ gDemoHand }}"><svg width="36" height="42" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span>
+          <sc-if value="{{ gHandWide }}" hint-placeholder-val="{{ false }}"><span style="{{ gDemoHand }}"><svg width="30" height="34" viewBox="0 0 24 28" fill="#0a1016" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><path d="M5.5 3.2 19 15.4l-6 .6 3.3 6.6-2.9 1.4-3.2-6.6-4.7 3.6z"></path></svg></span></sc-if><sc-if value="{{ gHandTall }}" hint-placeholder-val="{{ true }}"><span style="{{ gDemoHand }}"><svg width="36" height="42" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span></sc-if>
         </span>
         <span style="{{ gIntroFoot }}">{{ gIntroFootTxt }}</span>
         <button onClick="{{ gBegin }}" style="{{ gBeginS }}">BEGIN</button>
@@ -273,7 +273,7 @@ option{background:#070b12;color:#d7e6ef}
     </sc-if>
     <sc-if value="{{ gReady }}" hint-placeholder-val="{{ true }}">
       <span style="{{ gPairWrap }}">
-      <button data-gcard onClick="{{ gTop.onClick }}" style="{{ gTop.card }}">
+      <button data-gcard onClick="{{ gTop.onClick }}" style="{{ gTop.card }}" style-hover="border-color:rgba(34,211,238,.85);box-shadow:0 0 0 1px rgba(34,211,238,.45)">
         <span style="{{ gShotWrap }}">
           <img loading="lazy" decoding="async" src="{{ gTop.img }}" alt="{{ gTop.alt }}" style="{{ gTop.shot }}">
           <span style="{{ gTop.scrim }}"></span>
@@ -284,7 +284,7 @@ option{background:#070b12;color:#d7e6ef}
         </span>
         <span style="{{ gTop.bar }}"><span style="{{ gTop.nameS }}">{{ gTop.name }}</span><span style="{{ gTop.portS }}">{{ gTop.portion }}</span><span style="{{ gPipRow }}"><sc-for list="{{ gTop.pips }}" as="p" hint-placeholder-count="2"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="{{ p.s }}"><path d="{{ p.d }}"></path></svg></sc-for></span></span>
       </button>
-      <button data-gcard onClick="{{ gBot.onClick }}" style="{{ gBot.card }}">
+      <button data-gcard onClick="{{ gBot.onClick }}" style="{{ gBot.card }}" style-hover="border-color:rgba(34,211,238,.85);box-shadow:0 0 0 1px rgba(34,211,238,.45)">
         <span style="{{ gShotWrap }}">
           <img loading="lazy" decoding="async" src="{{ gBot.img }}" alt="{{ gBot.alt }}" style="{{ gBot.shot }}">
           <span style="{{ gBot.scrim }}"></span>
@@ -303,6 +303,7 @@ option{background:#070b12;color:#d7e6ef}
     </sc-if>
     <sc-if value="{{ gDone }}" hint-placeholder-val="{{ false }}">
       <span style="{{ gHeadS }}"><span style="{{ gGradeS }}">{{ gGrade }}</span><span style="{{ gHeadCol }}"><span style="{{ gTallyS }}">{{ gAccLab }}</span><sc-if value="{{ gMissed }}" hint-placeholder-val="{{ true }}"><span style="{{ gMissS }}">Surprise: <span style="{{ gMissNS }}">{{ gMissN }}</span></span></sc-if><sc-if value="{{ gClean }}" hint-placeholder-val="{{ false }}"><span style="{{ gMissS }}">Nothing surprised you</span></sc-if></span></span>
+      <sc-if value="{{ gMobList }}" hint-placeholder-val="{{ true }}">
       <span style="{{ gListWrap }}">
       <sc-for list="{{ gResTiles }}" as="t" hint-placeholder-count="6">
         <span style="{{ t.s }}">
@@ -319,23 +320,22 @@ option{background:#070b12;color:#d7e6ef}
             </span>
           </span>
         </span>
-
-              </span>
-              <span style="{{ vTable }}">
-                <sc-for list="{{ t.b.detail.viz.rows }}" as="vr" hint-placeholder-count="7">
-                  <span onClick="{{ vr.tap }}" style="{{ vr.row }}">
-                    <span style="{{ vr.dot }}"></span>
-                    <span style="{{ vr.tagS }}">{{ vr.tag }}</span>
-                    <span onClick="{{ vr.chevTap }}" style="{{ vr.chevBox }}"><span style="{{ vr.chev }}"></span></span>
-                    <span style="{{ vr.valS }}"><span style="{{ vr.valIn }}">{{ vr.val }}<span style="{{ unitSuffix }}">{{ vzUnit }}</span></span></span>
-                  </span>
-                </sc-for>
-              </span>
-            </span>
-          </span>
-        </span>
       </sc-for>
       </span>
+      </sc-if>
+      <sc-if value="{{ gDeskTable }}" hint-placeholder-val="{{ false }}">
+      <span style="{{ gDBody }}">
+        <span style="{{ gDHead }}">
+          <span style="{{ gDHeadName }}">FOOD</span><span style="{{ gDHeadPort }}">PORTION</span><span style="{{ gDHeadCell }}">WATER</span><span style="{{ gDHeadCell }}">PROT</span><span style="{{ gDHeadCell }}">SUGAR</span><span style="{{ gDHeadCell }}">FIBRE</span><span style="{{ gDHeadCell }}">STARCH</span><span style="{{ gDHeadCell }}">CARBS</span><span style="{{ gDHeadCell }}">SAT</span><span style="{{ gDHeadCell }}">MONO</span><span style="{{ gDHeadCell }}">POLY</span><span style="{{ gDHeadCell }}">FATS</span><span style="{{ gDHeadK }}">KCAL</span>
+        </span>
+        <sc-for list="{{ gDeskPairs }}" as="dp" hint-placeholder-count="6">
+          <span style="{{ dp.s }}">
+            <span style="{{ dp.a.rowS }}"><span style="{{ dp.a.nameS }}"><span style="{{ dp.a.nameTxt }}">{{ dp.a.name }}</span></span><span style="{{ dp.a.portS }}">{{ dp.a.portion }}</span><span style="{{ dp.a.s0 }}">{{ dp.a.v0 }}</span><span style="{{ dp.a.s1 }}">{{ dp.a.v1 }}</span><span style="{{ dp.a.s2 }}">{{ dp.a.v2 }}</span><span style="{{ dp.a.s3 }}">{{ dp.a.v3 }}</span><span style="{{ dp.a.s4 }}">{{ dp.a.v4 }}</span><span style="{{ dp.a.s5 }}">{{ dp.a.v5 }}</span><span style="{{ dp.a.s6 }}">{{ dp.a.v6 }}</span><span style="{{ dp.a.s7 }}">{{ dp.a.v7 }}</span><span style="{{ dp.a.s8 }}">{{ dp.a.v8 }}</span><span style="{{ dp.a.s9 }}">{{ dp.a.v9 }}</span><span style="{{ dp.a.kS }}"><span style="{{ dp.a.markS }}">{{ dp.a.mark }}</span>{{ dp.a.k }}</span></span>
+            <span style="{{ dp.b.rowS }}"><span style="{{ dp.b.nameS }}"><span style="{{ dp.b.nameTxt }}">{{ dp.b.name }}</span></span><span style="{{ dp.b.portS }}">{{ dp.b.portion }}</span><span style="{{ dp.b.s0 }}">{{ dp.b.v0 }}</span><span style="{{ dp.b.s1 }}">{{ dp.b.v1 }}</span><span style="{{ dp.b.s2 }}">{{ dp.b.v2 }}</span><span style="{{ dp.b.s3 }}">{{ dp.b.v3 }}</span><span style="{{ dp.b.s4 }}">{{ dp.b.v4 }}</span><span style="{{ dp.b.s5 }}">{{ dp.b.v5 }}</span><span style="{{ dp.b.s6 }}">{{ dp.b.v6 }}</span><span style="{{ dp.b.s7 }}">{{ dp.b.v7 }}</span><span style="{{ dp.b.s8 }}">{{ dp.b.v8 }}</span><span style="{{ dp.b.s9 }}">{{ dp.b.v9 }}</span><span style="{{ dp.b.kS }}"><span style="{{ dp.b.markS }}">{{ dp.b.mark }}</span>{{ dp.b.k }}</span></span>
+          </span>
+        </sc-for>
+      </span>
+      </sc-if>
       <span style="{{ gFootRow }}"><button onClick="{{ gAgain }}" style="{{ gAgainS }}">PLAY AGAIN</button><button onClick="{{ gTipToggle }}" style="{{ gTipBtn }}" style-hover="color:#22d3ee"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="display:block"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5.5"></path><path d="M12 7.6v.1"></path></svg></button></span>
       <sc-if value="{{ gTipOn }}" hint-placeholder-val="{{ false }}"><span style="{{ gNoteS }}">Calories drive body fat, but a healthy diet also means hitting macro and micronutrient targets. This is a game, not nutritional advice.</span></sc-if>
     </sc-if>
@@ -1360,7 +1360,7 @@ class Component extends DCLogic {
       // on the second. Underneath the block, either of them read as a footnote hung
       // off the bottom of the grade.
       gHeadS: { flex: "none", display: "flex", alignItems: "center", gap: ".7rem",
-        width: "100%", maxWidth: nar ? "none" : "46rem",
+        width: "100%", maxWidth: "none",
         marginLeft: nar ? 0 : "auto", marginRight: nar ? 0 : "auto",
         padding: nar ? ".75rem .15rem .7rem" : "1.1rem .15rem .9rem", boxSizing: "border-box" },
       gGradeS: { flex: "none", fontFamily: "var(--font-1)", fontWeight: 300,
@@ -1385,7 +1385,7 @@ class Component extends DCLogic {
       // The mark sits beside PLAY AGAIN, the same height as it, so the foot is one row
       // and the caveat opens beneath the thing that summons it.
       gFootRow: { flex: "none", display: "flex", alignItems: "stretch", gap: ".5rem",
-        width: "100%", maxWidth: nar ? "none" : "46rem",
+        width: "100%", maxWidth: "none",
         marginLeft: nar ? 0 : "auto", marginRight: nar ? 0 : "auto",
         marginTop: "auto", boxSizing: "border-box" },
       gTipBtn: { flex: "none", display: "flex", alignItems: "center",
@@ -1395,20 +1395,112 @@ class Component extends DCLogic {
         background: this.state.gTip ? "rgba(34,211,238,.12)" : "transparent",
         color: this.state.gTip ? "#3fdcf2" : "#5f7688" },
       gNoteS: { flex: "none", display: "block", marginTop: ".5rem",
-        width: "100%", maxWidth: nar ? "none" : "46rem",
+        width: "100%", maxWidth: "none",
         marginLeft: nar ? 0 : "auto", marginRight: nar ? 0 : "auto",
         boxSizing: "border-box",
         padding: ".7rem .8rem", border: "1px solid rgba(34,211,238,.28)",
         background: "rgba(34,211,238,.05)", fontFamily: "var(--font-1)", fontWeight: 300,
         fontSize: ".95rem", lineHeight: 1.45, color: "#c3d3dd" },
       gResTiles: tiles,
+      gMobList: nar, gDeskTable: !nar,
+      ...(nar ? {} : this.gDeskTable(picks, libIndex, cap)),
       gListWrap: { flex: "1 1 auto", minHeight: 0, overflowY: "auto", display: "block",
-        width: "100%", maxWidth: nar ? "none" : "46rem",
+        width: "100%", maxWidth: "none",
         marginLeft: nar ? 0 : "auto", marginRight: nar ? 0 : "auto",
         paddingTop: ".45rem", boxSizing: "border-box" },
       gCloseAll: () => this.gCloseOpen(),
       gAgain: () => this.gStart(false),
       gDeckNote: this._deck ? this._deck.note : ""
+    };
+  }
+  // A desktop already has a table for reading food figures, so the results borrow its
+  // grammar rather than blowing up the phone's list: every macro and sub-macro in its own
+  // column, the calorie column lit because that is the one the game was about, and the
+  // tick or cross against the food that was actually chosen. No row opens — with all
+  // thirteen columns on screen there is nothing left to reveal.
+  gDeskTable(picks, libIndex, cap) {
+    const NUMS = [
+      ["WATER", f => f.wa, "#7b87e0"],
+      ["PROT", f => f.p, "#22d3ee"],
+      ["SUGAR", f => f.sg, "rgba(126,224,168,.85)"],
+      ["FIBRE", f => f.fb, "rgba(126,224,168,.5)"],
+      ["STARCH", f => Math.max(0, f.c - (f.sg || 0) - (f.fb || 0)), "rgba(126,224,168,.28)"],
+      ["CARBS", f => f.c, "#7ee0a8"],
+      ["SAT", f => f.sf, "rgba(240,140,122,.9)"],
+      ["MONO", f => f.mo, "rgba(240,140,122,.55)"],
+      ["POLY", f => f.po, "rgba(240,140,122,.3)"],
+      ["FATS", f => f.f, "#f08c7a"]
+    ];
+    const g1 = v => { const n = v || 0;
+      return n === 0 ? "0" : n < 10 ? n.toFixed(1) : String(Math.round(n)); };
+    const COLS = "minmax(9rem,1.5fr) minmax(6.5rem,.9fr) repeat(10, minmax(3.1rem,1fr)) 4.2rem";
+    const RULE = "1px solid rgba(34,211,238,.12)";
+    const num = (lit, kcal) => ({
+      display: "flex", alignItems: "center", justifyContent: "flex-end",
+      minWidth: 0, height: "2rem", paddingRight: ".45rem", borderTop: RULE,
+      fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap",
+      background: kcal ? "rgba(34,211,238,.07)" : "transparent",
+      borderLeft: kcal ? "1px solid rgba(34,211,238,.4)" : "0",
+      fontSize: kcal ? "1rem" : ".88rem",
+      color: kcal ? (lit ? "#eaf5fb" : "#9fb3c0") : (lit ? "#d7e6ef" : "#7b91a3")
+    });
+    const rowOf = (food, other, chosen, hit) => {
+      const fo = libIndex[food.usda] || {};
+      const fa = food.g / 100, fb2 = other.g / 100;
+      const o = {
+        name: cap(food.name), portion: food.portion || "",
+        mark: chosen ? (hit ? "\u2713" : "\u2715") : "",
+        markS: { flex: "none", width: "1.05rem", textAlign: "left", fontSize: ".9rem",
+          lineHeight: 1, color: !chosen ? "transparent" : hit ? "#7ee0a8" : "#f08c7a" },
+        nameS: { display: "flex", alignItems: "center", gap: ".3rem", minWidth: 0,
+          height: "2rem", paddingRight: ".7rem", borderTop: RULE,
+          fontWeight: 300, fontSize: ".95rem", color: "#d7e6ef" },
+        nameTxt: { minWidth: 0, whiteSpace: "nowrap", overflow: "hidden",
+          textOverflow: "ellipsis" },
+        portS: { display: "flex", alignItems: "center", justifyContent: "flex-end",
+          minWidth: 0, height: "2rem", paddingRight: ".8rem", borderTop: RULE,
+          fontFamily: "var(--font-2)", fontSize: ".78rem", color: "#7b91a3",
+          whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
+        rowS: { display: "grid", gridTemplateColumns: COLS, alignItems: "stretch" },
+        k: String(food.kcal),
+        kS: num(food.kcal >= other.kcal, true)
+      };
+      NUMS.forEach((d, ix) => {
+        const va = d[1](fo) * fa, vb = d[1](libIndex[other.usda] || {}) * fb2;
+        o["v" + ix] = g1(va);
+        o["s" + ix] = num(va > vb + 1e-9, false);
+      });
+      return o;
+    };
+    // A pair is two rows closed by a rule with real air under it — the same device the
+    // phone's list uses, since white space separates a pair from its neighbour better
+    // than any amount of banding does.
+    const pairs = picks.map(p => ({
+      a: rowOf(p.top, p.bot, p.k === 0, p.hit),
+      b: rowOf(p.bot, p.top, p.k === 1, p.hit),
+      s: { display: "block", marginBottom: "1.15rem", borderBottom: RULE }
+    }));
+    const headCell = kcal => ({
+      display: "flex", alignItems: "flex-end", justifyContent: "flex-end",
+      minWidth: 0, height: "2.1rem", paddingRight: kcal ? ".45rem" : ".45rem",
+      paddingBottom: ".3rem", whiteSpace: "nowrap", overflow: "hidden",
+      fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".1em",
+      background: kcal ? "rgba(34,211,238,.07)" : "transparent",
+      borderLeft: kcal ? "1px solid rgba(34,211,238,.4)" : "0",
+      color: kcal ? "#3fdcf2" : "#7b91a3"
+    });
+    return {
+      gDeskPairs: pairs,
+      // The head rides inside the scroller rather than above it, so its columns are
+      // measured against the same width the rows are and cannot drift by a scrollbar.
+      gDHead: { display: "grid", gridTemplateColumns: COLS, alignItems: "stretch",
+        position: "sticky", top: 0, zIndex: 2, background: "#050810",
+        borderBottom: "1px solid rgba(34,211,238,.55)", marginBottom: ".5rem" },
+      gDHeadName: Object.assign(headCell(false), { justifyContent: "flex-start" }),
+      gDHeadPort: headCell(false),
+      gDHeadCell: headCell(false),
+      gDHeadK: headCell(true),
+      gDBody: { flex: "1 1 auto", minHeight: 0, overflowY: "auto", display: "block" }
     };
   }
   gNext() {
@@ -3751,13 +3843,14 @@ class Component extends DCLogic {
           gDemoWrap: { position: "relative", flex: "none", display: "flex",
             flexDirection: s.narrow ? "column" : "row",
             gap: s.narrow ? ".35rem" : ".7rem",
-            maxWidth: s.narrow ? "12.5rem" : "32rem",
+            maxWidth: s.narrow ? "12.5rem" : "44rem",
             width: s.narrow ? "auto" : "100%",
             animation: "od-soon-a 420ms cubic-bezier(.22,1,.36,1) 160ms both" },
           gDemoA: demoA, gDemoB: demoB,
           // Near enough square, because the plate is centred in a square tile and a
           // letterbox crop of one is a picture of the tablecloth.
-          gDemoShot: { width: "100%", height: s.narrow ? "7.1rem" : "10.5rem",
+          gHandTall: !!s.narrow, gHandWide: !s.narrow,
+          gDemoShot: { width: "100%", height: s.narrow ? "7.1rem" : "15.5rem",
             objectFit: "cover", display: "block" },
           gDemoCardA: { position: "relative", flex: "1 1 0", minWidth: 0, display: "flex",
             flexDirection: "column", overflow: "hidden",
@@ -3781,7 +3874,7 @@ class Component extends DCLogic {
             color: "#a9bcc8" },
           gDemoHand: { position: "absolute",
             left: s.narrow ? "50%" : "0", right: s.narrow ? "auto" : "0",
-            top: s.narrow ? "3.2rem" : "4rem",
+            top: s.narrow ? "3.2rem" : "6.9rem",
             marginLeft: s.narrow ? "-.6rem" : 0,
             display: "flex", justifyContent: "center", color: "#22d3ee", pointerEvents: "none",
             filter: "drop-shadow(0 0 7px rgba(34,211,238,.55))",
