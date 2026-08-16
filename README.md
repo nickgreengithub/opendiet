@@ -81,9 +81,10 @@ bigger, and a tick or a cross against the pair. The caveat sits behind a mark ra
 on the page.
 
 Tap a pair and it unfolds into a comparison: the two foods in two columns, every macro and
-sub-macro the site lists, calories at the foot, both at the portion the round showed. In each
+sub-macro the site lists, calories at the foot, both at the portion the round showed. The table stands in
+place of the two rows rather than under them, and a tap anywhere else puts them back. In each
 row only the larger figure is lit, so a column of white shows where a food is heavy before a
-number is read. There is no amount control and no ADD button — the portion is the question,
+number is read; the foot is grams, then calories under it with the round's tick or cross. There is no amount control and no ADD button — the portion is the question,
 and there is no plate in the game. Set against the grade itself are two lines: the score, and the
 plate that surprised you most — the widest gap you got wrong, named, since picking the
 lighter plate means the heavier one was worth more than you gave it credit for. It closes

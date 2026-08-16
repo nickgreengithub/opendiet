@@ -213,6 +213,20 @@ The layout rules below were the first things it was built to test, and still hol
   the round showed. A donut each was the first attempt and it was the wrong shape: two
   drawings side by side are two separate readings, and the question a pair asks is which is
   bigger. A table is the only form where the eye runs along a row and answers that.
+- **The table stands in place of the two rows, not under them.** The names become the column
+  heads, so leaving the rows up printed each food twice; they collapse to nothing and the
+  table arrives on a short rise, which reads as the foods moving into their columns rather
+  than as a panel appearing beneath them. A tap anywhere else on the screen puts them back —
+  the whole game view carries the closing handler and only the table stops the event, since
+  with the rows gone there is nothing left to tap twice.
+- The label column takes only what its longest word needs (`auto`) and the two foods split
+  what is left (`1fr 1fr`), which is what lets a name be set at **1.02rem, the size it is in
+  the row it replaced**. Fixed 4.9rem columns had it at .76rem and still colliding.
+- The foot is two lines: **grams first, calories under it as the secondary total**, with the
+  round's tick or cross against the calories, since calories are what the round turned on.
+  Grams is the heavier line because it is the thing the two plates are actually being weighed
+  on — two cakes is 20 g and two tablespoons of butter is 28 g, and that is most of the
+  answer before a calorie is read.
 - **Only the larger figure in a row is lit.** White against the grey of the smaller one, so
   a column of white tells you where a food is heavy before a single number is read. Equal
   values light neither, which is the honest reading of a tie.

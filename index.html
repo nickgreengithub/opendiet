@@ -91,6 +91,7 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
    of them: the page is telling you what the choice is, not making it for you, and
    a demonstration that answers its own question gives the wrong idea about what
    the game wants. The travel is the card pitch, so it tracks the sizes below. */
+@keyframes od-cmp-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 @keyframes od-demo-hand{
   0%,6%{transform:translateY(0)}
   44%,56%{transform:translateY(9.1rem)}
@@ -239,7 +240,7 @@ option{background:#070b12;color:#d7e6ef}
   </div>
   </sc-if>
   <sc-if value="{{ appGame }}" hint-placeholder-val="{{ false }}">
-  <div style="{{ gWrap }}">
+  <div onClick="{{ gCloseAll }}" style="{{ gWrap }}">
     <sc-if value="{{ gWaiting }}" hint-placeholder-val="{{ false }}">
       <span style="{{ gWaitS }}">LOADING FOODS</span>
     </sc-if>
@@ -297,12 +298,13 @@ option{background:#070b12;color:#d7e6ef}
         <span style="{{ t.s }}">
           <span onClick="{{ t.onTap }}" style="{{ t.a.rowS }}"><span style="{{ t.a.nameS }}">{{ t.a.name }}</span><span style="{{ t.a.portS }}">{{ t.a.portion }}</span><span style="{{ t.a.kS }}">{{ t.a.k }}</span><span style="{{ t.markS }}">{{ t.mark }}</span></span>
           <span onClick="{{ t.onTap }}" style="{{ t.b.rowS }}"><span style="{{ t.b.nameS }}">{{ t.b.name }}</span><span style="{{ t.b.portS }}">{{ t.b.portion }}</span><span style="{{ t.b.kS }}">{{ t.b.k }}</span><span></span></span>
-          <span style="{{ t.cmpWrap }}">
+          <span onClick="{{ t.cmpStop }}" style="{{ t.cmpWrap }}">
             <span style="{{ t.cmp.head }}"><span></span><span style="{{ t.cmp.headS }}"><span style="{{ t.cmp.headNameS }}">{{ t.cmp.nameA }}</span><span style="{{ t.cmp.headPortS }}">{{ t.cmp.portA }}</span></span><span style="{{ t.cmp.headS }}"><span style="{{ t.cmp.headNameS }}">{{ t.cmp.nameB }}</span><span style="{{ t.cmp.headPortS }}">{{ t.cmp.portB }}</span></span></span>
             <sc-for list="{{ t.cmp.rows }}" as="cr" hint-placeholder-count="12">
               <span style="{{ cr.row }}"><span style="display:flex;align-items:center;min-width:0"><span style="{{ cr.dot }}"></span><span style="{{ cr.tagS }}">{{ cr.tag }}</span></span><span style="{{ cr.a.s }}">{{ cr.a.txt }}<span style="{{ t.cmp.unitS }}"> g</span></span><span style="{{ cr.b.s }}">{{ cr.b.txt }}<span style="{{ t.cmp.unitS }}"> g</span></span></span>
             </sc-for>
-            <span style="{{ t.cmp.kcalRow }}"><span style="{{ t.cmp.kcalTagS }}">CALORIES</span><span style="{{ t.cmp.kcalAS }}">{{ t.cmp.kcalA }}</span><span style="{{ t.cmp.kcalBS }}">{{ t.cmp.kcalB }}</span></span>
+            <span style="{{ t.cmp.gramsRow }}"><span style="{{ t.cmp.gramsTagS }}">GRAMS</span><span style="{{ t.cmp.gramsA.s }}">{{ t.cmp.gramsA.txt }}<span style="{{ t.cmp.unitS }}"> g</span></span><span style="{{ t.cmp.gramsB.s }}">{{ t.cmp.gramsB.txt }}<span style="{{ t.cmp.unitS }}"> g</span></span></span>
+            <span style="{{ t.cmp.kcalRow }}"><span style="{{ t.cmp.kcalTagS }}"><span style="{{ t.cmp.markS }}">{{ t.cmp.mark }}</span>CALORIES</span><span style="{{ t.cmp.kcalAS }}">{{ t.cmp.kcalA }}</span><span style="{{ t.cmp.kcalBS }}">{{ t.cmp.kcalB }}</span></span>
           </span>
         </span>
 
@@ -1088,7 +1090,7 @@ class Component extends DCLogic {
       const GRN2 = a2 => "rgba(126,224,168," + a2 + ")";
       const g1 = v => { const n2 = v || 0;
         return n2 === 0 ? "0" : n2 < 1 ? n2.toFixed(1) : n2 < 10 ? n2.toFixed(1) : String(Math.round(n2)); };
-      const cmpOf = (fA, fB) => {
+      const cmpOf = (fA, fB, hit) => {
         const a = libIndex[fA.usda], b2 = libIndex[fB.usda];
         if (!a || !b2) return null;
         const fa = fA.g / 100, fb = fB.g / 100;
@@ -1128,43 +1130,57 @@ class Component extends DCLogic {
               fontSize: d[3] === 2 ? ".72rem" : ".78rem", letterSpacing: ".12em",
               color: d[3] === 0 ? "#9fb3c0" : d[3] === 1 ? "#c3d3dd" : "#7b91a3" },
             a: val(va, vb, d[3] === 2), b: val(vb, va, d[3] === 2),
-            row: { display: "grid", gridTemplateColumns: "minmax(0,1fr) 4.9rem 4.9rem",
+            row: { display: "grid", gridTemplateColumns: "auto minmax(0,1fr) minmax(0,1fr)",
               columnGap: ".5rem", alignItems: "center", height: "2rem",
               paddingLeft: d[3] === 0 ? 0 : d[3] === 1 ? ".7rem" : "1.5rem",
               borderTop: "1px solid rgba(34,211,238,.10)" }
           };
         });
         const ka = fA.kcal, kb = fB.kcal;
+        const bigG = (v, other) => ({ txt: String(Math.round(v)),
+          s: { textAlign: "right", fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1.05rem", fontVariantNumeric: "tabular-nums",
+            color: v > other ? "#eaf5fb" : "#7b91a3" } });
         return {
+          gramsA: bigG(fA.g, fB.g), gramsB: bigG(fB.g, fA.g),
+          gramsRow: { display: "grid",
+            gridTemplateColumns: "auto minmax(0,1fr) minmax(0,1fr)",
+            columnGap: ".5rem", alignItems: "center", height: "2.2rem",
+            borderTop: "1px solid rgba(34,211,238,.28)" },
+          gramsTagS: { fontFamily: "var(--font-2)", fontSize: ".78rem",
+            letterSpacing: ".12em", color: "#9fb3c0" },
+          mark: hit ? "\u2713" : "\u2715",
+          markS: { marginRight: ".4rem", fontSize: ".95rem",
+            color: hit ? "#7ee0a8" : "#f08c7a" },
           rows: rows,
-          head: { display: "grid", gridTemplateColumns: "minmax(0,1fr) 4.9rem 4.9rem",
+          head: { display: "grid", gridTemplateColumns: "auto minmax(0,1fr) minmax(0,1fr)",
             columnGap: ".5rem", alignItems: "flex-end", padding: ".3rem 0 .45rem" },
           nameA: cap(fA.name), nameB: cap(fB.name),
           portA: fA.portion, portB: fB.portion,
           headS: { minWidth: 0, overflow: "hidden", display: "flex",
             flexDirection: "column", alignItems: "stretch", gap: ".1rem" },
+          // The same 1.02rem in the same reading weight the row it replaces used, so the
+          // name does not shrink on its way into the column.
           headNameS: { display: "block", width: "100%", textAlign: "right",
             whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-            fontFamily: "var(--font-2)", fontSize: ".76rem", letterSpacing: ".08em",
-            color: "#d7e6ef" },
+            fontWeight: 300, fontSize: "1.02rem", color: "#d7e6ef" },
           headPortS: { display: "block", width: "100%", textAlign: "right",
             whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-            fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".04em",
+            fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".02em",
             color: "#7b91a3" },
           unitS: { fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".1em",
             color: "#5f7f8e" },
-          kcalRow: { display: "grid", gridTemplateColumns: "minmax(0,1fr) 4.9rem 4.9rem",
-            columnGap: ".5rem", alignItems: "center", height: "2.3rem",
-            borderTop: "1px solid rgba(34,211,238,.28)" },
-          kcalTagS: { fontFamily: "var(--font-2)", fontSize: ".78rem",
-            letterSpacing: ".12em", color: "#9fb3c0" },
+          kcalRow: { display: "grid", gridTemplateColumns: "auto minmax(0,1fr) minmax(0,1fr)",
+            columnGap: ".5rem", alignItems: "center", height: "2.1rem", borderTop: 0 },
+          kcalTagS: { display: "flex", alignItems: "center", fontFamily: "var(--font-2)",
+            fontSize: ".72rem", letterSpacing: ".12em", color: "#7b91a3" },
           kcalA: String(ka), kcalB: String(kb),
           kcalAS: { textAlign: "right", fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: "1.15rem", fontVariantNumeric: "tabular-nums",
-            color: ka >= kb ? "#eaf5fb" : "#7b91a3" },
+            fontSize: ".95rem", fontVariantNumeric: "tabular-nums",
+            color: ka >= kb ? "#c3d3dd" : "#7b91a3" },
           kcalBS: { textAlign: "right", fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: "1.15rem", fontVariantNumeric: "tabular-nums",
-            color: kb >= ka ? "#eaf5fb" : "#7b91a3" },
+            fontSize: ".95rem", fontVariantNumeric: "tabular-nums",
+            color: kb >= ka ? "#c3d3dd" : "#7b91a3" },
         };
       };
       const line = (food, last) => ({
@@ -1182,18 +1198,25 @@ class Component extends DCLogic {
           whiteSpace: "nowrap", color: "#d7e6ef" },
         rowS: { display: "grid",
           gridTemplateColumns: "minmax(0,1fr) auto 3.5rem 1.4rem",
-          columnGap: ".45rem", alignItems: "center", minHeight: "2rem", cursor: "pointer",
-          borderTop: last && isOpen ? "1px solid rgba(34,211,238,.14)" : 0,
-          borderBottom: last && !isOpen ? "1px solid rgba(34,211,238,.14)" : 0 },
+          columnGap: ".45rem", alignItems: "center",
+          minHeight: isOpen ? 0 : "2rem", height: isOpen ? 0 : "auto",
+          overflow: "hidden", opacity: isOpen ? 0 : 1, cursor: "pointer",
+          borderBottom: last && !isOpen ? "1px solid rgba(34,211,238,.14)" : 0,
+          transition: "opacity 180ms ease" },
         open: isOpen
       });
       return {
         a: line(p.top, false), b: line(p.bot, true),
-        cmp: isOpen ? cmpOf(p.top, p.bot) : null,
+        cmp: isOpen ? cmpOf(p.top, p.bot, p.hit) : null,
         cmpWrap: { display: isOpen ? "block" : "none", overflow: "hidden",
-          background: PICKED_BG, padding: ".2rem .55rem .7rem" },
+          background: PICKED_BG, padding: ".2rem .55rem .7rem",
+          animation: isOpen ? "od-cmp-in 260ms cubic-bezier(.22,1,.36,1) both" : "none" },
+        cmpStop: e => { if (e && e.stopPropagation) e.stopPropagation(); },
         // A pair is one question, so it opens as one thing rather than two.
-        onTap: () => this.setState(st => ({ gOpen: st.gOpen === pi ? null : pi })),
+        onTap: e => {
+          if (e && e.stopPropagation) e.stopPropagation();
+          this.setState(st => ({ gOpen: st.gOpen === pi ? null : pi }));
+        },
         mark: p.hit ? "\u2713" : "\u2715",
         // On the pair's first line rather than centred between the two, where it landed
         // exactly on the rule and read as a smudge on it.
@@ -1202,8 +1225,7 @@ class Component extends DCLogic {
         // display:block matters. A span is inline by default and an inline box drops
         // vertical margin on the floor, which is why the gap between pairs measured 0px
         // however large the number was set.
-        s: { display: "block", flex: "none", marginBottom: "1.35rem",
-          borderBottom: isOpen ? "1px solid rgba(34,211,238,.14)" : 0 }
+        s: { display: "block", flex: "none", marginBottom: "1.35rem" }
       };
     });
     return {
@@ -1245,6 +1267,8 @@ class Component extends DCLogic {
       gResTiles: tiles,
       gListWrap: { flex: "1 1 auto", minHeight: 0, overflowY: "auto",
         display: "block", paddingTop: ".45rem" },
+      gCloseAll: () => { if (this.state.gOpen !== null && this.state.gOpen !== undefined)
+        this.setState({ gOpen: null }); },
       gAgain: () => this.gStart(false),
       gDeckNote: this._deck ? this._deck.note : ""
     };
