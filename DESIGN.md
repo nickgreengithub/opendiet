@@ -263,6 +263,10 @@ The layout rules below were the first things it was built to test, and still hol
   broken rule.
 - The two totals share the left edge of the nutrient names: each carries an empty gutter the
   width of the colour dots, .95rem.
+- The calorie figures carry a `k`. Every row above them ends in a unit, so without one the
+  calories sat flush against the column edge while every gram figure stopped a suffix-width
+  short of it, and the column of numerals read as ragged. The `k` is set in the same grey as
+  the `g` and puts all fourteen figures on one edge.
 - **The tick or cross prefixes the figure the player chose**, in that food's own column, not
   the word CALORIES. A tick beside 95 in the apple's column says "you picked the apple and
   you were right", which is the whole sentence. Against the label it said only that the round
