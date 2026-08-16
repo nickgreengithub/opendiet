@@ -78,7 +78,12 @@ itself — sentence-case names, portions beside them, calories right-aligned und
 head, one hairline under every row — with each pair a block of two lines closed by a
 hairline and real air between the blocks, both foods set identically since the figures already say which is
 bigger, and a tick or a cross against the pair. The caveat sits behind a mark rather than
-on the page. Set against the grade itself are two lines: the score, and the
+on the page.
+
+Tap a pair and both of its foods unfold into the same drawing the food table uses — the
+donut, the macros, the amount control — because it is the same code, not a copy of it. It
+opens at the portion the round showed, with the serving side of the control lit rather than
+grams, and with no ADD button, since there is no plate in the game. Set against the grade itself are two lines: the score, and the
 plate that surprised you most — the widest gap you got wrong, named, since picking the
 lighter plate means the heavier one was worth more than you gave it credit for. It closes
 on a caveat: calories drive body fat, but a healthy diet also means hitting macro and

@@ -206,6 +206,21 @@ The layout rules below were the first things it was built to test, and still hol
   site reserves those for labels, and these are food names, so they are sentence case here
   exactly as they are in the table. The bordered lime and red tiles are gone — two screens
   listing foods should not look like two different products.
+- **A pair opens into the food table's own drawing.** Tap either line and both foods of the
+  pair unfold beneath their own rows: the donut, the ring, the macro table, the amount
+  control — not a copy of them, the same `vizFor()` and the same `amountCtl()` the search
+  rows and the plate summary call, passed into `gResults` from the scope that owns them.
+  One donut for the whole site, so the two screens cannot drift.
+- The join costs nothing: the deck carries USDA's own name for every food, and all 36 match
+  a row in the legacy library exactly, so `deck.usda -> library row` is a lookup rather than
+  a guess. What the game does not share is where the control starts. It opens at the portion
+  the round showed and with **the serving side lit rather than the grams side**, because the
+  portion is what the question was about — and since the deck's weight is always USDA's
+  household portion times a whole number, the serving box reads a round number: half a cup
+  of cashews is 68 g, two cups of grapes is 302 g, two eggs is 100 g. There is no ADD,
+  because there is no plate in the game.
+- The library is 937KB and the game does not otherwise need it, so it is fetched when a game
+  begins rather than at boot — a player who never reaches the results page never pays for it.
 - **The rule falls where the pair ends, not through the middle of it.** Two foods joined
   with nothing between them, a hairline closing the pair, then air. A line inside a group is
   the group being cut in half, and that is what the list was doing: the strongest mark on
