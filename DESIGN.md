@@ -248,9 +248,11 @@ The layout rules below were the first things it was built to test, and still hol
 - **The table stands in place of the two rows, not under them.** The names become the column
   heads, so leaving the rows up printed each food twice; they collapse to nothing and the
   table arrives on a short rise, which reads as the foods moving into their columns rather
-  than as a panel appearing beneath them. A tap anywhere else on the screen puts them back —
-  the whole game view carries the closing handler and only the table stops the event, since
-  with the rows gone there is nothing left to tap twice.
+  than as a panel appearing beneath them. **A press anywhere puts them back, the table
+  included.** It used to swallow the click so nothing inside it could close it, which left
+  finding bare screen as the only way out; it is something you read and then dismiss rather
+  than something you interact with, so it takes the press like everywhere else. The whole
+  game view carries the closing handler and nothing stops the event any more.
 - The label column takes only what its longest word needs (`auto`) and the two foods split
   what is left (`1fr 1fr`), which is what lets a name be set at **1.02rem, the size it is in
   the row it replaced**. Fixed 4.9rem columns had it at .76rem and still colliding.
@@ -324,7 +326,11 @@ The layout rules below were the first things it was built to test, and still hol
   2.5rem; and from the caveat, which now sits behind a mark at the end of the grade's own
   row and opens above the button when it is asked for. A caveat has to be readable when it
   is read, not resident on a screen whose whole problem is that six pairs need room to look
-  like six pairs. The mark costs the head 1.6rem of width, which is why the second line lost
+  like six pairs. The mark sits beside PLAY AGAIN rather than up on the grade, the same
+  height as the button so the foot reads as one row, and the text opens directly beneath it
+  rather than above — a panel that pushed the button down as it appeared moved the very
+  thing the reader was aiming at. At 360x640 the opened note still ends inside the
+  viewport, at 629 of 640. The mark costs the head 1.6rem of width, which is why the second line lost
   the word "Biggest" — with it, the longest food name in the deck beside the widest grade
   overran by 21px.
 - **The list scrolls, and that is the point of copying the search screen.** Twelve rows, a
