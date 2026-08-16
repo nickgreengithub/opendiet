@@ -25,6 +25,14 @@ The layout rules below were the first things it was built to test, and still hol
   decision. A phone keeps its screen edge to edge, as an app does; the inset is fixed
   rather than matched to the side margins, since those grow with the screen and 90px of
   dead space top and bottom would cost a third of the list to buy nothing.
+- ABOUT ends on its two links held in opposite corners — LinkedIn bottom left, GitHub
+  bottom right — on a row of its own rather than the one the unbuilt apps use, taking the
+  full width with an auto top margin so it sits on the floor of the panel wherever the text
+  above it ends. The byline lost its year to fit both corners inside the padding at 360px;
+  with it, the pair overran the container by 10px and GitHub finished 3px from the screen
+  edge. The disclaimer steps up to 1rem on a phone. The note about Nutrition5k is gone: the
+  game has not been dealt from that deck for some time, and a credit for pictures the site
+  no longer shows is worse than no credit at all.
 - The site is a set of small apps rather than one page, and both layouts open straight
   into the built one. The others sit beside it in a tab row — FOOD SEARCH, CALORIE CALC,
   CALORIE GAME, shortened to SEARCH, CALC, GAME on a phone — with ABOUT holding the
@@ -63,7 +71,13 @@ The layout rules below were the first things it was built to test, and still hol
   they collapse to **four families**: cup (20 of the 36 foods, a tub of yogurt among them),
   whole (9), slice (4, bacon rashers included), spoon (3). Three cups of courgette is three
   cups; a tall glass of milk is one and a half, so the half is the same glyph at 42%
-  opacity. Above five the count stops being countable and one glyph stands for the lot,
+  opacity. They are drawn at 18px in a bar whose height is fixed at 2.9rem, so they read at
+  arm's length without the banner growing to meet them — the height was measured across 42
+  rounds and never moved off 46px. Going up from 14px cost about 10px of width, which
+  clipped "3 tablespoons" on a 360px screen; it came back out of the bar's side padding
+  (.55rem to .42rem), its column gap (.38 to .28rem) and the gap between the marks, which is
+  now zero. They can sit flush because each is drawn on a 24 grid with the shape inset from
+  it, so flush is not touching. Above five the count stops being countable and one glyph stands for the lot,
   since the words beside it already say "8 slices". The glyphs are 14px and the name's
   letter spacing came down to .03em to pay for them — swept over twelve games at 360px
   wide with nothing truncated.
