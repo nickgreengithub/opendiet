@@ -303,12 +303,14 @@ option{background:#070b12;color:#d7e6ef}
           <span onClick="{{ t.onTap }}" style="{{ t.a.rowS }}"><span style="{{ t.a.nameS }}">{{ t.a.name }}</span><span style="{{ t.a.portS }}">{{ t.a.portion }}</span><span style="{{ t.a.kS }}">{{ t.a.k }}</span><span style="{{ t.markS }}">{{ t.mark }}</span></span>
           <span onClick="{{ t.onTap }}" style="{{ t.b.rowS }}"><span style="{{ t.b.nameS }}">{{ t.b.name }}</span><span style="{{ t.b.portS }}">{{ t.b.portion }}</span><span style="{{ t.b.kS }}">{{ t.b.k }}</span><span></span></span>
           <span onClick="{{ t.cmpStop }}" style="{{ t.cmpWrap }}">
-            <span style="{{ t.cmp.head }}"><span></span><span style="{{ t.cmp.headS }}"><span style="{{ t.cmp.headNameS }}">{{ t.cmp.nameA }}</span><span style="{{ t.cmp.headPortS }}">{{ t.cmp.portA }}</span></span><span style="{{ t.cmp.headS }}"><span style="{{ t.cmp.headNameS }}">{{ t.cmp.nameB }}</span><span style="{{ t.cmp.headPortS }}">{{ t.cmp.portB }}</span></span></span>
-            <sc-for list="{{ t.cmp.rows }}" as="cr" hint-placeholder-count="12">
-              <span style="{{ cr.row }}"><span style="display:flex;align-items:center;min-width:0"><span style="{{ cr.dot }}"></span><span style="{{ cr.tagS }}">{{ cr.tag }}</span></span><span style="{{ cr.a.s }}">{{ cr.a.txt }}<span style="{{ t.cmp.unitS }}"> g</span></span><span style="{{ cr.b.s }}">{{ cr.b.txt }}<span style="{{ t.cmp.unitS }}"> g</span></span></span>
-            </sc-for>
-            <span style="{{ t.cmp.gramsRow }}"><span style="{{ t.cmp.gramsTagS }}">GRAMS</span><span style="{{ t.cmp.gramsA.s }}">{{ t.cmp.gramsA.txt }}<span style="{{ t.cmp.unitS }}"> g</span></span><span style="{{ t.cmp.gramsB.s }}">{{ t.cmp.gramsB.txt }}<span style="{{ t.cmp.unitS }}"> g</span></span></span>
-            <span style="{{ t.cmp.kcalRow }}"><span style="{{ t.cmp.kcalTagS }}"><span style="{{ t.cmp.markS }}">{{ t.cmp.mark }}</span>CALORIES</span><span style="{{ t.cmp.kcalAS }}">{{ t.cmp.kcalA }}</span><span style="{{ t.cmp.kcalBS }}">{{ t.cmp.kcalB }}</span></span>
+            <span style="{{ t.cmp.grid }}">
+              <span></span><span style="{{ t.cmp.headCell }}"><span style="{{ t.cmp.headNameS }}">{{ t.cmp.nameA }}</span><span style="{{ t.cmp.headPortS }}">{{ t.cmp.portA }}</span></span><span style="{{ t.cmp.headCell }}"><span style="{{ t.cmp.headNameS }}">{{ t.cmp.nameB }}</span><span style="{{ t.cmp.headPortS }}">{{ t.cmp.portB }}</span></span>
+              <sc-for list="{{ t.cmp.rows }}" as="cr" hint-placeholder-count="12">
+                <span style="{{ cr.row }}"><span style="{{ cr.labCell }}"><span style="{{ cr.dot }}"></span><span style="{{ cr.tagS }}">{{ cr.tag }}</span></span><span style="{{ cr.numCell }}"><span style="{{ cr.a.s }}">{{ cr.a.txt }}<span style="{{ t.cmp.unitS }}"> g</span></span></span><span style="{{ cr.numCell }}"><span style="{{ cr.b.s }}">{{ cr.b.txt }}<span style="{{ t.cmp.unitS }}"> g</span></span></span></span>
+              </sc-for>
+              <span style="{{ t.cmp.gramsLab }}"><span style="{{ t.cmp.gutter }}"></span><span style="{{ t.cmp.gramsTagS }}">GRAMS</span></span><span style="{{ t.cmp.gramsNum }}"><span style="{{ t.cmp.gramsA.s }}">{{ t.cmp.gramsA.txt }}<span style="{{ t.cmp.unitS }}"> g</span></span></span><span style="{{ t.cmp.gramsNum }}"><span style="{{ t.cmp.gramsB.s }}">{{ t.cmp.gramsB.txt }}<span style="{{ t.cmp.unitS }}"> g</span></span></span>
+              <span style="{{ t.cmp.kcalLab }}"><span style="{{ t.cmp.markS }}">{{ t.cmp.mark }}</span><span style="{{ t.cmp.kcalTagS }}">CALORIES</span></span><span style="{{ t.cmp.kcalNum }}"><span style="{{ t.cmp.kcalAS }}">{{ t.cmp.kcalA }}</span></span><span style="{{ t.cmp.kcalNum }}"><span style="{{ t.cmp.kcalBS }}">{{ t.cmp.kcalB }}</span></span>
+            </span>
           </span>
         </span>
 
@@ -1156,21 +1158,32 @@ class Component extends DCLogic {
             fontSize: dp ? ".95rem" : "1rem", fontVariantNumeric: "tabular-nums",
             whiteSpace: "nowrap", color: v > other + 1e-9 ? "#eaf5fb" : "#7b91a3" }
         });
-        const rows = defs.map(d => {
+        // One grid for the whole table, not a grid per row. A row of its own resolves
+        // its `auto` label column against its own content, so the header's empty first
+        // cell was 0 wide and every data row's was ninety-odd — which is exactly the
+        // misalignment between the first food's column head and its figures. `display:
+        // contents` on each row lets its three cells join the one grid above them.
+        const RULE = "1px solid rgba(34,211,238,.10)";
+        const cellBase = rule => ({ display: "flex", alignItems: "center", height: "2rem",
+          borderTop: rule ? RULE : 0 });
+        const numCell = rule => Object.assign(cellBase(rule),
+          { justifyContent: "flex-end", minWidth: 0, paddingLeft: ".5rem" });
+        const rows = defs.map((d, di) => {
           const va = d[1](a) * fa, vb = d[1](b2) * fb;
+          const rule = di > 0 || true;
           return {
             tag: d[0], depth: d[3],
             dot: { flex: "none", width: ".42rem", height: ".42rem", borderRadius: "50%",
-              background: d[2], marginRight: ".45rem" },
+              background: d[2], marginRight: ".53rem" },
             tagS: { minWidth: 0, whiteSpace: "nowrap", overflow: "hidden",
               textOverflow: "ellipsis", fontFamily: "var(--font-2)",
               fontSize: d[3] === 2 ? ".72rem" : ".78rem", letterSpacing: ".12em",
               color: d[3] === 0 ? "#9fb3c0" : d[3] === 1 ? "#c3d3dd" : "#7b91a3" },
             a: val(va, vb, d[3] === 2), b: val(vb, va, d[3] === 2),
-            row: { display: "grid", gridTemplateColumns: "auto minmax(0,1fr) minmax(0,1fr)",
-              columnGap: ".5rem", alignItems: "center", height: "2rem",
-              paddingLeft: d[3] === 0 ? 0 : d[3] === 1 ? ".7rem" : "1.5rem",
-              borderTop: "1px solid rgba(34,211,238,.10)" }
+            row: { display: "contents" },
+            labCell: Object.assign(cellBase(rule), { minWidth: 0,
+              paddingLeft: d[3] === 0 ? 0 : d[3] === 1 ? ".7rem" : "1.5rem" }),
+            numCell: numCell(rule)
           };
         });
         const ka = fA.kcal, kb = fB.kcal;
@@ -1178,20 +1191,28 @@ class Component extends DCLogic {
           s: { textAlign: "right", fontFamily: "var(--font-1)", fontWeight: 300,
             fontSize: "1.05rem", fontVariantNumeric: "tabular-nums",
             color: v > other ? "#eaf5fb" : "#7b91a3" } });
+        const TOTRULE = "1px solid rgba(34,211,238,.28)";
+        const totCell = (h, rule) => ({ display: "flex", alignItems: "center",
+          height: h, borderTop: rule ? TOTRULE : 0 });
+        const totNum = (h, rule) => Object.assign(totCell(h, rule),
+          { justifyContent: "flex-end", minWidth: 0, paddingLeft: ".5rem" });
         return {
+          grid: { display: "grid",
+            gridTemplateColumns: "auto minmax(0,1fr) minmax(0,1fr)", columnGap: 0 },
           gramsA: bigG(fA.g, fB.g), gramsB: bigG(fB.g, fA.g),
-          gramsRow: { display: "grid",
-            gridTemplateColumns: "auto minmax(0,1fr) minmax(0,1fr)",
-            columnGap: ".5rem", alignItems: "center", height: "2.2rem",
-            borderTop: "1px solid rgba(34,211,238,.28)" },
+          gramsLab: totCell("2.2rem", true), gramsNum: totNum("2.2rem", true),
+          kcalLab: totCell("2.1rem", false), kcalNum: totNum("2.1rem", false),
           gramsTagS: { fontFamily: "var(--font-2)", fontSize: ".78rem",
             letterSpacing: ".12em", color: "#9fb3c0" },
+          // Both totals keep the same left edge; the mark sits in a gutter of its own
+          // ahead of them, empty on the grams line, so the two words start together.
+          gutter: { flex: "none", width: ".95rem", textAlign: "left" },
           mark: hit ? "\u2713" : "\u2715",
-          markS: { marginRight: ".4rem", fontSize: ".95rem",
-            color: hit ? "#7ee0a8" : "#f08c7a" },
+          markS: { flex: "none", width: ".95rem", textAlign: "left", fontSize: ".82rem",
+            lineHeight: 1, color: hit ? "#7ee0a8" : "#f08c7a" },
           rows: rows,
-          head: { display: "grid", gridTemplateColumns: "auto minmax(0,1fr) minmax(0,1fr)",
-            columnGap: ".5rem", alignItems: "flex-end", padding: ".3rem 0 .45rem" },
+          headCell: { display: "flex", flexDirection: "column", justifyContent: "flex-end",
+            minWidth: 0, overflow: "hidden", padding: ".3rem 0 .45rem .5rem" },
           nameA: cap(fA.name), nameB: cap(fB.name),
           portA: fA.portion, portB: fB.portion,
           headS: { minWidth: 0, overflow: "hidden", display: "flex",
@@ -1203,21 +1224,19 @@ class Component extends DCLogic {
             fontWeight: 300, fontSize: "1.02rem", color: "#d7e6ef" },
           headPortS: { display: "block", width: "100%", textAlign: "right",
             whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-            fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".02em",
-            color: "#7b91a3" },
+            fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".02em",
+            color: "#a9bcc8" },
           unitS: { fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".1em",
             color: "#5f7f8e" },
-          kcalRow: { display: "grid", gridTemplateColumns: "auto minmax(0,1fr) minmax(0,1fr)",
-            columnGap: ".5rem", alignItems: "center", height: "2.1rem", borderTop: 0 },
-          kcalTagS: { display: "flex", alignItems: "center", fontFamily: "var(--font-2)",
-            fontSize: ".72rem", letterSpacing: ".12em", color: "#7b91a3" },
+          kcalTagS: { fontFamily: "var(--font-2)", fontSize: ".78rem",
+            letterSpacing: ".12em", color: "#9fb3c0" },
           kcalA: String(ka), kcalB: String(kb),
           kcalAS: { textAlign: "right", fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: ".95rem", fontVariantNumeric: "tabular-nums",
-            color: ka >= kb ? "#c3d3dd" : "#7b91a3" },
+            fontSize: "1.05rem", fontVariantNumeric: "tabular-nums",
+            color: ka >= kb ? "#eaf5fb" : "#7b91a3" },
           kcalBS: { textAlign: "right", fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: ".95rem", fontVariantNumeric: "tabular-nums",
-            color: kb >= ka ? "#c3d3dd" : "#7b91a3" },
+            fontSize: "1.05rem", fontVariantNumeric: "tabular-nums",
+            color: kb >= ka ? "#eaf5fb" : "#7b91a3" },
         };
       };
       const line = (food, last) => ({
@@ -1279,8 +1298,10 @@ class Component extends DCLogic {
       gGradeS: { flex: "none", fontFamily: "var(--font-1)", fontWeight: 300,
         fontSize: "3.5rem", lineHeight: .82, color: hue },
       gHeadCol: { minWidth: 0, display: "flex", flexDirection: "column", gap: ".24rem" },
-      gTallyS: { fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".12em",
-        color: "#c3d3dd", fontVariantNumeric: "tabular-nums" },
+      // Beside a two-character grade at 360px this wrapped, splitting "OF 6 CORRECT"
+      // across two lines. The room came out of the tracking rather than the size.
+      gTallyS: { fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".06em",
+        whiteSpace: "nowrap", color: "#c3d3dd", fontVariantNumeric: "tabular-nums" },
       // A sentence, so it is set in the reading face rather than the label face, that
       // being the narrower of the two — and beside the grade there is less width to
       // spend than there was beneath it. The figure is the whole point of the line, so

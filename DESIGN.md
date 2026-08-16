@@ -236,6 +236,16 @@ The layout rules below were the first things it was built to test, and still hol
 - The label column takes only what its longest word needs (`auto`) and the two foods split
   what is left (`1fr 1fr`), which is what lets a name be set at **1.02rem, the size it is in
   the row it replaced**. Fixed 4.9rem columns had it at .76rem and still colliding.
+- **The whole table is one grid, not a grid per row.** A row that is its own grid resolves
+  its `auto` column against its own content, so the header's empty first cell was 0 wide
+  while every data row's was ninety-odd — which is why the first food's name sat well left
+  of its own figures. Each row is now `display: contents` and its three cells join the grid
+  above them, so one `auto` is measured for the whole table. The column gap went to zero
+  with it and the space moved inside the cells, because per-cell borders across a gap draw a
+  broken rule.
+- The two totals share the left edge of the nutrient names, and the round's tick sits in a
+  gutter ahead of them — .95rem, the same indent the colour dots occupy — so GRAMS and
+  CALORIES start together instead of the mark shunting one of them right.
 - The foot is two lines: **grams first, calories under it as the secondary total**, with the
   round's tick or cross against the calories, since calories are what the round turned on.
   Grams is the heavier line because it is the thing the two plates are actually being weighed
