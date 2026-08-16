@@ -226,8 +226,11 @@ option{background:#070b12;color:#d7e6ef}
     <div style="{{ homeGrid }}">
       <sc-for list="{{ appCards }}" as="a" hint-placeholder-count="4">
         <div onClick="{{ a.onClick }}" style="{{ a.style }}" style-hover="border-color:rgba(34,211,238,.75);background:rgba(34,211,238,.08)">
-          <span style="{{ cardTop }}"><span style="{{ a.nameStyle }}">{{ a.label }}</span><span style="{{ a.tagStyle }}">{{ a.tag }}</span></span>
-          <span style="{{ cardNote }}">{{ a.note }}</span>
+          <span style="{{ a.col }}">
+            <span style="{{ cardTop }}"><span style="{{ a.nameStyle }}">{{ a.label }}</span><span style="{{ a.tagStyle }}">{{ a.tag }}</span></span>
+            <span style="{{ a.noteStyle }}">{{ a.note }}</span>
+          </span>
+          <span style="{{ a.chev }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></span>
         </div>
       </sc-for>
     </div>
@@ -1606,10 +1609,12 @@ class Component extends DCLogic {
         note: "A calorie target built backwards from the body composition you are after: say where your body fat is now and where you want it, and get the daily number and the timeline that reach it.",
         card: "A daily calorie target and timeline, built backwards from your body fat goal." },
       { k: "game", label: "CALORIE GAME",
-        note: "Guess the calories in a photograph of a meal, then see how close you were. Reading a plate by eye is the one skill that travels to a restaurant table, and it is trainable.",
-        card: "Guess the calories in a photo of a meal. Eyeballing a plate is trainable \u2014 and it is the skill dieting actually runs on." }
+        note: "Two plates, six times: which of them carries more calories. Reading a portion by eye is the one skill that travels to a restaurant table, and it is trainable.",
+        card: "Two plates, six rounds \u2014 which carries more calories. Reading a portion by eye is trainable, and it is the skill dieting actually runs on." }
     ];
-    const app = s.app || "search";
+    // A phone opens on the launcher and picks an app; a desktop is wide enough to
+    // open straight into the table with the others a tab away.
+    const app = s.app || (s.narrow ? "home" : "search");
     // Six lines at the mobile width holds either app's sentence; the desktop's wider
     // measure needs fewer, and the reserve simply goes unused.
     const SOON_LINES = s.narrow ? "9.9rem" : "4.9rem";
@@ -1618,7 +1623,7 @@ class Component extends DCLogic {
         " 420ms cubic-bezier(.22,1,.36,1) " + ms + "ms both"
     });
     const appDef = APPS.find(a => a.k === app);
-    const live = k => k === "search";
+    const live = k => k === "search" || k === "game";
     const setApp = k => () => {
       if (k === "game") this.loadDeck();
       // Re-arm the mobile landing animation, which otherwise only ever plays on first load.
@@ -3093,29 +3098,43 @@ class Component extends DCLogic {
       goHome: () => this.setState({ app: "home", mOpen: null }),
       appTabs: APPS.map(a => ({
         label: s.narrow ? a.label.replace("FOOD ", "").replace("CALORIE ", "") : a.label,
-        onClick: setApp(a.k),
+        onClick: live(a.k) ? setApp(a.k) : null,
         style: {
           display: "flex", alignItems: "center", height: "2.1rem", padding: "0 .1rem",
-          cursor: "pointer", whiteSpace: "nowrap", transition: "color 160ms ease, text-shadow 160ms ease",
-          color: a.k === app ? "#22d3ee" : "#5f7688",
+          cursor: live(a.k) ? "pointer" : "default", whiteSpace: "nowrap",
+          transition: "color 160ms ease, text-shadow 160ms ease",
+          pointerEvents: live(a.k) ? "auto" : "none",
+          color: !live(a.k) ? "#3f515e" : a.k === app ? "#22d3ee" : "#5f7688",
           textShadow: a.k === app ? "0 0 12px rgba(34,211,238,.45)" : "none"
         }
       })),
+      // Each app is a row you can press rather than a card in a grid: the phone reads
+      // the list top to bottom, and an unbuilt one is inert rather than a door into a
+      // page that says it is not there yet. pointer-events off takes the hover with it,
+      // so nothing about it invites a press.
       appCards: APPS.map(a => ({
-        label: a.label, note: a.card || a.note, tag: live(a.k) ? "LIVE" : "SOON",
-        onClick: setApp(a.k),
-        nameStyle: { fontFamily: "var(--font-2)", fontSize: s.narrow ? ".92rem" : ".95rem", letterSpacing: ".14em", color: live(a.k) ? "#22d3ee" : "#c3d6e2" },
+        label: a.label, note: a.card || a.note, tag: live(a.k) ? "LIVE" : "COMING SOON",
+        onClick: live(a.k) ? setApp(a.k) : null,
+        nameStyle: { fontFamily: "var(--font-2)", fontSize: s.narrow ? "1rem" : ".95rem",
+          letterSpacing: ".14em", color: live(a.k) ? "#22d3ee" : "#6d818f" },
         tagStyle: {
           flex: "none", fontFamily: "var(--font-2)", fontSize: ".68rem", letterSpacing: ".16em",
-          color: live(a.k) ? "#22d3ee" : "#5b7183"
+          color: live(a.k) ? "#22d3ee" : "#546a78"
         },
+        noteStyle: { fontFamily: "var(--font-1)", fontWeight: 300,
+          fontSize: s.narrow ? ".95rem" : "1rem", lineHeight: 1.45,
+          color: live(a.k) ? "#94a3b8" : "#637683", textWrap: "pretty" },
+        col: { flex: "1 1 auto", minWidth: 0, display: "flex", flexDirection: "column",
+          gap: s.narrow ? ".38rem" : ".5rem" },
+        chev: { flex: "none", display: "flex", alignItems: "center",
+          color: live(a.k) ? "#22d3ee" : "transparent" },
         style: {
-          display: "flex", flexDirection: "column", justifyContent: "space-between",
-          gap: s.narrow ? ".7rem" : "1.1rem",
-          minHeight: s.narrow ? "7.4rem" : "6.6rem",
-          padding: s.narrow ? ".8rem .8rem .9rem" : "1.1rem 1.15rem 1.2rem",
-          border: "1px solid rgba(34,211,238,.28)", cursor: "pointer",
-          background: "rgba(34,211,238,.02)",
+          display: "flex", alignItems: "center", gap: s.narrow ? ".7rem" : "1rem",
+          padding: s.narrow ? ".85rem .85rem" : "1.1rem 1.15rem",
+          border: "1px solid " + (live(a.k) ? "rgba(34,211,238,.28)" : "rgba(215,230,239,.1)"),
+          cursor: live(a.k) ? "pointer" : "default",
+          pointerEvents: live(a.k) ? "auto" : "none",
+          background: live(a.k) ? "rgba(34,211,238,.02)" : "rgba(215,230,239,.015)",
           transition: "border-color 160ms ease, background 160ms ease"
         }
       })),

@@ -33,6 +33,18 @@ The layout rules below were the first things it was built to test, and still hol
   edge. The disclaimer steps up to 1rem on a phone. The note about Nutrition5k is gone: the
   game has not been dealt from that deck for some time, and a credit for pictures the site
   no longer shows is worse than no credit at all.
+- **A phone opens on the launcher.** Three rows, one per app, each a container you press:
+  the name, whether it is LIVE or COMING SOON, a sentence saying what it does, and a
+  chevron if there is somewhere to go. A desktop is wide enough to open straight into the
+  table with the others a tab away, so it still does. The rows are rows rather than the
+  tall cards they were, because a phone reads a list top to bottom and three cards of
+  7.4rem did not leave the third one on the screen.
+- **CALORIE CALC is inert, not merely marked.** It is dimmed, labelled COMING SOON, carries
+  no chevron, and has `pointer-events: none` — which takes the hover with it, so nothing
+  about it invites a press. The same is true of its tab. It was previously a live door into
+  a page that said the thing was not built yet, which is a worse answer than the door not
+  opening. The tab and the row are both driven from `live()`, which now counts the game as
+  built: it had been claiming SOON on a screen you can play.
 - The site is a set of small apps rather than one page, and both layouts open straight
   into the built one. The others sit beside it in a tab row — FOOD SEARCH, CALORIE CALC,
   CALORIE GAME, shortened to SEARCH, CALC, GAME on a phone — with ABOUT holding the
