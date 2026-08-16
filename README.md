@@ -46,6 +46,13 @@ name and one short line. FOOD SEARCH and CALORIE GAME open; CALORIE CALC is dimm
 labelled COMING SOON and inert until it is built. A desktop opens straight into the table,
 with the others a tab away.
 
+A tablet runs the phone's design, because below 1000px of width the table can no longer
+name a food — but it runs it at a tablet's size rather than a phone's. Everything steps
+up one notch together: type, rows, controls, the drawings, and the column they sit in.
+The column is held off the glass by real gutters instead of running to the bezel, and
+there is no frame around it, because a bordered column on a big screen reads as a phone
+app someone parked there.
+
 ## Calorie game
 
 A second app. On a phone the pair is stacked; on a desktop it is side by side, the two

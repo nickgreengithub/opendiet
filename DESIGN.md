@@ -16,15 +16,35 @@ The layout rules below were the first things it was built to test, and still hol
   about 960px of viewport every row reads "Cheese, parmes…" and identifies nothing. The
   line is drawn at 1000px: every iPad in portrait falls under it, landscape tablets stay
   above it and keep the table. Width is the right signal rather than the user agent,
-  since it handles split-screen for free. The touch layout then stops widening at 640px
-  and centres, so a tablet shows a comfortable column rather than a stretched phone —
-  and 640 is not an arbitrary cap: the donut's bracket geometry was already computed
-  against it, so holding to it keeps that arithmetic true on a tablet too. Where the cap
-  bites, the panel is inset on all four sides and given a hairline edge, because a column
-  with air either side and none above or below reads as an accident rather than a
-  decision. A phone keeps its screen edge to edge, as an app does; the inset is fixed
-  rather than matched to the side margins, since those grow with the screen and 90px of
-  dead space top and bottom would cost a third of the list to buy nothing.
+  since it handles split-screen for free.
+- **A tablet runs the phone's design at a tablet's size, which is not the same as running
+  it at a phone's size.** It used to do the latter: the column stopped at 640px, centred
+  itself and wore a hairline frame, and the result read as a phone app parked in the
+  middle of an iPad — an emulator rather than an app. The frame is gone, and the design
+  now grows instead. One media query steps the root from 16px to 18px across the tablet
+  band, and because every size in `index.html` is written in rem, the type, the rules,
+  the row heights, the controls and the cap on the column all move together off that one
+  number: the cap is `40rem`, which is the same 640px on a phone and 720px on a tablet.
+  Gutters of 1.8rem hold the column off the glass — a phone runs its rows to the edge
+  because it has nothing to spare, and text against the bezel is the tell that an app was
+  drawn for something smaller.
+- The three things that did not follow were the ones still drawn in fixed pixels: the
+  donut's ring, its table and the brackets that tie a macro to its parts. They are now
+  computed in the drawing's own 16px pixels and multiplied by `RS` — the root over 16 —
+  at the last moment, which leaves a phone's numbers byte for byte what they were and
+  carries the whole drawing on a tablet. The root is stated in the script rather than read
+  off the document: the app renders before the framework moves its stylesheet into the
+  head, so the first read comes back 16 even on a tablet, and the brackets kept that wrong
+  number for the session — a 50px miss against the table they were supposed to be holding.
+- Given a tablet's extra measure, the drawing's two columns take a share each rather than
+  leaving the difference as a hole in the middle: the ring goes from 164 to 205 and its
+  table from 220.8 to 290. The ring takes the larger share because it is the thing worth
+  looking at. The launcher centres itself vertically for the same reason — three cards
+  pinned to the ceiling of a 1180px screen read as a page that failed to finish loading.
+- The game cards' hover — a lit edge — is drawn as an `outline` at `-1px` offset rather
+  than a border colour, which looks identical and can be revoked under `@media (hover:none)`
+  without having to restate a border that changes every round. On touch, `:hover` latches
+  after a tap and would leave the edge burning on the card just answered.
 - ABOUT carries a **build stamp** beside the version, taken from `document.lastModified`.
   That is the Last-Modified of the copy the browser is actually holding, so a cached page
   reports the age of the cache rather than of the deploy — which is the whole point. It

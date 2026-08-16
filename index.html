@@ -35,6 +35,13 @@
 <script src="ds/_ds_bundle.js"></script>
 <style>
 html,body{margin:0;background:radial-gradient(900px 500px at 50% -20%, rgba(34,211,238,.07), transparent 60%), #05080d;color:#d7e6ef;font-family:var(--font-1),sans-serif}
+/* A tablet runs the phone's design, because below 1000px the table cannot name a food.
+   But a phone's design at a phone's size on a tablet is a phone emulator, so the root
+   grows and the whole layout grows with it: every size in this file is in rem, so one
+   number here steps the type, the rules, the rows and the drawings together. The bounds
+   are TOUCH_W_PX and NARROW_AT in the script — a tablet is exactly the band between
+   them, and the fractions catch the widths a device pixel ratio lands between. */
+@media (min-width:640.02px) and (max-width:999.98px){html{font-size:18px}}
 a{color:#22d3ee;text-decoration:none;transition:color 140ms ease}a:hover{color:#a5f3fc}
 input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:inset 0 0 0 1px rgba(34,211,238,.5);caret-color:#22d3ee}
 /* The mobile search field says enough with a caret and the text being typed. The wash and
@@ -193,7 +200,12 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
   [data-gone="on"],[data-gone="on"]>*{animation:none}}
 @media (hover:none){
   [data-row][data-row]:not([data-sel="on"]):hover{background:transparent!important}
-  [data-row][data-row]:active{background:rgba(34,211,238,.22)!important}}
+  [data-row][data-row]:active{background:rgba(34,211,238,.22)!important}
+  /* Same latch on a tablet's game cards: the lit edge is a pointer's answer to being
+     over a thing, and a finger leaves it burning on the card it just answered. The
+     affordance is drawn as an outline rather than a border colour precisely so it can
+     be taken away here without having to restate a border that changes every round. */
+  [data-gcard][data-gcard]:hover{outline:none!important;box-shadow:none!important}}
 input::placeholder{color:#7b91a3;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:1}
 /* Without this, reaching the end of a table hands the gesture to the page: iOS rubber-bands
    the whole document, the URL bar slides, and the next swipe is spent re-entering the table. */
@@ -273,7 +285,7 @@ option{background:#070b12;color:#d7e6ef}
     </sc-if>
     <sc-if value="{{ gReady }}" hint-placeholder-val="{{ true }}">
       <span style="{{ gPairWrap }}">
-      <button data-gcard onClick="{{ gTop.onClick }}" style="{{ gTop.card }}" style-hover="border-color:rgba(34,211,238,.85);box-shadow:0 0 0 1px rgba(34,211,238,.45)">
+      <button data-gcard onClick="{{ gTop.onClick }}" style="{{ gTop.card }}" style-hover="outline:1px solid rgba(34,211,238,.85);outline-offset:-1px;box-shadow:0 0 0 1px rgba(34,211,238,.45)">
         <span style="{{ gShotWrap }}">
           <img loading="lazy" decoding="async" src="{{ gTop.img }}" alt="{{ gTop.alt }}" style="{{ gTop.shot }}">
           <span style="{{ gTop.scrim }}"></span>
@@ -284,7 +296,7 @@ option{background:#070b12;color:#d7e6ef}
         </span>
         <span style="{{ gTop.bar }}"><span style="{{ gTop.nameS }}">{{ gTop.name }}</span><span style="{{ gTop.portS }}">{{ gTop.portion }}</span><span style="{{ gPipRow }}"><sc-for list="{{ gTop.pips }}" as="p" hint-placeholder-count="2"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="{{ p.s }}"><path d="{{ p.d }}"></path></svg></sc-for></span></span>
       </button>
-      <button data-gcard onClick="{{ gBot.onClick }}" style="{{ gBot.card }}" style-hover="border-color:rgba(34,211,238,.85);box-shadow:0 0 0 1px rgba(34,211,238,.45)">
+      <button data-gcard onClick="{{ gBot.onClick }}" style="{{ gBot.card }}" style-hover="outline:1px solid rgba(34,211,238,.85);outline-offset:-1px;box-shadow:0 0 0 1px rgba(34,211,238,.45)">
         <span style="{{ gShotWrap }}">
           <img loading="lazy" decoding="async" src="{{ gBot.img }}" alt="{{ gBot.alt }}" style="{{ gBot.shot }}">
           <span style="{{ gBot.scrim }}"></span>
@@ -836,12 +848,39 @@ const pipsFor = food => {
   return ops.map(op => ({ d: d, s: { display: "block", flex: "none", opacity: op } }));
 };
 // And the touch layout stops widening here rather than stretching a phone across a
-// tablet. 640 is not arbitrary: the donut's bracket geometry is already computed
-// against a 640 cap, so holding to it keeps that arithmetic true on a tablet.
+// tablet. 640 is not arbitrary: it is 40rem, and the donut's bracket geometry is
+// computed against that measure — so the cap is written in rem and a tablet's larger
+// root carries the column out with the type instead of leaving it phone-sized.
 const TOUCH_W_PX = 640;
-const TOUCH_W = TOUCH_W_PX + "px";
+const TOUCH_W = "40rem";
+// The air a tablet holds either side of the column. A phone has none: its rows run to
+// the glass because there is no room to spare. A tablet has room to spare, and text
+// against the bezel is the tell that an app was drawn for something smaller.
+const TAB_PAD_REM = 1.8;
 const isNarrow = () => typeof window !== "undefined" && window.innerWidth < NARROW_AT;
 const isTablet = () => isNarrow() && window.innerWidth > TOUCH_W_PX;
+// The root the whole layout is measured in — 16 on a phone or a desktop, 18 on a tablet.
+// Stated rather than read off the document: the app renders before the framework moves
+// its stylesheet into the head, so a first read comes back 16 on a tablet too, and the
+// drawings that still do px arithmetic would keep that wrong number for the session.
+// The 18 belongs to the media query at the top of this file; the two move together.
+const TAB_ROOT_PX = 18;
+const rootRem = () => (isTablet() ? TAB_ROOT_PX : 16);
+// The drawing's two columns, in the pixels it was drawn against. A phone has no slack:
+// the ring takes 164 and the table gets whatever is left, which is less than it wants.
+// A tablet has 640 of measure for a drawing that needs 402, so rather than leave the
+// difference as a hole in the middle, both columns take a share of it — the ring is the
+// thing worth looking at, so it takes the larger share.
+const RING_D = () => (isTablet() ? 205 : 164);
+const VTABLE_D = () => (isTablet() ? 290 : 220.8);
+const remOf = px => (px / 16) + "rem";
+// What the column actually measures, in px: the viewport less a tablet's gutters,
+// capped at 40rem. On a phone this is min(innerWidth, 640) exactly as it always was.
+const colWidthPx = () => {
+  const r = rootRem();
+  const w = typeof window === "undefined" ? 390 : window.innerWidth;
+  return Math.min(w - (isTablet() ? 2 * TAB_PAD_REM * r : 0), 40 * r);
+};
 // A run of capitals is USDA shouting a brand. NFS ("not further specified") and the rest are
 // its own shorthand, and belong to plain foods — "Milk, NFS" is as plain as milk gets.
 const BRANDED = /\b(?!NFS\b|NS\b|USDA\b|RTE\b|UPC\b|I{2,3}\b|IV\b)[A-Z]{2,}\b/;
@@ -2181,6 +2220,9 @@ class Component extends DCLogic {
     // row lifts its slice and name above the rest. The drawing is fixed-pixel geometry
     // only, because the framework wraps interpolated text in spans, which SVG will not
     // paint.
+    // How much larger the root is than the 16px the drawing's pixel geometry was drawn
+    // against: 1 on a phone and on a desktop, 1.125 on a tablet.
+    const RS = rootRem() / 16;
     const vizFor = (fo, grams, zm, onMacro, pk, onPick, wind) => {
       // With OZ as the measure the whole drawing speaks ounces: table, hole figures,
       // suffixes. Two decimals below ten, because most foods are fractions of an ounce.
@@ -2310,8 +2352,8 @@ class Component extends DCLogic {
         return {
         row: (o && o.sub) ? {
           display: "flex", alignItems: "stretch", overflow: "hidden",
-          height: zm === o.sub ? "30px" : "0px",
-          paddingLeft: (ind * 16) + "px", paddingRight: ".45rem",
+          height: zm === o.sub ? "1.875rem" : "0px",
+          paddingLeft: ind + "rem", paddingRight: ".45rem",
           // The hairline is an inset shadow inside the 30px, not a border: a border adds
           // height the height transition does not govern, and its snap at the end of a
           // switch was the jolt. Opening and closing share one duration and curve, so
@@ -2323,8 +2365,8 @@ class Component extends DCLogic {
             ? "height 500ms cubic-bezier(.22,1,.36,1), opacity 320ms ease 180ms, box-shadow 500ms ease"
             : "height 500ms cubic-bezier(.22,1,.36,1), opacity 240ms ease, box-shadow 500ms ease",
           cursor: "pointer"
-        } : { display: "flex", alignItems: "stretch", height: "30px",
-          paddingLeft: (ind * 16) + "px", paddingRight: ".45rem",
+        } : { display: "flex", alignItems: "stretch", height: "1.875rem",
+          paddingLeft: ind + "rem", paddingRight: ".45rem",
           borderTop: (o && o.first) ? "0" : "1px solid rgba(215,230,239,.08)",
           cursor: "pointer" },
         dot: { flex: "none", alignSelf: "center", width: "7px", height: "7px",
@@ -2498,8 +2540,11 @@ class Component extends DCLogic {
       // rides its own macro's rows — growing, shrinking and shifting with them, since a
       // span's top and height can animate where a path's d cannot.
       {
-        const vw2 = Math.min(typeof window !== "undefined" ? window.innerWidth : 390, 640);
-        const tableW = Math.min(220.8, vw2 - 7.2 - 164 - 10.4);
+        // All of it is worked in the drawing's own pixels — the ones it had when the root
+        // was 16 — and stepped up by RS only where a number leaves for the DOM. A tablet's
+        // larger root moves the whole drawing without touching this arithmetic.
+        const vw2 = colWidthPx() / RS;
+        const tableW = Math.min(VTABLE_D(), vw2 - 7.2 - RING_D() - 10.4);
         const bx = vw2 - 3.2 - tableW - 7;
         const rh = rows.map((x2, k) => x2.row.height === "0px" ? 0
           : x2.row.overflow === "hidden" ? 30 : k ? 31 : 30);
@@ -2508,8 +2553,9 @@ class Component extends DCLogic {
           const top = rowY(i0) + 2;
           const h = on ? rowY(i0 + nSub) - 2 - top : 26;
           return {
-            position: "absolute", left: bx + "px", top: top + "px",
-            width: "5px", height: h + "px", boxSizing: "border-box",
+            position: "absolute", left: (bx * RS).toFixed(1) + "px",
+            top: (top * RS).toFixed(1) + "px",
+            width: "5px", height: (h * RS).toFixed(1) + "px", boxSizing: "border-box",
             borderLeft: "1px solid rgba(139,166,184,.6)",
             borderTop: "1px solid rgba(139,166,184,.6)",
             borderBottom: "1px solid rgba(139,166,184,.6)",
@@ -2529,8 +2575,8 @@ class Component extends DCLogic {
       // The expansion's height is whatever the taller column needs.
       const visH = rows.reduce((a2, x2, k) =>
         a2 + (x2.row.height === "0px" ? 0 : x2.row.overflow === "hidden" ? 30 : k ? 31 : 30), 0);
-      viz.expH = (18 + Math.max(visH, 174) + 52.8).toFixed(1) + "px";
-      viz.vizH = (18 + Math.max(visH, 174)).toFixed(1) + "px";
+      viz.expH = ((18 + Math.max(visH, RING_D() + 10) + 52.8) * RS).toFixed(1) + "px";
+      viz.vizH = ((18 + Math.max(visH, RING_D() + 10)) * RS).toFixed(1) + "px";
       return viz;
     };
     // A search food being open borrows the plate's height: the summary folds to its header
@@ -3412,7 +3458,7 @@ class Component extends DCLogic {
         }
       })),
       shell: s.narrow
-        ? { position: "fixed", top: 0, left: 0, right: 0, height: s.vvh ? s.vvh + "px" : VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: s.tablet ? "2rem 1.25rem" : ".2rem 0 0", boxSizing: "border-box", transition: "height 240ms cubic-bezier(.22,1,.36,1)" }
+        ? { position: "fixed", top: 0, left: 0, right: 0, height: s.vvh ? s.vvh + "px" : VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: s.tablet ? "1.1rem " + TAB_PAD_REM + "rem .4rem" : ".2rem 0 0", boxSizing: "border-box", transition: "height 240ms cubic-bezier(.22,1,.36,1)" }
         : { height: VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: "2.4rem 1.25rem", boxSizing: "border-box" },
       mName: {
         display: "block", minWidth: 0, fontWeight: 300, fontSize: "1.02rem", color: "#d7e6ef",
@@ -3451,9 +3497,12 @@ class Component extends DCLogic {
       mVizBox: { position: "relative", display: "flex", alignItems: "flex-start",
         gap: ".65rem", padding: "8px .2rem 10px .25rem",
         cursor: vZoom ? "pointer" : "default" },
+      // 10.25rem is the old 164px, written so a tablet's root carries the drawing out
+      // with the table beside it. The SVG inside is a 164-unit viewBox at 100%, so the
+      // whole donut — rings, sweeps, hole — scales off this one box.
       vLeft: { flex: "none", position: "relative", display: "flex",
-        flexDirection: "column", gap: ".55rem", width: "164px", paddingTop: "10px" },
-      vRing: { flex: "none", position: "relative", width: "164px", height: "164px" },
+        flexDirection: "column", gap: ".55rem", width: remOf(RING_D()), paddingTop: ".625rem" },
+      vRing: { flex: "none", position: "relative", width: remOf(RING_D()), height: remOf(RING_D()) },
       vSvg: { display: "block", width: "100%", height: "100%" },
 
       // The hole's own flex baseline-aligns the two figures around their slash; the
@@ -3463,7 +3512,7 @@ class Component extends DCLogic {
       vzUnit: unit.k === "OZ" ? "oz" : "g",
       vHoleUnit: { marginLeft: ".15rem", fontFamily: "var(--font-2)",
         fontSize: ".8rem", letterSpacing: ".04em", color: "#5f7f8e" },
-      vTable: { flex: 1, minWidth: 0, maxWidth: "13.8rem", marginLeft: "auto",
+      vTable: { flex: 1, minWidth: 0, maxWidth: remOf(VTABLE_D()), marginLeft: "auto",
         display: "flex", flexDirection: "column" },
       // The last column is for doing rather than reading, so it is fenced off by a heavier
       // rule than the ones between the figures.
@@ -3582,9 +3631,12 @@ class Component extends DCLogic {
         fontFamily: "var(--font-2)", fontSize: ".8rem", letterSpacing: ".14em", transition: "color 140ms ease"
       },
       mBackTitle: { color: "#c3d6e2", whiteSpace: "nowrap" },
+      // A phone's launcher starts at the top because the top is where a thumb is not. A
+      // tablet held in two hands has the whole face to work with, and three cards pinned
+      // to the ceiling of a 1180px screen read as a page that failed to load the rest.
       homeWrap: {
         flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column",
-        justifyContent: s.narrow ? "flex-start" : "center",
+        justifyContent: s.narrow && !s.tablet ? "flex-start" : "center",
         padding: s.narrow ? "1.4rem .7rem 1rem" : "0 0 2rem", boxSizing: "border-box"
       },
       homeHead: { flex: "none", display: "flex", flexDirection: "column", gap: ".35rem", marginBottom: s.narrow ? "1.2rem" : "1.6rem" },
@@ -4283,10 +4335,12 @@ class Component extends DCLogic {
       // Offscreen rows skip layout entirely, which is what keeps 250 grids animating
       // their tracks at full frame rate.
       dRowWrap: { flex: "none", contentVisibility: "auto", containIntrinsicSize: "auto 29px" },
+      // No frame on a tablet. A border round the column drew the app as a phone parked
+      // on a bigger screen, which is exactly what it should not read as; the gutters do
+      // the same job of holding the column off the glass without the picture frame.
       dShell: {
         width: "100%", maxWidth: s.narrow ? TOUCH_W : dxp ? "1280px" : "1120px",
         display: "flex", flexDirection: "column", flex: 1, minHeight: 0,
-        border: s.tablet ? "1px solid rgba(34,211,238,.20)" : "0",
         boxSizing: "border-box",
         transition: "max-width 560ms cubic-bezier(.22,1,.36,1)"
       },
