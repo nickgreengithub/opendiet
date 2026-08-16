@@ -41,9 +41,10 @@ There is deliberately no daily target to measure a plate against: turning a calo
 into a protein or carbohydrate goal is contested enough that the table would be taking a
 side it has no business taking. It states what is on the plate.
 
-On a phone the site opens on a launcher: one row per app, saying what it is and whether it
-is built. FOOD SEARCH and CALORIE GAME are; CALORIE CALC is dimmed and inert until it is.
-A desktop opens straight into the table, with the others a tab away.
+On a phone the site opens on a launcher: three rows of one height, each with a mark, a
+name and one short line. FOOD SEARCH and CALORIE GAME open; CALORIE CALC is dimmed,
+labelled COMING SOON and inert until it is built. A desktop opens straight into the table,
+with the others a tab away.
 
 ## Calorie game
 

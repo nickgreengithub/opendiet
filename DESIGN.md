@@ -34,11 +34,26 @@ The layout rules below were the first things it was built to test, and still hol
   game has not been dealt from that deck for some time, and a credit for pictures the site
   no longer shows is worse than no credit at all.
 - **A phone opens on the launcher.** Three rows, one per app, each a container you press:
-  the name, whether it is LIVE or COMING SOON, a sentence saying what it does, and a
-  chevron if there is somewhere to go. A desktop is wide enough to open straight into the
-  table with the others a tab away, so it still does. The rows are rows rather than the
-  tall cards they were, because a phone reads a list top to bottom and three cards of
-  7.4rem did not leave the third one on the screen.
+  a mark, the name, one short line on what it is, and a chevron if there is somewhere to
+  go. A desktop is wide enough to open straight into the table with the others a tab away,
+  so it still does. The rows are rows rather than the tall cards they were, because a phone
+  reads a list top to bottom and three cards of 7.4rem did not leave the third on screen.
+- All three rows are **one height** — 78px, measured — and that is why neither the name nor
+  the line under it may wrap. Both are held to one line and would ellipsis rather than
+  break, the name's letter spacing came down to .1em and the COMING SOON tag to .62rem to
+  pay for it. Before that, CALORIE CALC broke over two lines and stood taller than the other
+  two, which read as though it mattered more than the apps that actually work.
+- **Nothing is labelled LIVE.** A row that opens says so by opening; a badge saying the
+  working thing works is noise on two rows out of three. Only the unbuilt one carries a word.
+- The marks are from the same set as the portion marks — a glass for the table, a balance
+  for the game, since the game is a question about which side weighs more, and a calculator
+  for the one that is not built. 30px, in the accent for the two that open and a flat grey
+  for the one that does not.
+- **The order is the order of use, not of building:** search, game, calc. The tab row reads
+  from the same list, so it cannot disagree with the launcher.
+- The descriptions are one short line each. "Search 18,000 foods and read their macros side
+  by side" described a comparison tool the site is not — the table is one list you sort, not
+  two foods set against each other.
 - **CALORIE CALC is inert, not merely marked.** It is dimmed, labelled COMING SOON, carries
   no chevron, and has `pointer-events: none` — which takes the hover with it, so nothing
   about it invites a press. The same is true of its tab. It was previously a live door into

@@ -226,6 +226,7 @@ option{background:#070b12;color:#d7e6ef}
     <div style="{{ homeGrid }}">
       <sc-for list="{{ appCards }}" as="a" hint-placeholder-count="4">
         <div onClick="{{ a.onClick }}" style="{{ a.style }}" style-hover="border-color:rgba(34,211,238,.75);background:rgba(34,211,238,.08)">
+          <span style="{{ a.iconS }}"><svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" style="display:block"><path d="{{ a.icon }}"></path></svg></span>
           <span style="{{ a.col }}">
             <span style="{{ cardTop }}"><span style="{{ a.nameStyle }}">{{ a.label }}</span><span style="{{ a.tagStyle }}">{{ a.tag }}</span></span>
             <span style="{{ a.noteStyle }}">{{ a.note }}</span>
@@ -745,6 +746,13 @@ const GAME_LEAVE = 1500;
 // teaches nothing the sixth did not, and a game that ends while it is still
 // interesting gets played twice.
 const GAME_ROUNDS = 6;
+
+// One mark per app, from the same set as the portion marks: a glass for the table,
+// a balance for the game — which is a question about which side weighs more — and a
+// calculator for the one that is not built.
+const ICON_SEARCH = "M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5l-1.5 1.5l-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16A6.5 6.5 0 0 1 3 9.5A6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14S14 12 14 9.5S12 5 9.5 5";
+const ICON_GAME = "M12 3c-1.27 0-2.4.8-2.82 2H3v2h1.95L2 14c-.47 2 1 3 3.5 3s4.06-1 3.5-3L6.05 7h3.12c.33.85.98 1.5 1.83 1.83V20H2v2h20v-2h-9V8.82c.85-.32 1.5-.97 1.82-1.82h3.13L15 14c-.47 2 1 3 3.5 3s4.06-1 3.5-3l-2.95-7H21V5h-6.17C14.4 3.8 13.27 3 12 3m0 2a1 1 0 0 1 1 1a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1m-6.5 5.25L7 14H4zm13 0L20 14h-3z";
+const ICON_CALC = "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m0 16H5V5h14zM6.2 7.7h5v1.5h-5zm6.8 8.1h5v1.5h-5zm0-2.6h5v1.5h-5zM8 18h1.5v-2h2v-1.5h-2v-2H8v2H6V16h2zm6.1-7.1l1.4-1.4l1.4 1.4l1.1-1l-1.4-1.4L18 7.1L16.9 6l-1.4 1.4L14.1 6L13 7.1l1.4 1.4L13 9.9z";
 
 // Six rounds means seven possible scores, so the bands below only ever yield A+,
 // B, D+ or F. That is not a rounding accident: guessing scores about half on this
@@ -1604,13 +1612,15 @@ class Component extends DCLogic {
     // v0.3 turns the site into a set of small apps. Only FOOD SEARCH is built; the rest are
     // placeholders so the shell around them can be judged before anything is written.
     const APPS = [
-      { k: "search", label: "FOOD SEARCH", note: "Search 18,000 foods and read their macros side by side." },
-      { k: "calc", label: "CALORIE CALC",
-        note: "A calorie target built backwards from the body composition you are after: say where your body fat is now and where you want it, and get the daily number and the timeline that reach it.",
-        card: "A daily calorie target and timeline, built backwards from your body fat goal." },
-      { k: "game", label: "CALORIE GAME",
+      { k: "search", label: "FOOD SEARCH", icon: ICON_SEARCH,
+        note: "Every macro for 16,000 foods in one sortable table.",
+        card: "Macros for 16,000 foods." },
+      { k: "game", label: "CALORIE GAME", icon: ICON_GAME,
         note: "Two plates, six times: which of them carries more calories. Reading a portion by eye is the one skill that travels to a restaurant table, and it is trainable.",
-        card: "Two plates, six rounds \u2014 which carries more calories. Reading a portion by eye is trainable, and it is the skill dieting actually runs on." }
+        card: "Which plate carries more?" },
+      { k: "calc", label: "CALORIE CALC", icon: ICON_CALC,
+        note: "A calorie target built backwards from the body composition you are after: say where your body fat is now and where you want it, and get the daily number and the timeline that reach it.",
+        card: "Your daily calorie target." }
     ];
     // A phone opens on the launcher and picks an app; a desktop is wide enough to
     // open straight into the table with the others a tab away.
@@ -3113,24 +3123,36 @@ class Component extends DCLogic {
       // page that says it is not there yet. pointer-events off takes the hover with it,
       // so nothing about it invites a press.
       appCards: APPS.map(a => ({
-        label: a.label, note: a.card || a.note, tag: live(a.k) ? "LIVE" : "COMING SOON",
+        // Only the unbuilt one is labelled. Marking the working ones LIVE says nothing:
+        // they are on the screen and they open.
+        label: a.label, note: a.card || a.note, icon: a.icon, tag: live(a.k) ? "" : "COMING SOON",
         onClick: live(a.k) ? setApp(a.k) : null,
-        nameStyle: { fontFamily: "var(--font-2)", fontSize: s.narrow ? "1rem" : ".95rem",
-          letterSpacing: ".14em", color: live(a.k) ? "#22d3ee" : "#6d818f" },
+        // The name never wraps: it is what makes the three rows one height.
+        nameStyle: { minWidth: 0, whiteSpace: "nowrap", overflow: "hidden",
+          textOverflow: "ellipsis", fontFamily: "var(--font-2)",
+          fontSize: s.narrow ? "1rem" : ".95rem",
+          letterSpacing: ".1em", color: live(a.k) ? "#22d3ee" : "#6d818f" },
         tagStyle: {
-          flex: "none", fontFamily: "var(--font-2)", fontSize: ".68rem", letterSpacing: ".16em",
+          flex: "none", whiteSpace: "nowrap", fontFamily: "var(--font-2)",
+          fontSize: ".62rem", letterSpacing: ".12em",
           color: live(a.k) ? "#22d3ee" : "#546a78"
         },
-        noteStyle: { fontFamily: "var(--font-1)", fontWeight: 300,
+        noteStyle: { minWidth: 0, whiteSpace: "nowrap", overflow: "hidden",
+          textOverflow: "ellipsis", fontFamily: "var(--font-1)", fontWeight: 300,
           fontSize: s.narrow ? ".95rem" : "1rem", lineHeight: 1.45,
-          color: live(a.k) ? "#94a3b8" : "#637683", textWrap: "pretty" },
+          color: live(a.k) ? "#94a3b8" : "#637683" },
         col: { flex: "1 1 auto", minWidth: 0, display: "flex", flexDirection: "column",
-          gap: s.narrow ? ".38rem" : ".5rem" },
+          gap: s.narrow ? ".3rem" : ".38rem" },
+        iconS: { flex: "none", display: "flex", alignItems: "center",
+          color: live(a.k) ? "#22d3ee" : "#4a5d6b" },
         chev: { flex: "none", display: "flex", alignItems: "center",
           color: live(a.k) ? "#22d3ee" : "transparent" },
+        // One height for all three, so the list reads as a set rather than as three
+        // things of differing importance.
         style: {
-          display: "flex", alignItems: "center", gap: s.narrow ? ".7rem" : "1rem",
-          padding: s.narrow ? ".85rem .85rem" : "1.1rem 1.15rem",
+          display: "flex", alignItems: "center", gap: s.narrow ? ".8rem" : "1rem",
+          height: s.narrow ? "4.9rem" : "5.2rem", boxSizing: "border-box",
+          padding: s.narrow ? "0 .85rem" : "0 1.15rem",
           border: "1px solid " + (live(a.k) ? "rgba(34,211,238,.28)" : "rgba(215,230,239,.1)"),
           cursor: live(a.k) ? "pointer" : "default",
           pointerEvents: live(a.k) ? "auto" : "none",
