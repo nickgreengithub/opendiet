@@ -71,7 +71,23 @@ The layout rules below were the first things it was built to test, and still hol
   right-hand corner. The launcher screen it replaces is gone from both, and ABOUT is a
   page in the same language as the unbuilt ones rather than a dialog over the top: it
   lights its tab like any other, and Escape returns to the search.
-- CALORIE GAME is built, on a phone. It opens by **showing** the game rather than
+- **The game runs on a desktop too, laid out for one.** The pair goes side by side rather
+  than stacked, in a column capped at 1100px, and the two pictures take everything that is
+  not the label bar or the round line — 543x719 each at 1280 wide. That is the same
+  principle as the phone's, which is that the photographs are the question and everything
+  else is a caption; it just falls the other way when the screen is wider than it is tall.
+- What changed with it: the donut grows from 8.6rem to 14rem and its figure from 2.5 to
+  3.9rem, since a dial sized for a phone card is a coin on a desktop plate; the intro
+  centres and its demonstration lays the two plates side by side, with the hand travelling
+  across instead of down (a second keyframe, `od-demo-hand-x`); and the results go the other
+  way, capped at a 46rem reading measure and centred, because a list of twelve short lines
+  stretched across a metre of glass is not more readable, only wider.
+- Two scoping traps, both the same trap: the game's view-model and `gResults` are different
+  scopes, and only the first has the render's `s`. The view-model was returning `{}` unless
+  `s.narrow`, which is why the desktop game rendered as an empty div; and `gResults` had to
+  read the width off `this.state` instead, since `s.narrow` inside it is a reference error
+  that silently emptied the whole results object.
+- CALORIE GAME is built, on a phone as well as a desktop. It opens by **showing** the game rather than
   describing it: HOW TO PLAY, one line of instruction — select the food with the highest
   calories — then a working miniature of two cards with a hand drifting from one to the
   other, and BEGIN. The hand does not press either of them. The page is saying what the

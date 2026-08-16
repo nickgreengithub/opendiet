@@ -48,7 +48,8 @@ with the others a tab away.
 
 ## Calorie game
 
-A second app, on a phone. It opens by showing the game rather than describing it — HOW TO PLAY, one line of
+A second app. On a phone the pair is stacked; on a desktop it is side by side, the two
+photographs taking the whole screen between them. It opens by showing the game rather than describing it — HOW TO PLAY, one line of
 instruction, and a working miniature of a round that plays itself on a loop, a hand pressing one of two cards
 and the figures arriving — and then asks one question six times: two foods stacked one
 above the other, each with the portion it is, and which of them carries more calories.

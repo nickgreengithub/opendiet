@@ -97,6 +97,10 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
   0%,6%{transform:translateY(0)}
   44%,56%{transform:translateY(9.1rem)}
   94%,100%{transform:translateY(0)}
+@keyframes od-demo-hand-x{
+  0%,6%{transform:translateX(-8.2rem)}
+  44%,56%{transform:translateX(8.2rem)}
+  94%,100%{transform:translateX(-8.2rem)}
 }
 @media (prefers-reduced-motion:reduce){
   [data-demo] *{animation:none !important}
@@ -268,6 +272,7 @@ option{background:#070b12;color:#d7e6ef}
       </span>
     </sc-if>
     <sc-if value="{{ gReady }}" hint-placeholder-val="{{ true }}">
+      <span style="{{ gPairWrap }}">
       <button data-gcard onClick="{{ gTop.onClick }}" style="{{ gTop.card }}">
         <span style="{{ gShotWrap }}">
           <img loading="lazy" decoding="async" src="{{ gTop.img }}" alt="{{ gTop.alt }}" style="{{ gTop.shot }}">
@@ -290,6 +295,7 @@ option{background:#070b12;color:#d7e6ef}
         </span>
         <span style="{{ gBot.bar }}"><span style="{{ gBot.nameS }}">{{ gBot.name }}</span><span style="{{ gBot.portS }}">{{ gBot.portion }}</span><span style="{{ gPipRow }}"><sc-for list="{{ gBot.pips }}" as="p" hint-placeholder-count="2"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="{{ p.s }}"><path d="{{ p.d }}"></path></svg></sc-for></span></span>
       </button>
+      </span>
       <sc-if value="{{ gMsgOn }}" hint-placeholder-val="{{ false }}">
         <span onClick="{{ gMsgDismiss }}" style="{{ gMsgScrim }}"><span style="{{ gMsgCard }}"><span style="{{ gMsgTagS }}">{{ gMsgTag }}</span><span style="{{ gMsgLineS }}">{{ gMsgLine }}</span><span style="{{ gMsgHintS }}">TAP TO CONTINUE</span></span></span>
       </sc-if>
@@ -1144,6 +1150,9 @@ class Component extends DCLogic {
   gResults(picks, kit) {
     if (!picks || !picks.length) return {};
     const n = picks.length, hits = picks.filter(p => p.hit).length;
+    // gResults runs as a method, so the render scope's `s` is not here: read the width
+    // off the component's own state.
+    const nar = !!this.state.narrow;
     const pct = Math.round(100 * hits / n);
     // The ordinary school scale, which happens to suit this game: the deck is built
     // so that guessing scores about half, so half is an F, and it takes five of six
@@ -1351,9 +1360,11 @@ class Component extends DCLogic {
       // on the second. Underneath the block, either of them read as a footnote hung
       // off the bottom of the grade.
       gHeadS: { flex: "none", display: "flex", alignItems: "center", gap: ".7rem",
-        padding: ".75rem .15rem .7rem" },
+        width: "100%", maxWidth: nar ? "none" : "46rem",
+        marginLeft: nar ? 0 : "auto", marginRight: nar ? 0 : "auto",
+        padding: nar ? ".75rem .15rem .7rem" : "1.1rem .15rem .9rem", boxSizing: "border-box" },
       gGradeS: { flex: "none", fontFamily: "var(--font-1)", fontWeight: 300,
-        fontSize: "3.5rem", lineHeight: .82, color: hue },
+        fontSize: nar ? "3.5rem" : "4.2rem", lineHeight: .82, color: hue },
       gHeadCol: { minWidth: 0, display: "flex", flexDirection: "column", gap: ".24rem" },
       // Beside a two-character grade at 360px this wrapped, splitting "OF 6 CORRECT"
       // across two lines. The room came out of the tracking rather than the size.
@@ -1374,7 +1385,9 @@ class Component extends DCLogic {
       // The mark sits beside PLAY AGAIN, the same height as it, so the foot is one row
       // and the caveat opens beneath the thing that summons it.
       gFootRow: { flex: "none", display: "flex", alignItems: "stretch", gap: ".5rem",
-        marginTop: "auto" },
+        width: "100%", maxWidth: nar ? "none" : "46rem",
+        marginLeft: nar ? 0 : "auto", marginRight: nar ? 0 : "auto",
+        marginTop: "auto", boxSizing: "border-box" },
       gTipBtn: { flex: "none", display: "flex", alignItems: "center",
         justifyContent: "center", width: "2.5rem", height: "2.5rem", boxSizing: "border-box",
         padding: 0, borderRadius: 0, cursor: "pointer",
@@ -1382,12 +1395,17 @@ class Component extends DCLogic {
         background: this.state.gTip ? "rgba(34,211,238,.12)" : "transparent",
         color: this.state.gTip ? "#3fdcf2" : "#5f7688" },
       gNoteS: { flex: "none", display: "block", marginTop: ".5rem",
+        width: "100%", maxWidth: nar ? "none" : "46rem",
+        marginLeft: nar ? 0 : "auto", marginRight: nar ? 0 : "auto",
+        boxSizing: "border-box",
         padding: ".7rem .8rem", border: "1px solid rgba(34,211,238,.28)",
         background: "rgba(34,211,238,.05)", fontFamily: "var(--font-1)", fontWeight: 300,
         fontSize: ".95rem", lineHeight: 1.45, color: "#c3d3dd" },
       gResTiles: tiles,
-      gListWrap: { flex: "1 1 auto", minHeight: 0, overflowY: "auto",
-        display: "block", paddingTop: ".45rem" },
+      gListWrap: { flex: "1 1 auto", minHeight: 0, overflowY: "auto", display: "block",
+        width: "100%", maxWidth: nar ? "none" : "46rem",
+        marginLeft: nar ? 0 : "auto", marginRight: nar ? 0 : "auto",
+        paddingTop: ".45rem", boxSizing: "border-box" },
       gCloseAll: () => this.gCloseOpen(),
       gAgain: () => this.gStart(false),
       gDeckNote: this._deck ? this._deck.note : ""
@@ -3496,7 +3514,8 @@ class Component extends DCLogic {
       gWrap: {
         position: "relative",
         flex: 1, minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column",
-        padding: "0 .7rem .7rem", boxSizing: "border-box"
+        width: "100%", maxWidth: s.narrow ? "none" : "1100px", margin: "0 auto",
+        padding: s.narrow ? "0 .7rem .7rem" : "0 0 .8rem", boxSizing: "border-box"
       },
       gHead: {
         flex: "none", display: "flex", alignItems: "baseline", justifyContent: "space-between",
@@ -3584,9 +3603,9 @@ class Component extends DCLogic {
         lineHeight: 1.55, color: "#94a3b8", textWrap: "pretty" }, soonIn(220)),
       isResults: s.view === "results" && app === "search", isSettings: s.view === "settings", isSignin: s.view === "signin",
       // ---- calorie game ----------------------------------------------------
-      appGame: app === "game" && s.narrow,
+      appGame: app === "game",
       ...(() => {
-        if (app !== "game" || !s.narrow) return {};
+        if (app !== "game") return {};
         const picks = s.gPicks || [], i = s.gI || 0, sel = s.gSel;
         const r = this.gRound(i);
         const done = i >= GAME_ROUNDS || (!r && picks.length >= GAME_ROUNDS);
@@ -3632,7 +3651,9 @@ class Component extends DCLogic {
             background: "#050810", opacity: shown ? 0.68 : 0,
             transition: shown ? "opacity 320ms ease" : "none" },
           dial: { position: "absolute", left: "50%", top: "50%",
-            width: "8.6rem", height: "8.6rem", marginLeft: "-4.3rem", marginTop: "-4.3rem",
+            width: s.narrow ? "8.6rem" : "14rem", height: s.narrow ? "8.6rem" : "14rem",
+            marginLeft: s.narrow ? "-4.3rem" : "-7rem",
+            marginTop: s.narrow ? "-4.3rem" : "-7rem",
             pointerEvents: "none", opacity: shown ? 1 : 0,
             transform: shown ? "scale(1)" : "scale(.88)",
             transition: shown
@@ -3648,12 +3669,13 @@ class Component extends DCLogic {
           hole: { position: "absolute", inset: 0, display: "flex",
             flexDirection: "column", alignItems: "center", justifyContent: "center",
             gap: ".1rem", pointerEvents: "none" },
-          holeK: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "2.5rem",
+          holeK: { fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: s.narrow ? "2.5rem" : "3.9rem",
             lineHeight: 1, color: hue, fontVariantNumeric: "tabular-nums" },
           card: {
             position: "relative", flex: "1 1 0", minHeight: 0, width: "100%",
             display: "flex", flexDirection: "column",
-            padding: 0, margin: 0, marginTop: k ? ".45rem" : 0,
+            padding: 0, margin: 0, minWidth: 0,
             appearance: "none", WebkitAppearance: "none",
             overflow: "hidden", borderRadius: 0, textAlign: "left",
             background: "#0a1016", cursor: shown ? "default" : "pointer",
@@ -3707,7 +3729,10 @@ class Component extends DCLogic {
           // and a centred block that overflows spills equally at both ends, which
           // put the heading underneath the tab row.
           gIntroWrap: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column",
-            justifyContent: "center", padding: ".9rem .3rem 1.2rem" },
+            justifyContent: "center",
+            alignItems: s.narrow ? "stretch" : "center",
+            textAlign: s.narrow ? "left" : "center",
+            padding: s.narrow ? ".9rem .3rem 1.2rem" : "1rem .3rem 2rem" },
           // A heading that says what the page is for, then the instruction. The
           // page used to open by asking the question the game asks, which read as
           // the first round rather than as the explanation of one.
@@ -3724,18 +3749,22 @@ class Component extends DCLogic {
           // and the figures arriving. Three paragraphs of rules said less than
           // watching it happen once, and this says it in five seconds.
           gDemoWrap: { position: "relative", flex: "none", display: "flex",
-            flexDirection: "column", gap: ".35rem", maxWidth: "12.5rem",
+            flexDirection: s.narrow ? "column" : "row",
+            gap: s.narrow ? ".35rem" : ".7rem",
+            maxWidth: s.narrow ? "12.5rem" : "32rem",
+            width: s.narrow ? "auto" : "100%",
             animation: "od-soon-a 420ms cubic-bezier(.22,1,.36,1) 160ms both" },
           gDemoA: demoA, gDemoB: demoB,
           // Near enough square, because the plate is centred in a square tile and a
           // letterbox crop of one is a picture of the tablecloth.
-          gDemoShot: { width: "100%", height: "7.1rem", objectFit: "cover", display: "block" },
-          gDemoCardA: { position: "relative", display: "flex", flexDirection: "column",
-            overflow: "hidden", border: "1px solid rgba(34,211,238,.16)",
-            background: "#0a1016" },
-          gDemoCardB: { position: "relative", display: "flex", flexDirection: "column",
-            overflow: "hidden", border: "1px solid rgba(34,211,238,.16)",
-            background: "#0a1016" },
+          gDemoShot: { width: "100%", height: s.narrow ? "7.1rem" : "10.5rem",
+            objectFit: "cover", display: "block" },
+          gDemoCardA: { position: "relative", flex: "1 1 0", minWidth: 0, display: "flex",
+            flexDirection: "column", overflow: "hidden",
+            border: "1px solid rgba(34,211,238,.16)", background: "#0a1016" },
+          gDemoCardB: { position: "relative", flex: "1 1 0", minWidth: 0, display: "flex",
+            flexDirection: "column", overflow: "hidden",
+            border: "1px solid rgba(34,211,238,.16)", background: "#0a1016" },
           gDemoBarA: { display: "grid", gridTemplateColumns: "auto minmax(0,1fr)",
             columnGap: ".35rem", alignItems: "baseline", alignContent: "center",
             height: "1.65rem", padding: "0 .4rem", boxSizing: "border-box",
@@ -3750,17 +3779,22 @@ class Component extends DCLogic {
           gDemoPort: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
             whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: ".7rem",
             color: "#a9bcc8" },
-          gDemoHand: { position: "absolute", left: "50%", top: "3.2rem",
-            marginLeft: "-.6rem", color: "#22d3ee", pointerEvents: "none",
+          gDemoHand: { position: "absolute",
+            left: s.narrow ? "50%" : "0", right: s.narrow ? "auto" : "0",
+            top: s.narrow ? "3.2rem" : "4rem",
+            marginLeft: s.narrow ? "-.6rem" : 0,
+            display: "flex", justifyContent: "center", color: "#22d3ee", pointerEvents: "none",
             filter: "drop-shadow(0 0 7px rgba(34,211,238,.55))",
-            animation: "od-demo-hand 4400ms cubic-bezier(.5,0,.5,1) infinite" },
+            animation: (s.narrow ? "od-demo-hand" : "od-demo-hand-x") +
+              " 4400ms cubic-bezier(.5,0,.5,1) infinite" },
           gIntroFootTxt: "Six pairs. The bigger plate wins about half the time, so size will not tell you.",
           gIntroFoot: Object.assign({ display: "block", maxWidth: "30ch",
             padding: "1rem 0 0", fontFamily: "var(--font-1)", fontWeight: 300,
             fontSize: "1.02rem", lineHeight: 1.45, color: "#b6c6d2", textWrap: "pretty" },
             { animation: "od-soon-a 420ms cubic-bezier(.22,1,.36,1) 320ms both" }),
           gBegin: () => this.gBegin(),
-          gBeginS: { flex: "none", alignSelf: "flex-start", display: "flex",
+          gBeginS: { flex: "none", alignSelf: s.narrow ? "flex-start" : "center",
+            display: "flex",
             alignItems: "center", justifyContent: "center", marginTop: "1.2rem",
             padding: "0 2.2rem", height: "3rem", boxSizing: "border-box",
             border: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
@@ -3783,6 +3817,12 @@ class Component extends DCLogic {
             };
           }),
           gTop: side(r && r.top, 0), gBot: side(r && r.bot, 1),
+          // A phone reads the pair top to bottom; a desktop reads it left to right, and
+          // the pictures are the point either way, so the row gets everything that is not
+          // the label bar or the round line.
+          gPairWrap: { flex: "1 1 auto", minHeight: 0, minWidth: 0, display: "flex",
+            flexDirection: s.narrow ? "column" : "row",
+            gap: s.narrow ? ".45rem" : ".9rem" },
           gShotWrap: { position: "relative", flex: "1 1 auto", minHeight: 0,
             overflow: "hidden" },
           gDialSvg: { display: "block", width: "100%", height: "100%",
