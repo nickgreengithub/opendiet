@@ -219,6 +219,13 @@ The layout rules below were the first things it was built to test, and still hol
   household portion times a whole number, the serving box reads a round number: half a cup
   of cashews is 68 g, two cups of grapes is 302 g, two eggs is 100 g. There is no ADD,
   because there is no plate in the game.
+- An open food sits on the table's own picked background, the same #0b1a20 panel the search
+  rows use, so the two screens read as one thing rather than two. The panel does most of the
+  separating once it is there, and the pair's rule changes job with it: closed, it sits under
+  the second food and closes the pair; open, it moves above the second food, parting it from
+  the first food's drawing, and the rule that closes the pair drops to the foot of the whole
+  block. Under the second food with the pair open, it read as the top edge of that food's own
+  drawing rather than as a boundary.
 - The library is 937KB and the game does not otherwise need it, so it is fetched when a game
   begins rather than at boot — a player who never reaches the results page never pays for it.
 - **The rule falls where the pair ends, not through the middle of it.** Two foods joined

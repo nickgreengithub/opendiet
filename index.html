@@ -1221,10 +1221,12 @@ class Component extends DCLogic {
         rowS: { display: "grid",
           gridTemplateColumns: "minmax(0,1fr) auto 3.5rem 1.4rem",
           columnGap: ".45rem", alignItems: "center", minHeight: "2rem", cursor: "pointer",
-          borderBottom: last ? "1px solid rgba(34,211,238,.14)" : 0 },
+          borderTop: last && isOpen ? "1px solid rgba(34,211,238,.14)" : 0,
+          borderBottom: last && !isOpen ? "1px solid rgba(34,211,238,.14)" : 0 },
         detail: isOpen ? detailOf(food) : null,
         open: isOpen,
-        expand: { display: isOpen ? "block" : "none", overflow: "hidden" }
+        expand: { display: isOpen ? "block" : "none", overflow: "hidden",
+          background: PICKED_BG }
       });
       return {
         a: line(p.top, false), b: line(p.bot, true),
@@ -1238,7 +1240,8 @@ class Component extends DCLogic {
         // display:block matters. A span is inline by default and an inline box drops
         // vertical margin on the floor, which is why the gap between pairs measured 0px
         // however large the number was set.
-        s: { display: "block", flex: "none", marginBottom: "1.35rem" }
+        s: { display: "block", flex: "none", marginBottom: "1.35rem",
+          borderBottom: isOpen ? "1px solid rgba(34,211,238,.14)" : 0 }
       };
     });
     return {
