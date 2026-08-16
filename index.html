@@ -336,22 +336,6 @@ option{background:#070b12;color:#d7e6ef}
                 </sc-for>
               </span>
             </span>
-            <span style="{{ mMeasureRow }}">
-              <button onClick="{{ t.a.detail.resetTap }}" style="{{ t.a.detail.resetS }}" style-hover="color:#22d3ee"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
-              <span onClick="{{ t.a.detail.ctl.pickG }}" style="{{ t.a.detail.ctl.gCell }}">
-                <button data-step="l" onClick="{{ t.a.detail.ctl.gDown }}" style="{{ t.a.detail.ctl.gStepL }}" style-hover="color:#22d3ee">−</button>
-                <span style="{{ t.a.detail.ctl.gAmt }}">{{ t.a.detail.ctl.gQty }}<span style="{{ sizeSuffix }}">{{ t.a.detail.ctl.gUnit }}</span></span>
-                <button data-step="r" onClick="{{ t.a.detail.ctl.gUp }}" style="{{ t.a.detail.ctl.gStepR }}" style-hover="color:#22d3ee">+</button>
-              </span>
-              <sc-if value="{{ t.a.detail.ctl.hasServing }}" hint-placeholder-val="{{ true }}">
-                <span style="{{ mEquals }}">=</span>
-                <span onClick="{{ t.a.detail.ctl.pickS }}" style="{{ t.a.detail.ctl.sCell }}">
-                  <button data-step="l" onClick="{{ t.a.detail.ctl.sDown }}" style="{{ t.a.detail.ctl.sStepL }}" style-hover="color:#22d3ee">−</button>
-                  <span style="{{ t.a.detail.ctl.sAmt }}">{{ t.a.detail.ctl.servQty }}<span style="{{ t.a.detail.ctl.servStyle }}">{{ t.a.detail.ctl.servName }}</span></span>
-                  <button data-step="r" onClick="{{ t.a.detail.ctl.sUp }}" style="{{ t.a.detail.ctl.sStepR }}" style-hover="color:#22d3ee">+</button>
-                </span>
-              </sc-if>
-            </span>
           </span>
           <span onClick="{{ t.onTap }}" style="{{ t.b.rowS }}"><span style="{{ t.b.nameS }}">{{ t.b.name }}</span><span style="{{ t.b.portS }}">{{ t.b.portion }}</span><span style="{{ t.b.kS }}">{{ t.b.k }}</span><span></span></span>
           <span style="{{ t.b.expand }}">
@@ -393,22 +377,6 @@ option{background:#070b12;color:#d7e6ef}
                   </span>
                 </sc-for>
               </span>
-            </span>
-            <span style="{{ mMeasureRow }}">
-              <button onClick="{{ t.b.detail.resetTap }}" style="{{ t.b.detail.resetS }}" style-hover="color:#22d3ee"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path></svg></button>
-              <span onClick="{{ t.b.detail.ctl.pickG }}" style="{{ t.b.detail.ctl.gCell }}">
-                <button data-step="l" onClick="{{ t.b.detail.ctl.gDown }}" style="{{ t.b.detail.ctl.gStepL }}" style-hover="color:#22d3ee">−</button>
-                <span style="{{ t.b.detail.ctl.gAmt }}">{{ t.b.detail.ctl.gQty }}<span style="{{ sizeSuffix }}">{{ t.b.detail.ctl.gUnit }}</span></span>
-                <button data-step="r" onClick="{{ t.b.detail.ctl.gUp }}" style="{{ t.b.detail.ctl.gStepR }}" style-hover="color:#22d3ee">+</button>
-              </span>
-              <sc-if value="{{ t.b.detail.ctl.hasServing }}" hint-placeholder-val="{{ true }}">
-                <span style="{{ mEquals }}">=</span>
-                <span onClick="{{ t.b.detail.ctl.pickS }}" style="{{ t.b.detail.ctl.sCell }}">
-                  <button data-step="l" onClick="{{ t.b.detail.ctl.sDown }}" style="{{ t.b.detail.ctl.sStepL }}" style-hover="color:#22d3ee">−</button>
-                  <span style="{{ t.b.detail.ctl.sAmt }}">{{ t.b.detail.ctl.servQty }}<span style="{{ t.b.detail.ctl.servStyle }}">{{ t.b.detail.ctl.servName }}</span></span>
-                  <button data-step="r" onClick="{{ t.b.detail.ctl.sUp }}" style="{{ t.b.detail.ctl.sStepR }}" style-hover="color:#22d3ee">+</button>
-                </span>
-              </sc-if>
             </span>
           </span>
         </span>
@@ -1179,9 +1147,7 @@ class Component extends DCLogic {
       const detailOf = food => {
         const fo = libIndex[food.usda];
         if (!fo || !kit) return null;
-        const grams = this.state.gQty === undefined || this.state.gQtyFor !== food.id
-          ? food.g : this.state.gQty;
-        const mode = this.state.gMode === "g" ? "g" : "s";
+        const grams = food.g;
         return {
           viz: kit.vizFor(fo, grams, this.state.gZoom === food.id ? this.state.gMacro : null,
             m => this.setState(st => ({
@@ -1191,18 +1157,9 @@ class Component extends DCLogic {
             t => this.setState(st => ({
               gPick: st.gPick === food.id && st.gPickTag === t ? null : food.id,
               gPickTag: st.gPick === food.id && st.gPickTag === t ? null : t }))),
-          ctl: kit.amountCtl(fo, grams,
-            q => this.setState({ gQty: q, gQtyFor: food.id }),
-            mode, m => this.setState({ gMode: m })),
           // Tapping the drawing closes whatever it opened, the way it does in the table.
           vizTap: () => this.setState(st =>
-            st.gPick ? { gPick: null, gPickTag: null } : { gZoom: null, gMacro: null }),
-          resetS: { flex: "none", display: "flex", alignItems: "center",
-            justifyContent: "center", width: "1.9rem", alignSelf: "stretch", padding: 0,
-            border: 0, background: "transparent", cursor: "pointer",
-            transition: "color 160ms ease",
-            color: grams === food.g ? "#26333e" : "#7b91a3" },
-          resetTap: () => this.setState({ gQty: undefined, gQtyFor: null })
+            st.gPick ? { gPick: null, gPickTag: null } : { gZoom: null, gMacro: null })
         };
       };
       const line = (food, last) => ({
@@ -3683,8 +3640,7 @@ class Component extends DCLogic {
             color: "#a9bcc8" },
           gDotRow: { display: "flex", alignItems: "center", gap: ".22rem" },
           ...this.gResults(picks, {
-            vizFor: vizFor, amountCtl: amountCtl,
-            lib: (this._libs && this._libs.LEGACY) || null
+            vizFor: vizFor, lib: (this._libs && this._libs.LEGACY) || null
           })
         };
       })(),

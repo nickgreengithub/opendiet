@@ -213,12 +213,11 @@ The layout rules below were the first things it was built to test, and still hol
   One donut for the whole site, so the two screens cannot drift.
 - The join costs nothing: the deck carries USDA's own name for every food, and all 36 match
   a row in the legacy library exactly, so `deck.usda -> library row` is a lookup rather than
-  a guess. What the game does not share is where the control starts. It opens at the portion
-  the round showed and with **the serving side lit rather than the grams side**, because the
-  portion is what the question was about — and since the deck's weight is always USDA's
-  household portion times a whole number, the serving box reads a round number: half a cup
-  of cashews is 68 g, two cups of grapes is 302 g, two eggs is 100 g. There is no ADD,
-  because there is no plate in the game.
+  a guess. What the game does not take is the amount control. The drawing is fixed at
+  the portion the round showed, because that portion is the whole question — a control that
+  can walk the figures away from it turns the answer into a different question, and there is
+  nothing here to weigh out. The reading is simply what half a cup of cashews or two cups of
+  grapes actually contains. There is no ADD either, because there is no plate in the game.
 - An open food sits on the table's own picked background, the same #0b1a20 panel the search
   rows use, so the two screens read as one thing rather than two. The panel does most of the
   separating once it is there, and the pair's rule changes job with it: closed, it sits under

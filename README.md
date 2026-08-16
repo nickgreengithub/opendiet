@@ -81,9 +81,9 @@ bigger, and a tick or a cross against the pair. The caveat sits behind a mark ra
 on the page.
 
 Tap a pair and both of its foods unfold into the same drawing the food table uses — the
-donut, the macros, the amount control — because it is the same code, not a copy of it. It
-opens at the portion the round showed, with the serving side of the control lit rather than
-grams, and with no ADD button, since there is no plate in the game. Set against the grade itself are two lines: the score, and the
+donut, the macros, the amount control — because it is the same code, not a copy of it. It is
+fixed at the portion the round showed, with no amount control and no ADD button: that
+portion is the question, and there is no plate in the game. Set against the grade itself are two lines: the score, and the
 plate that surprised you most — the widest gap you got wrong, named, since picking the
 lighter plate means the heavier one was worth more than you gave it credit for. It closes
 on a caveat: calories drive body fat, but a healthy diet also means hitting macro and
