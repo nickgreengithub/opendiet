@@ -291,11 +291,11 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ gStatusS }}"><span>{{ gRoundLabel }}</span><span style="{{ gDotRow }}"><sc-for list="{{ gDots }}" as="d" hint-placeholder-count="6"><span style="{{ d.s }}">{{ d.mark }}</span></sc-for></span></span>
     </sc-if>
     <sc-if value="{{ gDone }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ gHeadS }}"><span style="{{ gGradeS }}">{{ gGrade }}</span><span style="{{ gHeadCol }}"><span style="{{ gTallyS }}">{{ gAccLab }}</span><sc-if value="{{ gMissed }}" hint-placeholder-val="{{ true }}"><span style="{{ gMissS }}">Underestimated by <span style="{{ gMissNS }}">{{ gMissN }}</span> kcal a round</span></sc-if><sc-if value="{{ gClean }}" hint-placeholder-val="{{ false }}"><span style="{{ gMissS }}">Not one plate underestimated</span></sc-if></span></span>
+      <span style="{{ gHeadS }}"><span style="{{ gGradeS }}">{{ gGrade }}</span><span style="{{ gHeadCol }}"><span style="{{ gTallyS }}">{{ gAccLab }}</span><sc-if value="{{ gMissed }}" hint-placeholder-val="{{ true }}"><span style="{{ gMissS }}">Biggest surprise: <span style="{{ gMissNS }}">{{ gMissN }}</span></span></sc-if><sc-if value="{{ gClean }}" hint-placeholder-val="{{ false }}"><span style="{{ gMissS }}">Nothing on the table surprised you</span></sc-if></span></span>
       <sc-for list="{{ gResTiles }}" as="t" hint-placeholder-count="6">
         <span style="{{ t.s }}"><span style="{{ t.col }}"><span style="{{ t.rowS }}"><span style="{{ t.a.nameS }}">{{ t.a.name }}</span><span style="{{ t.a.portS }}">{{ t.a.portion }}</span><span style="{{ t.a.kS }}">{{ t.a.k }}</span></span><span style="{{ t.rowS }}"><span style="{{ t.b.nameS }}">{{ t.b.name }}</span><span style="{{ t.b.portS }}">{{ t.b.portion }}</span><span style="{{ t.b.kS }}">{{ t.b.k }}</span></span></span><span style="{{ t.markS }}">{{ t.mark }}</span></span>
       </sc-for>
-      <span style="{{ gNoteS }}">Calories are one number among many, and a good diet is a balanced one rather than a small one. This is a game, not health advice.</span>
+      <span style="{{ gNoteS }}">Calories drive body fat, but a healthy diet also means hitting macro and micronutrient targets. This is a game, not nutritional advice.</span>
       <button onClick="{{ gAgain }}" style="{{ gAgainS }}">PLAY AGAIN</button>
     </sc-if>
   </div>
@@ -1028,10 +1028,13 @@ class Component extends DCLogic {
     // so that guessing scores about half, so half is an F, and it takes five of six
     // to reach a B. Nobody has to be told what an A- means.
     const grade = (GRADE_BANDS.find(g => pct >= g[0]) || GRADE_BANDS[GRADE_BANDS.length - 1])[1];
-    // Picking the lighter plate means the heavier one was worth more than you gave it
-    // credit for, and the gap is exactly how much. Averaged over the whole game rather
-    // than over the misses alone, so a right answer counts as the nothing it cost.
-    const avgMiss = Math.round(picks.reduce((m, p) => m + (p.hit ? 0 : p.gap), 0) / n);
+    // An average error in kcal is a fact about the game rather than about food, and
+    // nobody carries a number like that out of the room. The single plate that
+    // surprised you most is a fact about a food, and that is the kind a person keeps:
+    // the widest gap you got wrong, named, with what it actually cost.
+    const misses = picks.filter(p => !p.hit);
+    const worst = misses.length ? misses.reduce((a, p) => (p.gap > a.gap ? p : a)) : null;
+    const missFood = worst ? (worst.top.kcal >= worst.bot.kcal ? worst.top : worst.bot) : null;
     const hue = grade[0] === "A" ? "#7ee0a8" : grade[0] === "B" ? "#b6e88f"
       : grade[0] === "C" ? "#e8c37a" : "#f08c7a";
     const tiles = picks.map(p => {
@@ -1072,7 +1075,9 @@ class Component extends DCLogic {
     });
     return {
       gGrade: grade, gAccLab: pct + "% \u00b7 " + hits + " OF " + n + " CORRECT",
-      gMissed: avgMiss > 0, gClean: avgMiss <= 0, gMissN: String(avgMiss),
+      gMissed: !!missFood, gClean: !missFood,
+      gMissN: missFood ? missFood.name : "",
+      gMissK: missFood ? String(missFood.kcal) : "",
       // Both facts stack to the right of the letter, which is sized to stand as tall
       // as the two of them together: the score on the first line, what the misses cost
       // on the second. Underneath the block, either of them read as a footnote hung

@@ -189,10 +189,12 @@ The layout rules below were the first things it was built to test, and still hol
   misses cost on the second. The grade is 3.5rem so it stands as tall as both together —
   under the block rather than beside it, either line read as a footnote hung off the bottom
   of the letter. Picking the lighter plate means the heavier one was worth more than you
-  gave it credit for, and the gap is exactly how much; it is averaged over the whole game
-  rather than over the misses alone, so a right answer counts as the nothing it cost, and a
-  clean sweep says so instead of claiming an average of zero. The figure is the point of the
-  line, so it is the only white thing in it.
+  gave it credit for. The second line used to average that gap over the game and print it in
+  kcal, which is a fact about the game rather than about food — nobody carries a number like
+  that out of the room. It now **names the plate that surprised you most**: the widest gap
+  you got wrong. That is a fact about a food, and it is the kind a person keeps. The figure
+  is not repeated beside it, because the tile below is already printing it and the eye goes
+  straight there. A clean game says nothing on the table surprised you.
 - That line had to lose words to move. Beside a grade there is roughly 100px less to spend
   than beneath one, and the worst case is not the F it was first tested against but **A+**,
   which is some 40px wider. "On average, you underestimated by 144 kcalories" does not fit;
@@ -211,9 +213,14 @@ The layout rules below were the first things it was built to test, and still hol
   portion always paying. Ten games at 360x640 and five at 390x844, 30 distinct pairs, clean.
 - The page ends on a caveat, and it goes here rather than on the way in. Before a game it
   is throat-clearing nobody reads; after a grade it lands, because that is the moment
-  someone might take a score about calories for a verdict about food. It says calories are
-  one number among many, that a good diet is a balanced one rather than a small one, and
-  that this is a game and not health advice. It follows the tiles directly rather than being
+  someone might take a score about calories for a verdict about food. It names the actual
+  relationship rather than gesturing at balance: calories drive body fat, and a healthy diet
+  also means hitting macro and micronutrient targets, which is a second thing this game does
+  not teach. "Calories are one number among many, and a good diet is a balanced one rather
+  than a small one" said less than it appeared to — it never said what the other numbers were
+  or what calories do. Length is a constraint, not a preference: the caveat has to hold three
+  lines at 360px or PLAY AGAIN goes off the bottom of a 640px screen, which the longer draft
+  did by 13px. It follows the tiles directly rather than being
   pushed to the floor by PLAY AGAIN's auto margin, which had left it stranded halfway down an
   empty screen, and it is set at .95rem in the same grey as the portions — a caveat nobody
   can read is not one.
