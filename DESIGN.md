@@ -133,6 +133,18 @@ The layout rules below were the first things it was built to test, and still hol
   `pathLength="100"` turns the dash arithmetic into percentages. The figure in the hole is
   HTML over the drawing rather than SVG text, because the template engine wraps interpolated
   text in a span and SVG will not paint one.
+- **Every `<img src="{{ ... }}">` in the template was fetched literally before the framework
+  ran.** The markup is live DOM, not a `<template>`, so the browser's preload scanner reads
+  `src="{{ gTop.img }}"` off the raw bytes and requests that string as a path — four 404s a
+  page load, and four `<img>` elements sitting in an error state before React ever set a
+  real source. On a fast connection the swap follows quickly enough that nothing shows; on a
+  slow or flaky one, an element can be left holding the browser's broken-image glyph, which
+  is what a card with no picture and a "?" in it is. `loading="lazy" decoding="async"` on
+  the four game images defers the fetch past the preload scan, and the bogus requests are
+  gone — measured at zero over four loads, with both intro pictures and all twelve card
+  pictures still decoded when they are needed. The framework offers placeholder hints for
+  `sc-if` and `sc-for` but nothing for an attribute, so there is no way to give the raw
+  `src` a harmless default.
 - The two cards are the same <img> nodes every round, so advancing only swaps their src —
   and a browser keeps painting the old picture until the new one has decoded, which is why
   the pair used to slide out and then flash to the next one part way through. All twelve
