@@ -296,13 +296,13 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ gStatusS }}"><span>{{ gRoundLabel }}</span><span style="{{ gDotRow }}"><sc-for list="{{ gDots }}" as="d" hint-placeholder-count="6"><span style="{{ d.s }}">{{ d.mark }}</span></sc-for></span></span>
     </sc-if>
     <sc-if value="{{ gDone }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ gHeadS }}"><span style="{{ gGradeS }}">{{ gGrade }}</span><span style="{{ gHeadCol }}"><span style="{{ gTallyS }}">{{ gAccLab }}</span><sc-if value="{{ gMissed }}" hint-placeholder-val="{{ true }}"><span style="{{ gMissS }}">Surprise: <span style="{{ gMissNS }}">{{ gMissN }}</span></span></sc-if><sc-if value="{{ gClean }}" hint-placeholder-val="{{ false }}"><span style="{{ gMissS }}">Nothing surprised you</span></sc-if></span><button onClick="{{ gTipToggle }}" style="{{ gTipBtn }}" style-hover="color:#22d3ee"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="display:block"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5.5"></path><path d="M12 7.6v.1"></path></svg></button></span>
+      <span style="{{ gHeadS }}"><span style="{{ gGradeS }}">{{ gGrade }}</span><span style="{{ gHeadCol }}"><span style="{{ gTallyS }}">{{ gAccLab }}</span><sc-if value="{{ gMissed }}" hint-placeholder-val="{{ true }}"><span style="{{ gMissS }}">Surprise: <span style="{{ gMissNS }}">{{ gMissN }}</span></span></sc-if><sc-if value="{{ gClean }}" hint-placeholder-val="{{ false }}"><span style="{{ gMissS }}">Nothing surprised you</span></sc-if></span></span>
       <span style="{{ gListWrap }}">
       <sc-for list="{{ gResTiles }}" as="t" hint-placeholder-count="6">
         <span style="{{ t.s }}">
           <span onClick="{{ t.onTap }}" style="{{ t.a.rowS }}"><span data-gnm="{{ t.keyA }}" style="{{ t.a.nameS }}">{{ t.a.name }}</span><span style="{{ t.a.portS }}">{{ t.a.portion }}</span><span style="{{ t.a.kS }}">{{ t.a.k }}</span><span style="{{ t.markS }}">{{ t.mark }}</span></span>
           <span onClick="{{ t.onTap }}" style="{{ t.b.rowS }}"><span data-gnm="{{ t.keyB }}" style="{{ t.b.nameS }}">{{ t.b.name }}</span><span style="{{ t.b.portS }}">{{ t.b.portion }}</span><span style="{{ t.b.kS }}">{{ t.b.k }}</span><span></span></span>
-          <span onClick="{{ t.cmpStop }}" style="{{ t.cmpWrap }}">
+          <span style="{{ t.cmpWrap }}">
             <span style="{{ t.cmp.grid }}">
               <span></span><span style="{{ t.cmp.headCell }}"><span data-gch="{{ t.keyA }}" style="{{ t.cmp.headNameS }}">{{ t.cmp.nameA }}</span><span style="{{ t.cmp.headPortS }}">{{ t.cmp.portA }}</span></span><span style="{{ t.cmp.headCell }}"><span data-gch="{{ t.keyB }}" style="{{ t.cmp.headNameS }}">{{ t.cmp.nameB }}</span><span style="{{ t.cmp.headPortS }}">{{ t.cmp.portB }}</span></span>
               <sc-for list="{{ t.cmp.rows }}" as="cr" hint-placeholder-count="12">
@@ -330,8 +330,8 @@ option{background:#070b12;color:#d7e6ef}
         </span>
       </sc-for>
       </span>
+      <span style="{{ gFootRow }}"><button onClick="{{ gAgain }}" style="{{ gAgainS }}">PLAY AGAIN</button><button onClick="{{ gTipToggle }}" style="{{ gTipBtn }}" style-hover="color:#22d3ee"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="display:block"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5.5"></path><path d="M12 7.6v.1"></path></svg></button></span>
       <sc-if value="{{ gTipOn }}" hint-placeholder-val="{{ false }}"><span style="{{ gNoteS }}">Calories drive body fat, but a healthy diet also means hitting macro and micronutrient targets. This is a game, not nutritional advice.</span></sc-if>
-      <button onClick="{{ gAgain }}" style="{{ gAgainS }}">PLAY AGAIN</button>
     </sc-if>
   </div>
   </sc-if>
@@ -1326,8 +1326,8 @@ class Component extends DCLogic {
         keyA: pi + "-a", keyB: pi + "-b",
         cmpWrap: { display: isOpen ? "block" : "none", overflow: "hidden",
           background: PICKED_BG, padding: ".2rem .55rem .7rem",
-          animation: isOpen ? "od-cmp-in 260ms cubic-bezier(.22,1,.36,1) both" : "none" },
-        cmpStop: e => { if (e && e.stopPropagation) e.stopPropagation(); },
+          animation: isOpen ? "od-cmp-in 260ms cubic-bezier(.22,1,.36,1) both" : "none",
+          cursor: "pointer" },
         // A pair is one question, so it opens as one thing rather than two.
         onTap: e => this.gTogglePair(pi, e),
         mark: p.hit ? "\u2713" : "\u2715",
@@ -1371,11 +1371,17 @@ class Component extends DCLogic {
       // someone might take a score about calories for a verdict about food.
       gTipOn: !!this.state.gTip,
       gTipToggle: () => this.setState(st => ({ gTip: !st.gTip })),
+      // The mark sits beside PLAY AGAIN, the same height as it, so the foot is one row
+      // and the caveat opens beneath the thing that summons it.
+      gFootRow: { flex: "none", display: "flex", alignItems: "stretch", gap: ".5rem",
+        marginTop: "auto" },
       gTipBtn: { flex: "none", display: "flex", alignItems: "center",
-        justifyContent: "center", width: "1.6rem", height: "1.6rem", marginLeft: "auto",
-        padding: 0, border: 0, background: "transparent", cursor: "pointer",
-        color: this.state.gTip ? "#22d3ee" : "#5f7688" },
-      gNoteS: { flex: "none", display: "block", marginBottom: ".5rem",
+        justifyContent: "center", width: "2.5rem", height: "2.5rem", boxSizing: "border-box",
+        padding: 0, borderRadius: 0, cursor: "pointer",
+        border: "1px solid " + (this.state.gTip ? "rgba(34,211,238,.55)" : "rgba(34,211,238,.28)"),
+        background: this.state.gTip ? "rgba(34,211,238,.12)" : "transparent",
+        color: this.state.gTip ? "#3fdcf2" : "#5f7688" },
+      gNoteS: { flex: "none", display: "block", marginTop: ".5rem",
         padding: ".7rem .8rem", border: "1px solid rgba(34,211,238,.28)",
         background: "rgba(34,211,238,.05)", fontFamily: "var(--font-1)", fontWeight: 300,
         fontSize: ".95rem", lineHeight: 1.45, color: "#c3d3dd" },
@@ -3501,7 +3507,7 @@ class Component extends DCLogic {
       gWaitS: { display: "block", padding: "2.5rem .2rem", fontFamily: "var(--font-2)",
         fontSize: ".9rem", letterSpacing: ".16em", color: "#a9bcc8" },
       gAgainS: { flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
-        width: "100%", boxSizing: "border-box", height: "2.5rem", marginTop: "auto",
+        flex: "1 1 auto", boxSizing: "border-box", height: "2.5rem", marginTop: 0,
         border: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
         background: "rgba(34,211,238,.08)", cursor: "pointer", fontFamily: "var(--font-2)",
         fontSize: ".95rem", letterSpacing: ".16em", color: "#3fdcf2" },
