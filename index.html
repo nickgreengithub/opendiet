@@ -291,14 +291,13 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ gStatusS }}"><span>{{ gRoundLabel }}</span><span style="{{ gDotRow }}"><sc-for list="{{ gDots }}" as="d" hint-placeholder-count="6"><span style="{{ d.s }}">{{ d.mark }}</span></sc-for></span></span>
     </sc-if>
     <sc-if value="{{ gDone }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ gHeadS }}"><span style="{{ gGradeS }}">{{ gGrade }}</span><span style="{{ gHeadCol }}"><span style="{{ gTallyS }}">{{ gAccLab }}</span><sc-if value="{{ gMissed }}" hint-placeholder-val="{{ true }}"><span style="{{ gMissS }}">Biggest surprise: <span style="{{ gMissNS }}">{{ gMissN }}</span></span></sc-if><sc-if value="{{ gClean }}" hint-placeholder-val="{{ false }}"><span style="{{ gMissS }}">Nothing on the table surprised you</span></sc-if></span></span>
-      <span style="{{ gListHead }}"><span>SIX PAIRS</span><span style="{{ gListHeadK }}">KCAL</span><span></span></span>
+      <span style="{{ gHeadS }}"><span style="{{ gGradeS }}">{{ gGrade }}</span><span style="{{ gHeadCol }}"><span style="{{ gTallyS }}">{{ gAccLab }}</span><sc-if value="{{ gMissed }}" hint-placeholder-val="{{ true }}"><span style="{{ gMissS }}">Surprise: <span style="{{ gMissNS }}">{{ gMissN }}</span></span></sc-if><sc-if value="{{ gClean }}" hint-placeholder-val="{{ false }}"><span style="{{ gMissS }}">Nothing surprised you</span></sc-if></span><button onClick="{{ gTipToggle }}" style="{{ gTipBtn }}" style-hover="color:#22d3ee"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="display:block"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5.5"></path><path d="M12 7.6v.1"></path></svg></button></span>
       <span style="{{ gListWrap }}">
       <sc-for list="{{ gResTiles }}" as="t" hint-placeholder-count="6">
         <span style="{{ t.s }}"><span style="{{ t.a.rowS }}"><span style="{{ t.a.nameS }}">{{ t.a.name }}</span><span style="{{ t.a.portS }}">{{ t.a.portion }}</span><span style="{{ t.a.kS }}">{{ t.a.k }}</span><span style="{{ t.markS }}">{{ t.mark }}</span></span><span style="{{ t.b.rowS }}"><span style="{{ t.b.nameS }}">{{ t.b.name }}</span><span style="{{ t.b.portS }}">{{ t.b.portion }}</span><span style="{{ t.b.kS }}">{{ t.b.k }}</span><span></span></span></span>
       </sc-for>
       </span>
-      <span style="{{ gNoteS }}">Calories drive body fat, but a healthy diet also means hitting macro and micronutrient targets. This is a game, not nutritional advice.</span>
+      <sc-if value="{{ gTipOn }}" hint-placeholder-val="{{ false }}"><span style="{{ gNoteS }}">Calories drive body fat, but a healthy diet also means hitting macro and micronutrient targets. This is a game, not nutritional advice.</span></sc-if>
       <button onClick="{{ gAgain }}" style="{{ gAgainS }}">PLAY AGAIN</button>
     </sc-if>
   </div>
@@ -1046,36 +1045,38 @@ class Component extends DCLogic {
     // rest of the site reserves those for labels, and these are food names.
     const cap = t => t ? t.charAt(0).toUpperCase() + t.slice(1) : "";
     const tiles = picks.map(p => {
-      const upper = p.top.kcal >= p.bot.kcal;
       // The pair is told by the gap above it, not by a box around it — which is why
       // the rule under a food is the same rule whether its partner follows or the
       // next pair does.
-      const line = (food, won) => ({
+      const line = food => ({
         name: cap(food.name),
         portion: food.portion || "",
         k: String(food.kcal),
         nameS: { minWidth: 0, whiteSpace: "nowrap", overflow: "hidden",
-          textOverflow: "ellipsis", fontWeight: won ? 400 : 300, fontSize: "1.02rem",
-          color: won ? "#eaf5fb" : "#adbecb" },
+          textOverflow: "ellipsis", fontWeight: 300, fontSize: "1.02rem",
+          color: "#d7e6ef" },
         portS: { minWidth: 0, whiteSpace: "nowrap", overflow: "hidden",
           textOverflow: "ellipsis", fontFamily: "var(--font-2)", fontSize: ".82rem",
           letterSpacing: ".02em", color: "#7b91a3" },
         kS: { display: "flex", alignItems: "baseline", justifyContent: "flex-end",
           fontWeight: 300, fontSize: "1.04rem", fontVariantNumeric: "tabular-nums",
-          whiteSpace: "nowrap", color: won ? "#eaf5fb" : "#adbecb" },
+          whiteSpace: "nowrap", color: "#d7e6ef" },
         rowS: { display: "grid",
           gridTemplateColumns: "minmax(0,1fr) auto 3.5rem 1.4rem",
-          columnGap: ".45rem", alignItems: "center", minHeight: "2.35rem",
+          columnGap: ".45rem", alignItems: "center", minHeight: "2rem",
           borderBottom: "1px solid rgba(34,211,238,.14)" }
       });
       return {
-        a: line(p.top, upper), b: line(p.bot, !upper),
+        a: line(p.top), b: line(p.bot),
         mark: p.hit ? "\u2713" : "\u2715",
         // On the pair's first line rather than centred between the two, where it landed
         // exactly on the rule and read as a smudge on it.
         markS: { textAlign: "right", fontSize: "1.05rem", lineHeight: 1,
           color: p.hit ? "#7ee0a8" : "#f08c7a" },
-        s: { flex: "none", marginBottom: ".95rem" }
+        // display:block matters. A span is inline by default and an inline box drops
+        // vertical margin on the floor, which is why the gap between pairs measured 0px
+        // however large the number was set.
+        s: { display: "block", flex: "none", marginBottom: "1.35rem" }
       };
     });
     return {
@@ -1104,19 +1105,17 @@ class Component extends DCLogic {
       // The caveat goes here rather than on the way in. Before a game it is throat
       // clearing nobody reads; after a grade it lands, because that is the moment
       // someone might take a score about calories for a verdict about food.
-      gNoteS: { flex: "none", display: "block",
-        padding: ".55rem .15rem .85rem", fontFamily: "var(--font-1)", fontWeight: 300,
-        fontSize: ".95rem", lineHeight: 1.45, color: "#a9bcc8" },
+      gTipOn: !!this.state.gTip,
+      gTipToggle: () => this.setState(st => ({ gTip: !st.gTip })),
+      gTipBtn: { flex: "none", display: "flex", alignItems: "center",
+        justifyContent: "center", width: "1.6rem", height: "1.6rem", marginLeft: "auto",
+        padding: 0, border: 0, background: "transparent", cursor: "pointer",
+        color: this.state.gTip ? "#22d3ee" : "#5f7688" },
+      gNoteS: { flex: "none", display: "block", marginBottom: ".5rem",
+        padding: ".7rem .8rem", border: "1px solid rgba(34,211,238,.28)",
+        background: "rgba(34,211,238,.05)", fontFamily: "var(--font-1)", fontWeight: 300,
+        fontSize: ".95rem", lineHeight: 1.45, color: "#c3d3dd" },
       gResTiles: tiles,
-      // The list gets the same head the table has: the column named once, on the right,
-      // over a rule.
-      gListHead: { flex: "none", display: "grid",
-        gridTemplateColumns: "minmax(0,1fr) 3.5rem 1.5rem", columnGap: ".45rem",
-        alignItems: "center", height: "2.1rem",
-        borderBottom: "1px solid rgba(34,211,238,.55)",
-        fontFamily: "var(--font-2)", fontSize: ".8rem", letterSpacing: ".14em",
-        color: "#7b91a3" },
-      gListHeadK: { textAlign: "right", color: "#7b91a3" },
       gListWrap: { flex: "1 1 auto", minHeight: 0, overflowY: "auto",
         display: "block", paddingTop: ".45rem" },
       gAgain: () => this.gStart(false),
@@ -3236,7 +3235,7 @@ class Component extends DCLogic {
       gWaitS: { display: "block", padding: "2.5rem .2rem", fontFamily: "var(--font-2)",
         fontSize: ".9rem", letterSpacing: ".16em", color: "#a9bcc8" },
       gAgainS: { flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
-        width: "100%", boxSizing: "border-box", height: "3.1rem", marginTop: "auto",
+        width: "100%", boxSizing: "border-box", height: "2.5rem", marginTop: "auto",
         border: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
         background: "rgba(34,211,238,.08)", cursor: "pointer", fontFamily: "var(--font-2)",
         fontSize: ".95rem", letterSpacing: ".16em", color: "#3fdcf2" },

@@ -75,8 +75,10 @@ percentage and the tally beside it, on the school scale stretched to fit a game 
 guessing scores about half: half is a D, the floor of a pass, and anything below it — worse
 than a coin toss — is an F. Under it the six pairs in the order they were played, drawn as the food table draws
 itself — sentence-case names, portions beside them, calories right-aligned under a KCAL
-head, one hairline under every row — with each pair separated by a gap rather than boxed,
-the food that carried more set in a heavier weight, and a tick or a cross against the pair. Set against the grade itself are two lines: the score, and the
+head, one hairline under every row — with each pair a block of two lines and real
+air between the blocks, both foods set identically since the figures already say which is
+bigger, and a tick or a cross against the pair. The caveat sits behind a mark rather than
+on the page. Set against the grade itself are two lines: the score, and the
 plate that surprised you most — the widest gap you got wrong, named, since picking the
 lighter plate means the heavier one was worth more than you gave it credit for. It closes
 on a caveat: calories drive body fat, but a healthy diet also means hitting macro and

@@ -206,11 +206,24 @@ The layout rules below were the first things it was built to test, and still hol
   site reserves those for labels, and these are food names, so they are sentence case here
   exactly as they are in the table. The bordered lime and red tiles are gone — two screens
   listing foods should not look like two different products.
-- **The pair is told by the gap above it, not by a box around it.** Every row carries the
-  same rule whether its partner follows or the next pair does, and pairs are separated by a
-  .95rem margin. Which food carried more is told by weight, 400 against 300, the way the
-  table tells a sorted column. The tick or cross rides the pair's first line; centred
-  between the two it landed exactly on the rule and read as a smudge on it.
+- **The pair is told by space and nothing else.** Two rows tight together, 21px of air to
+  the next pair, and both rows set identically — same weight, same #d7e6ef. Dimming one of
+  them was a second and weaker way of saying which carried more, and all it achieved was to
+  make the two lines of a pair read as a heading and a subheading. The figures already say
+  which is bigger. The tick or cross rides the pair's first line; centred between the two it
+  landed exactly on the rule and read as a smudge on it.
+- **That gap did not exist for two commits.** The pair wrapper is a `<span>`, and a span is
+  inline by default; an inline box drops vertical margin on the floor. The margin was set to
+  .95rem and then to 1.35rem and measured 0px both times — the pairs were not weakly
+  separated, they were not separated at all. `display: block` on the wrapper is the whole
+  fix. Measured since: 0px within a pair, 21px between them.
+- Room for that air came from the head, which is gone; from PLAY AGAIN, down from 3.1rem to
+  2.5rem; and from the caveat, which now sits behind a mark at the end of the grade's own
+  row and opens above the button when it is asked for. A caveat has to be readable when it
+  is read, not resident on a screen whose whole problem is that six pairs need room to look
+  like six pairs. The mark costs the head 1.6rem of width, which is why the second line lost
+  the word "Biggest" — with it, the longest food name in the deck beside the widest grade
+  overran by 21px.
 - **The list scrolls, and that is the point of copying the search screen.** Twelve rows, a
   head, a caveat and a button do not fit 640px — PLAY AGAIN finished 218px below the fold —
   and the screen this borrows from has always scrolled its rows under a fixed head. So the
