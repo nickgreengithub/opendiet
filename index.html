@@ -3097,7 +3097,7 @@ class Component extends DCLogic {
         label: s.narrow ? a.label.replace("FOOD ", "").replace("CALORIE ", "") : a.label,
         onClick: setApp(a.k),
         style: {
-          display: "flex", alignItems: "center", height: "1.9rem", padding: "0 .1rem",
+          display: "flex", alignItems: "center", height: "2.1rem", padding: "0 .1rem",
           cursor: "pointer", whiteSpace: "nowrap", transition: "color 160ms ease, text-shadow 160ms ease",
           color: a.k === app ? "#22d3ee" : "#5f7688",
           textShadow: a.k === app ? "0 0 12px rgba(34,211,238,.45)" : "none"
@@ -3123,10 +3123,10 @@ class Component extends DCLogic {
       })),
       tabBar: {
         flex: "none", display: "flex", alignItems: "center",
-        gap: s.narrow ? "1.15rem" : "1.7rem", height: s.narrow ? "2.2rem" : "2.4rem",
+        gap: s.narrow ? "1.1rem" : "1.7rem", height: s.narrow ? "2.45rem" : "2.6rem",
         marginBottom: s.narrow ? "0" : ".35rem",
         padding: s.narrow ? "0 .6rem" : 0, boxSizing: "border-box",
-        fontFamily: "var(--font-2)", fontSize: s.narrow ? ".8rem" : ".86rem",
+        fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".94rem",
         letterSpacing: s.narrow ? ".1em" : ".14em"
       },
       tabVer: { marginLeft: ".35rem", fontSize: ".62rem", letterSpacing: ".16em", color: "#5b7183" },
@@ -3445,7 +3445,7 @@ class Component extends DCLogic {
           // Where the round stands belongs at the bottom: it is a thing to glance
           // at between pairs, not the first thing on the screen.
           gStatusS: { flex: "none", display: "flex", alignItems: "center",
-            justifyContent: "space-between", height: "2.1rem", padding: "0 .15rem",
+            justifyContent: "space-between", height: "2.75rem", padding: "0 .15rem",
             fontFamily: "var(--font-2)", fontSize: ".88rem", letterSpacing: ".12em",
             color: "#a9bcc8" },
           gDotRow: { display: "flex", alignItems: "center", gap: ".22rem" },

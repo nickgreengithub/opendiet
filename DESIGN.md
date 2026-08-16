@@ -113,6 +113,14 @@ The layout rules below were the first things it was built to test, and still hol
   dead screen followed by a jump.
 - Which round it is and how many are right sit at the bottom. They are a thing to glance
   at between pairs rather than the first thing on the screen.
+- The app row is set a size up — .88rem on a phone, .94rem on a desktop — and the bar grows
+  with it. It is the site's own navigation read at arm's length like everything else on the
+  page, and it had stayed at the size it was drawn at before anything else stepped up. At
+  360px SEARCH CALC GAME still hold one line with ABOUT on the right corner, ending 10px
+  clear of the edge.
+- The round bar at the foot of a card goes from 2.1rem to 2.75rem. It had been sitting hard
+  against the bottom of the screen, which on a phone means hard against the browser's own
+  chrome, and the boxes in it looked like they were falling off.
 - During a round, the bottom right carries **six boxes rather than a count**. A tally says
   how many; the boxes say which ones, and how much of the game is left, in the same glance —
   filled with a tick or a cross as each answer lands, faint and empty ahead of it.
