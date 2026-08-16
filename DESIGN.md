@@ -206,8 +206,17 @@ The layout rules below were the first things it was built to test, and still hol
   site reserves those for labels, and these are food names, so they are sentence case here
   exactly as they are in the table. The bordered lime and red tiles are gone — two screens
   listing foods should not look like two different products.
-- **The pair is told by space and nothing else.** Two rows tight together, 21px of air to
-  the next pair, and both rows set identically — same weight, same #d7e6ef. Dimming one of
+- **The rule falls where the pair ends, not through the middle of it.** Two foods joined
+  with nothing between them, a hairline closing the pair, then air. A line inside a group is
+  the group being cut in half, and that is what the list was doing: the strongest mark on
+  the screen sat inside the thing meant to read as one unit, while the boundary between
+  units was carried by whitespace alone. The gap still does the heavy lifting — a rule on
+  its own would give six sections that read as one continuous ruled table again — but the
+  rule gives each pair a floor and keeps the family resemblance to the search list, which is
+  ruled throughout. The risk taken was that two foods with no rule between them read as one
+  two-line entry; they do not, because each carries its own portion and its own figure.
+- **The pair is told by space more than by anything else.** Two rows tight together, 21px of
+  air to the next pair, and both rows set identically — same weight, same #d7e6ef. Dimming one of
   them was a second and weaker way of saying which carried more, and all it achieved was to
   make the two lines of a pair read as a heading and a subheading. The figures already say
   which is bigger. The tick or cross rides the pair's first line; centred between the two it

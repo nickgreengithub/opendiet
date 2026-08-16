@@ -75,8 +75,8 @@ percentage and the tally beside it, on the school scale stretched to fit a game 
 guessing scores about half: half is a D, the floor of a pass, and anything below it — worse
 than a coin toss — is an F. Under it the six pairs in the order they were played, drawn as the food table draws
 itself — sentence-case names, portions beside them, calories right-aligned under a KCAL
-head, one hairline under every row — with each pair a block of two lines and real
-air between the blocks, both foods set identically since the figures already say which is
+head, one hairline under every row — with each pair a block of two lines closed by a
+hairline and real air between the blocks, both foods set identically since the figures already say which is
 bigger, and a tick or a cross against the pair. The caveat sits behind a mark rather than
 on the page. Set against the grade itself are two lines: the score, and the
 plate that surprised you most — the widest gap you got wrong, named, since picking the

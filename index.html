@@ -1048,7 +1048,7 @@ class Component extends DCLogic {
       // The pair is told by the gap above it, not by a box around it — which is why
       // the rule under a food is the same rule whether its partner follows or the
       // next pair does.
-      const line = food => ({
+      const line = (food, last) => ({
         name: cap(food.name),
         portion: food.portion || "",
         k: String(food.kcal),
@@ -1064,10 +1064,10 @@ class Component extends DCLogic {
         rowS: { display: "grid",
           gridTemplateColumns: "minmax(0,1fr) auto 3.5rem 1.4rem",
           columnGap: ".45rem", alignItems: "center", minHeight: "2rem",
-          borderBottom: "1px solid rgba(34,211,238,.14)" }
+          borderBottom: last ? "1px solid rgba(34,211,238,.14)" : 0 }
       });
       return {
-        a: line(p.top), b: line(p.bot),
+        a: line(p.top, false), b: line(p.bot, true),
         mark: p.hit ? "\u2713" : "\u2715",
         // On the pair's first line rather than centred between the two, where it landed
         // exactly on the rule and read as a smudge on it.
