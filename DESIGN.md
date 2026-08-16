@@ -232,6 +232,19 @@ The layout rules below were the first things it was built to test, and still hol
   the round showed. A donut each was the first attempt and it was the wrong shape: two
   drawings side by side are two separate readings, and the question a pair asks is which is
   bigger. A table is the only form where the eye runs along a row and answers that.
+- **The names travel.** Opening a pair measures where each name's text sits, lets the layout
+  change, then starts the new element from the old place and lets it fly — a FLIP, run on the
+  Web Animations API so nothing is left written into the element's style. Closing does the
+  same journey in reverse, including when it is closed by tapping away, because a pair that
+  flew open and then simply vanished read as two different mechanisms. Measured: a name
+  travels from x=12 to x=132 and its partner from x=11 to x=306, settling by about 240ms.
+- The measurement is a **Range over the text**, not the element's box. The row name is
+  left-aligned in an auto-width box and the column head is right-aligned in a full-width one;
+  the boxes are nothing like each other, and only the text is the same object to the eye.
+  Using boxes made the name jump before it moved.
+- The panel's own entrance lost its translate for this and fades only — a moving panel and a
+  flying name fight each other, and the name is the one carrying the meaning. And the whole
+  thing stands down under `prefers-reduced-motion`, as the card transitions already do.
 - **The table stands in place of the two rows, not under them.** The names become the column
   heads, so leaving the rows up printed each food twice; they collapse to nothing and the
   table arrives on a short rise, which reads as the foods moving into their columns rather

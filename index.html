@@ -92,7 +92,7 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
    a demonstration that answers its own question gives the wrong idea about what
    the game wants. The travel is the card pitch, so it tracks the sizes below. */
 @keyframes od-msg-in{from{opacity:0}to{opacity:1}}
-@keyframes od-cmp-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes od-cmp-in{from{opacity:0}to{opacity:1}}
 @keyframes od-demo-hand{
   0%,6%{transform:translateY(0)}
   44%,56%{transform:translateY(9.1rem)}
@@ -300,11 +300,11 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ gListWrap }}">
       <sc-for list="{{ gResTiles }}" as="t" hint-placeholder-count="6">
         <span style="{{ t.s }}">
-          <span onClick="{{ t.onTap }}" style="{{ t.a.rowS }}"><span style="{{ t.a.nameS }}">{{ t.a.name }}</span><span style="{{ t.a.portS }}">{{ t.a.portion }}</span><span style="{{ t.a.kS }}">{{ t.a.k }}</span><span style="{{ t.markS }}">{{ t.mark }}</span></span>
-          <span onClick="{{ t.onTap }}" style="{{ t.b.rowS }}"><span style="{{ t.b.nameS }}">{{ t.b.name }}</span><span style="{{ t.b.portS }}">{{ t.b.portion }}</span><span style="{{ t.b.kS }}">{{ t.b.k }}</span><span></span></span>
+          <span onClick="{{ t.onTap }}" style="{{ t.a.rowS }}"><span data-gnm="{{ t.keyA }}" style="{{ t.a.nameS }}">{{ t.a.name }}</span><span style="{{ t.a.portS }}">{{ t.a.portion }}</span><span style="{{ t.a.kS }}">{{ t.a.k }}</span><span style="{{ t.markS }}">{{ t.mark }}</span></span>
+          <span onClick="{{ t.onTap }}" style="{{ t.b.rowS }}"><span data-gnm="{{ t.keyB }}" style="{{ t.b.nameS }}">{{ t.b.name }}</span><span style="{{ t.b.portS }}">{{ t.b.portion }}</span><span style="{{ t.b.kS }}">{{ t.b.k }}</span><span></span></span>
           <span onClick="{{ t.cmpStop }}" style="{{ t.cmpWrap }}">
             <span style="{{ t.cmp.grid }}">
-              <span></span><span style="{{ t.cmp.headCell }}"><span style="{{ t.cmp.headNameS }}">{{ t.cmp.nameA }}</span><span style="{{ t.cmp.headPortS }}">{{ t.cmp.portA }}</span></span><span style="{{ t.cmp.headCell }}"><span style="{{ t.cmp.headNameS }}">{{ t.cmp.nameB }}</span><span style="{{ t.cmp.headPortS }}">{{ t.cmp.portB }}</span></span>
+              <span></span><span style="{{ t.cmp.headCell }}"><span data-gch="{{ t.keyA }}" style="{{ t.cmp.headNameS }}">{{ t.cmp.nameA }}</span><span style="{{ t.cmp.headPortS }}">{{ t.cmp.portA }}</span></span><span style="{{ t.cmp.headCell }}"><span data-gch="{{ t.keyB }}" style="{{ t.cmp.headNameS }}">{{ t.cmp.nameB }}</span><span style="{{ t.cmp.headPortS }}">{{ t.cmp.portB }}</span></span>
               <sc-for list="{{ t.cmp.rows }}" as="cr" hint-placeholder-count="12">
                 <span style="{{ cr.row }}"><span style="{{ cr.labCell }}"><span style="{{ cr.dot }}"></span><span style="{{ cr.tagS }}">{{ cr.tag }}</span></span><span style="{{ cr.numCell }}"><span style="{{ cr.a.s }}">{{ cr.a.txt }}<span style="{{ t.cmp.unitS }}"> g</span></span></span><span style="{{ cr.numCell }}"><span style="{{ cr.b.s }}">{{ cr.b.txt }}<span style="{{ t.cmp.unitS }}"> g</span></span></span></span>
               </sc-for>
@@ -1072,6 +1072,59 @@ class Component extends DCLogic {
     }, GAME_LEAVE);
     this._gTimer = setTimeout(() => { this._gTimer = null; this.gNext(); }, GAME_HOLD);
   }
+  // The two names are the same two names either way, so they move rather than being
+  // replaced: measure where the text sits now, let the layout change, then start the
+  // new element from the old place and let it travel. Ranges rather than element
+  // boxes, because the row name is left-aligned in an auto-width box and the column
+  // head is right-aligned in a full-width one — the boxes are nothing like each other
+  // and only the text is the same object to the eye.
+  gTextRect(sel) {
+    try {
+      const el = document.querySelector(sel);
+      if (!el) return null;
+      const rg = document.createRange();
+      rg.selectNodeContents(el);
+      const r = rg.getBoundingClientRect();
+      return r && r.width ? r : el.getBoundingClientRect();
+    } catch (e) { return null; }
+  }
+  gTogglePair(pi, e) {
+    if (e && e.stopPropagation) e.stopPropagation();
+    this.gMorph(pi, this.state.gOpen !== pi);
+  }
+  // Tapping away closes through here, and it has to travel the same road back — a pair
+  // that flew open and then simply vanished read as two different mechanisms.
+  gCloseOpen() {
+    const pi = this.state.gOpen;
+    if (pi === null || pi === undefined) return;
+    this.gMorph(pi, false);
+  }
+  gMorph(pi, opening) {
+    const still = typeof matchMedia === "function" &&
+      matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (still) { this.setState({ gOpen: opening ? pi : null }); return; }
+    const rowSel = k => '[data-gnm="' + pi + '-' + k + '"]';
+    const colSel = k => '[data-gch="' + pi + '-' + k + '"]';
+    const from = { a: this.gTextRect(opening ? rowSel("a") : colSel("a")),
+      b: this.gTextRect(opening ? rowSel("b") : colSel("b")) };
+    this.setState({ gOpen: opening ? pi : null });
+    if (typeof requestAnimationFrame !== "function") return;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      ["a", "b"].forEach(k => {
+        const sel = opening ? colSel(k) : rowSel(k);
+        const el = document.querySelector(sel);
+        const f = from[k], t = this.gTextRect(sel);
+        if (!el || !f || !t || !el.animate) return;
+        const dx = Math.round(f.left - t.left), dy = Math.round(f.top - t.top);
+        if (!dx && !dy) return;
+        try {
+          el.animate(
+            [{ transform: "translate(" + dx + "px," + dy + "px)" }, { transform: "none" }],
+            { duration: 340, easing: "cubic-bezier(.22,1,.36,1)" });
+        } catch (err) {}
+      });
+    }));
+  }
   gDismissMsg() {
     if (!this.state.gMsg) return;
     this.setState({ gMsg: null, gLeaving: true });
@@ -1270,15 +1323,13 @@ class Component extends DCLogic {
       return {
         a: line(p.top, false), b: line(p.bot, true),
         cmp: isOpen ? cmpOf(p.top, p.bot, p.hit, p.k === 0) : null,
+        keyA: pi + "-a", keyB: pi + "-b",
         cmpWrap: { display: isOpen ? "block" : "none", overflow: "hidden",
           background: PICKED_BG, padding: ".2rem .55rem .7rem",
           animation: isOpen ? "od-cmp-in 260ms cubic-bezier(.22,1,.36,1) both" : "none" },
         cmpStop: e => { if (e && e.stopPropagation) e.stopPropagation(); },
         // A pair is one question, so it opens as one thing rather than two.
-        onTap: e => {
-          if (e && e.stopPropagation) e.stopPropagation();
-          this.setState(st => ({ gOpen: st.gOpen === pi ? null : pi }));
-        },
+        onTap: e => this.gTogglePair(pi, e),
         mark: p.hit ? "\u2713" : "\u2715",
         // On the pair's first line rather than centred between the two, where it landed
         // exactly on the rule and read as a smudge on it.
@@ -1331,8 +1382,7 @@ class Component extends DCLogic {
       gResTiles: tiles,
       gListWrap: { flex: "1 1 auto", minHeight: 0, overflowY: "auto",
         display: "block", paddingTop: ".45rem" },
-      gCloseAll: () => { if (this.state.gOpen !== null && this.state.gOpen !== undefined)
-        this.setState({ gOpen: null }); },
+      gCloseAll: () => this.gCloseOpen(),
       gAgain: () => this.gStart(false),
       gDeckNote: this._deck ? this._deck.note : ""
     };

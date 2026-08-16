@@ -87,7 +87,8 @@ on the page.
 
 Tap a pair and it unfolds into a comparison: the two foods in two columns, every macro and
 sub-macro the site lists, calories at the foot, both at the portion the round showed. The table stands in
-place of the two rows rather than under them, and a tap anywhere else puts them back. In each
+place of the two rows rather than under them, and the two names travel from their rows into
+the column heads as it opens — and back again when a tap anywhere else puts them away. In each
 row only the larger figure is lit, so a column of white shows where a food is heavy before a
 number is read; the foot is grams, then calories under it with the round's tick or cross. There is no amount control and no ADD button — the portion is the question,
 and there is no plate in the game. Set against the grade itself are two lines: the score, and the
