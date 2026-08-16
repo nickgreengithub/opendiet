@@ -25,6 +25,11 @@ The layout rules below were the first things it was built to test, and still hol
   decision. A phone keeps its screen edge to edge, as an app does; the inset is fixed
   rather than matched to the side margins, since those grow with the screen and 90px of
   dead space top and bottom would cost a third of the list to buy nothing.
+- ABOUT carries a **build stamp** beside the version, taken from `document.lastModified`.
+  That is the Last-Modified of the copy the browser is actually holding, so a cached page
+  reports the age of the cache rather than of the deploy — which is the whole point. It
+  answers "which build am I looking at" without anyone having to infer it from whether a fix
+  appears to be present, which is how several rounds of this project were lost.
 - ABOUT ends on its two links held in opposite corners — LinkedIn bottom left, GitHub
   bottom right — on a row of its own rather than the one the unbuilt apps use, taking the
   full width with an auto top margin so it sits on the floor of the panel wherever the text

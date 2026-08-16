@@ -349,7 +349,7 @@ option{background:#070b12;color:#d7e6ef}
   </sc-if>
   <sc-if value="{{ appAbout }}" hint-placeholder-val="{{ false }}">
   <div style="{{ aboutWrap }}">
-    <span style="{{ soonTag }}">V0.1.0-BETA</span>
+    <span style="{{ soonTag }}">V0.1.0-BETA<span style="{{ buildStampS }}">{{ buildStamp }}</span></span>
     <span style="{{ soonName }}">OPENDIET.ORG</span>
     <span style="{{ soonNote }}">An open source project, free to fork for non-commercial use. The values come from USDA FoodData Central and are public domain. Numbers are averages for a generic item — brand, cut, ripeness and cooking method all move them.</span>
     <span style="{{ aboutDiscLab }}">DISCLAIMER</span>
@@ -3487,6 +3487,17 @@ class Component extends DCLogic {
       soonJoin: Object.assign({ maxWidth: "38ch", marginTop: s.narrow ? ".5rem" : ".7rem",
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1rem" : ".98rem",
         lineHeight: 1.55, color: "#7b91a3", textWrap: "pretty" }, soonIn(320)),
+      buildStamp: (() => {
+        try {
+          const d = new Date(document.lastModified);
+          if (isNaN(d)) return "";
+          const M = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+          const p2 = n => (n < 10 ? "0" : "") + n;
+          return "BUILD " + d.getDate() + " " + M[d.getMonth()] + " " +
+            p2(d.getHours()) + ":" + p2(d.getMinutes());
+        } catch (e) { return ""; }
+      })(),
+      buildStampS: { marginLeft: ".7rem", letterSpacing: ".14em", color: "#3f515e" },
       aboutDiscLab: Object.assign({ marginTop: s.narrow ? ".4rem" : ".5rem",
         fontFamily: "var(--font-2)", fontSize: ".68rem", letterSpacing: ".18em", color: "#5b7183" }, soonIn(300)),
       aboutDiscTxt: Object.assign({ maxWidth: "44ch", fontFamily: "var(--font-1)", fontWeight: 300,
