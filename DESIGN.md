@@ -122,15 +122,19 @@ The layout rules below were the first things it was built to test, and still hol
   half, so half has to be a failing mark for the letter to mean anything. Six rounds gives
   seven possible scores, so in practice only A+, B, D+ and F ever appear; that is the scale
   being honest rather than coarse, since four of six is barely above chance.
-- The score sits level with the top of the grade rather than on its baseline, where it had
-  been reading as a footnote hung off the bottom of the letter, and under both is one
-  sentence: how much you underestimated by, on average. Picking the lighter plate means the
-  heavier one was worth more than you gave it credit for, and the gap is exactly how much;
-  it is averaged over the whole game rather than over the misses alone, so a right answer
-  counts as the nothing it cost. A clean sweep says so instead of claiming an average of
-  zero. It is set in the reading face rather than the label face, that being the narrower
-  of the two — at 360px, with a three-figure average, the difference between one line and a
-  lonely "kcalories" on a second.
+- The head is a letter with two lines set against it: the score on the first, what the
+  misses cost on the second. The grade is 3.5rem so it stands as tall as both together —
+  under the block rather than beside it, either line read as a footnote hung off the bottom
+  of the letter. Picking the lighter plate means the heavier one was worth more than you
+  gave it credit for, and the gap is exactly how much; it is averaged over the whole game
+  rather than over the misses alone, so a right answer counts as the nothing it cost, and a
+  clean sweep says so instead of claiming an average of zero. The figure is the point of the
+  line, so it is the only white thing in it.
+- That line had to lose words to move. Beside a grade there is roughly 100px less to spend
+  than beneath one, and the worst case is not the F it was first tested against but **A+**,
+  which is some 40px wider. "On average, you underestimated by 144 kcalories" does not fit;
+  "Underestimated by 144 kcal a round" does, with room, and says the same thing. The worst
+  case was measured rather than reasoned about, by forcing every band to A+ for one run.
 - Each pair is a tile, stacked in the order it was played, holding its two foods in the
   order they stood on the screen — name, portion, calories — with a tick or a cross and a
   border in lime or red. The answer is legible from the shape of the page before a word of
@@ -146,8 +150,10 @@ The layout rules below were the first things it was built to test, and still hol
   is throat-clearing nobody reads; after a grade it lands, because that is the moment
   someone might take a score about calories for a verdict about food. It says calories are
   one number among many, that a good diet is a balanced one rather than a small one, and
-  that this is a game and not health advice — three lines, quieter than the tiles, sat
-  above PLAY AGAIN.
+  that this is a game and not health advice. It follows the tiles directly rather than being
+  pushed to the floor by PLAY AGAIN's auto margin, which had left it stranded halfway down an
+  empty screen, and it is set at .95rem in the same grey as the portions — a caveat nobody
+  can read is not one.
 - **The clipping check was broken too, in the other direction.** The narrow shell is
   `position: fixed` with `overflow: hidden`, so content that does not fit is not an
   overflow — the document never grows and `scrollHeight` never exceeds the viewport. The

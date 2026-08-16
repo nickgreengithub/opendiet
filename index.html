@@ -287,8 +287,7 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ gStatusS }}"><span>{{ gRoundLabel }}</span><span style="{{ gDotRow }}"><sc-for list="{{ gDots }}" as="d" hint-placeholder-count="6"><span style="{{ d.s }}">{{ d.mark }}</span></sc-for></span></span>
     </sc-if>
     <sc-if value="{{ gDone }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ gHeadS }}"><span style="{{ gGradeS }}">{{ gGrade }}</span><span style="{{ gTallyS }}">{{ gAccLab }}</span></span>
-      <span style="{{ gMissS }}">{{ gMissLine }}</span>
+      <span style="{{ gHeadS }}"><span style="{{ gGradeS }}">{{ gGrade }}</span><span style="{{ gHeadCol }}"><span style="{{ gTallyS }}">{{ gAccLab }}</span><sc-if value="{{ gMissed }}" hint-placeholder-val="{{ true }}"><span style="{{ gMissS }}">Underestimated by <span style="{{ gMissNS }}">{{ gMissN }}</span> kcal a round</span></sc-if><sc-if value="{{ gClean }}" hint-placeholder-val="{{ false }}"><span style="{{ gMissS }}">Not one plate underestimated</span></sc-if></span></span>
       <sc-for list="{{ gResTiles }}" as="t" hint-placeholder-count="6">
         <span style="{{ t.s }}"><span style="{{ t.col }}"><span style="{{ t.rowS }}"><span style="{{ t.a.nameS }}">{{ t.a.name }}</span><span style="{{ t.a.portS }}">{{ t.a.portion }}</span><span style="{{ t.a.kS }}">{{ t.a.k }}</span></span><span style="{{ t.rowS }}"><span style="{{ t.b.nameS }}">{{ t.b.name }}</span><span style="{{ t.b.portS }}">{{ t.b.portion }}</span><span style="{{ t.b.kS }}">{{ t.b.k }}</span></span></span><span style="{{ t.markS }}">{{ t.mark }}</span></span>
       </sc-for>
@@ -1063,29 +1062,31 @@ class Component extends DCLogic {
     });
     return {
       gGrade: grade, gAccLab: pct + "% \u00b7 " + hits + " OF " + n + " RIGHT",
-      gMissLine: avgMiss > 0
-        ? "On average, you underestimated by " + avgMiss + " kcalories"
-        : "You did not underestimate a single plate",
-      // The score sits level with the top of the letter rather than on its baseline,
-      // which had it reading as a footnote hung off the bottom of the grade.
-      gHeadS: { flex: "none", display: "flex", alignItems: "flex-start", gap: ".75rem",
-        padding: ".7rem .15rem .24rem" },
-      gGradeS: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "3rem",
-        lineHeight: .8, color: hue },
+      gMissed: avgMiss > 0, gClean: avgMiss <= 0, gMissN: String(avgMiss),
+      // Both facts stack to the right of the letter, which is sized to stand as tall
+      // as the two of them together: the score on the first line, what the misses cost
+      // on the second. Underneath the block, either of them read as a footnote hung
+      // off the bottom of the grade.
+      gHeadS: { flex: "none", display: "flex", alignItems: "center", gap: ".7rem",
+        padding: ".75rem .15rem .7rem" },
+      gGradeS: { flex: "none", fontFamily: "var(--font-1)", fontWeight: 300,
+        fontSize: "3.5rem", lineHeight: .82, color: hue },
+      gHeadCol: { minWidth: 0, display: "flex", flexDirection: "column", gap: ".24rem" },
       gTallyS: { fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".12em",
         color: "#c3d3dd", fontVariantNumeric: "tabular-nums" },
-      // A sentence, so it is set in the reading face rather than the label face —
-      // which is also the narrower of the two, and at 360px that is the difference
-      // between one line and a lonely "kcalories" on a second.
-      gMissS: { flex: "none", display: "block", padding: "0 .15rem .65rem",
-        fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".93rem",
-        letterSpacing: 0, whiteSpace: "nowrap", color: "#b4c6d2" },
+      // A sentence, so it is set in the reading face rather than the label face, that
+      // being the narrower of the two — and beside the grade there is less width to
+      // spend than there was beneath it. The figure is the whole point of the line, so
+      // it is the only white thing in it.
+      gMissS: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".95rem",
+        letterSpacing: 0, whiteSpace: "nowrap", color: "#a9bcc8" },
+      gMissNS: { color: "#f2f8fc", fontVariantNumeric: "tabular-nums" },
       // The caveat goes here rather than on the way in. Before a game it is throat
       // clearing nobody reads; after a grade it lands, because that is the moment
       // someone might take a score about calories for a verdict about food.
-      gNoteS: { flex: "none", display: "block", marginTop: "auto",
-        padding: ".65rem .15rem .55rem", fontFamily: "var(--font-1)", fontWeight: 300,
-        fontSize: ".84rem", lineHeight: 1.4, color: "#8fa3b0" },
+      gNoteS: { flex: "none", display: "block",
+        padding: ".55rem .15rem .85rem", fontFamily: "var(--font-1)", fontWeight: 300,
+        fontSize: ".95rem", lineHeight: 1.45, color: "#a9bcc8" },
       gResTiles: tiles,
       gAgain: () => this.gStart(false),
       gDeckNote: this._deck ? this._deck.note : ""
@@ -3174,7 +3175,7 @@ class Component extends DCLogic {
       gWaitS: { display: "block", padding: "2.5rem .2rem", fontFamily: "var(--font-2)",
         fontSize: ".9rem", letterSpacing: ".16em", color: "#a9bcc8" },
       gAgainS: { flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
-        width: "100%", boxSizing: "border-box", height: "3.1rem", marginTop: 0,
+        width: "100%", boxSizing: "border-box", height: "3.1rem", marginTop: "auto",
         border: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
         background: "rgba(34,211,238,.08)", cursor: "pointer", fontFamily: "var(--font-2)",
         fontSize: ".95rem", letterSpacing: ".16em", color: "#3fdcf2" },
