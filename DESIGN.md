@@ -177,12 +177,14 @@ The layout rules below were the first things it was built to test, and still hol
 - During a round, the bottom right carries **six boxes rather than a count**. A tally says
   how many; the boxes say which ones, and how much of the game is left, in the same glance —
   filled with a tick or a cross as each answer lands, faint and empty ahead of it.
-- The results page is a grade and six tiles. The grade is the ordinary school scale — A+
-  down to F on percentage correct, with the percentage and the tally printed beside it —
-  which happens to suit this game exactly: the deck is built so that guessing scores about
-  half, so half has to be a failing mark for the letter to mean anything. Six rounds gives
-  seven possible scores, so in practice only A+, B, D+ and F ever appear; that is the scale
-  being honest rather than coarse, since four of six is barely above chance.
+- The results page is a grade and six tiles. The grade is a letter on percentage correct,
+  with the percentage and the tally printed beside it. The bands are the school scale
+  stretched, because the school scale is the wrong shape for this game: the deck is built so
+  that guessing scores about half, and on an unstretched scale that put three of six at F and
+  four of six at D+ — four of the seven possible scores collapsing to F, which tells a player
+  less than the tally already had. **Half is now the floor of a pass rather than a fail.** A
+  coin toss deserves the bottom mark rather than no mark; below half is worse than guessing,
+  and that is what F is for. The seven scores now read F, F, F, D, C+, A-, A+.
 - The head is a letter with two lines set against it: the score on the first, what the
   misses cost on the second. The grade is 3.5rem so it stands as tall as both together —
   under the block rather than beside it, either line read as a footnote hung off the bottom
