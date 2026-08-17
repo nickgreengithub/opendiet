@@ -397,89 +397,69 @@ narrative review.* Sports (Basel). 2019;7(7):154.
 
 ## 5. The body
 
-A rotating figure that changes as the model changes. Assets supplied rather than generated
-in the browser, so the constraints below are a **specification for producing them**, not a
-description of something that exists.
+**Built, as a morph-target glTF blended in Three.js. The mesh shipping today is a
+placeholder; the pipeline around it is real.**
 
-### Why it earns its place
+### Why not sprite sheets, and why not a generative model
 
-The site's habit is to draw the thing rather than list it: a food is a donut before it is a
-table, a portion is three cups before it is "3 cups". A calorie trajectory drawn as a body
-is the same move, and it is the only one of the three that a person can read without being
-taught how. It also solves the problem that body fat percentage means nothing to most
-people — 24% is a number, but 24% *rotating next to* 19% is a fact.
+The earlier plan here was 17 sprite sheets of 24 frames, cross-faded. Baked morph
+targets beat it on every axis that matters: one file instead of seventeen, ~145 KB instead
+of several megabytes, *continuous* blending instead of 5% steps, and rotation that is
+actually rotation rather than a flipbook — so the four things the sprite plan had to
+guarantee by hand (identical camera, pose, lighting, frame anchoring) are guaranteed by
+construction, because it is one mesh with one number changed.
 
-### The one axis
+Generative video was never the tool. The requirement is one parameter varying with
+everything else identical, and diffusion drifts on identity, pose, lighting and framing at
+once; seventeen generations would be seventeen different people, and "24% body fat" is not
+something a prompt can be calibrated against.
 
-The figure varies on **body fat percentage only**. Not weight, not lean mass, not height.
+### The contract
 
-That is a deliberate scope cut and it is defensible on its own terms: the render's job is to
-show *change*, and a change is legible exactly when one variable moves and everything else
-holds still. A figure that also grew and shrank with weight would be a portrait, and would
-be wrong for almost everyone; a figure that holds frame, pose, camera and scale and lets
-only the silhouette move is a *measurement*, and reads as one.
+`tools/build_body_glb.py` writes the placeholder and documents the contract; `body.js`
+reads nothing else, so any replacement that honours it drops in without a code change:
 
-The lean mass change — which is the interesting half of §4 — is carried on the chart and in
-the numbers, not in the render. Two-axis assets (fat × lean) multiply the matrix by the
-number of lean steps for a difference most people could not see, and that trade is not worth
-taking until the one-axis version is proven.
+  * one mesh, one primitive, POSITION + NORMAL, indexed triangles
+  * the **base mesh is the leanest** level
+  * N morph targets in **ascending** order of body fat, each with POSITION and NORMAL deltas
+  * `mesh.extras.bodyFat` lists the body-fat percentage of the base and of every target,
+    in order — the runtime builds its blend from that and needs to know nothing else
+  * Y up, metres, feet at y=0, facing +Z
 
-The app has to say the figure is indicative of composition rather than a picture of the
-user. Once, plainly, near the figure.
+### The blend
 
-### Asset specification
+One parameter swept across N shapes, so each target's influence is a hat function on the
+level axis. That makes the result exactly the linear interpolation between the two shapes
+either side and nothing else — and because the deltas are measured from the base rather
+than from each other, only those two are ever non-zero.
 
-```
-data/body/<sex>/<bf>.webp          e.g. data/body/m/20.webp
-data/body/manifest.json            sexes, bands available, frame count, frame size
-```
+### The real bake
 
-| | |
-|---|---|
-| **Sheets** | one sprite sheet per (sex × band) — a grid of frames in one file |
-| **Frames** | 24 at 15° for a full turn. 16 is the floor and will read as a step |
-| **Bands** | every 5% of body fat. Men 5–45% (9 sheets), women 12–50% (8 sheets) |
-| **Format** | WebP with alpha, on transparency — the page background is not fixed |
-| **Density** | 2× the on-screen box. A phone shows roughly 260×520 CSS px, so 520×1040 per frame |
-| **Budget** | ≤400 KB per sheet. Only the current band ±1 is ever fetched |
+`tools/mblab_bake.py` — MB-Lab (AGPL, Blender 4.x) for the bodies, then Blender for the
+part that must be exact. You build one character per fat level with **only the body-mass
+slider moved**, finalize each, and name them `bf8`, `bf15` and so on; the script joins them
+onto the leanest as shape keys, decimates to about 6,000 triangles, writes the body-fat
+list into the mesh's custom properties and exports the .glb. It refuses to run if the
+levels differ in vertex count, because `join_shapes` maps by index and the failure is
+silent otherwise.
 
-**The four things that must be identical across every single band, or the morph breaks:**
+### What the runtime does
 
-1. **Camera** — same position, same focal length, same angle. No per-band framing.
-2. **Pose** — identical to the millimetre. A shifted arm reads as movement, not as fat loss.
-3. **Lighting** — same rig, same intensity. A brightness change reads as a cut.
-4. **Frame anchoring** — feet on the same pixel row, body on the same vertical axis, same
-   scale. Only the silhouette may differ.
+Three (670 KB) and GLTFLoader are **vendored into `vendor/three/`** rather than fetched from
+a CDN — the site serves everything but React from its own origin — and are **dynamically
+imported the first time CALC is opened**, so nobody who came for the food table pays for
+them. WebGL failure or a model that will not load falls back to the line drawing.
 
-And frame *i* of every band must be the same rotation angle as frame *i* of every other
-band, because the transition between two compositions is a cross-fade **at a fixed frame
-index**. Get this wrong and the figure appears to spin during a fade.
+The figure rotates slowly on its own, takes a drag with momentum, and holds still under
+`prefers-reduced-motion`. On the result screen it is driven by the scrubbed trajectory, so
+dragging through the year *is* the animation.
 
-**On style:** a photoreal render will not fit the budget, and would not fit the site either
-— everything else here is drawn in two or three colours on near-black. A stylised figure —
-flat fill, or contour, or a single-colour form with the site's cyan on the lit edge — will
-compress to a fraction of the size *and* look like it belongs. Worth deciding before
-rendering 17 sheets, because it is not a change that can be made afterwards.
+### Still to do
 
-**The ambitious version, if the pipeline allows it:** export each band's silhouette as an
-**SVG contour with a matched point count** across bands. The app could then interpolate
-between compositions rather than cross-fade — a genuine morph, continuous rather than
-stepped, at a few KB per band instead of a few hundred. It needs the contours to come off
-the same base mesh with consistent topology, which may or may not be free in whatever tool
-generates them. Worth one experiment before committing to raster.
-
-### Behaviour
-
-- Rotates slowly and continuously on its own; drag to spin it by hand, the way the donut
-  responds to a press.
-- On a composition change: cross-fade current band → new band at the held frame index,
-  about 400 ms, the site's usual `cubic-bezier(.22,1,.36,1)`.
-- On the result screen it is driven by the time scrubber, so dragging through the year
-  *is* the animation. That is the moment the app is selling.
-- `prefers-reduced-motion`: no auto-rotation, no fade — snap to the band, keep the drag.
-- No asset below essential fat (§0). The slider cannot drive the model there.
-
----
+* The real MB-Lab bake. The placeholder is a lofted stack of rings — it reads as a standing
+  figure and the change reads clearly, but it is nobody's body.
+* One axis only, still: body fat. Lean mass rides on the chart. See the argument in §5 of
+  the earlier plan, which still holds.
 
 ## 6. Mobile screens
 

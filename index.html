@@ -379,10 +379,12 @@ option{background:#070b12;color:#d7e6ef}
         <span style="{{ cTagS }}">{{ cTag }}</span>
       </span>
       <span style="{{ cTitleS }}">{{ cTitle }}</span>
+      <span style="{{ cLeadS }}">{{ cLead }}</span>
+      <span style="{{ cFigWrap }}">
+        <sc-if value="{{ cBody3D }}" hint-placeholder-val="{{ true }}"><canvas data-body style="{{ cCanvasS }}"></canvas></sc-if>
+        <sc-if value="{{ cBodySvg }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 64 136" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="{{ cFigS }}"><circle cx="32" cy="14" r="10"></circle><path d="{{ cBodyGlyph }}"></path></svg></sc-if>
+      </span>
       <sc-if value="{{ cIsYou }}" hint-placeholder-val="{{ true }}">
-        <span style="{{ cFigWrap }}">
-          <svg viewBox="0 0 64 136" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="{{ cFigS }}"><circle cx="32" cy="14" r="10"></circle><path d="{{ cBodyGlyph }}"></path></svg>
-        </span>
         <span style="{{ cSexRow }}"><sc-for list="{{ cSexTiles }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)">{{ t.label }}</button></sc-for></span>
         <sc-for list="{{ cFields }}" as="f" hint-placeholder-count="3">
           <span style="{{ cFieldBlock }}">
@@ -393,24 +395,15 @@ option{background:#070b12;color:#d7e6ef}
         <button onClick="{{ cNext }}" style="{{ cNextS }}" style-hover="background:rgba(34,211,238,.2)">{{ cNextLab }}</button>
       </sc-if>
       <sc-if value="{{ cIsBf }}" hint-placeholder-val="{{ false }}">
-        <span style="{{ cLeadS }}">{{ cBfLead }}</span>
-        <span style="{{ cFigWrap }}">
-          <svg viewBox="0 0 64 136" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="{{ cFigBigS }}"><circle cx="32" cy="14" r="10"></circle><path d="{{ cBodyGlyph }}"></path></svg>
-        </span>
         <span style="{{ cBfPctS }}">{{ cBfPct }}</span>
         <input type="range" min="{{ cBfMin }}" max="{{ cBfMax }}" step="1" value="{{ cBfVal }}" onChange="{{ cBfSlide }}">
         <span style="{{ cBfNoteS }}">{{ cBfNote }}</span>
         <button onClick="{{ cNext }}" style="{{ cNextS }}" style-hover="background:rgba(34,211,238,.2)">{{ cNextLab }}</button>
       </sc-if>
       <sc-if value="{{ cIsDay }}" hint-placeholder-val="{{ false }}">
-        <span style="{{ cLeadS }}">{{ cDayLead }}</span>
-        <span style="{{ cFigWrap }}">
-          <svg viewBox="0 0 64 136" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="{{ cFigS }}"><circle cx="32" cy="14" r="10"></circle><path d="{{ cBodyGlyph }}"></path></svg>
-        </span>
         <span style="{{ cCol }}"><sc-for list="{{ cDayTiles }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.noteS }}">{{ t.note }}</span></button></sc-for></span>
       </sc-if>
       <sc-if value="{{ cIsTrain }}" hint-placeholder-val="{{ false }}">
-        <span style="{{ cLeadS }}">Sessions a week. Zero is an answer.</span>
         <span style="{{ cNumRow }}">
           <button onClick="{{ cTrainNDec }}" style="{{ cStepBtn }}" style-hover="background:rgba(34,211,238,.16)">&minus;</button>
           <span style="{{ cNumS }}">{{ cTrainN }}<span style="{{ cUnitS }}">A WEEK</span></span>
@@ -426,16 +419,14 @@ option{background:#070b12;color:#d7e6ef}
           <span style="{{ cSubLab }}">HOW HARD</span>
           <span style="{{ cScroll }}"><sc-for list="{{ cMetTiles }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.noteS }}">{{ t.note }}</span><span style="{{ t.metS }}">{{ t.met }}</span></button></sc-for></span>
         </sc-if>
-        <span style="{{ cFigWrap }}">
-          <svg viewBox="0 0 64 136" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="{{ cFigS }}"><circle cx="32" cy="14" r="10"></circle><path d="{{ cBodyGlyph }}"></path></svg>
-        </span>
         <button onClick="{{ cNext }}" style="{{ cNextS }}" style-hover="background:rgba(34,211,238,.2)">{{ cNextLab }}</button>
       </sc-if>
     </sc-if>
     <sc-if value="{{ cResOn }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cMaintRow }}"><span style="{{ cMaintLab }}">MAINTENANCE</span><span style="{{ cMaintS }}">{{ cMaint }}</span><span style="{{ cMaintUnit }}">KCAL A DAY</span></span>
       <span style="{{ cBodyWrap }}">
-        <svg viewBox="0 0 64 136" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="{{ cBodyS }}"><circle cx="32" cy="14" r="10"></circle><path d="{{ cBodyGlyph }}"></path></svg>
+        <sc-if value="{{ cBody3D }}" hint-placeholder-val="{{ true }}"><canvas data-body style="{{ cCanvasS }}"></canvas></sc-if>
+        <sc-if value="{{ cBodySvg }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 64 136" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="{{ cBodyS }}"><circle cx="32" cy="14" r="10"></circle><path d="{{ cBodyGlyph }}"></path></svg></sc-if>
       </span>
       <span style="{{ cReadRow }}">
         <span><span style="{{ cReadLab }}">BODY FAT NOW</span><span style="{{ cNowS }}">{{ cBfNow }}</span></span>
@@ -1128,6 +1119,7 @@ class Component extends DCLogic {
       if (n !== this.state.narrow || tab !== this.state.tablet) this.setState({ narrow: n, tablet: tab });
     };
     window.addEventListener("resize", this._onResize);
+    this.syncBody();
     // When the keyboard opens, iOS shrinks the visual viewport and scrolls the layout
     // viewport to reveal the focused field — which shoves a 100dvh shell off the top.
     // Sizing to the visual viewport instead keeps the search box pinned to what is visible.
@@ -1147,7 +1139,42 @@ class Component extends DCLogic {
       this._vv();
     }
   }
+  componentDidUpdate() { this.syncBody(); }
+  // The figure lives outside the render: a canvas is a handle, not a value, so the
+  // template puts one on the page and this keeps whatever is on it in step.
+  syncBody() {
+    const on = this.state.app === "calc" && !this.state.cBodyFail;
+    const el = on ? document.querySelector("[data-body]") : null;
+    if (!el) {
+      if (this._body) { this._body.dispose(); this._body = null; this._bodyEl = null; }
+      return;
+    }
+    if (el !== this._bodyEl) {
+      if (this._body) this._body.dispose();
+      this._bodyEl = el; this._body = null;
+    }
+    const want = this._bodyWant;
+    if (!want) return;
+    if (this._body) { this._body.set(want.sex, want.bf); return; }
+    if (this._bodyLoading) return;
+    this._bodyLoading = true;
+    // 670 KB of three, fetched the first time someone opens the app that needs it
+    // and never by anyone who does not.
+    import("./body.js").then(mod => {
+      this._bodyLoading = false;
+      if (this.state.app !== "calc" || this._bodyEl !== el) return;
+      const api = mod.mount(el);
+      if (!api) { this.setState({ cBodyFail: true }); return; }
+      this._body = api;
+      const w = this._bodyWant;
+      api.set(w.sex, w.bf);
+    }).catch(() => {
+      this._bodyLoading = false;
+      this.setState({ cBodyFail: true });
+    });
+  }
   componentWillUnmount() {
+    if (this._body) { this._body.dispose(); this._body = null; }
     document.removeEventListener("keydown", this._esc);
     window.removeEventListener("scroll", this._unscroll, true);
     document.removeEventListener("touchstart", this._press, true);
@@ -4054,6 +4081,9 @@ class Component extends DCLogic {
           tdP = pathOf(ts, kcLo, kcHi, 34);
           inP = pathOf(ts.map(() => kcal), kcLo, kcHi, 34);
         }
+        // What the figure should be showing. Recorded rather than pushed, because the
+        // canvas does not exist yet at render time — componentDidUpdate reads it.
+        this._bodyWant = { sex: m.sex, bf: done && at ? at.bf : bfVal };
         const num = (v, col) => ({ fontFamily: "var(--font-1)", fontWeight: 300,
           fontSize: s.narrow ? "1.5rem" : "1.7rem", fontVariantNumeric: "tabular-nums",
           color: col || "#eaf5fb" });
@@ -4065,6 +4095,16 @@ class Component extends DCLogic {
           cBack: () => go(step - 1),
           cQuit: () => this.setState({ app: "home" }),
           cIsYou: step === 0, cIsBf: step === 1, cIsDay: step === 2, cIsTrain: step === 3,
+          cLead: step === 0 ? "Four numbers, and none of them leaves this browser."
+            : step === 1 ? "From your height, weight and age we would guess about "
+                + Math.round(m.bfEst) + "%. That is a population estimate. Move the slider until the figure looks right."
+            : step === 2 ? "How you spend the day \u2014 not counting exercise. That is the next question, and counting it twice is how a calculator ends up 400 kcal high."
+            : "Sessions a week. Zero is an answer.",
+          // The figure is WebGL when WebGL will have it, and the line drawing when it
+          // will not — an old browser, a blocked context, a model that failed to load.
+          cBody3D: !s.cBodyFail, cBodySvg: !!s.cBodyFail,
+          cCanvasS: { display: "block", width: "100%", height: "100%",
+            touchAction: "none", cursor: "grab" },
           // Two tiles in a row rather than two rows: it is one choice of two, and stacking
           // it made it look like the start of a list.
           cSexRow: { flex: "none", display: "grid",
@@ -4099,15 +4139,12 @@ class Component extends DCLogic {
           // told what the arithmetic already thinks, and then asked to look. No number box
           // here — nobody knows their body fat to the percent, and a field that invites a
           // typed figure implies a precision that does not exist.
-          cBfLead: "From your height, weight and age we would guess about "
-            + Math.round(m.bfEst) + "%. That is a population estimate. Move the slider until the figure looks right.",
           cBfVal: String(bfVal), cBfPct: bfVal + "%",
           cBfMin: String(bfLo), cBfMax: String(bfHi),
           cBfSlide: e => this.setState({ cBf: +e.target.value }),
           cBfNote: "The figure is a placeholder. It will be a body that turns and changes with the slider.",
           cDayTiles: CALC_DAY.map((d, i) =>
             tile(d.label, d.note, s.cDay === i, () => set("cDay", i))),
-          cDayLead: "How you spend the day \u2014 not counting exercise. That is the next question, and counting it twice is how a calculator ends up 400 kcal high.",
           cTrainN: String(tr.n || 0),
           cTrainNDec: () => setTr({ n: Math.max(0, (tr.n || 0) - 1) }),
           cTrainNInc: () => setTr({ n: Math.min(14, (tr.n || 0) + 1) }),
@@ -4174,8 +4211,9 @@ class Component extends DCLogic {
             border: 0, borderBottom: "1px solid rgba(34,211,238,.35)", borderRadius: 0,
             background: "transparent", color: "#f2f8fc", fontFamily: "var(--font-1)",
             fontWeight: 300, fontSize: "1.35rem", fontVariantNumeric: "tabular-nums" },
-          cFigWrap: { flex: "1 1 auto", minHeight: 0, display: "flex",
-            alignItems: "center", justifyContent: "center", padding: ".3rem 0" },
+          cFigWrap: { flex: "1 1 auto", display: "flex",
+            alignItems: "center", justifyContent: "center", padding: ".3rem 0",
+            minHeight: step === 1 ? (s.narrow ? "16rem" : "19rem") : (s.narrow ? "9rem" : "11rem") },
           cFigS: { display: "block", height: "100%", maxHeight: s.narrow ? "11rem" : "13rem",
             width: "auto", color: "#3b5364" },
           cFigBigS: { display: "block", height: "100%",

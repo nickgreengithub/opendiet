@@ -164,9 +164,17 @@ Behind a mark are the curves: weight, fat mass and lean mass on one axis, and un
 the line nobody draws — maintenance falling to meet the intake, which is why the twelfth
 month does less than the first.
 
-The rotating figure this is built around does not exist yet; a line-drawn person holds its
-place. [`CALC.md`](CALC.md) is the plan, with every equation cited and the asset
-specification for the figure.
+The figure is a body, and it turns. It is a glTF carrying one mesh and five morph targets
+— one per body-fat level — blended continuously, so moving the slider moves the body rather
+than cutting between pictures, and on the result screen it is driven by the scrubbed
+trajectory: dragging through the year *is* the animation. Three.js is vendored into the
+repo and loaded only when this app is opened, and a browser without WebGL gets a line
+drawing instead.
+
+The mesh shipping today is a placeholder built by `tools/build_body_glb.py`; the real one
+comes from MB-Lab through `tools/mblab_bake.py`, and drops into the same loader because the
+only contract is the one those two files share. [`CALC.md`](CALC.md) is the plan, with
+every equation cited.
 
 ## The data
 
@@ -213,7 +221,9 @@ index.html          the whole app: markup, styles and logic
 support.js          the small framework index.html is written against
 ds/                 design system — tokens, stylesheet, fonts
 data/               the three food libraries as JSON, plus their provenance
-tools/              one-off generators (data build, preview image); not part of the site
+tools/              one-off generators (data build, preview image, body meshes); not part of the site
+body.js             the calc app's figure — glTF morph targets in Three.js
+vendor/three/       Three.js and GLTFLoader, vendored rather than fetched from a CDN
 DESIGN.md           why it is built this way — the long version of this README
 CALC.md             the plan for the third app, with its sources
 ```
