@@ -483,29 +483,30 @@ generates them. Worth one experiment before committing to raster.
 
 ## 6. Mobile screens
 
-One question per screen. Not a form — a sequence, the way the game asks six questions rather
-than showing a quiz. Big targets, nothing scrolls inside a step, back always available, and
-the whole run is under a minute.
+**Four steps, not seven.** Sex, age, height and weight are all the same question — who is
+this — and splitting them made a seven-step run out of what is really one form.
 
 ```
 LAUNCHER
   └─ CALORIE CALC
        │
-       1  SEX            two tiles
-       2  AGE            stepper
-       3  HEIGHT         stepper, metric/imperial on the 100 G / OZ pattern
-       4  WEIGHT         stepper
-       5  YOUR DAY       three tiles — desk / on your feet / physical work.
-       │                 Each with one line of what it means in hours, and
-       │                 "not counting exercise" said out loud
-       6  TRAINING       sessions per week, minutes, and how hard.
-       │                 Intensity tiles carry their MET and an example,
-       │                 not an adjective
-       └─ 7  RESULT
+       1  YOU        sex side by side, then age, height and weight, each
+       │             with a slider AND a number box, both live. A slider is
+       │             faster and a number is exact; there is no reason to
+       │             make anyone choose. Minimum age 18.
+       2  BODY FAT   a slider, opening on the Deurenberg estimate, with the
+       │             figure above it. No number box: nobody knows their body
+       │             fat to the percent, and a field that invites a typed
+       │             figure implies a precision that does not exist.
+       3  YOUR DAY   three tiles, and "not counting exercise" said out loud
+       4  TRAINING   sessions, minutes, and how hard, in METs with examples
+       └─ 5  RESULT
 ```
 
-Seven steps sounds like a lot and is not: each is one decision, most are two taps, and the
-progress reads the way the game's six boxes do.
+**The figure is on every screen**, not just the last. It is the constant the whole app is
+about, it fills the space a phone screen otherwise leaves empty under a short question, and
+it means the payoff is visible from step one rather than being a surprise at the end. On
+the body-fat step it is the control's own readout.
 
 ### The result screen
 
