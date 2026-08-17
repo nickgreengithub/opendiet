@@ -35,104 +35,103 @@ LEVELS = [8, 15, 22, 30, 38, 46]   # body-fat % — the first is the base mesh
 
 
 # ── the body, as stacks of rings ──────────────────────────────────────────────
-# Each ring is (y, rx, rz, cx, w) — height, the two radii of its ellipse, how far
-# it is off centre, and w, how strongly fat lands there. w is the whole reason
-# this reads as a body changing rather than a balloon inflating: fat goes to the
-# abdomen first in men and to the hips and thighs in women, and everywhere else
-# it barely moves.
-
-# Male and female are now properly dimorphic rather than the same body at two
-# slightly different widths. The shoulder-to-hip ratio does most of the work —
-# about 1.47 for the male and 0.90 for the female — with the waist, the bust and
-# the stance carrying the rest. At a glance, from across a room, that is what
-# tells you which body you are looking at.
+# Each ring is (y, rx, rz, cx, w, fz).
+#
+#   y, rx, rz  height and the two radii of its ellipse
+#   cx         how far off centre it sits
+#   w          how strongly fat lands here — abdomen first in men, hips and
+#              thighs in women, and almost nowhere else
+#   fz         how far the ring pushes FORWARD only
+#
+# fz is what makes a chest a chest. An ellipse that is deep front-to-back bulges
+# backwards as much as forwards, which on a woman reads as a chest on both sides
+# and on a heavy man reads as a barrel. A one-sided bulge is a bust, or a belly.
 
 TORSO_M = [
-    # y      rx     rz     cx     w
-    (0.80, 0.055, 0.048, 0.0, 1.05),   # crotch
-    (0.86, 0.115, 0.088, 0.0, 1.20),
-    (0.91, 0.150, 0.116, 0.0, 1.30),
-    (0.96, 0.158, 0.128, 0.0, 1.35),   # hips — narrow
-    (1.04, 0.148, 0.120, 0.0, 1.70),
-    (1.12, 0.140, 0.112, 0.0, 1.95),   # waist — the first place it goes
-    (1.20, 0.157, 0.120, 0.0, 1.60),
-    (1.28, 0.182, 0.132, 0.0, 1.05),   # chest
-    (1.36, 0.212, 0.130, 0.0, 0.70),
-    (1.43, 0.234, 0.120, 0.0, 0.55),   # shoulders — wide
-    (1.49, 0.096, 0.092, 0.0, 0.45),   # neck base, thick
-    (1.55, 0.063, 0.063, 0.0, 0.40),
-    (1.60, 0.080, 0.094, 0.0, 0.45),   # jaw, square
-    (1.66, 0.098, 0.107, 0.0, 0.30),
-    (1.72, 0.073, 0.079, 0.0, 0.20),
-    (1.750, 0.016, 0.016, 0.0, 0.10),
+    # y      rx     rz     cx    w     fz
+    (0.88, 0.072, 0.062, 0.0, 1.05, 0.000),   # crotch
+    (0.93, 0.154, 0.106, 0.0, 1.20, 0.000),
+    (0.96, 0.166, 0.120, 0.0, 1.30, 0.004),   # hips — narrow
+    (1.04, 0.152, 0.114, 0.0, 1.65, 0.020),
+    (1.12, 0.143, 0.106, 0.0, 1.95, 0.032),   # waist — the belly, forward
+    (1.20, 0.158, 0.114, 0.0, 1.55, 0.018),
+    (1.28, 0.182, 0.126, 0.0, 1.00, 0.008),   # chest
+    (1.36, 0.212, 0.126, 0.0, 0.65, 0.000),
+    (1.43, 0.232, 0.116, 0.0, 0.50, 0.000),   # shoulders — wide
+    (1.485, 0.090, 0.086, 0.0, 0.45, 0.000),  # trapezius into the neck
+    (1.55, 0.058, 0.058, 0.0, 0.40, 0.000),
+    (1.60, 0.076, 0.090, 0.0, 0.45, 0.010),   # jaw
+    (1.66, 0.095, 0.104, 0.0, 0.30, 0.006),
+    (1.72, 0.070, 0.076, 0.0, 0.20, 0.000),
+    (1.750, 0.016, 0.016, 0.0, 0.10, 0.000),
 ]
 
 TORSO_F = [
-    (0.80, 0.058, 0.050, 0.0, 1.70),   # crotch
-    (0.86, 0.127, 0.096, 0.0, 1.35),
-    (0.91, 0.170, 0.130, 0.0, 1.45),
-    (0.96, 0.184, 0.144, 0.0, 1.55),   # hips — wide, and where it goes first
-    (1.04, 0.164, 0.130, 0.0, 1.45),
-    (1.12, 0.126, 0.104, 0.0, 1.25),   # waist — narrow
-    (1.20, 0.132, 0.114, 0.0, 1.25),
-    (1.28, 0.152, 0.142, 0.0, 1.05),   # bust — deeper than it is wide
-    (1.36, 0.166, 0.120, 0.0, 0.75),
-    (1.43, 0.176, 0.108, 0.0, 0.55),   # shoulders — narrow
-    (1.49, 0.080, 0.078, 0.0, 0.45),
-    (1.55, 0.052, 0.052, 0.0, 0.40),   # neck, slender
-    (1.60, 0.071, 0.085, 0.0, 0.45),
-    (1.66, 0.091, 0.099, 0.0, 0.30),
-    (1.72, 0.067, 0.073, 0.0, 0.20),
-    (1.750, 0.016, 0.016, 0.0, 0.10),
+    (0.88, 0.074, 0.064, 0.0, 1.55, 0.000),   # crotch
+    (0.93, 0.168, 0.114, 0.0, 1.50, 0.000),
+    (0.96, 0.182, 0.130, 0.0, 1.55, 0.000),   # hips — wide
+    (1.04, 0.160, 0.118, 0.0, 1.40, 0.006),
+    (1.12, 0.124, 0.100, 0.0, 1.20, 0.014),   # waist — narrow
+    (1.20, 0.132, 0.104, 0.0, 1.15, 0.012),
+    (1.28, 0.142, 0.104, 0.0, 1.05, 0.056),   # bust — forward, not sideways
+    (1.36, 0.160, 0.112, 0.0, 0.70, 0.008),
+    (1.43, 0.174, 0.106, 0.0, 0.50, 0.000),   # shoulders — narrow
+    (1.485, 0.076, 0.074, 0.0, 0.45, 0.000),
+    (1.55, 0.049, 0.049, 0.0, 0.40, 0.000),   # neck — slender
+    (1.60, 0.068, 0.082, 0.0, 0.45, 0.008),
+    (1.66, 0.088, 0.096, 0.0, 0.30, 0.005),
+    (1.72, 0.064, 0.070, 0.0, 0.20, 0.000),
+    (1.750, 0.016, 0.016, 0.0, 0.10, 0.000),
 ]
 
+# The thighs now begin at the hip rather than below it, and at the hip they are
+# as wide as the pelvis is. Starting them lower and narrower is what made them
+# read as two posts propped under a torso rather than part of one body.
 LEG_M = [
-    # The first two rings are narrower than the torso at the same height, because a
-    # leg that is wider than the pelvis it hangs off shows its rim as a flange and
-    # you can see straight down the tube.
-    (1.05, 0.062, 0.062, 0.070, 1.30),
-    (0.97, 0.090, 0.092, 0.077, 1.40),
-    (0.86, 0.096, 0.098, 0.082, 1.55),   # thigh
-    (0.70, 0.082, 0.085, 0.084, 1.30),
-    (0.54, 0.061, 0.065, 0.086, 0.85),   # knee
-    (0.42, 0.068, 0.071, 0.088, 0.95),   # calf
-    (0.24, 0.050, 0.053, 0.090, 0.60),
-    (0.09, 0.037, 0.040, 0.092, 0.35),   # ankle
-    (0.015, 0.048, 0.075, 0.092, 0.25),  # foot
+    (1.02, 0.088, 0.088, 0.085, 1.25, 0.000),
+    (0.94, 0.099, 0.099, 0.085, 1.40, 0.000),
+    (0.86, 0.096, 0.098, 0.084, 1.55, 0.000),   # thigh
+    (0.70, 0.082, 0.085, 0.084, 1.30, 0.000),
+    (0.54, 0.061, 0.065, 0.086, 0.85, 0.000),   # knee
+    (0.42, 0.068, 0.071, 0.088, 0.95, 0.000),   # calf
+    (0.24, 0.050, 0.053, 0.090, 0.60, 0.000),
+    (0.09, 0.037, 0.040, 0.092, 0.35, 0.000),   # ankle
+    (0.015, 0.046, 0.060, 0.092, 0.25, 0.055),  # foot, pointing forward
 ]
 
 LEG_F = [
-    (1.05, 0.066, 0.066, 0.082, 1.45),
-    (0.97, 0.098, 0.098, 0.093, 1.55),
-    (0.86, 0.103, 0.104, 0.099, 1.70),   # thigh — the other place it goes
-    (0.70, 0.083, 0.086, 0.097, 1.35),
-    (0.54, 0.057, 0.061, 0.095, 0.85),
-    (0.42, 0.063, 0.066, 0.094, 0.95),
-    (0.24, 0.045, 0.048, 0.093, 0.55),
-    (0.09, 0.033, 0.036, 0.092, 0.35),
-    (0.015, 0.043, 0.069, 0.092, 0.25),
+    (1.02, 0.094, 0.094, 0.095, 1.45, 0.000),
+    (0.94, 0.105, 0.103, 0.097, 1.55, 0.000),
+    (0.86, 0.103, 0.104, 0.098, 1.70, 0.000),   # thigh
+    (0.70, 0.083, 0.086, 0.097, 1.35, 0.000),
+    (0.54, 0.057, 0.061, 0.095, 0.85, 0.000),
+    (0.42, 0.063, 0.066, 0.094, 0.95, 0.000),
+    (0.24, 0.045, 0.048, 0.093, 0.55, 0.000),
+    (0.09, 0.033, 0.036, 0.092, 0.35, 0.000),
+    (0.015, 0.042, 0.056, 0.092, 0.25, 0.050),
 ]
 
+# Arms hang against the body rather than out from it.
 ARM_M = [
-    (1.45, 0.052, 0.052, 0.212, 0.70),   # buried inside the shoulder
-    (1.40, 0.060, 0.060, 0.220, 0.70),
-    (1.28, 0.053, 0.053, 0.231, 0.85),   # upper arm
-    (1.14, 0.046, 0.046, 0.240, 0.75),
-    (1.05, 0.041, 0.041, 0.246, 0.55),   # elbow
-    (0.95, 0.038, 0.038, 0.251, 0.55),
-    (0.84, 0.029, 0.029, 0.256, 0.35),   # wrist
-    (0.74, 0.035, 0.029, 0.259, 0.25),   # hand
+    (1.46, 0.050, 0.050, 0.204, 0.70, 0.000),   # buried in the shoulder
+    (1.40, 0.058, 0.058, 0.211, 0.70, 0.000),
+    (1.28, 0.052, 0.052, 0.219, 0.85, 0.000),   # upper arm
+    (1.14, 0.045, 0.045, 0.226, 0.75, 0.000),
+    (1.05, 0.040, 0.040, 0.231, 0.55, 0.000),   # elbow
+    (0.95, 0.037, 0.037, 0.235, 0.55, 0.000),
+    (0.84, 0.028, 0.028, 0.239, 0.35, 0.000),   # wrist
+    (0.74, 0.033, 0.028, 0.241, 0.25, 0.000),   # hand
 ]
 
 ARM_F = [
-    (1.45, 0.040, 0.040, 0.156, 0.75),
-    (1.40, 0.046, 0.046, 0.163, 0.75),
-    (1.28, 0.041, 0.041, 0.174, 0.95),
-    (1.14, 0.035, 0.035, 0.183, 0.80),
-    (1.05, 0.031, 0.031, 0.189, 0.55),
-    (0.95, 0.029, 0.029, 0.194, 0.55),
-    (0.84, 0.023, 0.023, 0.199, 0.35),
-    (0.74, 0.029, 0.024, 0.202, 0.25),
+    (1.46, 0.039, 0.039, 0.152, 0.75, 0.000),
+    (1.40, 0.045, 0.045, 0.158, 0.75, 0.000),
+    (1.28, 0.040, 0.040, 0.166, 0.95, 0.000),
+    (1.14, 0.034, 0.034, 0.173, 0.80, 0.000),
+    (1.05, 0.030, 0.030, 0.178, 0.55, 0.000),
+    (0.95, 0.028, 0.028, 0.182, 0.55, 0.000),
+    (0.84, 0.022, 0.022, 0.186, 0.35, 0.000),
+    (0.74, 0.028, 0.023, 0.188, 0.25, 0.000),
 ]
 
 
@@ -140,7 +139,7 @@ def loft(rings, mirror, fat):
     """One tube of rings into (verts, tris). fat is (bf - base)/100."""
     verts, tris = [], []
     sign = -1.0 if mirror else 1.0
-    for (y, rx, rz, cx, w) in rings:
+    for (y, rx, rz, cx, w, fz) in rings:
         # Radii grow with fat, weighted by where on the body the ring sits.
         #
         # The coefficient is not free. Going from 8% body fat to 46% at constant
@@ -150,9 +149,14 @@ def loft(rings, mirror, fat):
         # about 1.15x, which averages back to roughly the right body.
         k = 1.0 + max(-0.45, fat * w * 0.98)
         kz = 1.0 + max(-0.45, fat * w * 1.22)   # depth grows faster than width
+        # The forward bulge grows with fat too — a belly is not a wider waist, it
+        # is a waist that comes out at the front.
+        kf = 1.0 + max(-0.7, fat * w * 1.7)
         for i in range(SEG):
             a = 2.0 * math.pi * i / SEG
-            verts.append((sign * cx + rx * k * math.cos(a), y, rz * kz * math.sin(a)))
+            sa, ca = math.sin(a), math.cos(a)
+            front = sa * sa if sa > 0 else 0.0
+            verts.append((sign * cx + rx * k * ca, y, rz * kz * sa + fz * kf * front))
     for r in range(len(rings) - 1):
         for i in range(SEG):
             a0 = r * SEG + i

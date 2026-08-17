@@ -443,6 +443,23 @@ list into the mesh's custom properties and exports the .glb. It refuses to run i
 levels differ in vertex count, because `join_shapes` maps by index and the failure is
 silent otherwise.
 
+### Reading as a body
+
+Three things carry it, and each was a bug before it was a feature.
+
+**A one-sided bulge.** An ellipse that is deep front-to-back bulges backwards as much as
+forwards, which on a woman reads as a chest on both sides and on a heavy man reads as a
+barrel. Every ring now carries `fz`, a forward-only projection that grows with fat — so a
+bust is a bust and a belly comes out at the front.
+
+**Thighs that begin at the hip.** They used to start below the pelvis and narrower than it,
+which read as two posts propped under a torso. At the hip they are now as wide as the hip.
+
+**Height is a scale, and the frame does not follow it.** The camera holds a fixed 2.2 m of
+world with the floor in a fixed place, and the mesh — authored at 1.75 m — scales about its
+feet. Fit the camera to the body instead and every body fills the box, which is exactly how
+a height control ends up doing nothing visible.
+
 ### Handling it
 
 Pointer events with a Map keyed by `pointerId`, so a mouse, one finger and two
@@ -495,9 +512,11 @@ LAUNCHER
        └─ 8  RESULT
 ```
 
-Slider and number share one row: the slider takes the width, the number sits in a fixed
-6.8rem box on the right under a hairline, so the digits land in the same place from screen
-to screen. No lead paragraphs, no notes under the tiles — the figure and the label carry it.
+Every setting screen is the same three things: the value large and centred, the slider
+under it, and a chevron at the end of the slider's own row. No number boxes — the value is
+for reading, not typing, and a field that invites a typed figure is a second control doing
+the first one's job. No lead paragraphs and no notes under the tiles either; the figure and
+one label carry it.
 
 ### The result screen
 

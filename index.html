@@ -388,35 +388,33 @@ option{background:#070b12;color:#d7e6ef}
         <span style="{{ cSexRow }}"><sc-for list="{{ cSexTiles }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)">{{ t.label }}</button></sc-for></span>
       </sc-if>
       <sc-if value="{{ cIsNum }}" hint-placeholder-val="{{ false }}">
+        <span style="{{ cValRow }}"><span style="{{ cValS }}">{{ cField.val }}</span><span style="{{ cValUnit }}">{{ cField.unit }}</span></span>
         <span style="{{ cFieldRow }}">
           <input type="range" min="{{ cField.min }}" max="{{ cField.max }}" step="1" value="{{ cField.val }}" onChange="{{ cField.onSlide }}">
-          <span style="{{ cFieldBox }}"><input inputmode="numeric" value="{{ cField.val }}" onChange="{{ cField.onType }}" style="{{ cFieldInput }}"><span style="{{ cUnitS }}">{{ cField.unit }}</span></span>
+          <button onClick="{{ cNext }}" style="{{ cGoS }}" style-hover="border-color:rgba(34,211,238,.85);background:rgba(34,211,238,.18)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button>
         </span>
-        <button onClick="{{ cNext }}" style="{{ cNextS }}" style-hover="background:rgba(34,211,238,.2)">{{ cNextLab }}</button>
       </sc-if>
       <sc-if value="{{ cIsBf }}" hint-placeholder-val="{{ false }}">
+        <span style="{{ cValRow }}"><span style="{{ cValS }}">{{ cBfVal }}</span><span style="{{ cValUnit }}">% FAT</span></span>
         <span style="{{ cFieldRow }}">
           <input type="range" min="{{ cBfMin }}" max="{{ cBfMax }}" step="1" value="{{ cBfVal }}" onChange="{{ cBfSlide }}">
-          <span style="{{ cFieldBox }}"><span style="{{ cFieldRead }}">{{ cBfVal }}</span><span style="{{ cUnitS }}">%</span></span>
+          <button onClick="{{ cNext }}" style="{{ cGoS }}" style-hover="border-color:rgba(34,211,238,.85);background:rgba(34,211,238,.18)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button>
         </span>
-        <button onClick="{{ cNext }}" style="{{ cNextS }}" style-hover="background:rgba(34,211,238,.2)">{{ cNextLab }}</button>
       </sc-if>
       <sc-if value="{{ cIsDay }}" hint-placeholder-val="{{ false }}">
         <span style="{{ cCol }}"><sc-for list="{{ cDayTiles }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span></button></sc-for></span>
       </sc-if>
       <sc-if value="{{ cIsTrain }}" hint-placeholder-val="{{ false }}">
+        <span style="{{ cValRow }}"><span style="{{ cValS }}">{{ cTrainN }}</span><span style="{{ cValUnit }}">SESSIONS A WEEK</span></span>
         <span style="{{ cFieldRow }}">
           <input type="range" min="0" max="14" step="1" value="{{ cTrainN }}" onChange="{{ cTrainNSlide }}">
-          <span style="{{ cFieldBox }}"><span style="{{ cFieldRead }}">{{ cTrainN }}</span><span style="{{ cUnitS }}">A WEEK</span></span>
+          <button onClick="{{ cNext }}" style="{{ cGoS }}" style-hover="border-color:rgba(34,211,238,.85);background:rgba(34,211,238,.18)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button>
         </span>
         <sc-if value="{{ cTrainDetail }}" hint-placeholder-val="{{ true }}">
-          <span style="{{ cFieldRow }}">
-            <input type="range" min="10" max="180" step="5" value="{{ cTrainMin }}" onChange="{{ cTrainMinSlide }}">
-            <span style="{{ cFieldBox }}"><span style="{{ cFieldRead }}">{{ cTrainMin }}</span><span style="{{ cUnitS }}">MIN</span></span>
-          </span>
+          <span style="{{ cSubRow }}"><span style="{{ cSubVal }}">{{ cTrainMin }}</span><span style="{{ cValUnit }}">MINUTES EACH</span></span>
+          <input type="range" min="10" max="180" step="5" value="{{ cTrainMin }}" onChange="{{ cTrainMinSlide }}">
           <span style="{{ cMetRow }}"><sc-for list="{{ cMetTiles }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)">{{ t.label }}</button></sc-for></span>
         </sc-if>
-        <button onClick="{{ cNext }}" style="{{ cNextS }}" style-hover="background:rgba(34,211,238,.2)">{{ cNextLab }}</button>
       </sc-if>
     </sc-if>
     <sc-if value="{{ cResOn }}" hint-placeholder-val="{{ false }}">
@@ -1151,7 +1149,7 @@ class Component extends DCLogic {
     }
     const want = this._bodyWant;
     if (!want) return;
-    if (this._body) { this._body.set(want.sex, want.bf); return; }
+    if (this._body) { this._body.set(want.sex, want.bf, want.ht); return; }
     if (this._bodyLoading) return;
     this._bodyLoading = true;
     // 670 KB of three, fetched the first time someone opens the app that needs it
@@ -1163,7 +1161,7 @@ class Component extends DCLogic {
       if (!api) { this.setState({ cBodyFail: true }); return; }
       this._body = api;
       const w = this._bodyWant;
-      api.set(w.sex, w.bf);
+      api.set(w.sex, w.bf, w.ht);
     }).catch(() => {
       this._bodyLoading = false;
       this.setState({ cBodyFail: true });
@@ -4091,7 +4089,7 @@ class Component extends DCLogic {
         }
         // What the figure should be showing. Recorded rather than pushed, because the
         // canvas does not exist yet at render time — componentDidUpdate reads it.
-        this._bodyWant = { sex: m.sex, bf: done && at ? at.bf : bfVal };
+        this._bodyWant = { sex: m.sex, bf: done && at ? at.bf : bfVal, ht: m.ht };
         const num = (v, col) => ({ fontFamily: "var(--font-1)", fontWeight: 300,
           fontSize: s.narrow ? "1.5rem" : "1.7rem", fontVariantNumeric: "tabular-nums",
           color: col || "#eaf5fb" });
@@ -4233,8 +4231,26 @@ class Component extends DCLogic {
             padding: ".2rem 0" },
           // Slider and number on one row: the slider takes the width, the number is a
           // fixed box on the right so the digits line up from screen to screen.
+          // The value is the thing being set, so it is what you read; the slider is
+          // the hand on it and the chevron is the way out. Big figure, thin rule,
+          // one row.
+          cValRow: { flex: "none", display: "flex", alignItems: "baseline",
+            justifyContent: "center", gap: ".45rem", paddingBottom: ".1rem" },
+          cValS: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "2.9rem",
+            lineHeight: 1.05, fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
+          cValUnit: { fontFamily: "var(--font-2)", fontSize: ".84rem",
+            letterSpacing: ".16em", color: "#9fb3c0" },
+          cSubRow: { flex: "none", display: "flex", alignItems: "baseline",
+            justifyContent: "center", gap: ".4rem", paddingTop: ".6rem" },
+          cSubVal: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.5rem",
+            lineHeight: 1.05, fontVariantNumeric: "tabular-nums", color: "#eaf5fb" },
           cFieldRow: { flex: "none", display: "flex", alignItems: "center",
-            gap: ".8rem", paddingTop: ".2rem" },
+            gap: ".9rem", paddingTop: ".1rem" },
+          cGoS: { flex: "none", display: "flex", alignItems: "center",
+            justifyContent: "center", width: "3rem", height: "3rem", padding: 0,
+            boxSizing: "border-box", borderRadius: 0, cursor: "pointer",
+            border: "1px solid rgba(34,211,238,.5)", background: "rgba(34,211,238,.08)",
+            color: "#3fdcf2", transition: "background 160ms ease, border-color 160ms ease" },
           cMetRow: { flex: "none", display: "grid",
             gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: ".4rem",
             paddingTop: ".5rem" },

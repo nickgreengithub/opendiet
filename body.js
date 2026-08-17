@@ -68,8 +68,16 @@ export function mount(canvas) {
   // degrees puts the whole figure in the box with a little air top and bottom,
   // and since the vertical field of view maps to the box height, the figure fills
   // whatever height the layout gives it without any per-screen fitting.
+  // The frame is FIXED at 2.35 m of world height with the floor at a fixed place,
+  // rather than fitted to whatever body is in it. That is the only way a change of
+  // height can be seen: fit the camera to the body and every body fills the box.
+  // 2.2 m of frame: a 1.75 m body fills four fifths of it, and the whole 140-215
+  // range fits without the tallest clipping its crown. Feet a little above the
+  // floor of the frame, so the figure stands on something rather than in the
+  // exact middle of nothing.
+  const FRAME = 2.2, FLOOR = -1.07;
   const camera = new THREE.PerspectiveCamera(26, 1, 0.1, 20);
-  camera.position.set(0, 0, (1.95 / 2) / Math.tan(26 * Math.PI / 360));
+  camera.position.set(0, 0, (FRAME / 2) / Math.tan(26 * Math.PI / 360));
   camera.lookAt(0, 0, 0);
 
   // Lit so the body is legible on a phone in daylight, which the first pass was
@@ -95,7 +103,7 @@ export function mount(canvas) {
   const pivot = new THREE.Group();
   scene.add(pivot);
 
-  let mesh = null, levels = null, want = { sex: "m", bf: 20 };
+  let mesh = null, levels = null, want = { sex: "m", bf: 20, ht: 175 };
   let spin = 0, drag = null, vel = 0, raf = 0, alive = true, dirty = true;
   // Pinch. The camera pulls in and out rather than the body scaling, so the
   // perspective stays honest at every zoom.
@@ -106,8 +114,8 @@ export function mount(canvas) {
   // so a vertical drag walks it up and down. Clamped to the body's own extent, so
   // you can reach the head and the feet and nothing beyond them.
   const place = () => {
-    const half = 0.975 / zoom;                    // half the visible height, metres
-    const lim = Math.max(0, 0.9 - half);
+    const half = (FRAME / 2) / zoom;              // half the visible height, metres
+    const lim = Math.max(0, FRAME / 2 - half);
     panY = Math.max(-lim, Math.min(lim, panY));
     camera.position.set(0, panY, BASE_D / zoom);
     camera.lookAt(0, panY, 0);
@@ -136,6 +144,8 @@ export function mount(canvas) {
     const w = weightsFor(levels, want.bf);
     for (let i = 0; i < mesh.morphTargetInfluences.length; i++)
       mesh.morphTargetInfluences[i] = w[i] || 0;
+    // The mesh is authored at 1.75 m, so height is a scale about the feet.
+    mesh.scale.setScalar((want.ht || 175) / 175);
     dirty = true;
   };
 
@@ -143,7 +153,7 @@ export function mount(canvas) {
     if (!alive) return;
     if (mesh) { pivot.remove(mesh); }
     mesh = new THREE.Mesh(b.geometry, material);
-    mesh.position.y = -0.875;     // centred on the origin, which the camera holds
+    mesh.position.y = FLOOR;      // feet on the floor of the frame, not centred
     levels = b.bodyFat;
     pivot.add(mesh);
     apply();
@@ -191,7 +201,7 @@ export function mount(canvas) {
     } else if (drag != null) {
       vel = (e.clientX - drag.x) * 0.012;
       spin += vel;
-      if (zoom > 1.05) { panY += (e.clientY - drag.y) * 0.0028 * (0.975 / zoom); place(); }
+      if (zoom > 1.05) { panY += (e.clientY - drag.y) * 0.0032 * ((FRAME / 2) / zoom); place(); }
       drag = { x: e.clientX, y: e.clientY };
       dirty = true;
     }
@@ -216,8 +226,9 @@ export function mount(canvas) {
   tick();
 
   const api = {
-    set(sex, bf) {
+    set(sex, bf, ht) {
       want.bf = bf;
+      if (ht) want.ht = ht;
       if (sex !== loaded) { loaded = sex; want.sex = sex; swap(sex); }
       else apply();
     },
