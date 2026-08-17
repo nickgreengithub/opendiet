@@ -42,9 +42,8 @@ into a protein or carbohydrate goal is contested enough that the table would be 
 side it has no business taking. It states what is on the plate.
 
 On a phone the site opens on a launcher: three rows of one height, each with a mark, a
-name and one short line. FOOD SEARCH and CALORIE GAME open; CALORIE CALC is dimmed,
-labelled COMING SOON and inert until it is built. A desktop opens straight into the table,
-with the others a tab away.
+name and one short line. All three open. A desktop opens straight into the table, with the
+others a tab away.
 
 A tablet runs the phone's design, because below 1000px of width the table can no longer
 name a food — but it runs it at a tablet's size rather than a phone's. Everything steps
@@ -134,6 +133,40 @@ The pictures are generated rather than photographed, and every one is counted ag
 label before it is used. Three of the 36 came back holding something other than what was
 asked — seven strawberries not eight, four rashers not three, a whole bar of chocolate
 rather than half of one — and were relabelled to what they actually show.
+
+## Calorie calc
+
+A third app: what a body spends in a day, and what happens if you hold a number.
+
+Seven questions, one per screen — sex, age, height, weight, body fat, how the day is spent,
+how you train — and then a screen with two sliders on it. The inversion is the whole idea:
+**the input is calories and the output is a body**, rather than naming a goal and being
+handed a number. Nobody types a target weight. Move the intake slider and the figure, the
+body fat percentage and the date all answer; move the time slider and the year plays.
+
+Body fat is not asked for as a number. It is estimated from height, weight and age, shown
+as an estimate, and picked off a row of reference figures — and the moment it is stated
+rather than guessed, the resting-metabolism equation switches to the one that reads lean
+mass instead of weight. Activity is two questions rather than one, because the day you
+spend anyway and the training you choose are estimated differently and priced differently:
+the first on the FAO lifestyle bands read at their exercise-free end, the second in METs,
+at `(MET − 1) × kg × hours` — the −1 because resting metabolism is already counted once and
+an hour of training is not an hour of extra existing.
+
+The trajectory is not 3,500 kcal a pound. That rule is static, and applied to a year it
+overestimates badly. The deficit here is applied against a maintenance recomputed every day
+from the body that is actually left, with the fat and lean split by Forbes — the leaner you
+are, the more of each kilogram is muscle — and with adaptive thermogenesis ramped in over
+eight weeks. Checked against Hall's published rule of thumb, a 100 kcal/day deficit gives
+2.7 kg at a year and 4.3 kg at three, against his 2.2 and 4.5.
+
+Behind a mark are the curves: weight, fat mass and lean mass on one axis, and under them
+the line nobody draws — maintenance falling to meet the intake, which is why the twelfth
+month does less than the first.
+
+The rotating figure this is built around does not exist yet; a line-drawn person holds its
+place. [`CALC.md`](CALC.md) is the plan, with every equation cited and the asset
+specification for the figure.
 
 ## The data
 

@@ -207,6 +207,14 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
      affordance is drawn as an outline rather than a border colour precisely so it can
      be taken away here without having to restate a border that changes every round. */
   [data-gcard][data-gcard]:hover{outline:none!important;box-shadow:none!important}}
+/* The two sliders on the calc result. A range input is the one control the browser will
+   not let you restyle from the style attribute, so it lives here. */
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2.4rem;margin:0;background:transparent;cursor:pointer;display:block}
+input[type=range]:focus{outline:none;background:transparent!important;box-shadow:none}
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:rgba(34,211,238,.3)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:1.5rem;height:1.5rem;margin-top:-.68rem;border-radius:50%;background:#0a1016;border:2px solid #22d3ee;box-shadow:0 0 14px rgba(34,211,238,.45)}
+input[type=range]::-moz-range-track{height:2px;background:rgba(34,211,238,.3)}
+input[type=range]::-moz-range-thumb{width:1.5rem;height:1.5rem;border-radius:50%;background:#0a1016;border:2px solid #22d3ee;box-shadow:0 0 14px rgba(34,211,238,.45)}
 input::placeholder{color:#7b91a3;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:1}
 /* Without this, reaching the end of a table hands the gesture to the page: iOS rubber-bands
    the whole document, the URL bar slides, and the next swipe is spent re-entering the table. */
@@ -360,6 +368,108 @@ option{background:#070b12;color:#d7e6ef}
       </sc-if>
       <span style="{{ gFootRow }}"><button onClick="{{ gAgain }}" style="{{ gAgainS }}">PLAY AGAIN</button><button onClick="{{ gTipToggle }}" style="{{ gTipBtn }}" style-hover="color:#22d3ee"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="display:block"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5.5"></path><path d="M12 7.6v.1"></path></svg></button></span>
       <sc-if value="{{ gTipOn }}" hint-placeholder-val="{{ false }}"><span style="{{ gNoteS }}">Calories drive body fat, but a healthy diet also means hitting macro and micronutrient targets. This is a game, not nutritional advice.</span></sc-if>
+    </sc-if>
+  </div>
+  </sc-if>
+  <sc-if value="{{ appCalc }}" hint-placeholder-val="{{ false }}">
+  <div style="{{ cWrap }}">
+    <sc-if value="{{ cStepOn }}" hint-placeholder-val="{{ true }}">
+      <span style="{{ cHead }}">
+        <sc-if value="{{ cBackOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ cBack }}" style="{{ cBackS }}" style-hover="color:#22d3ee"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M15 5l-7 7 7 7"></path></svg></button></sc-if>
+        <span style="{{ cTagS }}">{{ cTag }}</span>
+      </span>
+      <span style="{{ cTitleS }}">{{ cTitle }}</span>
+      <sc-if value="{{ cIsSex }}" hint-placeholder-val="{{ true }}">
+        <span style="{{ cLeadS }}">The equations run differently for each, so this is asked first and not again.</span>
+        <span style="{{ cCol }}"><sc-for list="{{ cSexTiles }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span></button></sc-for></span>
+      </sc-if>
+      <sc-if value="{{ cIsNum }}" hint-placeholder-val="{{ false }}">
+        <span style="{{ cLeadS }}">{{ cNumLead }}</span>
+        <span style="{{ cNumRow }}">
+          <button onClick="{{ cDec }}" style="{{ cStepBtn }}" style-hover="background:rgba(34,211,238,.16)">&minus;</button>
+          <span style="{{ cNumS }}">{{ cNumVal }}<span style="{{ cUnitS }}">{{ cNumUnit }}</span></span>
+          <button onClick="{{ cInc }}" style="{{ cStepBtn }}" style-hover="background:rgba(34,211,238,.16)">+</button>
+        </span>
+        <button onClick="{{ cNext }}" style="{{ cNextS }}" style-hover="background:rgba(34,211,238,.2)">{{ cNextLab }}</button>
+      </sc-if>
+      <sc-if value="{{ cIsBf }}" hint-placeholder-val="{{ false }}">
+        <span style="{{ cLeadS }}">{{ cBfLead }}</span>
+        <span style="{{ cBfGrid }}"><sc-for list="{{ cBfTiles }}" as="t" hint-placeholder-count="8"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><svg width="26" height="52" viewBox="0 0 64 136" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" style="{{ t.gS }}"><circle cx="32" cy="14" r="10"></circle><path d="{{ cBodyGlyph }}"></path></svg><span style="{{ t.pctS }}">{{ t.pct }}</span></button></sc-for></span>
+        <span style="{{ cBfNoteS }}">{{ cBfNote }}</span>
+      </sc-if>
+      <sc-if value="{{ cIsDay }}" hint-placeholder-val="{{ false }}">
+        <span style="{{ cLeadS }}">{{ cDayLead }}</span>
+        <span style="{{ cCol }}"><sc-for list="{{ cDayTiles }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.noteS }}">{{ t.note }}</span></button></sc-for></span>
+      </sc-if>
+      <sc-if value="{{ cIsTrain }}" hint-placeholder-val="{{ false }}">
+        <span style="{{ cLeadS }}">Sessions a week. Zero is an answer.</span>
+        <span style="{{ cNumRow }}">
+          <button onClick="{{ cTrainNDec }}" style="{{ cStepBtn }}" style-hover="background:rgba(34,211,238,.16)">&minus;</button>
+          <span style="{{ cNumS }}">{{ cTrainN }}<span style="{{ cUnitS }}">A WEEK</span></span>
+          <button onClick="{{ cTrainNInc }}" style="{{ cStepBtn }}" style-hover="background:rgba(34,211,238,.16)">+</button>
+        </span>
+        <sc-if value="{{ cTrainDetail }}" hint-placeholder-val="{{ true }}">
+          <span style="{{ cSubLab }}">MINUTES EACH</span>
+          <span style="{{ cNumRow }}">
+            <button onClick="{{ cTrainMinDec }}" style="{{ cStepBtn }}" style-hover="background:rgba(34,211,238,.16)">&minus;</button>
+            <span style="{{ cNumS }}">{{ cTrainMin }}<span style="{{ cUnitS }}">MIN</span></span>
+            <button onClick="{{ cTrainMinInc }}" style="{{ cStepBtn }}" style-hover="background:rgba(34,211,238,.16)">+</button>
+          </span>
+          <span style="{{ cSubLab }}">HOW HARD</span>
+          <span style="{{ cScroll }}"><sc-for list="{{ cMetTiles }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.noteS }}">{{ t.note }}</span><span style="{{ t.metS }}">{{ t.met }}</span></button></sc-for></span>
+        </sc-if>
+        <button onClick="{{ cNext }}" style="{{ cNextS }}" style-hover="background:rgba(34,211,238,.2)">{{ cNextLab }}</button>
+      </sc-if>
+    </sc-if>
+    <sc-if value="{{ cResOn }}" hint-placeholder-val="{{ false }}">
+      <span style="{{ cMaintRow }}"><span style="{{ cMaintLab }}">MAINTENANCE</span><span style="{{ cMaintS }}">{{ cMaint }}</span><span style="{{ cMaintUnit }}">KCAL A DAY</span></span>
+      <span style="{{ cBodyWrap }}">
+        <svg viewBox="0 0 64 136" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="{{ cBodyS }}"><circle cx="32" cy="14" r="10"></circle><path d="{{ cBodyGlyph }}"></path></svg>
+      </span>
+      <span style="{{ cReadRow }}">
+        <span><span style="{{ cReadLab }}">BODY FAT NOW</span><span style="{{ cNowS }}">{{ cBfNow }}</span></span>
+        <span style="{{ cArrowS }}">&rarr;</span>
+        <span><span style="{{ cReadLab }}">{{ cWhen }}</span><span style="{{ cBfThenS }}">{{ cBfThen }}</span></span>
+      </span>
+      <span style="{{ cWtRow }}">
+        <span style="{{ cSmallDim }}">{{ cWtNow }}</span><span style="{{ cArrowS }}"></span><span style="{{ cSmall }}">{{ cWtThen }} <span style="{{ cUnitS }}">{{ cDelta }}</span></span>
+      </span>
+      <span style="{{ cSlideBlock }}">
+        <span style="{{ cSlideHead }}"><span>EAT</span><span style="{{ cSlideVal }}">{{ cKcalVal }} kcal a day</span></span>
+        <input type="range" min="{{ cKcalMin }}" max="{{ cKcalMax }}" step="10" value="{{ cKcalVal }}" onChange="{{ cKcalSet }}">
+      </span>
+      <span style="{{ cSlideBlock }}">
+        <span style="{{ cSlideHead }}"><span>FOR</span><span style="{{ cSlideVal }}">{{ cWhen }}</span></span>
+        <input type="range" min="0" max="52" step="1" value="{{ cWksVal }}" onChange="{{ cWksSet }}">
+      </span>
+      <sc-if value="{{ cFast }}" hint-placeholder-val="{{ false }}"><span style="{{ cFastS }}">{{ cFastNote }}</span></sc-if>
+      <span style="{{ cFootRow }}">
+        <button onClick="{{ cRestart }}" style="{{ cFootBtn }}" style-hover="color:#22d3ee">START AGAIN</button>
+        <button onClick="{{ cCurvesToggle }}" style="{{ cFootBtn }}" style-hover="color:#22d3ee">THE CURVES</button>
+        <button onClick="{{ cTipToggle2 }}" style="{{ cFootBtn }}" style-hover="color:#22d3ee">WHY</button>
+      </span>
+      <sc-if value="{{ cTipOn2 }}" hint-placeholder-val="{{ false }}"><span style="{{ cNoteS }}">Every equation here carries an error of roughly ten per cent on any one person, and the body fat figure is an estimate unless you measured it. This is arithmetic on public data, not nutritional advice.</span></sc-if>
+      <sc-if value="{{ cCurvesOn }}" hint-placeholder-val="{{ false }}">
+        <span onClick="{{ cCurvesToggle }}" style="{{ cScrim }}">
+          <span onClick="{{ stopProp }}" style="{{ cPanel }}">
+            <span style="{{ cPanelTag }}">A YEAR AT {{ cKcalVal }} KCAL</span>
+            <svg viewBox="0 0 100 50" preserveAspectRatio="none" style="{{ cChartS }}" height="130">
+              <path d="{{ cKgPath }}" fill="none" stroke="#d7e6ef" stroke-width=".7" vector-effect="non-scaling-stroke"></path>
+              <path d="{{ cFmPath }}" fill="none" stroke="#f08c7a" stroke-width=".7" vector-effect="non-scaling-stroke"></path>
+              <path d="{{ cFfmPath }}" fill="none" stroke="#22d3ee" stroke-width=".7" vector-effect="non-scaling-stroke"></path>
+            </svg>
+            <span style="{{ cKeyRow }}"><span style="{{ cKeyW }}">WEIGHT</span><span style="{{ cKeyF }}">FAT MASS</span><span style="{{ cKeyL }}">LEAN MASS</span></span>
+            <span style="{{ cPanelTag }}">WHAT YOU SPEND, FALLING TO MEET IT</span>
+            <svg viewBox="0 0 100 36" preserveAspectRatio="none" style="{{ cChartS }}" height="96">
+              <path d="{{ cTdPath }}" fill="none" stroke="#7ee0a8" stroke-width=".7" vector-effect="non-scaling-stroke"></path>
+              <path d="{{ cInPath }}" fill="none" stroke="#3fdcf2" stroke-width=".7" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"></path>
+            </svg>
+            <span style="{{ cKeyRow }}"><span style="{{ cKeyM }}">MAINTENANCE</span><span style="{{ cKeyL }}">WHAT YOU EAT</span></span>
+            <span style="{{ cPanelTxt }}">At your body fat, about <span style="{{ cPanelHi }}">{{ cForbes }}</span> of each kilogram lost is not fat &mdash; Forbes, and it rises as fat mass falls. Resting metabolism from <span style="{{ cPanelHi }}">{{ cRmrName }}</span>; the day priced on the FAO bands and training in METs; the trajectory a simplification of Hall&rsquo;s two-compartment model, with adaptive thermogenesis ramped in over eight weeks.</span>
+            <span style="{{ cPanelTxt }}">Lean mass <span style="{{ cPanelHi }}">{{ cLeanNow }}</span> now, <span style="{{ cPanelHi }}">{{ cLeanThen }}</span> then. Fat mass <span style="{{ cPanelHi }}">{{ cFatNow }}</span> now, <span style="{{ cPanelHi }}">{{ cFatThen }}</span> then.</span>
+          </span>
+        </span>
+      </sc-if>
     </sc-if>
   </div>
   </sc-if>
@@ -898,6 +1008,36 @@ const OWNED = /\b[A-Z][a-z]+'s\b/;
 // The food you have opened in the search list. Teal-dark, so it reads as picked out of the
 // page without being mistaken for the plate below, which is the blue-dark #090f18.
 const PICKED_BG = "#0b1a20";
+
+// ── Calorie calc ───────────────────────────────────────────────────────────────
+// The day a person spends anyway, priced on the FAO/WHO/UNU lifestyle bands and read at
+// the exercise-free end of each, because training is asked for separately and billing it
+// twice is the classic way a calculator reads high.
+const CALC_DAY = [
+  { label: "AT A DESK", note: "Seated most of the day, short walks either side of it.", pal: 1.45 },
+  { label: "ON YOUR FEET", note: "Standing or walking for much of it \u2014 teaching, retail, nursing, a job with stairs.", pal: 1.70 },
+  { label: "PHYSICAL WORK", note: "Lifting, carrying or walking all day \u2014 trades, warehouse, farming, delivery.", pal: 1.95 }
+];
+// Training, priced in METs rather than adjectives, so each tile can say what it is
+// instead of what it is called. Values are indicative, from the Compendium.
+const CALC_MET = [
+  { label: "LIGHT", note: "Walking, easy cycling, yoga", met: 3 },
+  { label: "MODERATE", note: "Brisk walking, weights with rest, doubles tennis", met: 5 },
+  { label: "VIGOROUS", note: "Running, circuits, hard cycling", met: 8.5 },
+  { label: "VERY HARD", note: "Intervals, sprints, competitive sport", met: 11 }
+];
+// Eight bands each, which is as fine as anyone can pick themselves out of a line-up.
+const CALC_BF = { m: [8, 12, 16, 20, 25, 30, 35, 40], f: [16, 20, 24, 28, 32, 36, 40, 45] };
+// The slider stops here. It does not warn and then allow; there is simply no track.
+const CALC_FLOOR = { m: 1500, f: 1200 };
+// Essential fat (ACSM): the model will not take anyone below it.
+const ESSENTIAL_BF = { m: 5, f: 12 };
+// kcal per kg of tissue. Fat is nearly all energy; lean tissue is mostly water.
+const RHO_FAT = 9400, RHO_LEAN = 1800;
+// A placeholder standing in for the rotating figure that is not built yet. Drawn in the
+// site's own line language rather than as a bad silhouette, so it reads as a space being
+// held rather than as the finished thing.
+const GLYPH_BODY = "M32 30v34M32 30 18 40l-3 26M32 30l14 10 3 26M32 64 24 92l-2 34M32 64l8 28 2 34";
 
 class Component extends DCLogic {
   state = { view: "results", q: "", cat: "ALL", catOpen: false, email: "", user: null, lib: "LEGACY", narrow: isNarrow(), tablet: isTablet() };
@@ -1558,6 +1698,71 @@ class Component extends DCLogic {
       gDBody: { flex: "1 1 auto", minHeight: 0, overflowY: "auto", display: "block" }
     };
   }
+  // ── CALORIE CALC ────────────────────────────────────────────────────────────
+  // The whole model, run on every render. It is 364 iterations of arithmetic, which
+  // costs nothing, and running it fresh means the two sliders on the result screen are
+  // reading a live simulation rather than an interpolation of a cached one.
+  calcModel(s) {
+    const sex = s.cSex === "f" ? "f" : "m";
+    const age = s.cAge || 30, ht = s.cHt || 175, wt = s.cWt || 80;
+    const bmi = wt / Math.pow(ht / 100, 2);
+    // Deurenberg, for when the picker has not been touched. A population estimate, and
+    // labelled as one wherever it is shown.
+    const bfEst = Math.max(4, Math.min(55,
+      1.20 * bmi + 0.23 * age - 10.8 * (sex === "m" ? 1 : 0) - 5.4));
+    const bfPicked = s.cBf != null;
+    const bf0 = (bfPicked ? s.cBf : bfEst) / 100;
+    const fm0 = wt * bf0, ffm0 = wt - fm0;
+    // Mifflin reads weight; Katch-McArdle reads the tissue that actually respires. So the
+    // moment a body fat is stated rather than estimated, the better equation is available
+    // and is used — which is the reward for answering the picker honestly.
+    const rmrOf = (W, FFM) => bfPicked
+      ? 370 + 21.6 * FFM
+      : 10 * W + 6.25 * ht - 5 * age + (sex === "m" ? 5 : -161);
+    const day = CALC_DAY[s.cDay == null ? 0 : s.cDay];
+    const pal = day.pal;
+    const tr = s.cTrain || { n: 0, min: 45, met: 1 };
+    const metDef = CALC_MET[tr.met == null ? 1 : tr.met];
+    // (MET - 1), because resting metabolism is already counted once in the RMR and an
+    // hour of training is not an hour of extra existing. Spread over the week, since the
+    // model runs in days and nobody trains in sevenths.
+    const trainDay0 = (tr.n || 0) * ((tr.min || 0) / 60) * (metDef.met - 1) * wt / 7;
+    const tdee0 = rmrOf(wt, ffm0) * pal + trainDay0;
+    const maint = Math.round(tdee0);
+    const floor = CALC_FLOOR[sex];
+    const ess = ESSENTIAL_BF[sex] / 100;
+    // A year, weekly. The deficit is applied against a maintenance that is recomputed
+    // every day from the body that is actually left, which is the whole difference
+    // between this and 3500-kcal arithmetic.
+    const sim = intake => {
+      let W = wt, FM = fm0, FFM = ffm0, d = 0;
+      const out = [{ w: W, fm: FM, ffm: FFM, bf: 100 * FM / W, tdee: tdee0 }];
+      const defFrac = Math.max(0, (tdee0 - intake) / tdee0);
+      for (let wk = 1; wk <= 52; wk++) {
+        let tdee = tdee0;
+        for (let i = 0; i < 7; i++) {
+          d++;
+          // Adaptive thermogenesis: expenditure falls further than the new body composition
+          // accounts for, more the deeper the deficit, ramping in over about eight weeks.
+          // A simplification of the term in Hall's model, and marked as one in CALC.md.
+          const adapt = 0.10 * Math.min(1, defFrac / 0.25) * (1 - Math.exp(-d / 56));
+          tdee = (rmrOf(W, FFM) * pal + trainDay0 * (W / wt)) * (1 - adapt);
+          // Forbes: the fat-free share of a weight change falls as fat mass rises. This is
+          // the line that makes a lean person's deficit a different proposition from a
+          // heavy person's at the same number of calories.
+          const p = 10.4 / (10.4 + FM);
+          const dW = (intake - tdee) / (p * RHO_LEAN + (1 - p) * RHO_FAT);
+          FFM += p * dW; FM += (1 - p) * dW;
+          W = FM + FFM;
+          if (FM < ess * W) { FM = ess * W; W = FM + FFM; }
+        }
+        out.push({ w: W, fm: FM, ffm: FFM, bf: 100 * FM / W, tdee: tdee });
+      }
+      return out;
+    };
+    return { sex, age, ht, wt, bmi, bfEst, bfPicked, bf0, fm0, ffm0,
+      pal, day, trainDay0, metDef, tdee0, maint, floor, ess, sim };
+  }
   gNext() {
     this.gClearTimers();
     this.setState(s => ({ gI: (s.gI || 0) + 1, gSel: null, gLeaving: false }));
@@ -2066,8 +2271,7 @@ class Component extends DCLogic {
     // Searching is a name-matching job, so while the keyboard is up the macro columns stand
     // down and the food name takes the full width — at a phone's width they were competing.
     const bare = !!(s.narrow && s.kb);
-    // v0.3 turns the site into a set of small apps. Only FOOD SEARCH is built; the rest are
-    // placeholders so the shell around them can be judged before anything is written.
+    // v0.3 turned the site into a set of small apps; all three are now built.
     const APPS = [
       { k: "search", label: "FOOD SEARCH", icon: ICON_SEARCH,
         note: "Every macro for 16,000 foods in one sortable table.",
@@ -2076,8 +2280,8 @@ class Component extends DCLogic {
         note: "Two plates, six times: which of them carries more calories. Reading a portion by eye is the one skill that travels to a restaurant table, and it is trainable.",
         card: "Which plate carries more?" },
       { k: "calc", label: "CALORIE CALC", icon: ICON_CALC,
-        note: "A calorie target built backwards from the body composition you are after: say where your body fat is now and where you want it, and get the daily number and the timeline that reach it.",
-        card: "Your daily calorie target." }
+        note: "What your body spends in a day, and what happens if you hold a number. Move the intake and the body answers \u2014 no goal to name, no target weight to type.",
+        card: "What you spend, and what holding a number does." }
     ];
     // A phone opens on the launcher and picks an app; a desktop is wide enough to
     // open straight into the table with the others a tab away.
@@ -2090,7 +2294,7 @@ class Component extends DCLogic {
         " 420ms cubic-bezier(.22,1,.36,1) " + ms + "ms both"
     });
     const appDef = APPS.find(a => a.k === app);
-    const live = k => k === "search" || k === "game";
+    const live = k => k === "search" || k === "game" || k === "calc";
     const setApp = k => () => {
       if (k === "game") this.loadDeck();
       // Re-arm the mobile landing animation, which otherwise only ever plays on first load.
@@ -3763,6 +3967,299 @@ class Component extends DCLogic {
         lineHeight: 1.55, color: "#94a3b8", textWrap: "pretty" }, soonIn(220)),
       isResults: s.view === "results" && app === "search", isSettings: s.view === "settings", isSignin: s.view === "signin",
       // ---- calorie game ----------------------------------------------------
+      appCalc: app === "calc",
+      ...(app !== "calc" ? {} : (() => {
+        const m = this.calcModel(s);
+        const step = s.cStep || 0, done = step >= 7;
+        const set = (k, v) => this.setState({ [k]: v });
+        const go = n => this.setState({ cStep: Math.max(0, Math.min(7, n)) });
+        // Tiles answer and advance in the same tap: a tile is a decision, and asking for
+        // a second tap on NEXT to confirm one is how a seven-step run starts to feel long.
+        const tile = (label, note, on, pick) => ({
+          label, note, on,
+          onClick: () => { pick(); go(step + 1); },
+          s: { display: "flex", flexDirection: "column", gap: ".2rem", width: "100%",
+            padding: s.narrow ? ".85rem .9rem" : "1rem 1.1rem", boxSizing: "border-box",
+            textAlign: "left", borderRadius: 0, cursor: "pointer",
+            border: "1px solid " + (on ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.18)"),
+            background: on ? "rgba(34,211,238,.10)" : "#0a1016",
+            transition: "border-color 160ms ease, background 160ms ease" },
+          labS: { fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".12em",
+            color: on ? "#3fdcf2" : "#d7e6ef" },
+          noteS: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".92rem",
+            lineHeight: 1.4, color: "#8ba0ad", textWrap: "pretty" }
+        });
+        const STEPS = ["SEX", "AGE", "HEIGHT", "WEIGHT", "BODY FAT", "YOUR DAY", "TRAINING"];
+        const bfBands = CALC_BF[m.sex];
+        // The picker opens on the band nearest the estimate, so the question arrives
+        // already answered and the person is correcting rather than guessing cold.
+        const bfNear = bfBands.reduce((a2, b2) =>
+          Math.abs(b2 - m.bfEst) < Math.abs(a2 - m.bfEst) ? b2 : a2, bfBands[0]);
+        const tr = s.cTrain || { n: 0, min: 45, met: 1 };
+        const setTr = patch => this.setState({ cTrain: Object.assign({}, tr, patch) });
+        // ── the running model, only once the questions are done ────────────────────
+        const lo = m.floor, hi = Math.round(m.maint * 1.35 / 10) * 10;
+        const kcal = Math.max(lo, Math.min(hi, s.cKcal == null ? m.maint : s.cKcal));
+        const wks = s.cWks == null ? 26 : s.cWks;
+        const series = done ? m.sim(kcal) : null;
+        const at = series ? series[Math.round(wks)] : null;
+        const now = series ? series[0] : null;
+        const dW = at ? at.w - now.w : 0;
+        // The rate the slider is actually running at, read off the first month rather than
+        // averaged to wherever the time scrubber happens to be parked. A year-long average
+        // of a fast start reads as moderate, which is exactly the wrong way round.
+        const rate = series ? Math.abs(series[0].w - series[4].w) / 4 / m.wt * 100 : 0;
+        const g1 = v => (Math.abs(v) < 10 ? v.toFixed(1) : String(Math.round(v)));
+        const whenLab = wks === 0 ? "TODAY"
+          : wks === 52 ? "IN A YEAR"
+          : wks % 4 === 0 ? "IN " + (wks / 4) + " MONTHS" : "IN " + wks + " WEEKS";
+        // Two charts on one time axis: the kilograms above, and below them the line
+        // nobody else draws — maintenance falling to meet the intake, which is the
+        // whole reason month twelve is not month one.
+        // Drawn into an inset band rather than the full box, so a line that sits at the
+        // bottom of its own domain — which the intake line always does — is not a stroke
+        // half outside the viewBox.
+        const pathOf = (vals, lo2, hi2, h) => vals.map((v, i) => {
+          const x = (i / (vals.length - 1)) * 100;
+          const y = (h - 2) - ((v - lo2) / Math.max(1e-6, hi2 - lo2)) * (h - 4);
+          return (i ? "L" : "M") + x.toFixed(2) + " " + y.toFixed(2);
+        }).join(" ");
+        let kgP = "", fmP = "", ffmP = "", tdP = "", inP = "", kgHi = 0, kgLo = 0, kcHi = 0, kcLo = 0;
+        if (series) {
+          const ws = series.map(p => p.w), fs = series.map(p => p.fm), ls = series.map(p => p.ffm);
+          const all = ws.concat(fs).concat(ls);
+          kgHi = Math.max.apply(null, all) * 1.04; kgLo = Math.min(0, Math.min.apply(null, all));
+          kgP = pathOf(ws, kgLo, kgHi, 46); fmP = pathOf(fs, kgLo, kgHi, 46);
+          ffmP = pathOf(ls, kgLo, kgHi, 46);
+          const ts = series.map(p => p.tdee);
+          kcHi = Math.max(Math.max.apply(null, ts), kcal) * 1.03;
+          kcLo = Math.min(Math.min.apply(null, ts), kcal) * 0.97;
+          tdP = pathOf(ts, kcLo, kcHi, 34);
+          inP = pathOf(ts.map(() => kcal), kcLo, kcHi, 34);
+        }
+        const num = (v, col) => ({ fontFamily: "var(--font-1)", fontWeight: 300,
+          fontSize: s.narrow ? "1.5rem" : "1.7rem", fontVariantNumeric: "tabular-nums",
+          color: col || "#eaf5fb" });
+        return {
+          cStepOn: !done, cResOn: done,
+          cTag: done ? "" : "STEP " + (step + 1) + " OF 7",
+          cTitle: done ? "" : STEPS[step],
+          cBackOn: step > 0,
+          cBack: () => go(step - 1),
+          cQuit: () => this.setState({ app: "home" }),
+          cIsSex: step === 0, cIsNum: step >= 1 && step <= 3,
+          cIsBf: step === 4, cIsDay: step === 5, cIsTrain: step === 6,
+          cSexTiles: [
+            tile("MALE", "", s.cSex === "m", () => set("cSex", "m")),
+            tile("FEMALE", "", s.cSex === "f", () => set("cSex", "f"))
+          ],
+          // One stepper serves age, height and weight: the same control, relabelled.
+          cNumVal: String(step === 1 ? m.age : step === 2 ? m.ht : m.wt),
+          cNumUnit: step === 1 ? "YEARS" : step === 2 ? "CM" : "KG",
+          cNumLead: step === 1 ? "How old are you?"
+            : step === 2 ? "How tall are you?" : "What do you weigh?",
+          cDec: () => { const k = step === 1 ? "cAge" : step === 2 ? "cHt" : "cWt";
+            const lo3 = step === 1 ? 18 : step === 2 ? 130 : 35;
+            this.setState(st => ({ [k]: Math.max(lo3, (st[k] || (step === 1 ? 30 : step === 2 ? 175 : 80)) - 1) })); },
+          cInc: () => { const k = step === 1 ? "cAge" : step === 2 ? "cHt" : "cWt";
+            const hi3 = step === 1 ? 95 : step === 2 ? 220 : 250;
+            this.setState(st => ({ [k]: Math.min(hi3, (st[k] || (step === 1 ? 30 : step === 2 ? 175 : 80)) + 1) })); },
+          cNext: () => go(step + 1),
+          cNextLab: step === 6 ? "SEE THE NUMBER" : "NEXT",
+          // The estimate is shown before the picker rather than instead of it: the person
+          // is told what the arithmetic already thinks, and then asked to look.
+          cBfLead: m.bfPicked ? "Pick the nearest."
+            : "From your height, weight and age we would guess about " + Math.round(m.bfEst)
+              + "%. That is a population estimate \u2014 pick the nearest instead.",
+          cBfTiles: bfBands.map(b2 => {
+            const on = s.cBf === b2 || (s.cBf == null && b2 === bfNear);
+            return { pct: b2 + "%", on,
+              onClick: () => { set("cBf", b2); go(step + 1); },
+              s: { position: "relative", display: "flex", flexDirection: "column",
+                alignItems: "center", gap: ".3rem", padding: ".7rem .3rem .5rem",
+                boxSizing: "border-box", borderRadius: 0, cursor: "pointer",
+                border: "1px solid " + (on ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.18)"),
+                background: on ? "rgba(34,211,238,.10)" : "#0a1016" },
+              gS: { display: "block", color: on ? "#3fdcf2" : "#4a6070" },
+              pctS: { fontFamily: "var(--font-2)", fontSize: ".92rem", letterSpacing: ".08em",
+                color: on ? "#3fdcf2" : "#8ba0ad" } };
+          }),
+          cBfNote: "Reference photographs go here \u2014 for now the figure is a placeholder and the percentage does the work.",
+          cDayTiles: CALC_DAY.map((d, i) =>
+            tile(d.label, d.note, s.cDay === i, () => set("cDay", i))),
+          cDayLead: "How you spend the day \u2014 not counting exercise. That is the next question, and counting it twice is how a calculator ends up 400 kcal high.",
+          cTrainN: String(tr.n || 0),
+          cTrainNDec: () => setTr({ n: Math.max(0, (tr.n || 0) - 1) }),
+          cTrainNInc: () => setTr({ n: Math.min(14, (tr.n || 0) + 1) }),
+          cTrainDetail: (tr.n || 0) > 0,
+          cTrainMin: String(tr.min || 45),
+          cTrainMinDec: () => setTr({ min: Math.max(10, (tr.min || 45) - 5) }),
+          cTrainMinInc: () => setTr({ min: Math.min(240, (tr.min || 45) + 5) }),
+          cMetTiles: CALC_MET.map((d, i) => ({
+            label: d.label, note: d.note, met: d.met + " MET",
+            onClick: () => setTr({ met: i }),
+            s: { display: "flex", alignItems: "baseline", gap: ".5rem", width: "100%",
+              padding: ".6rem .8rem", boxSizing: "border-box", textAlign: "left",
+              borderRadius: 0, cursor: "pointer",
+              border: "1px solid " + (tr.met === i ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.18)"),
+              background: tr.met === i ? "rgba(34,211,238,.10)" : "#0a1016" },
+            labS: { flex: "none", fontFamily: "var(--font-2)", fontSize: ".88rem",
+              letterSpacing: ".1em", color: tr.met === i ? "#3fdcf2" : "#d7e6ef" },
+            noteS: { flex: 1, minWidth: 0, fontFamily: "var(--font-1)", fontWeight: 300,
+              fontSize: ".85rem", color: "#8ba0ad", whiteSpace: "nowrap",
+              overflow: "hidden", textOverflow: "ellipsis" },
+            metS: { flex: "none", fontFamily: "var(--font-2)", fontSize: ".72rem",
+              letterSpacing: ".08em", color: "#5f7688" }
+          })),
+          // ── result ───────────────────────────────────────────────────────────────
+          cMaint: String(m.maint),
+          cKcalVal: String(kcal), cKcalMin: String(lo), cKcalMax: String(hi),
+          cKcalSet: e => this.setState({ cKcal: +e.target.value }),
+          cWksVal: String(wks), cWksSet: e => this.setState({ cWks: +e.target.value }),
+          cWhen: whenLab,
+          cBfNow: at ? g1(now.bf) + "%" : "", cBfThen: at ? g1(at.bf) + "%" : "",
+          cWtNow: at ? g1(now.w) + " kg" : "", cWtThen: at ? g1(at.w) + " kg" : "",
+          cLeanNow: at ? g1(now.ffm) + " kg" : "", cLeanThen: at ? g1(at.ffm) + " kg" : "",
+          cFatNow: at ? g1(now.fm) + " kg" : "", cFatThen: at ? g1(at.fm) + " kg" : "",
+          // A tenth of a percent either way is not a direction, and colouring it as one
+          // paints "no change" bright coral.
+          cBfThenS: num(0, !at || Math.abs(at.bf - now.bf) < 0.1 ? "#eaf5fb"
+            : at.bf < now.bf ? "#7ee0a8" : "#f08c7a"),
+          cNowS: num(0, "#7b91a3"), cThenS: num(0),
+          cDelta: !at || Math.abs(dW) < 0.1 ? ""
+            : (dW > 0 ? "+" : "\u2212") + g1(Math.abs(dW)) + " kg",
+          // Past about 1%/week the track is marked. Nothing is blocked — the lean line on
+          // the chart is a better argument than a warning nobody reads.
+          cFast: rate > 1.0,
+          cFastNote: "That is " + rate.toFixed(1) + "% of body weight a week. Past about 1% the share of the loss that is lean rises sharply.",
+          cBodyGlyph: GLYPH_BODY,
+          cCurvesOn: !!s.cCurves,
+          cCurvesToggle: () => this.setState(st => ({ cCurves: !st.cCurves })),
+          cTipOn2: !!s.cTip,
+          cTipToggle2: () => this.setState(st => ({ cTip: !st.cTip })),
+          cKgPath: kgP, cFmPath: fmP, cFfmPath: ffmP, cTdPath: tdP, cInPath: inP,
+          cKgHi: g1(kgHi) + " kg", cKcHi: String(Math.round(kcHi)),
+          cKcLo: String(Math.round(kcLo)),
+          cForbes: at ? Math.round(100 * 10.4 / (10.4 + now.fm)) + "%" : "",
+          cRmrName: m.bfPicked ? "KATCH\u2013McARDLE" : "MIFFLIN\u2013ST JEOR",
+          cRestart: () => this.setState({ cStep: 0, cKcal: null, cWks: 26, cCurves: false, cTip: false }),
+          // ── chrome ───────────────────────────────────────────────────────────────
+          cWrap: { position: "relative", flex: 1, minHeight: 0, display: "flex",
+            flexDirection: "column", width: "100%",
+            maxWidth: s.narrow ? "none" : "34rem", margin: "0 auto",
+            padding: s.narrow ? ".2rem .5rem .8rem" : ".4rem 0 1rem", boxSizing: "border-box" },
+          cHead: { flex: "none", display: "flex", alignItems: "center", gap: ".5rem",
+            height: "2.2rem" },
+          cBackS: { display: "flex", alignItems: "center", justifyContent: "center",
+            width: "1.8rem", height: "1.8rem", padding: 0, border: 0, borderRadius: 0,
+            background: "transparent", cursor: "pointer", color: "#5f7688" },
+          cTagS: { fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".18em",
+            color: "#5b7183" },
+          cTitleS: { flex: "none", display: "block", paddingTop: ".5rem",
+            fontFamily: "var(--font-2)", fontSize: "1.02rem", letterSpacing: ".2em",
+            color: "#8ba0ad" },
+          cLeadS: { flex: "none", display: "block", padding: ".45rem 0 1rem",
+            fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.05rem",
+            lineHeight: 1.4, color: "#eaf5fb", textWrap: "pretty" },
+          cCol: { flex: "none", display: "flex", flexDirection: "column", gap: ".55rem" },
+          cScroll: { flex: 1, minHeight: 0, overflowY: "auto", display: "flex",
+            flexDirection: "column", gap: ".55rem", paddingBottom: ".5rem" },
+          // The stepper is the plate's own, at the size a question deserves.
+          cNumRow: { flex: "none", display: "flex", alignItems: "center",
+            justifyContent: "center", gap: "1.4rem", padding: "1.6rem 0 1.2rem" },
+          cStepBtn: { display: "flex", alignItems: "center", justifyContent: "center",
+            width: "3rem", height: "3rem", padding: 0, borderRadius: 0, cursor: "pointer",
+            border: "1px solid rgba(34,211,238,.35)", background: "rgba(34,211,238,.06)",
+            color: "#3fdcf2", fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1.6rem", lineHeight: 1 },
+          cNumS: { display: "flex", alignItems: "baseline", gap: ".35rem",
+            minWidth: "7rem", justifyContent: "center", fontFamily: "var(--font-1)",
+            fontWeight: 300, fontSize: "3rem", lineHeight: 1,
+            fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
+          cUnitS: { fontFamily: "var(--font-2)", fontSize: ".8rem", letterSpacing: ".14em",
+            color: "#7b91a3" },
+          cNextS: { flex: "none", display: "flex", alignItems: "center",
+            justifyContent: "center", width: "100%", height: "3rem", marginTop: "auto",
+            boxSizing: "border-box", borderRadius: 0, cursor: "pointer",
+            border: "1px solid rgba(34,211,238,.55)", background: "rgba(34,211,238,.10)",
+            color: "#3fdcf2", fontFamily: "var(--font-2)", fontSize: ".9rem",
+            letterSpacing: ".2em" },
+          cBfGrid: { flex: "none", display: "grid",
+            gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: ".45rem" },
+          cBfNoteS: { flex: "none", display: "block", paddingTop: ".7rem",
+            fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".85rem",
+            lineHeight: 1.45, color: "#5f7688", textWrap: "pretty" },
+          cSubLab: { flex: "none", display: "block", paddingTop: ".4rem",
+            fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".16em",
+            color: "#5b7183" },
+          // ── result chrome ────────────────────────────────────────────────────────
+          cMaintRow: { flex: "none", display: "flex", alignItems: "baseline",
+            gap: ".5rem", padding: ".3rem 0 .2rem" },
+          cMaintLab: { fontFamily: "var(--font-2)", fontSize: ".72rem",
+            letterSpacing: ".18em", color: "#5b7183" },
+          cMaintS: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.6rem",
+            fontVariantNumeric: "tabular-nums", color: "#3fdcf2" },
+          cMaintUnit: { fontFamily: "var(--font-2)", fontSize: ".72rem",
+            letterSpacing: ".14em", color: "#5f7688" },
+          cBodyWrap: { flex: "1 1 auto", minHeight: 0, display: "flex",
+            alignItems: "center", justifyContent: "center", padding: ".4rem 0" },
+          cBodyS: { display: "block", height: "100%", maxHeight: s.narrow ? "20rem" : "22rem",
+            width: "auto", color: "#3b5364" },
+          cReadRow: { flex: "none", display: "grid",
+            gridTemplateColumns: "minmax(0,1fr) auto minmax(0,1fr)",
+            alignItems: "center", columnGap: ".6rem", padding: ".3rem 0 .1rem" },
+          cReadLab: { display: "block", fontFamily: "var(--font-2)", fontSize: ".66rem",
+            letterSpacing: ".16em", color: "#5b7183" },
+          cArrowS: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.1rem",
+            color: "#3f515e" },
+          cWtRow: { flex: "none", display: "grid",
+            gridTemplateColumns: "minmax(0,1fr) auto minmax(0,1fr)",
+            alignItems: "baseline", columnGap: ".6rem", padding: "0 0 .5rem" },
+          cSmall: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".98rem",
+            fontVariantNumeric: "tabular-nums", color: "#a9bcc8" },
+          cSmallDim: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".98rem",
+            fontVariantNumeric: "tabular-nums", color: "#7b91a3" },
+          cSlideBlock: { flex: "none", display: "block", paddingTop: ".2rem" },
+          cSlideHead: { display: "flex", alignItems: "baseline",
+            justifyContent: "space-between", fontFamily: "var(--font-2)",
+            fontSize: ".7rem", letterSpacing: ".16em", color: "#5b7183" },
+          cSlideVal: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".95rem",
+            letterSpacing: 0, fontVariantNumeric: "tabular-nums", color: "#d7e6ef" },
+          cFastS: { display: "block", paddingTop: ".2rem", fontFamily: "var(--font-1)",
+            fontWeight: 300, fontSize: ".85rem", lineHeight: 1.4, color: "#f08c7a",
+            textWrap: "pretty" },
+          cFootRow: { flex: "none", display: "flex", alignItems: "stretch", gap: ".5rem",
+            paddingTop: ".5rem" },
+          cFootBtn: { flex: 1, display: "flex", alignItems: "center",
+            justifyContent: "center", height: "2.5rem", boxSizing: "border-box",
+            padding: 0, borderRadius: 0, cursor: "pointer",
+            border: "1px solid rgba(34,211,238,.28)", background: "transparent",
+            color: "#5f7688", fontFamily: "var(--font-2)", fontSize: ".76rem",
+            letterSpacing: ".16em" },
+          cNoteS: { flex: "none", display: "block", marginTop: ".5rem",
+            padding: ".7rem .8rem", border: "1px solid rgba(34,211,238,.28)",
+            background: "rgba(34,211,238,.05)", fontFamily: "var(--font-1)",
+            fontWeight: 300, fontSize: ".92rem", lineHeight: 1.45, color: "#c3d3dd" },
+          // ── the curves, behind a mark ────────────────────────────────────────────
+          cScrim: { position: "absolute", inset: 0, zIndex: 40, display: "flex",
+            alignItems: "center", justifyContent: "center", padding: ".6rem",
+            background: "rgba(5,8,13,.86)", cursor: "pointer" },
+          cPanel: { display: "flex", flexDirection: "column", gap: ".5rem", width: "100%",
+            maxHeight: "100%", overflowY: "auto", padding: ".9rem .8rem 1rem",
+            boxSizing: "border-box", background: "#070b12", cursor: "default",
+            border: "1px solid rgba(34,211,238,.45)" },
+          cPanelTag: { fontFamily: "var(--font-2)", fontSize: ".7rem",
+            letterSpacing: ".18em", color: "#3fdcf2" },
+          cChartS: { display: "block", width: "100%", height: "auto" },
+          cKeyRow: { display: "flex", flexWrap: "wrap", gap: ".2rem 1rem",
+            fontFamily: "var(--font-2)", fontSize: ".68rem", letterSpacing: ".1em" },
+          cKeyW: { color: "#d7e6ef" }, cKeyF: { color: "#f08c7a" },
+          cKeyL: { color: "#22d3ee" }, cKeyM: { color: "#7ee0a8" },
+          cPanelTxt: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".88rem",
+            lineHeight: 1.5, color: "#a9bcc8", textWrap: "pretty" },
+          cPanelHi: { color: "#eaf5fb", fontVariantNumeric: "tabular-nums" }
+        };
+      })()),
       appGame: app === "game",
       ...(() => {
         if (app !== "game") return {};

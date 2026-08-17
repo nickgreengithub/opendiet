@@ -1,5 +1,9 @@
 # Calorie calc — plan
 
+**Status: built and live, with the body render still a placeholder.** The seven-step run,
+the model, both sliders and the curves panel are working; where the rotating figure will go
+there is a line-drawn person holding the space. Sections 5 and 8 are the outstanding work.
+
 The third app. FOOD SEARCH answers "what is in this?"; CALORIE GAME answers "which is
 bigger?"; CALC answers "how much, and what happens if I hold it?"
 
@@ -570,7 +574,8 @@ caveat: out of the way, one tap, no cost to the person who does not care.
 
 ## 8. Open questions
 
-**Blocking the body assets** (needed before anything is rendered):
+**Blocking the body assets** (needed before anything is rendered) — this is the whole of
+what is left, and the placeholder is deliberately unlovely so it is not mistaken for done:
 
 - **Style** — photoreal or stylised? Stylised is cheaper, fits the site, and is the
   recommendation, but it is a one-way door once 17 sheets exist.
@@ -582,10 +587,25 @@ caveat: out of the way, one tap, no cost to the person who does not care.
   it is an argument, not a test. Worth putting two bands in front of someone at 60 kg and
   100 kg before committing.
 
-**Blocking the model:**
+**Shipped, with a note against each:**
+
+- The model runs Mifflin—St Jeor, or Katch—McArdle the moment a body fat is picked; the FAO
+  lifestyle bands read at their exercise-free end; training at `(MET − 1) × kg × hours`;
+  Forbes partitioning against a maintenance recomputed daily; and adaptive thermogenesis as
+  10% of the deficit, scaled to its depth and ramped in over eight weeks.
+- **It was checked against Hall's published rule of thumb and lands on it.** A 100 kcal/day
+  deficit on an 80 kg body gives **2.7 kg at one year and 4.3 kg at three** — against Hall's
+  "about 1 kg per 100 kJ/day, half in a year, 95% in three", which is 2.2 kg and 4.5 kg.
+  The shape and the asymptote are both right. That check should be re-run whenever the
+  adaptation term is touched.
+- Metric only for now. Imperial is a real gap, not a decision.
+
+**Still blocking the model:**
 
 - The 2023 DRI EER coefficients, which have to come off the report itself (§2).
-- Hall's two compartment energy densities, same problem (§3).
+- Hall's two compartment energy densities, same problem (§3). The 9,400 / 1,800 kcal/kg
+  currently in the code are the widely-quoted values and produce the right answer against
+  the rule of thumb above, but they are not yet read from source.
 - **Whether to apply a compensation factor for training volume** (Pontzer, §2). Doing
   nothing overestimates maintenance for heavy trainers, which is the failure mode that
   matters most. Doing something means picking a factor the literature does not hand over
