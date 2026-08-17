@@ -36,26 +36,33 @@ result, for the same reason.
 
 **Guard rails, decided up front:**
 
-- No target below 1,500 kcal/day for men or 1,200 for women is ever *produced* by the
-  app. If the requested rate demands one, the app shows the rate it can support instead
-  and says why.
-- Rate is capped at 1% of body weight per week (see §3), not because faster is impossible
-  but because faster costs lean mass and the app can show that it does.
-- No BMI target, no "ideal weight", no goal weight field. The input is a *rate*; the
-  output is a *curve*. A person who wants a destination can read one off the curve.
+- The control is a **calorie slider**, not a goal. Nobody types a target weight or a target
+  body fat, so the app never has to hold an opinion about either. It answers only "hold
+  this and here is where it goes".
+- The slider has a floor: it will not travel below 1,500 kcal/day for men or 1,200 for
+  women. It stops there and says why rather than refusing silently.
+- Past about 1% of body weight per week the slider enters a marked zone (see §3). It is not
+  blocked — faster is possible — but the lean band on the chart is doing the arguing, which
+  is better than a warning nobody reads.
+- The body render stops at essential fat — roughly 3–5% for men and 8–12% for women (ACSM).
+  There is no asset below it and the slider will not drive the model there.
+- No BMI target, no "ideal weight", no goal weight field.
 - Under-18 is out of scope and the app says so rather than guessing.
 
 ---
 
 ## 1. The three layers
 
-| Layer | Question | Model |
-|---|---|---|
-| Maintenance | What does this body spend in a day? | RMR equation × activity, or a DLW-based TEE equation |
-| Fat curve | Hold an intake — where does weight go, and when? | Dynamic energy balance, not 3,500 kcal/lb |
-| Lean curve | How much of that change is fat and how much is not? | Forbes partitioning, modified by protein and training |
+| Layer | Question | Model | Shown as |
+|---|---|---|---|
+| Maintenance | What does this body spend in a day? | RMR equation × lifestyle PAL, plus training priced in METs | one number |
+| Fat curve | Hold an intake — where does weight go, and when? | Dynamic energy balance, not 3,500 kcal/lb | the rotating body, and body fat % |
+| Lean curve | How much of that change is fat and how much is not? | Forbes partitioning, modified by protein and training | the chart behind the mark |
 
-Each layer needs strictly more from the user than the last. That is the screen order.
+Each layer needs strictly more from the user than the last, which sets the screen order. But
+the *output* order is inverted: the body comes first and the arithmetic is behind a mark,
+because the person who needs the arithmetic will go looking and the person who does not
+should never have to see it.
 
 ---
 
@@ -67,10 +74,13 @@ Each layer needs strictly more from the user than the last. That is the screen o
 2. **Age** — RMR falls with age in every equation; the coefficient is about −5 kcal/year.
 3. **Height**
 4. **Weight**
-5. **Activity level (PAL)** — the largest single lever after body size, and the one the
-   user is worst at estimating.
-6. **Body fat %** *(optional)* — unlocks the lean-mass equations and, more importantly,
-   the Forbes curve in §4. Without it the app can still run, on a population estimate.
+5. **Daily life** — how the day is spent, *not counting training*. See below.
+6. **Training** — sessions, length and intensity, priced separately. See below.
+
+**Body fat % is not asked for.** It is derived (§4), shown as an output, and correctable by
+anyone who knows theirs. That is the single biggest change from a conventional calculator:
+the number people are worst at estimating, and least comfortable being asked for, is the
+one the app hands *back* to them.
 
 ### RMR
 
@@ -111,9 +121,15 @@ about 5% in modern populations, and is kept only as a comparison line if the app
 one. Schofield (1985) is the FAO/WHO/UNU basis and the Oxford revision (Henry 2005) is its
 successor — both are defensible and worth holding as alternates behind the same interface.
 
-### Activity
+### Activity, in two questions
 
-RMR × PAL. The FAO/WHO/UNU categories are the quotable ones:
+One five-way "activity level" dropdown is the worst control in every calorie calculator
+ever built. It asks a person to average their whole life into one adjective, it silently
+mixes two quite different things, and everybody picks one band too high. It splits cleanly:
+
+**Question A — the day you spend anyway.** Desk, on your feet, or physical work. This is
+NEAT plus occupational activity, it is by far the larger of the two for most people, and it
+is the one nobody thinks to count. Priced as a baseline PAL on the FAO/WHO/UNU bands:
 
 | Category | PAL |
 |---|---|
@@ -126,8 +142,51 @@ FAO/WHO/UNU. *Human Energy Requirements.* Report of a Joint Expert Consultation,
 
 **Worth stating plainly in the app:** the 1.2 "sedentary" multiplier that almost every
 online calculator uses is *below* the FAO floor of 1.40 for a sedentary lifestyle. It is a
-Harris–Benedict-era convention, not a measured category, and it is one of the reasons
-calculators read low. The app uses the FAO bands.
+Harris–Benedict-era convention, not a measured category, and it is one reason calculators
+read low. The app uses the FAO bands.
+
+**Question B — the training you choose.** Sessions per week × minutes × how hard. Priced
+in METs rather than adjectives, which is what makes an explainer possible: a MET is a
+multiple of resting metabolism, so the app can say what each option *is* rather than what
+it is called.
+
+```
+kcal per session ≈ (MET − 1) × weight(kg) × hours
+```
+
+The −1 matters and is usually dropped: resting metabolism is already counted in the RMR, so
+charging the full MET double-counts an hour of being alive. Over a year of training that is
+not a rounding error.
+
+Indicative values, all from the Compendium:
+
+| Intensity | Looks like | MET |
+|---|---|---|
+| Light | Walking, easy cycling, yoga | 2.5 – 3.5 |
+| Moderate | Brisk walking, weights with rest, doubles tennis | 4 – 6 |
+| Vigorous | Running, circuits, hard cycling, singles | 7 – 10 |
+| Very hard | Intervals, sprints, competitive sport | 10 – 14 |
+
+[Ainsworth BE, Haskell WL, Herrmann SD, et al. *2011 Compendium of Physical Activities: a
+second update of codes and MET values.* Med Sci Sports Exerc.
+2011;43(8):1575–1581.](https://pubmed.ncbi.nlm.nih.gov/21681120/) — now superseded by the
+[2024 Adult Compendium](https://www.sciencedirect.com/science/article/pii/S2095254623001084),
+which is the one to cite and to take values from.
+
+**Two traps this split creates, both worth handling:**
+
+1. **Double counting.** If Question A's band already includes training, adding Question B on
+   top counts it twice. So Question A must say *"not counting exercise"* on the screen, in
+   those words, and its bands must be read as lifestyle-only.
+2. **Exercise does not add linearly.** Total energy expenditure plateaus above moderate
+   activity rather than rising with it — more active populations do not spend proportionally
+   more. [Pontzer H, Durazo-Arvizu R, Dugas LR, et al. *Constrained total energy expenditure
+   and metabolic adaptation to physical activity in adult humans.* Curr Biol.
+   2016;26(3):410–417.](https://pubmed.ncbi.nlm.nih.gov/26832439/) A calculator that adds
+   every session at face value overestimates, and overestimating maintenance is exactly how
+   people end up eating at maintenance while believing they are in a deficit. v1 should at
+   minimum say this on the result; a compensation factor on high training volumes is the
+   better answer and needs a decision (§7).
 
 The 2023 DRI update reorganised this into four categories — inactive, low active, active,
 very active — set at approximate quartiles of the PAL distribution in doubly-labelled-water
@@ -228,7 +287,40 @@ contest preparation: nutrition and supplementation.* J Int Soc Sports Nutr. 2014
 ## 4. The lean curve
 
 This is the part almost no calculator draws, and it is the part that makes CALC worth
-building.
+building. It is also the layer the whole interface now hangs off, because body fat has been
+promoted from an input to the headline output.
+
+### Where the starting body fat comes from
+
+Forbes needs a fat mass to start from, and the app has decided not to ask for one. It is
+derived from what has already been collected — sex, age, height, weight:
+
+```
+BF%  =  1.20·BMI  +  0.23·age  −  10.8·(1 if male else 0)  −  5.4
+```
+
+Deurenberg P, Weststrate JA, Seidell JC. *Body mass index as a measure of body fatness:
+age- and sex-specific prediction formulas.* Br J Nutr. 1991;65(2):105–114.
+
+This is a population estimate and must be labelled as one — it reads high on the muscular
+and low on the sedentary-thin, which is the same failure BMI has, for the same reason.
+Three consequences for the design:
+
+- The estimate is **shown, not hidden**: "we are assuming about 24% — tap to change". A
+  wrong number a person can see and correct is far better than a wrong number buried in the
+  model, and this turns the least answerable question in the app into a confirmation rather
+  than a demand.
+- Anyone who *does* know theirs — a DEXA, a decent scale, calipers — corrects it in one tap
+  and the whole model sharpens, including the RMR (which switches to Katch–McArdle on lean
+  mass, §2).
+- The tape-measure path (Navy circumference, Hodgdon & Beckett 1984) sits behind the same
+  control for anyone willing to fetch a tape. It is meaningfully better than Deurenberg and
+  meaningfully worse than a scan.
+
+Because the *change* in body fat is driven by Forbes from the starting fat mass, an error in
+the starting estimate shifts the whole trajectory rather than distorting its shape. The
+curve's shape — the flattening, the lean share — survives a bad estimate. Its absolute
+position does not. Say that on the chart.
 
 ### Forbes
 
@@ -299,49 +391,171 @@ narrative review.* Sports (Basel). 2019;7(7):154.
 
 ---
 
-## 5. Mobile screens
+## 5. The body
 
-The game's idiom, not the table's: one question per screen, big targets, nothing scrolls
-inside a step, and the whole thing is over in under a minute. The table's idiom — every
-number at once — is for the result, not for the questions.
+A rotating figure that changes as the model changes. Assets supplied rather than generated
+in the browser, so the constraints below are a **specification for producing them**, not a
+description of something that exists.
+
+### Why it earns its place
+
+The site's habit is to draw the thing rather than list it: a food is a donut before it is a
+table, a portion is three cups before it is "3 cups". A calorie trajectory drawn as a body
+is the same move, and it is the only one of the three that a person can read without being
+taught how. It also solves the problem that body fat percentage means nothing to most
+people — 24% is a number, but 24% *rotating next to* 19% is a fact.
+
+### The one axis
+
+The figure varies on **body fat percentage only**. Not weight, not lean mass, not height.
+
+That is a deliberate scope cut and it is defensible on its own terms: the render's job is to
+show *change*, and a change is legible exactly when one variable moves and everything else
+holds still. A figure that also grew and shrank with weight would be a portrait, and would
+be wrong for almost everyone; a figure that holds frame, pose, camera and scale and lets
+only the silhouette move is a *measurement*, and reads as one.
+
+The lean mass change — which is the interesting half of §4 — is carried on the chart and in
+the numbers, not in the render. Two-axis assets (fat × lean) multiply the matrix by the
+number of lean steps for a difference most people could not see, and that trade is not worth
+taking until the one-axis version is proven.
+
+The app has to say the figure is indicative of composition rather than a picture of the
+user. Once, plainly, near the figure.
+
+### Asset specification
+
+```
+data/body/<sex>/<bf>.webp          e.g. data/body/m/20.webp
+data/body/manifest.json            sexes, bands available, frame count, frame size
+```
+
+| | |
+|---|---|
+| **Sheets** | one sprite sheet per (sex × band) — a grid of frames in one file |
+| **Frames** | 24 at 15° for a full turn. 16 is the floor and will read as a step |
+| **Bands** | every 5% of body fat. Men 5–45% (9 sheets), women 12–50% (8 sheets) |
+| **Format** | WebP with alpha, on transparency — the page background is not fixed |
+| **Density** | 2× the on-screen box. A phone shows roughly 260×520 CSS px, so 520×1040 per frame |
+| **Budget** | ≤400 KB per sheet. Only the current band ±1 is ever fetched |
+
+**The four things that must be identical across every single band, or the morph breaks:**
+
+1. **Camera** — same position, same focal length, same angle. No per-band framing.
+2. **Pose** — identical to the millimetre. A shifted arm reads as movement, not as fat loss.
+3. **Lighting** — same rig, same intensity. A brightness change reads as a cut.
+4. **Frame anchoring** — feet on the same pixel row, body on the same vertical axis, same
+   scale. Only the silhouette may differ.
+
+And frame *i* of every band must be the same rotation angle as frame *i* of every other
+band, because the transition between two compositions is a cross-fade **at a fixed frame
+index**. Get this wrong and the figure appears to spin during a fade.
+
+**On style:** a photoreal render will not fit the budget, and would not fit the site either
+— everything else here is drawn in two or three colours on near-black. A stylised figure —
+flat fill, or contour, or a single-colour form with the site's cyan on the lit edge — will
+compress to a fraction of the size *and* look like it belongs. Worth deciding before
+rendering 17 sheets, because it is not a change that can be made afterwards.
+
+**The ambitious version, if the pipeline allows it:** export each band's silhouette as an
+**SVG contour with a matched point count** across bands. The app could then interpolate
+between compositions rather than cross-fade — a genuine morph, continuous rather than
+stepped, at a few KB per band instead of a few hundred. It needs the contours to come off
+the same base mesh with consistent topology, which may or may not be free in whatever tool
+generates them. Worth one experiment before committing to raster.
+
+### Behaviour
+
+- Rotates slowly and continuously on its own; drag to spin it by hand, the way the donut
+  responds to a press.
+- On a composition change: cross-fade current band → new band at the held frame index,
+  about 400 ms, the site's usual `cubic-bezier(.22,1,.36,1)`.
+- On the result screen it is driven by the time scrubber, so dragging through the year
+  *is* the animation. That is the moment the app is selling.
+- `prefers-reduced-motion`: no auto-rotation, no fade — snap to the band, keep the drag.
+- No asset below essential fat (§0). The slider cannot drive the model there.
+
+---
+
+## 6. Mobile screens
+
+One question per screen. Not a form — a sequence, the way the game asks six questions rather
+than showing a quiz. Big targets, nothing scrolls inside a step, back always available, and
+the whole run is under a minute.
 
 ```
 LAUNCHER
   └─ CALORIE CALC
        │
-       1  YOU          sex · age · height · weight          (steppers, not a keyboard,
-       │                                                     where a stepper will do)
-       2  ACTIVITY     four tiles, FAO bands, each with
-       │               one line of what it actually means
-       │               in hours and days, not adjectives
-       3  BODY FAT     optional, and said to be optional.
-       │               Three ways in: skip · estimate from
-       │               height/weight/age · type a known figure
-       4  GOAL         lose fat · hold · gain
-       5  RATE         a slider in %/week, hard-stopped at
-       │               the cap, reading out kcal/day and a date
-       └─ 6  RESULT
+       1  SEX            two tiles
+       2  AGE            stepper
+       3  HEIGHT         stepper, metric/imperial on the 100 G / OZ pattern
+       4  WEIGHT         stepper
+       5  YOUR DAY       three tiles — desk / on your feet / physical work.
+       │                 Each with one line of what it means in hours, and
+       │                 "not counting exercise" said out loud
+       6  TRAINING       sessions per week, minutes, and how hard.
+       │                 Intensity tiles carry their MET and an example,
+       │                 not an adjective
+       └─ 7  RESULT
 ```
 
-**The result screen** is the showpiece and should be drawn, not listed — the same principle
-as opening a food:
+Seven steps sounds like a lot and is not: each is one decision, most are two taps, and the
+progress reads the way the game's six boxes do.
 
-- The number, large: maintenance, and the target beside it.
-- **The curve.** Weight against time, out to a year, with fat mass and lean mass as two
-  bands stacked inside it. The flattening is visible. The lean band is visible. Nobody else
-  draws this.
-- Under it, in the table's language: the split at 3, 6 and 12 months — kg of fat, kg of
-  lean, and the maintenance the body will have *then*, which is the number that surprises
-  people.
-- The caveat, at the end, behind a mark, as in the game.
+### The result screen
 
-**Reuse, not reinvention:** the donut's ring geometry and its colour language, the game's
-card and tile idiom, the amount steppers from the food detail, the 100 G / OZ toggle
-pattern for metric/imperial, `gResults`'s grade-header layout for the result header.
+This is the app. Everything above it is data entry.
+
+```
+┌──────────────────────────────┐
+│  MAINTENANCE  2,480 kcal     │   the number the app exists to produce
+│                              │
+│         [ rotating body ]    │   drag to spin
+│                              │
+│   24.1%  ──────────▶ 19.4%   │   body fat, now → at the scrubbed date
+│   82.0 kg ─────────▶ 74.6 kg │   weight, secondary
+│                              │
+│  ●───────────────────────    │   TIME     ◀ 0 ── 3 ── 6 ── 12 months
+│  ────────●───────────────    │   INTAKE   ◀ 1,500 ─────── 3,200 kcal
+│                              │
+│  [ i ]              [ ⌥ ]    │   caveat            the curves
+└──────────────────────────────┘
+```
+
+Two sliders, and the inversion is the whole idea: **the input is calories and the output is
+a body**, rather than the input being a goal and the output a calorie number. Nobody has to
+name a target. Move the intake slider and the figure, the percentage and the date all
+answer. Move the time slider and the year plays.
+
+Three things that fall out of this for free, all of which conventional calculators struggle
+with:
+
+- **The flattening is felt rather than explained.** Drag time to 12 months and the second
+  six months plainly does less than the first. That is §3's whole point, delivered without a
+  paragraph.
+- **No goal pressure.** There is no field in which to type an aspiration, so the app never
+  has to have an opinion about one.
+- **The floor is a physical stop.** The slider will not go below 1,200/1,500 and the marked
+  zone past 1%/week is a stripe on the track, not a modal.
+
+### The curves, behind a mark
+
+The `⌥` opens what §4 actually computed, for anyone who wants it. Same device as the game's
+caveat: out of the way, one tap, no cost to the person who does not care.
+
+- Weight, fat mass and lean mass on one time axis, in the donut's own colours.
+- **Maintenance falling over the same axis** — the line nobody shows and everybody needs,
+  because it is why month twelve is not month one.
+- The Forbes partition as a live figure: "at your body fat, about **34%** of each kilogram
+  lost is not fat" — recomputed as the trajectory runs, since it changes as fat mass falls.
+- The equations and citations, named. The people who open this panel are exactly the people
+  who will want to check the arithmetic, and the site has never been shy about showing its
+  working.
 
 ---
 
-## 6. Deliberately not doing
+## 7. Deliberately not doing
 
 - No goal weight, no BMI target, no "ideal" anything.
 - No micronutrient or health scoring — the site does not rate food and will not start.
@@ -354,15 +568,36 @@ pattern for metric/imperial, `gResults`'s grade-header layout for the result hea
 
 ---
 
-## 7. Open questions
+## 8. Open questions
 
-- Which maintenance model ships as the default: Mifflin × FAO PAL (well understood, easy to
-  cite, two-step) or the 2023 DRI TEE equations (one step, DLW-based, current)? Leaning
-  DRI-first with Mifflin as the fallback when a category is ambiguous — but the coefficients
-  have to be read from the report before deciding.
-- Body fat estimation when the user does not know theirs: Deurenberg's BMI-based formula
-  (Br J Nutr. 1991;65(2):105–114) is one line and honest about being a population estimate;
-  the Navy circumference method (Hodgdon & Beckett, 1984) is better but wants a tape
-  measure. Possibly both, with the tape measure as the "if you have one" path.
-- Does the curve animate as the rate slider moves, or settle after? The former is the
-  site's instinct and the more expensive to make smooth.
+**Blocking the body assets** (needed before anything is rendered):
+
+- **Style** — photoreal or stylised? Stylised is cheaper, fits the site, and is the
+  recommendation, but it is a one-way door once 17 sheets exist.
+- **Raster or vector** — sprite sheets, or SVG contours with matched point counts that the
+  app can genuinely morph between? One experiment answers it.
+- **Band resolution** — 5% steps with a cross-fade, or 2.5% for a smoother run at twice the
+  assets?
+- **Does the figure need a build axis after all?** The one-axis argument in §5 is good but
+  it is an argument, not a test. Worth putting two bands in front of someone at 60 kg and
+  100 kg before committing.
+
+**Blocking the model:**
+
+- The 2023 DRI EER coefficients, which have to come off the report itself (§2).
+- Hall's two compartment energy densities, same problem (§3).
+- **Whether to apply a compensation factor for training volume** (Pontzer, §2). Doing
+  nothing overestimates maintenance for heavy trainers, which is the failure mode that
+  matters most. Doing something means picking a factor the literature does not hand over
+  cleanly. Leaning towards: v1 says it on the result, v2 models it.
+
+**Design, decidable later:**
+
+- Does the intake slider default to maintenance, or to something below it? Maintenance is
+  the neutral answer and probably right — the app opens by telling you what you spend, and
+  moving from there is the user's move, not the app's.
+- Metric/imperial: does it follow the food table's 100 G / OZ toggle, or is it its own
+  setting? Probably the former, since it is the same reader.
+- Does the whole seven-step run persist in `localStorage`, so a return visit lands on the
+  result with a change link? Almost certainly yes — the plate already does this — but it
+  needs to not become a tracker (§7).
