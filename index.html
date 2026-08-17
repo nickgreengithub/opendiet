@@ -104,6 +104,7 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
   0%,6%{transform:translateY(0)}
   44%,56%{transform:translateY(9.1rem)}
   94%,100%{transform:translateY(0)}
+}
 @keyframes od-demo-hand-x{
   0%,6%{transform:translateX(-11rem)}
   44%,56%{transform:translateX(11rem)}
@@ -210,6 +211,15 @@ input::placeholder{color:#7b91a3;font-family:inherit;font-size:inherit;font-weig
 /* Without this, reaching the end of a table hands the gesture to the page: iOS rubber-bands
    the whole document, the URL bar slides, and the next swipe is spent re-entering the table. */
 html,body{overscroll-behavior:none;height:100%}
+/* And overscroll-behavior is as far as iOS Safari will go: it stops the chain out of a
+   scroller but not the document's own elastic bounce, so a drag on any dead area still
+   hauled the whole app down and let it spring back, with the pull-to-refresh spinner
+   showing above it. The one thing Safari will not bounce is a document that cannot scroll
+   at all, which is what a fixed body is. Everything that scrolls here is an inner region
+   already — the shell is fixed on a phone and clipped on a desktop — so the document has
+   nothing to lose by being nailed down. Desktop keeps its ordinary body. */
+@media (max-width:999.98px){
+  body{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;overflow:hidden}}
 [data-scroll]{overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin;scrollbar-color:rgba(34,211,238,.35) rgba(34,211,238,.07)}
 [data-scroll]::-webkit-scrollbar{width:10px}
 [data-scroll]::-webkit-scrollbar-track{background:rgba(34,211,238,.07)}

@@ -45,6 +45,22 @@ The layout rules below were the first things it was built to test, and still hol
   than a border colour, which looks identical and can be revoked under `@media (hover:none)`
   without having to restate a border that changes every round. On touch, `:hover` latches
   after a tap and would leave the edge burning on the card just answered.
+- **A missing brace ate half the stylesheet, silently.** `od-demo-hand-x` was inserted
+  before `od-demo-hand`'s closing `}`, and CSS has no error to report: the parser folded
+  the second `@keyframes` into the first and then swallowed every rule after it. Sixty-odd
+  rules — the onboarding sweep, the card slide keyframes, the touch hover guards, the
+  scrollbars, `input::placeholder`, and `overscroll-behavior` — were absent for several
+  commits, and nothing in the app said so. Nothing looked broken enough to notice; the
+  animations just stopped and the page started bouncing. The stylesheet is now checked by
+  counting `document.styleSheets[…].cssRules` rather than by reading it: 68 rules, and a
+  number that drops is a brace that closed the wrong thing.
+- **The document cannot scroll on a phone or a tablet.** `overscroll-behavior: none` is as
+  far as iOS Safari will go — it stops the chain out of a scroller, but not the document's
+  own elastic bounce, so a drag on any dead area hauled the whole app down and let it
+  spring back with the pull-to-refresh spinner above it. The one thing Safari will not
+  bounce is a document that cannot scroll at all, so the body is fixed to the viewport
+  under 1000px. Everything that scrolls here is an inner region already, so nothing is
+  lost. A desktop keeps its ordinary body.
 - ABOUT carries a **build stamp** beside the version, taken from `document.lastModified`.
   That is the Last-Modified of the copy the browser is actually holding, so a cached page
   reports the age of the cache rather than of the deploy — which is the whole point. It
