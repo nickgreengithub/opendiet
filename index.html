@@ -3904,10 +3904,17 @@ class Component extends DCLogic {
           gHandTall: !!s.narrow, gHandWide: !s.narrow,
           gDemoShot: { width: "100%", height: s.narrow ? "7.1rem" : "15.5rem",
             objectFit: "cover", display: "block" },
-          gDemoCardA: { position: "relative", flex: "1 1 0", minWidth: 0, display: "flex",
+          // The wrapper is a row on a desktop and a column on a phone, and a card's
+          // flex is read along whichever axis that is. `1 1 0` shares the width out on
+          // a desktop; on a phone the same declaration is a basis of zero *height*, and
+          // the two cards collapse to a pair of hairlines with the photographs still
+          // measuring 7.1rem inside them. On a phone the cards take their own height.
+          gDemoCardA: { position: "relative", flex: s.narrow ? "none" : "1 1 0",
+            minWidth: 0, display: "flex",
             flexDirection: "column", overflow: "hidden",
             border: "1px solid rgba(34,211,238,.16)", background: "#0a1016" },
-          gDemoCardB: { position: "relative", flex: "1 1 0", minWidth: 0, display: "flex",
+          gDemoCardB: { position: "relative", flex: s.narrow ? "none" : "1 1 0",
+            minWidth: 0, display: "flex",
             flexDirection: "column", overflow: "hidden",
             border: "1px solid rgba(34,211,238,.16)", background: "#0a1016" },
           gDemoBarA: { display: "grid", gridTemplateColumns: "auto minmax(0,1fr)",
