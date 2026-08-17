@@ -89,8 +89,10 @@ guessing scores about half: half is a D, the floor of a pass, and anything below
 than a coin toss — is an F. Under it the six pairs in the order they were played, drawn as the food table draws
 itself — sentence-case names, portions beside them, calories right-aligned under a KCAL
 head, one hairline under every row — with each pair a block of two lines closed by a
-hairline and real air between the blocks, both foods set identically since the figures already say which is
-bigger, and a tick or a cross against the pair. The caveat sits behind a mark rather than
+hairline and real air between the blocks. The tick or cross sits against the line that was
+actually pressed rather than at the top of the pair, and the lighter plate's figure goes
+down a step, so which food was chosen and which way the pair went both read without
+comparing two numbers. The caveat sits behind a mark rather than
 on the page.
 
 That is the phone. A desktop ends on the food table instead: the same grade and score,

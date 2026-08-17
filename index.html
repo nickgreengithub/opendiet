@@ -319,8 +319,8 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ gListWrap }}">
       <sc-for list="{{ gResTiles }}" as="t" hint-placeholder-count="6">
         <span style="{{ t.s }}">
-          <span onClick="{{ t.onTap }}" style="{{ t.a.rowS }}"><span data-gnm="{{ t.keyA }}" style="{{ t.a.nameS }}">{{ t.a.name }}</span><span style="{{ t.a.portS }}">{{ t.a.portion }}</span><span style="{{ t.a.kS }}">{{ t.a.k }}</span><span style="{{ t.markS }}">{{ t.mark }}</span></span>
-          <span onClick="{{ t.onTap }}" style="{{ t.b.rowS }}"><span data-gnm="{{ t.keyB }}" style="{{ t.b.nameS }}">{{ t.b.name }}</span><span style="{{ t.b.portS }}">{{ t.b.portion }}</span><span style="{{ t.b.kS }}">{{ t.b.k }}</span><span></span></span>
+          <span onClick="{{ t.onTap }}" style="{{ t.a.rowS }}"><span data-gnm="{{ t.keyA }}" style="{{ t.a.nameS }}">{{ t.a.name }}</span><span style="{{ t.a.portS }}">{{ t.a.portion }}</span><span style="{{ t.a.kS }}">{{ t.a.k }}</span><span style="{{ t.a.markS }}">{{ t.a.mark }}</span></span>
+          <span onClick="{{ t.onTap }}" style="{{ t.b.rowS }}"><span data-gnm="{{ t.keyB }}" style="{{ t.b.nameS }}">{{ t.b.name }}</span><span style="{{ t.b.portS }}">{{ t.b.portion }}</span><span style="{{ t.b.kS }}">{{ t.b.k }}</span><span style="{{ t.b.markS }}">{{ t.b.mark }}</span></span>
           <span style="{{ t.cmpWrap }}">
             <span style="{{ t.cmp.grid }}">
               <span></span><span style="{{ t.cmp.headCell }}"><span data-gch="{{ t.keyA }}" style="{{ t.cmp.headNameS }}">{{ t.cmp.nameA }}</span><span style="{{ t.cmp.headPortS }}">{{ t.cmp.portA }}</span></span><span style="{{ t.cmp.headCell }}"><span data-gch="{{ t.keyB }}" style="{{ t.cmp.headNameS }}">{{ t.cmp.nameB }}</span><span style="{{ t.cmp.headPortS }}">{{ t.cmp.portB }}</span></span>
@@ -1346,19 +1346,30 @@ class Component extends DCLogic {
             color: kb >= ka ? "#eaf5fb" : "#7b91a3" },
         };
       };
-      const line = (food, last) => ({
+      // The mark belongs to the line the player actually pressed, not to the top of
+      // the pair — on the top line it read as a verdict on that food rather than on
+      // the choice. Both lines carry the cell so the columns stay in step; the one
+      // that was not chosen holds it empty.
+      const line = (food, other, picked, last) => ({
         name: cap(food.name),
         portion: food.portion || "",
         k: String(food.kcal),
+        mark: picked ? (p.hit ? "\u2713" : "\u2715") : "",
+        markS: { textAlign: "right", fontSize: "1.05rem", lineHeight: 1,
+          color: !picked ? "transparent" : p.hit ? "#7ee0a8" : "#f08c7a" },
         nameS: { minWidth: 0, whiteSpace: "nowrap", overflow: "hidden",
           textOverflow: "ellipsis", fontWeight: 300, fontSize: "1.02rem",
           color: "#d7e6ef" },
         portS: { minWidth: 0, whiteSpace: "nowrap", overflow: "hidden",
           textOverflow: "ellipsis", fontFamily: "var(--font-2)", fontSize: ".82rem",
           letterSpacing: ".02em", color: "#7b91a3" },
+        // The lighter plate's figure goes down a step, the same step the comparison
+        // and the desktop table use, so which way the pair went reads before the two
+        // numbers are compared.
         kS: { display: "flex", alignItems: "baseline", justifyContent: "flex-end",
           fontWeight: 300, fontSize: "1.04rem", fontVariantNumeric: "tabular-nums",
-          whiteSpace: "nowrap", color: "#d7e6ef" },
+          whiteSpace: "nowrap",
+          color: food.kcal >= other.kcal ? "#d7e6ef" : "#9fb3c0" },
         rowS: { display: "grid",
           gridTemplateColumns: "minmax(0,1fr) auto 3.5rem 1.4rem",
           columnGap: ".45rem", alignItems: "center",
@@ -1369,7 +1380,7 @@ class Component extends DCLogic {
         open: isOpen
       });
       return {
-        a: line(p.top, false), b: line(p.bot, true),
+        a: line(p.top, p.bot, p.k === 0, false), b: line(p.bot, p.top, p.k === 1, true),
         cmp: isOpen ? cmpOf(p.top, p.bot, p.hit, p.k === 0) : null,
         keyA: pi + "-a", keyB: pi + "-b",
         cmpWrap: { display: isOpen ? "block" : "none", overflow: "hidden",
@@ -1378,11 +1389,6 @@ class Component extends DCLogic {
           cursor: "pointer" },
         // A pair is one question, so it opens as one thing rather than two.
         onTap: e => this.gTogglePair(pi, e),
-        mark: p.hit ? "\u2713" : "\u2715",
-        // On the pair's first line rather than centred between the two, where it landed
-        // exactly on the rule and read as a smudge on it.
-        markS: { textAlign: "right", fontSize: "1.05rem", lineHeight: 1,
-          color: p.hit ? "#7ee0a8" : "#f08c7a" },
         // display:block matters. A span is inline by default and an inline box drops
         // vertical margin on the floor, which is why the gap between pairs measured 0px
         // however large the number was set.
