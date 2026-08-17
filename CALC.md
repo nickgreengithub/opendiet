@@ -474,30 +474,30 @@ dragging through the year *is* the animation.
 
 ## 6. Mobile screens
 
-**Four steps, not seven.** Sex, age, height and weight are all the same question — who is
-this — and splitting them made a seven-step run out of what is really one form.
+**One question a screen, and the body has the rest of it.** Seven steps, and the figure is
+the same size on every one of them — it is the point of the app, and four controls stacked
+under a thumbnail is not.
 
 ```
 LAUNCHER
-  └─ CALORIE CALC
+  └─ CALORIE CALC          ⟲ beside the tab while it is open — back to question one
+       │                     from anywhere, without walking the chevron up seven screens
+       ─── a progress bar rather than "STEP 3 OF 7": same information, no arithmetic
        │
-       1  YOU        sex side by side, then age, height and weight, each
-       │             with a slider AND a number box, both live. A slider is
-       │             faster and a number is exact; there is no reason to
-       │             make anyone choose. Minimum age 18.
-       2  BODY FAT   a slider, opening on the Deurenberg estimate, with the
-       │             figure above it. No number box: nobody knows their body
-       │             fat to the percent, and a field that invites a typed
-       │             figure implies a precision that does not exist.
-       3  YOUR DAY   three tiles, and "not counting exercise" said out loud
-       4  TRAINING   sessions, minutes, and how hard, in METs with examples
-       └─ 5  RESULT
+       1  SEX        two tiles, answered and gone
+       2  AGE        slider left, number box right. Minimum 18
+       3  HEIGHT     the same row, the same box, the same width
+       4  WEIGHT     "
+       5  BODY FAT   the same row, but the number is read-only: nobody knows theirs
+       │             to the percent. Opens on the Deurenberg estimate
+       6  YOUR DAY   three tiles
+       7  TRAINING   sessions, minutes, and how hard
+       └─ 8  RESULT
 ```
 
-**The figure is on every screen**, not just the last. It is the constant the whole app is
-about, it fills the space a phone screen otherwise leaves empty under a short question, and
-it means the payoff is visible from step one rather than being a surprise at the end. On
-the body-fat step it is the control's own readout.
+Slider and number share one row: the slider takes the width, the number sits in a fixed
+6.8rem box on the right under a hairline, so the digits land in the same place from screen
+to screen. No lead paragraphs, no notes under the tiles — the figure and the label carry it.
 
 ### The result screen
 
