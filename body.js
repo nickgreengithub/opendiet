@@ -72,19 +72,24 @@ export function mount(canvas) {
   camera.position.set(0, 0, (1.95 / 2) / Math.tan(26 * Math.PI / 360));
   camera.lookAt(0, 0, 0);
 
-  // Lit the way the rest of the site is: a dark matte body with the cyan coming
-  // in from the side, so the silhouette does the reading and the surface only
-  // says which way it is facing.
-  scene.add(new THREE.HemisphereLight(0x2c3f4d, 0x05080d, 1.1));
-  const key = new THREE.DirectionalLight(0xbcd4e2, 1.15);
+  // Lit so the body is legible on a phone in daylight, which the first pass was
+  // not: it was a dark shape on a dark page and only the cyan edge showed. The
+  // surface is a couple of steps lighter, there is a fill from the other side so
+  // nothing goes to pure black, and the cyan is now a rim rather than the only
+  // light in the room.
+  scene.add(new THREE.HemisphereLight(0x51708a, 0x0d1620, 1.5));
+  const key = new THREE.DirectionalLight(0xdcecf7, 1.9);
   key.position.set(-2.2, 2.6, 3.4);
   scene.add(key);
-  const rim = new THREE.DirectionalLight(CYAN, 2.3);
+  const fill = new THREE.DirectionalLight(0x8fb3c8, 0.75);
+  fill.position.set(2.6, 0.6, 2.2);
+  scene.add(fill);
+  const rim = new THREE.DirectionalLight(CYAN, 2.6);
   rim.position.set(3.4, 1.4, -2.6);
   scene.add(rim);
 
   const material = new THREE.MeshStandardMaterial({
-    color: 0x1b2a36, roughness: 0.72, metalness: 0.05, flatShading: false
+    color: 0x4d6b80, roughness: 0.66, metalness: 0.04, flatShading: false
   });
 
   const pivot = new THREE.Group();
@@ -92,6 +97,26 @@ export function mount(canvas) {
 
   let mesh = null, levels = null, want = { sex: "m", bf: 20 };
   let spin = 0, drag = null, vel = 0, raf = 0, alive = true, dirty = true;
+  // Pinch. The camera pulls in and out rather than the body scaling, so the
+  // perspective stays honest at every zoom.
+  const BASE_D = camera.position.z;
+  let zoom = 1, pinch0 = 0, zoom0 = 1, panY = 0;
+  const ZOOM_MIN = 0.8, ZOOM_MAX = 2.4;
+  // Zoomed in, the camera is looking at the middle of the body, which is the hips —
+  // so a vertical drag walks it up and down. Clamped to the body's own extent, so
+  // you can reach the head and the feet and nothing beyond them.
+  const place = () => {
+    const half = 0.975 / zoom;                    // half the visible height, metres
+    const lim = Math.max(0, 0.9 - half);
+    panY = Math.max(-lim, Math.min(lim, panY));
+    camera.position.set(0, panY, BASE_D / zoom);
+    camera.lookAt(0, panY, 0);
+    dirty = true;
+  };
+  const setZoom = z => {
+    zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, z));
+    place();
+  };
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const size = () => {
@@ -130,7 +155,7 @@ export function mount(canvas) {
     if (!alive) return;
     raf = requestAnimationFrame(tick);
     size();
-    if (drag == null && !still) {
+    if (pts.size === 0 && !still) {
       spin += 0.0042 + vel;
       vel *= 0.94;
       dirty = true;
@@ -143,27 +168,50 @@ export function mount(canvas) {
     dirty = false;
   };
 
+  // Pointer events rather than mouse and touch separately: a Map keyed by pointerId
+  // gives one finger, two fingers and a mouse the same code path, and the canvas
+  // carries touch-action:none so the browser hands the gesture over intact.
+  const pts = new Map();
+  const spread = () => {
+    const [a2, b2] = [...pts.values()];
+    return Math.hypot(a2.x - b2.x, a2.y - b2.y);
+  };
   const down = e => {
-    drag = (e.touches ? e.touches[0] : e).clientX;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
     vel = 0;
+    if (pts.size === 2) { pinch0 = spread(); zoom0 = zoom; drag = null; }
+    else if (pts.size === 1) drag = { x: e.clientX, y: e.clientY };
+    if (canvas.setPointerCapture) try { canvas.setPointerCapture(e.pointerId); } catch (x) {}
   };
   const move = e => {
-    if (drag == null) return;
-    const x = (e.touches ? e.touches[0] : e).clientX;
-    vel = (x - drag) * 0.012;
-    spin += vel;
-    drag = x;
-    dirty = true;
+    if (!pts.has(e.pointerId)) return;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pts.size >= 2) {
+      if (pinch0 > 0) setZoom(zoom0 * (spread() / pinch0));
+    } else if (drag != null) {
+      vel = (e.clientX - drag.x) * 0.012;
+      spin += vel;
+      if (zoom > 1.05) { panY += (e.clientY - drag.y) * 0.0028 * (0.975 / zoom); place(); }
+      drag = { x: e.clientX, y: e.clientY };
+      dirty = true;
+    }
     if (e.cancelable) e.preventDefault();
   };
-  const up = () => { drag = null; };
+  const up = e => {
+    pts.delete(e.pointerId);
+    if (pts.size < 2) pinch0 = 0;
+    // Whichever finger is left takes over the drag, so lifting one out of a pinch
+    // does not jump the body.
+    drag = pts.size === 1 ? { ...[...pts.values()][0] } : null;
+  };
+  const wheel = e => { setZoom(zoom * (e.deltaY < 0 ? 1.1 : 1 / 1.1)); e.preventDefault(); };
 
   canvas.addEventListener("pointerdown", down);
-  window.addEventListener("pointermove", move, { passive: false });
-  window.addEventListener("pointerup", up);
-  canvas.addEventListener("touchstart", down, { passive: true });
-  window.addEventListener("touchmove", move, { passive: false });
-  window.addEventListener("touchend", up);
+  canvas.addEventListener("pointermove", move, { passive: false });
+  canvas.addEventListener("pointerup", up);
+  canvas.addEventListener("pointercancel", up);
+  canvas.addEventListener("pointerleave", up);
+  canvas.addEventListener("wheel", wheel, { passive: false });
 
   tick();
 
@@ -177,11 +225,11 @@ export function mount(canvas) {
       alive = false;
       cancelAnimationFrame(raf);
       canvas.removeEventListener("pointerdown", down);
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", up);
-      canvas.removeEventListener("touchstart", down);
-      window.removeEventListener("touchmove", move);
-      window.removeEventListener("touchend", up);
+      canvas.removeEventListener("pointermove", move);
+      canvas.removeEventListener("pointerup", up);
+      canvas.removeEventListener("pointercancel", up);
+      canvas.removeEventListener("pointerleave", up);
+      canvas.removeEventListener("wheel", wheel);
       renderer.dispose();
       delete canvas.__body;
     }

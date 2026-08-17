@@ -43,6 +43,13 @@ LEVELS = [8, 15, 22, 30, 38, 46]   # body-fat % — the first is the base mesh
 
 TORSO_M = [
     # y      rx     rz     cx     w
+    # The torso runs BELOW the hips and closes at the crotch. It used to stop at
+    # the hip ring and take a flat cap, and that cap — a disc wider than either
+    # thigh, seen edge on — was the notch across the belt line. Carrying the loft
+    # down to a point between the legs both removes it and is what a body does.
+    (0.80, 0.055, 0.048, 0.0, 1.05),   # crotch
+    (0.86, 0.112, 0.084, 0.0, 1.20),
+    (0.91, 0.148, 0.112, 0.0, 1.30),
     (0.96, 0.168, 0.132, 0.0, 1.35),   # hips
     (1.04, 0.150, 0.120, 0.0, 1.70),   # upper hip
     (1.12, 0.143, 0.113, 0.0, 1.95),   # waist — the first place it goes
@@ -59,6 +66,9 @@ TORSO_M = [
 ]
 
 TORSO_F = [
+    (0.80, 0.058, 0.050, 0.0, 1.70),   # crotch
+    (0.86, 0.118, 0.088, 0.0, 1.95),
+    (0.91, 0.156, 0.118, 0.0, 2.15),
     (0.96, 0.178, 0.138, 0.0, 2.30),   # hips — and here first
     (1.04, 0.152, 0.122, 0.0, 1.90),
     (1.12, 0.132, 0.107, 0.0, 1.35),   # waist
@@ -75,7 +85,7 @@ TORSO_F = [
 ]
 
 LEG_M = [
-    (1.00, 0.104, 0.104, 0.088, 1.30),
+    (1.03, 0.101, 0.101, 0.086, 1.30),
     (0.86, 0.098, 0.100, 0.090, 1.55),   # thigh
     (0.70, 0.083, 0.086, 0.092, 1.30),
     (0.54, 0.062, 0.066, 0.094, 0.85),   # knee
@@ -86,7 +96,7 @@ LEG_M = [
 ]
 
 LEG_F = [
-    (1.00, 0.108, 0.108, 0.092, 2.10),
+    (1.03, 0.105, 0.105, 0.090, 2.10),
     (0.86, 0.101, 0.103, 0.094, 2.35),   # thigh — the other place it goes
     (0.70, 0.084, 0.087, 0.096, 1.75),
     (0.54, 0.060, 0.064, 0.098, 0.85),
@@ -97,6 +107,7 @@ LEG_F = [
 ]
 
 ARM_M = [
+    (1.44, 0.050, 0.050, 0.185, 0.70),   # buried inside the shoulder
     (1.40, 0.058, 0.058, 0.196, 0.70),
     (1.28, 0.051, 0.051, 0.207, 0.85),   # upper arm
     (1.14, 0.045, 0.045, 0.216, 0.75),
@@ -107,6 +118,7 @@ ARM_M = [
 ]
 
 ARM_F = [
+    (1.44, 0.045, 0.045, 0.166, 0.75),
     (1.40, 0.052, 0.052, 0.176, 0.75),
     (1.28, 0.046, 0.046, 0.186, 0.95),
     (1.14, 0.040, 0.040, 0.194, 0.80),
@@ -166,6 +178,8 @@ def build(sex, fat):
     leg = LEG_F if sex == "f" else LEG_M
     arm = ARM_F if sex == "f" else ARM_M
     verts, tris = [], []
+    # (cap_start, cap_end): the torso closes at both ends — crown and crotch — and
+    # the legs are open at the top because the torso already fills that space.
     for rings, mirror, caps in ((torso, False, (True, True)),
                                (leg, False, (False, True)), (leg, True, (False, True)),
                                (arm, False, (True, True)), (arm, True, (True, True))):

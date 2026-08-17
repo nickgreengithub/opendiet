@@ -443,6 +443,15 @@ list into the mesh's custom properties and exports the .glb. It refuses to run i
 levels differ in vertex count, because `join_shapes` maps by index and the failure is
 silent otherwise.
 
+### Handling it
+
+Pointer events with a Map keyed by `pointerId`, so a mouse, one finger and two
+fingers all take the same path. One pointer spins it, with momentum. Two pinch it,
+between 0.8x and 2.4x — and zoomed in, a vertical drag walks the camera up and down
+the body, clamped to its own extent, because a centred zoom otherwise just parks you on
+the hips. A wheel zooms on a desktop. The canvas carries `touch-action: none` so the
+browser hands the gesture over intact, and the page cannot scroll under it anyway.
+
 ### What the runtime does
 
 Three (670 KB) and GLTFLoader are **vendored into `vendor/three/`** rather than fetched from
@@ -457,7 +466,9 @@ dragging through the year *is* the animation.
 ### Still to do
 
 * The real MB-Lab bake. The placeholder is a lofted stack of rings — it reads as a standing
-  figure and the change reads clearly, but it is nobody's body.
+  figure and the change reads clearly, but it is nobody's body. Its tubes *intersect* rather
+  than join, so a seam shows where the legs meet the pelvis; a single continuous surface out
+  of MB-Lab will not have one.
 * One axis only, still: body fat. Lean mass rides on the chart. See the argument in §5 of
   the earlier plan, which still holds.
 
