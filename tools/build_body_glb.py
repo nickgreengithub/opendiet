@@ -122,21 +122,15 @@ def sdf_body(P, sex, f):
                    0.135,
                    g(0.085 if m else 0.078, 1.40 if m else 0.75))), 0.065)
     d = smin(d, E(P, (0, 0.965, 0.0),
-                  (g(0.120 if m else 0.136, 0.42 if m else 0.72),
-                   0.110,
+                  (g(0.120 if m else 0.140, 0.42 if m else 0.55),
+                   0.118,
                    g(0.090 if m else 0.094, 0.45 if m else 0.50))), 0.068)
 
     # glutes: two masses, so the surface between them is a real crease.
-    gr = g(0.059 if m else 0.061, 0.55 if m else 0.78)
-    gz = -0.056 - f * 0.012
-    d = smin(d, S(P, (+0.056, 0.975, gz), gr), 0.062)
-    d = smin(d, S(P, (-0.056, 0.975, gz), gr), 0.062)
-
-    # hip pads — the width a woman carries at the trochanter.
-    if not m:
-        hr = (g(0.043, 0.80), 0.125, 0.072)
-        d = smin(d, E(P, (+0.101, 0.935, 0.0), hr), 0.078)
-        d = smin(d, E(P, (-0.101, 0.935, 0.0), hr), 0.078)
+    gr = g(0.059 if m else 0.058, 0.55 if m else 0.70)
+    gz = -0.052 - f * 0.010
+    d = smin(d, S(P, (+0.056, 0.975, gz), gr), 0.065)
+    d = smin(d, S(P, (-0.056, 0.975, gz), gr), 0.065)
 
     # upper chest, so the clavicle region is a plane rather than a hollow.
     d = smin(d, E(P, (0, 1.400, 0.026),
@@ -159,25 +153,22 @@ def sdf_body(P, sex, f):
                       (0.052, br * 0.85, g(0.038, 0.7))), 0.055)
 
     # trapezius: the slope from neck to shoulder that a tube body never has.
-    d = smin(d, RC(P, (0.015, 1.488, -0.012),
-                   (+shx * 0.94, 1.428, -0.006), 0.028, 0.033 if m else 0.030), 0.050)
-    d = smin(d, RC(P, (-0.015, 1.488, -0.012),
-                   (-shx * 0.94, 1.428, -0.006), 0.028, 0.033 if m else 0.030), 0.050)
+    tx = 0.97 if m else 0.78          # a man's trapezius rounds over the shoulder
+    d = smin(d, RC(P, (0.015, 1.486, -0.008),
+                   (+shx * tx, 1.424, -0.004), 0.026, 0.036 if m else 0.027), 0.050)
+    d = smin(d, RC(P, (-0.015, 1.486, -0.008),
+                   (-shx * tx, 1.424, -0.004), 0.026, 0.036 if m else 0.027), 0.050)
 
     # arms: deltoid, upper arm, forearm, hand, in a slight A-pose with a bent
     # elbow. The deltoid joins the arm to the body instead of crossing it.
     ao = f * 0.055                     # a wider body pushes the arms out
     for sgn in (+1.0, -1.0):
-        sh = (sgn * (shx + ao * 0.5), 1.412, 0.0)
-        el = (sgn * (shx + 0.054 + ao), 1.130, 0.008)
-        wr = (sgn * (shx + 0.078 + ao), 0.882, 0.028)
-        d = smin(d, S(P, sh, g(0.049 if m else 0.036, 0.30)), 0.055)
-        d = smin(d, RC(P, sh, el, g(0.045 if m else 0.036, 0.55),
-                       g(0.035 if m else 0.028, 0.48)), 0.038)
-        d = smin(d, RC(P, el, wr, g(0.036 if m else 0.028, 0.45),
-                       g(0.024 if m else 0.019, 0.30)), 0.042)
-        d = smin(d, E(P, (wr[0] + sgn * 0.004, 0.795, 0.036),
-                      (0.020, 0.072, 0.029)), 0.026)
+        sh = (sgn * (shx + 0.004 + ao * 0.5), 1.408, 0.004)
+        wr = (sgn * (shx + 0.074 + ao), 0.885, 0.020)
+        d = smin(d, RC(P, sh, wr, g(0.051 if m else 0.042, 0.38),
+                       g(0.023 if m else 0.018, 0.25)), 0.040)
+        d = smin(d, E(P, (wr[0] + sgn * 0.002, 0.800, 0.026),
+                      (0.019, 0.064, 0.026)), 0.024)
 
     # neck and head.
     d = smin(d, RC(P, (0, 1.445, -0.006), (0, 1.590, 0.002),
