@@ -49,7 +49,7 @@ OUT = os.path.join(HERE, "data", "body")
 # Per-sex fat levels: the female range starts near essential fat, which the
 # app's slider also enforces, so no morph budget is spent on impossible bodies.
 LEVELS = {"m": [8, 15, 22, 30, 38, 46], "f": [12, 18, 25, 32, 40, 48]}
-VOX = 0.016          # voxel edge for the base mesh, metres
+VOX = 0.014          # voxel edge for the base mesh, metres
 
 
 # ── SDF primitives, vectorised over an (N,3) array of points ──────────────────
@@ -117,26 +117,26 @@ def sdf_body(P, sex, f):
     d = E(P, (0, 1.315, 0.005),
           (g(0.148 if m else 0.120, 0.10), 0.155,
            g(0.106 if m else 0.092, 0.18)))
-    d = smin(d, E(P, (0, 1.115, 0.008 + f * (0.050 if m else 0.028)),
-                  (g(0.108 if m else 0.096, 0.95 if m else 0.72),
+    d = smin(d, E(P, (0, 1.115 - f * 0.030, 0.008 + f * (0.046 if m else 0.022)),
+                  (g(0.108 if m else 0.096, 0.95 if m else 0.95),
                    0.135,
-                   g(0.085 if m else 0.078, 1.55 if m else 0.95))), 0.055)
+                   g(0.085 if m else 0.078, 1.40 if m else 0.75))), 0.065)
     d = smin(d, E(P, (0, 0.965, 0.0),
-                  (g(0.120 if m else 0.136, 0.42 if m else 0.62),
+                  (g(0.120 if m else 0.136, 0.42 if m else 0.72),
                    0.110,
-                   g(0.090 if m else 0.094, 0.45 if m else 0.50))), 0.055)
+                   g(0.090 if m else 0.094, 0.45 if m else 0.50))), 0.068)
 
     # glutes: two masses, so the surface between them is a real crease.
-    gr = g(0.059 if m else 0.066, 0.55 if m else 0.80)
+    gr = g(0.059 if m else 0.066, 0.55 if m else 0.95)
     gz = -0.064 - f * 0.015
     d = smin(d, S(P, (+0.058, 0.975, gz), gr), 0.050)
     d = smin(d, S(P, (-0.058, 0.975, gz), gr), 0.050)
 
     # hip pads — the width a woman carries at the trochanter.
     if not m:
-        hr = (g(0.048, 0.90), 0.095, 0.070)
-        d = smin(d, E(P, (+0.108, 0.960, 0.0), hr), 0.045)
-        d = smin(d, E(P, (-0.108, 0.960, 0.0), hr), 0.045)
+        hr = (g(0.050, 0.95), 0.125, 0.072)
+        d = smin(d, E(P, (+0.106, 0.935, 0.0), hr), 0.065)
+        d = smin(d, E(P, (-0.106, 0.935, 0.0), hr), 0.065)
 
     # upper chest, so the clavicle region is a plane rather than a hollow.
     d = smin(d, E(P, (0, 1.400, 0.026),
@@ -149,33 +149,35 @@ def sdf_body(P, sex, f):
         d = smin(d, E(P, (+0.063, 1.338, 0.066), pr), 0.045)
         d = smin(d, E(P, (-0.063, 1.338, 0.066), pr), 0.045)
     else:
-        br = g(0.051, 0.62)
-        bz = 0.074 + f * 0.020
-        d = smin(d, E(P, (+0.061, 1.315, bz),
-                      (br, br * 0.95, g(0.050, 0.85))), 0.036)
-        d = smin(d, E(P, (-0.061, 1.315, bz),
-                      (br, br * 0.95, g(0.050, 0.85))), 0.036)
+        br = g(0.051, 0.72)
+        bz = 0.072 + f * 0.018
+        d = smin(d, E(P, (+0.053, 1.312, bz),
+                      (br, br * 0.95, g(0.048, 0.75))), 0.048)
+        d = smin(d, E(P, (-0.053, 1.312, bz),
+                      (br, br * 0.95, g(0.048, 0.75))), 0.048)
+        d = smin(d, E(P, (0, 1.298, bz - 0.014),
+                      (0.052, br * 0.85, g(0.038, 0.7))), 0.055)
 
     # trapezius: the slope from neck to shoulder that a tube body never has.
     d = smin(d, RC(P, (0.015, 1.488, -0.012),
-                   (+shx * 0.94, 1.428, -0.006), 0.032, 0.040), 0.045)
+                   (+shx * 0.94, 1.428, -0.006), 0.030, 0.036), 0.050)
     d = smin(d, RC(P, (-0.015, 1.488, -0.012),
-                   (-shx * 0.94, 1.428, -0.006), 0.032, 0.040), 0.045)
+                   (-shx * 0.94, 1.428, -0.006), 0.030, 0.036), 0.050)
 
     # arms: deltoid, upper arm, forearm, hand, in a slight A-pose with a bent
     # elbow. The deltoid joins the arm to the body instead of crossing it.
     ao = f * 0.055                     # a wider body pushes the arms out
     for sgn in (+1.0, -1.0):
         sh = (sgn * (shx + ao * 0.5), 1.412, 0.0)
-        el = (sgn * (shx + 0.082 + ao), 1.130, 0.012)
-        wr = (sgn * (shx + 0.128 + ao), 0.882, 0.038)
-        d = smin(d, S(P, sh, g(0.049 if m else 0.042, 0.30)), 0.055)
-        d = smin(d, RC(P, sh, el, g(0.045 if m else 0.038, 0.42),
-                       g(0.035 if m else 0.029, 0.42)), 0.038)
-        d = smin(d, RC(P, el, wr, g(0.038 if m else 0.031, 0.35),
-                       g(0.025 if m else 0.021, 0.30)), 0.034)
-        d = smin(d, E(P, (wr[0] + sgn * 0.004, 0.798, 0.048),
-                      (0.023, 0.066, 0.033)), 0.026)
+        el = (sgn * (shx + 0.066 + ao), 1.130, 0.012)
+        wr = (sgn * (shx + 0.098 + ao), 0.882, 0.040)
+        d = smin(d, S(P, sh, g(0.049 if m else 0.040, 0.30)), 0.055)
+        d = smin(d, RC(P, sh, el, g(0.045 if m else 0.038, 0.55),
+                       g(0.035 if m else 0.029, 0.48)), 0.038)
+        d = smin(d, RC(P, el, wr, g(0.038 if m else 0.031, 0.40),
+                       g(0.024 if m else 0.020, 0.30)), 0.042)
+        d = smin(d, E(P, (wr[0] + sgn * 0.004, 0.795, 0.044),
+                      (0.020, 0.072, 0.029)), 0.026)
 
     # neck and head.
     d = smin(d, RC(P, (0, 1.445, -0.006), (0, 1.590, 0.002),
@@ -193,14 +195,14 @@ def sdf_body(P, sex, f):
         knee = (sgn * (hipx + 0.006), 0.505, -0.004)
         ank = (sgn * (hipx + 0.012), 0.078, -0.018)
         d = smin(d, RC(P, hip, knee,
-                       g(0.079 if m else 0.077, 0.55 if m else 0.85),
-                       0.052), 0.055)
-        d = smin(d, S(P, (knee[0], 0.505, 0.006), 0.045), 0.050)
-        d = smin(d, RC(P, knee, ank, 0.048, 0.028), 0.040)
+                       g(0.079 if m else 0.078, 0.55 if m else 1.00),
+                       g(0.052, 0.18)), 0.060)
+        d = smin(d, S(P, (knee[0], 0.505, 0.006), 0.042), 0.050)
+        d = smin(d, RC(P, knee, ank, 0.048, 0.025), 0.040)
         d = smin(d, E(P, (knee[0] + sgn * 0.002, 0.385, -0.022),
                       (0.043, 0.085, g(0.049, 0.30))), 0.035)
-        d = smin(d, E(P, (ank[0] + sgn * 0.010, 0.038, 0.045),
-                      (0.042, 0.038, 0.108)), 0.028)
+        d = smin(d, E(P, (ank[0] + sgn * 0.010, 0.034, 0.048),
+                      (0.036, 0.034, 0.100)), 0.028)
 
     # subcutaneous layer: everything gains a little, so a fat wrist and a fat
     # jaw exist without their own masses.
