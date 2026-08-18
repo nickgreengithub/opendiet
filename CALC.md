@@ -482,10 +482,17 @@ dragging through the year *is* the animation.
 
 ### Still to do
 
-* The real MB-Lab bake. The placeholder is a lofted stack of rings — it reads as a standing
-  figure and the change reads clearly, but it is nobody's body. Its tubes *intersect* rather
-  than join, so a seam shows where the legs meet the pelvis; a single continuous surface out
-  of MB-Lab will not have one.
+* The real MB-Lab bake, eventually — but the placeholder is no longer a lofted stack of
+  rings. It is a **signed distance field**: anatomical masses (ribcage, pelvis, glutes,
+  bust or pectorals, deltoids, tapered limbs) blended into one continuous surface, meshed
+  once with surface nets, with each fat level made by walking the same vertices through
+  the levels onto the fatter field. That buys what a loft never could — valleys between
+  masses (a sternal valley, a waist, a thigh gap), joints instead of intersections, and a
+  slight A-pose. Two lessons that cost a debug cycle each: a sub-voxel gap between two
+  surfaces welds them in the grid and the weld tears when it morphs, so the arm must
+  clear the flank by a couple of voxels; and fat that *translates* a part (the arms swing
+  out as the body widens) scrambles nearest-point projection, so the known shift is
+  applied to those vertices before the projection handles the inflation.
 * One axis only, still: body fat. Lean mass rides on the chart. See the argument in §5 of
   the earlier plan, which still holds.
 

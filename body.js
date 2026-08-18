@@ -226,6 +226,8 @@ export function mount(canvas) {
   tick();
 
   const api = {
+    // Turn to an exact angle — used by the preview harness, harmless to keep.
+    view(rad) { spin = rad; vel = 0; pivot.rotation.y = spin; dirty = true; },
     set(sex, bf, ht) {
       want.bf = bf;
       if (ht) want.ht = ht;

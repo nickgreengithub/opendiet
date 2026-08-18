@@ -1,10 +1,24 @@
 #!/usr/bin/env python3
-"""Generate the placeholder body meshes the calc app morphs.
+"""Generate the body meshes the calc app morphs.
 
-This is a stand-in for MB-Lab. It writes a glTF 2.0 binary (.glb) holding one
-lofted humanoid with a stack of morph targets, one per body-fat level — exactly
-the shape of file the MB-Lab bake produces, so when the real export lands it
-drops into the same loader with no code change.
+This is still a stand-in for a sculpted mesh (MB-Lab via tools/mblab_bake.py),
+but it is no longer a stack of lofted rings. The body is a signed distance
+field: anatomical masses — ribcage, pelvis, glutes, breasts, deltoids, a head,
+tapered limbs — blended into ONE continuous surface with smooth minimums. That
+buys the three things a ring loft can never have:
+
+  * concavities — a sternal valley, a waist, a gap between the thighs — because
+    valleys appear naturally BETWEEN blended convex masses;
+  * joints instead of intersections — a deltoid wraps the arm into the torso,
+    a hip wraps the thigh into the pelvis, so there is no seam line for the eye
+    to read as "two objects";
+  * a pose — arms in a slight A-pose with a bent elbow, feet turned a little
+    out, which is how a person stands rather than how a mannequin is stored.
+
+The leanest body is meshed once with naive surface nets over a voxel grid; each
+fatter level is then made by projecting THOSE SAME vertices onto the fatter
+field (Newton steps along the gradient), so every level shares one topology and
+ships as a glTF morph target.
 
     python3 tools/build_body_glb.py
 
@@ -23,225 +37,309 @@ The contract the runtime relies on, and which any replacement must honour:
 """
 
 import json
-import math
 import os
 import struct
+import time
+
+import numpy as np
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(HERE, "data", "body")
 
-SEG = 20          # segments around each ring
-LEVELS = [8, 15, 22, 30, 38, 46]   # body-fat % — the first is the base mesh
+# Per-sex fat levels: the female range starts near essential fat, which the
+# app's slider also enforces, so no morph budget is spent on impossible bodies.
+LEVELS = {"m": [8, 15, 22, 30, 38, 46], "f": [12, 18, 25, 32, 40, 48]}
+VOX = 0.016          # voxel edge for the base mesh, metres
 
 
-# ── the body, as stacks of rings ──────────────────────────────────────────────
-# Each ring is (y, rx, rz, cx, w, fz).
-#
-#   y, rx, rz  height and the two radii of its ellipse
-#   cx         how far off centre it sits
-#   w          how strongly fat lands here — abdomen first in men, hips and
-#              thighs in women, and almost nowhere else
-#   fz         how far the ring pushes FORWARD only
-#
-# fz is what makes a chest a chest. An ellipse that is deep front-to-back bulges
-# backwards as much as forwards, which on a woman reads as a chest on both sides
-# and on a heavy man reads as a barrel. A one-sided bulge is a bust, or a belly.
+# ── SDF primitives, vectorised over an (N,3) array of points ──────────────────
 
-TORSO_M = [
-    # y      rx     rz     cx    w     fz
-    (0.88, 0.072, 0.062, 0.0, 1.05, 0.000),   # crotch
-    (0.93, 0.154, 0.106, 0.0, 1.20, 0.000),
-    (0.96, 0.166, 0.120, 0.0, 1.30, 0.004),   # hips — narrow
-    (1.04, 0.152, 0.114, 0.0, 1.65, 0.020),
-    (1.12, 0.143, 0.106, 0.0, 1.95, 0.032),   # waist — the belly, forward
-    (1.20, 0.158, 0.114, 0.0, 1.55, 0.018),
-    (1.28, 0.182, 0.126, 0.0, 1.00, 0.008),   # chest
-    (1.36, 0.212, 0.126, 0.0, 0.65, 0.000),
-    (1.43, 0.232, 0.116, 0.0, 0.50, 0.000),   # shoulders — wide
-    (1.485, 0.090, 0.086, 0.0, 0.45, 0.000),  # trapezius into the neck
-    (1.55, 0.058, 0.058, 0.0, 0.40, 0.000),
-    (1.60, 0.076, 0.090, 0.0, 0.45, 0.010),   # jaw
-    (1.66, 0.095, 0.104, 0.0, 0.30, 0.006),
-    (1.72, 0.070, 0.076, 0.0, 0.20, 0.000),
-    (1.750, 0.016, 0.016, 0.0, 0.10, 0.000),
-]
-
-TORSO_F = [
-    (0.88, 0.074, 0.064, 0.0, 1.55, 0.000),   # crotch
-    (0.93, 0.168, 0.114, 0.0, 1.50, 0.000),
-    (0.96, 0.182, 0.130, 0.0, 1.55, 0.000),   # hips — wide
-    (1.04, 0.160, 0.118, 0.0, 1.40, 0.006),
-    (1.12, 0.124, 0.100, 0.0, 1.20, 0.014),   # waist — narrow
-    (1.20, 0.132, 0.104, 0.0, 1.15, 0.012),
-    (1.28, 0.142, 0.104, 0.0, 1.05, 0.056),   # bust — forward, not sideways
-    (1.36, 0.160, 0.112, 0.0, 0.70, 0.008),
-    (1.43, 0.174, 0.106, 0.0, 0.50, 0.000),   # shoulders — narrow
-    (1.485, 0.076, 0.074, 0.0, 0.45, 0.000),
-    (1.55, 0.049, 0.049, 0.0, 0.40, 0.000),   # neck — slender
-    (1.60, 0.068, 0.082, 0.0, 0.45, 0.008),
-    (1.66, 0.088, 0.096, 0.0, 0.30, 0.005),
-    (1.72, 0.064, 0.070, 0.0, 0.20, 0.000),
-    (1.750, 0.016, 0.016, 0.0, 0.10, 0.000),
-]
-
-# The thighs now begin at the hip rather than below it, and at the hip they are
-# as wide as the pelvis is. Starting them lower and narrower is what made them
-# read as two posts propped under a torso rather than part of one body.
-LEG_M = [
-    (1.02, 0.088, 0.088, 0.085, 1.25, 0.000),
-    (0.94, 0.099, 0.099, 0.085, 1.40, 0.000),
-    (0.86, 0.096, 0.098, 0.084, 1.55, 0.000),   # thigh
-    (0.70, 0.082, 0.085, 0.084, 1.30, 0.000),
-    (0.54, 0.061, 0.065, 0.086, 0.85, 0.000),   # knee
-    (0.42, 0.068, 0.071, 0.088, 0.95, 0.000),   # calf
-    (0.24, 0.050, 0.053, 0.090, 0.60, 0.000),
-    (0.09, 0.037, 0.040, 0.092, 0.35, 0.000),   # ankle
-    (0.015, 0.046, 0.060, 0.092, 0.25, 0.055),  # foot, pointing forward
-]
-
-LEG_F = [
-    (1.02, 0.094, 0.094, 0.095, 1.45, 0.000),
-    (0.94, 0.105, 0.103, 0.097, 1.55, 0.000),
-    (0.86, 0.103, 0.104, 0.098, 1.70, 0.000),   # thigh
-    (0.70, 0.083, 0.086, 0.097, 1.35, 0.000),
-    (0.54, 0.057, 0.061, 0.095, 0.85, 0.000),
-    (0.42, 0.063, 0.066, 0.094, 0.95, 0.000),
-    (0.24, 0.045, 0.048, 0.093, 0.55, 0.000),
-    (0.09, 0.033, 0.036, 0.092, 0.35, 0.000),
-    (0.015, 0.042, 0.056, 0.092, 0.25, 0.050),
-]
-
-# Arms hang against the body rather than out from it.
-ARM_M = [
-    (1.46, 0.050, 0.050, 0.204, 0.70, 0.000),   # buried in the shoulder
-    (1.40, 0.058, 0.058, 0.211, 0.70, 0.000),
-    (1.28, 0.052, 0.052, 0.219, 0.85, 0.000),   # upper arm
-    (1.14, 0.045, 0.045, 0.226, 0.75, 0.000),
-    (1.05, 0.040, 0.040, 0.231, 0.55, 0.000),   # elbow
-    (0.95, 0.037, 0.037, 0.235, 0.55, 0.000),
-    (0.84, 0.028, 0.028, 0.239, 0.35, 0.000),   # wrist
-    (0.74, 0.033, 0.028, 0.241, 0.25, 0.000),   # hand
-]
-
-ARM_F = [
-    (1.46, 0.039, 0.039, 0.152, 0.75, 0.000),
-    (1.40, 0.045, 0.045, 0.158, 0.75, 0.000),
-    (1.28, 0.040, 0.040, 0.166, 0.95, 0.000),
-    (1.14, 0.034, 0.034, 0.173, 0.80, 0.000),
-    (1.05, 0.030, 0.030, 0.178, 0.55, 0.000),
-    (0.95, 0.028, 0.028, 0.182, 0.55, 0.000),
-    (0.84, 0.022, 0.022, 0.186, 0.35, 0.000),
-    (0.74, 0.028, 0.023, 0.188, 0.25, 0.000),
-]
+def sd_ellipsoid(P, c, r):
+    q = (P - np.asarray(c)) / np.asarray(r)
+    k0 = np.linalg.norm(q, axis=1)
+    k1 = np.linalg.norm(q / np.asarray(r), axis=1)
+    return k0 * (k0 - 1.0) / np.maximum(k1, 1e-9)
 
 
-def loft(rings, mirror, fat):
-    """One tube of rings into (verts, tris). fat is (bf - base)/100."""
-    verts, tris = [], []
-    sign = -1.0 if mirror else 1.0
-    for (y, rx, rz, cx, w, fz) in rings:
-        # Radii grow with fat, weighted by where on the body the ring sits.
-        #
-        # The coefficient is not free. Going from 8% body fat to 46% at constant
-        # lean mass is about 1.7x the body mass, so about 1.7x the volume; at a
-        # fixed height that is 1.3x the radius if it landed evenly. It does not
-        # land evenly, so the places that take it reach about 1.7x and the limbs
-        # about 1.15x, which averages back to roughly the right body.
-        k = 1.0 + max(-0.45, fat * w * 0.98)
-        kz = 1.0 + max(-0.45, fat * w * 1.22)   # depth grows faster than width
-        # The forward bulge grows with fat too — a belly is not a wider waist, it
-        # is a waist that comes out at the front.
-        kf = 1.0 + max(-0.7, fat * w * 1.7)
-        for i in range(SEG):
-            a = 2.0 * math.pi * i / SEG
-            sa, ca = math.sin(a), math.cos(a)
-            front = sa * sa if sa > 0 else 0.0
-            verts.append((sign * cx + rx * k * ca, y, rz * kz * sa + fz * kf * front))
-    for r in range(len(rings) - 1):
-        for i in range(SEG):
-            a0 = r * SEG + i
-            a1 = r * SEG + (i + 1) % SEG
-            b0 = a0 + SEG
-            b1 = a1 + SEG
-            if mirror:
-                tris += [(a0, a1, b1), (a0, b1, b0)]
-            else:
-                tris += [(a0, b1, a1), (a0, b0, b1)]
+def sd_sphere(P, c, r):
+    return np.linalg.norm(P - np.asarray(c), axis=1) - r
+
+
+def sd_roundcone(P, a, b, r1, r2):
+    """A tapered capsule — the natural shape of a limb segment (Quilez)."""
+    a = np.asarray(a, float)
+    b = np.asarray(b, float)
+    ba = b - a
+    l2 = float(ba @ ba)
+    rr = r1 - r2
+    a2 = l2 - rr * rr
+    il2 = 1.0 / l2
+    pa = P - a
+    y = pa @ ba
+    z = y - l2
+    w = pa * l2 - np.outer(y, ba)
+    x2 = np.einsum("ij,ij->i", w, w)
+    z2 = z * z * l2
+    y2 = y * y * l2
+    k = np.sign(rr) * rr * rr * x2
+    d = (np.sqrt(np.maximum(x2 * a2 * il2, 0)) + y * rr) * il2 - r1
+    d = np.where(np.sign(z) * a2 * z2 > k,
+                 np.sqrt(np.maximum(x2 + z2, 0)) * il2 - r2, d)
+    d = np.where(np.sign(y) * a2 * y2 < k,
+                 np.sqrt(np.maximum(x2 + y2, 0)) * il2 - r1, d)
+    return d
+
+
+def smin(a, b, k):
+    """Polynomial smooth minimum: the flesh between two masses."""
+    h = np.clip(0.5 + 0.5 * (b - a) / k, 0.0, 1.0)
+    return b * (1.0 - h) + a * h - k * h * (1.0 - h)
+
+
+# ── the body ──────────────────────────────────────────────────────────────────
+# Positions in metres: feet at y=0, crown near 1.75, +z forward. f is fat as a
+# 0..1 fraction across this sex's LEVELS span. Each mass grows by its own
+# factor — abdomen first on a man, hips, thighs and bust on a woman — and a
+# thin "skin" offset inflates everything else a little.
+
+def sdf_body(P, sex, f):
+    m = sex == "m"
+    E, S, RC = sd_ellipsoid, sd_sphere, sd_roundcone
+
+    def g(base, gain):                 # a dimension that grows with fat
+        return base * (1.0 + gain * f)
+
+    shx = 0.180 if m else 0.148        # shoulder joint x
+    hipx = 0.086 if m else 0.094       # hip joint x
+
+    # torso chain: ribcage → abdomen → pelvis. The waist is not drawn — it is
+    # the narrowness of the abdomen between two wider masses.
+    d = E(P, (0, 1.315, 0.005),
+          (g(0.148 if m else 0.120, 0.10), 0.155,
+           g(0.106 if m else 0.092, 0.18)))
+    d = smin(d, E(P, (0, 1.115, 0.008 + f * (0.050 if m else 0.028)),
+                  (g(0.108 if m else 0.096, 0.95 if m else 0.72),
+                   0.135,
+                   g(0.085 if m else 0.078, 1.55 if m else 0.95))), 0.055)
+    d = smin(d, E(P, (0, 0.965, 0.0),
+                  (g(0.120 if m else 0.136, 0.42 if m else 0.62),
+                   0.110,
+                   g(0.090 if m else 0.094, 0.45 if m else 0.50))), 0.055)
+
+    # glutes: two masses, so the surface between them is a real crease.
+    gr = g(0.059 if m else 0.066, 0.55 if m else 0.80)
+    gz = -0.064 - f * 0.015
+    d = smin(d, S(P, (+0.058, 0.975, gz), gr), 0.050)
+    d = smin(d, S(P, (-0.058, 0.975, gz), gr), 0.050)
+
+    # hip pads — the width a woman carries at the trochanter.
+    if not m:
+        hr = (g(0.048, 0.90), 0.095, 0.070)
+        d = smin(d, E(P, (+0.108, 0.960, 0.0), hr), 0.045)
+        d = smin(d, E(P, (-0.108, 0.960, 0.0), hr), 0.045)
+
+    # upper chest, so the clavicle region is a plane rather than a hollow.
+    d = smin(d, E(P, (0, 1.400, 0.026),
+                  (0.104 if m else 0.088, 0.058, 0.048)), 0.050)
+
+    # chest: pectorals on a man, a bust on a woman. Two masses either way, and
+    # the sternal valley between them is the blend refusing to fill it.
+    if m:
+        pr = (0.066, 0.054, g(0.048, 0.8))
+        d = smin(d, E(P, (+0.063, 1.338, 0.066), pr), 0.045)
+        d = smin(d, E(P, (-0.063, 1.338, 0.066), pr), 0.045)
+    else:
+        br = g(0.051, 0.62)
+        bz = 0.074 + f * 0.020
+        d = smin(d, E(P, (+0.061, 1.315, bz),
+                      (br, br * 0.95, g(0.050, 0.85))), 0.036)
+        d = smin(d, E(P, (-0.061, 1.315, bz),
+                      (br, br * 0.95, g(0.050, 0.85))), 0.036)
+
+    # trapezius: the slope from neck to shoulder that a tube body never has.
+    d = smin(d, RC(P, (0.015, 1.488, -0.012),
+                   (+shx * 0.94, 1.428, -0.006), 0.032, 0.040), 0.045)
+    d = smin(d, RC(P, (-0.015, 1.488, -0.012),
+                   (-shx * 0.94, 1.428, -0.006), 0.032, 0.040), 0.045)
+
+    # arms: deltoid, upper arm, forearm, hand, in a slight A-pose with a bent
+    # elbow. The deltoid joins the arm to the body instead of crossing it.
+    ao = f * 0.055                     # a wider body pushes the arms out
+    for sgn in (+1.0, -1.0):
+        sh = (sgn * (shx + ao * 0.5), 1.412, 0.0)
+        el = (sgn * (shx + 0.082 + ao), 1.130, 0.012)
+        wr = (sgn * (shx + 0.128 + ao), 0.882, 0.038)
+        d = smin(d, S(P, sh, g(0.049 if m else 0.042, 0.30)), 0.055)
+        d = smin(d, RC(P, sh, el, g(0.045 if m else 0.038, 0.42),
+                       g(0.035 if m else 0.029, 0.42)), 0.038)
+        d = smin(d, RC(P, el, wr, g(0.038 if m else 0.031, 0.35),
+                       g(0.025 if m else 0.021, 0.30)), 0.034)
+        d = smin(d, E(P, (wr[0] + sgn * 0.004, 0.798, 0.048),
+                      (0.023, 0.066, 0.033)), 0.026)
+
+    # neck and head.
+    d = smin(d, RC(P, (0, 1.445, -0.006), (0, 1.590, 0.002),
+                   g(0.051 if m else 0.043, 0.50),
+                   0.046 if m else 0.040), 0.040)
+    d = smin(d, E(P, (0, 1.652, -0.004),
+                  (0.079 if m else 0.075, 0.104, 0.092)), 0.045)
+    d = smin(d, E(P, (0, 1.588, 0.038),
+                  (0.058 if m else 0.053, g(0.042, 0.35), 0.052)), 0.030)
+
+    # legs: thigh into the pelvis, a knee, a calf with a belly, an ankle, a
+    # foot pointing forward and a little out.
+    for sgn in (+1.0, -1.0):
+        hip = (sgn * hipx, 0.965, 0.0)
+        knee = (sgn * (hipx + 0.006), 0.505, -0.004)
+        ank = (sgn * (hipx + 0.012), 0.078, -0.018)
+        d = smin(d, RC(P, hip, knee,
+                       g(0.079 if m else 0.077, 0.55 if m else 0.85),
+                       0.052), 0.055)
+        d = smin(d, S(P, (knee[0], 0.505, 0.006), 0.045), 0.050)
+        d = smin(d, RC(P, knee, ank, 0.048, 0.028), 0.040)
+        d = smin(d, E(P, (knee[0] + sgn * 0.002, 0.385, -0.022),
+                      (0.043, 0.085, g(0.049, 0.30))), 0.035)
+        d = smin(d, E(P, (ank[0] + sgn * 0.010, 0.038, 0.045),
+                      (0.042, 0.038, 0.108)), 0.028)
+
+    # subcutaneous layer: everything gains a little, so a fat wrist and a fat
+    # jaw exist without their own masses.
+    return d - (0.002 + 0.011 * f)
+
+
+# ── meshing: naive surface nets over a voxel grid ────────────────────────────
+
+CUBE = [(0, 0, 0), (1, 0, 0), (0, 1, 0), (1, 1, 0),
+        (0, 0, 1), (1, 0, 1), (0, 1, 1), (1, 1, 1)]
+EDGES = [(0, 1), (2, 3), (4, 5), (6, 7), (0, 2), (1, 3), (4, 6), (5, 7),
+         (0, 4), (1, 5), (2, 6), (3, 7)]
+
+
+def surface_nets(sdf, lo, hi, h):
+    xs = np.arange(lo[0], hi[0] + h, h)
+    ys = np.arange(lo[1], hi[1] + h, h)
+    zs = np.arange(lo[2], hi[2] + h, h)
+    GX, GY, GZ = np.meshgrid(xs, ys, zs, indexing="ij")
+    P = np.stack([GX.ravel(), GY.ravel(), GZ.ravel()], axis=1)
+    F = sdf(P).reshape(GX.shape)
+    nx, ny, nz = F.shape[0] - 1, F.shape[1] - 1, F.shape[2] - 1
+
+    corner = [F[dx:dx + nx, dy:dy + ny, dz:dz + nz] for (dx, dy, dz) in CUBE]
+    mn = np.minimum.reduce(corner)
+    mx = np.maximum.reduce(corner)
+    cells = np.argwhere((mn < 0) & (mx >= 0))
+
+    # one vertex per surface cell, at the mean of its edge crossings
+    cid = -np.ones((nx, ny, nz), dtype=np.int64)
+    verts = np.zeros((len(cells), 3))
+    for n, (i, j, k) in enumerate(cells):
+        cid[i, j, k] = n
+        acc = np.zeros(3)
+        cnt = 0
+        fv = [F[i + dx, j + dy, k + dz] for (dx, dy, dz) in CUBE]
+        pv = [(xs[i + dx], ys[j + dy], zs[k + dz]) for (dx, dy, dz) in CUBE]
+        for (a, b) in EDGES:
+            fa, fb = fv[a], fv[b]
+            if (fa < 0) != (fb < 0):
+                t = fa / (fa - fb)
+                pa, pb = np.array(pv[a]), np.array(pv[b])
+                acc += pa + t * (pb - pa)
+                cnt += 1
+        verts[n] = acc / max(cnt, 1)
+
+    # one quad per sign-changing sample edge, joining the four cells around it
+    tris = []
+
+    def emit(c4, flip):
+        a, b, c, dq = c4
+        if a < 0 or b < 0 or c < 0 or dq < 0:
+            return
+        quad = (a, dq, c, b) if flip else (a, b, c, dq)
+        tris.append((quad[0], quad[1], quad[2]))
+        tris.append((quad[0], quad[2], quad[3]))
+
+    cross = (F[:-1, :, :] < 0) != (F[1:, :, :] < 0)
+    for (i, j, k) in np.argwhere(cross):
+        if 1 <= j <= ny - 1 and 1 <= k <= nz - 1 and i <= nx - 1:
+            emit((cid[i, j, k], cid[i, j - 1, k],
+                  cid[i, j - 1, k - 1], cid[i, j, k - 1]), F[i, j, k] >= 0)
+    cross = (F[:, :-1, :] < 0) != (F[:, 1:, :] < 0)
+    for (i, j, k) in np.argwhere(cross):
+        if 1 <= i <= nx - 1 and 1 <= k <= nz - 1 and j <= ny - 1:
+            emit((cid[i, j, k], cid[i, j, k - 1],
+                  cid[i - 1, j, k - 1], cid[i - 1, j, k]), F[i, j, k] >= 0)
+    cross = (F[:, :, :-1] < 0) != (F[:, :, 1:] < 0)
+    for (i, j, k) in np.argwhere(cross):
+        if 1 <= i <= nx - 1 and 1 <= j <= ny - 1 and k <= nz - 1:
+            emit((cid[i, j, k], cid[i - 1, j, k],
+                  cid[i - 1, j - 1, k], cid[i, j - 1, k]), F[i, j, k] >= 0)
+
+    tris = np.asarray(tris, dtype=np.int64)
+    # orientation settled once, by signed volume — outward is positive
+    vol = np.einsum("ij,ij->i", verts[tris[:, 0]],
+                    np.cross(verts[tris[:, 1]], verts[tris[:, 2]])).sum() / 6.0
+    if vol < 0:
+        tris = tris[:, ::-1]
     return verts, tris
 
 
-def cap(verts, tris, ring_start, flip):
-    """Close a tube end with a fan to its centroid."""
-    cx = sum(verts[ring_start + i][0] for i in range(SEG)) / SEG
-    cy = sum(verts[ring_start + i][1] for i in range(SEG)) / SEG
-    cz = sum(verts[ring_start + i][2] for i in range(SEG)) / SEG
-    c = len(verts)
-    verts.append((cx, cy, cz))
-    for i in range(SEG):
-        a = ring_start + i
-        b = ring_start + (i + 1) % SEG
-        tris.append((c, b, a) if flip else (c, a, b))
-    return c
+def project(verts, sdf, steps=8):
+    """Slide each vertex along the gradient onto sdf = 0."""
+    v = verts.copy()
+    eps = 1e-3
+    for _ in range(steps):
+        d = sdf(v)
+        gr = np.zeros_like(v)
+        for ax in range(3):
+            o = np.zeros(3)
+            o[ax] = eps
+            gr[:, ax] = (sdf(v + o) - sdf(v - o)) / (2 * eps)
+        gr /= np.maximum(np.linalg.norm(gr, axis=1, keepdims=True), 1e-9)
+        v -= gr * d[:, None]
+    return v
 
 
-def build(sex, fat):
-    torso = TORSO_F if sex == "f" else TORSO_M
-    leg = LEG_F if sex == "f" else LEG_M
-    arm = ARM_F if sex == "f" else ARM_M
-    verts, tris = [], []
-    # (cap_start, cap_end): the torso closes at both ends — crown and crotch — and
-    # the legs are open at the top because the torso already fills that space.
-    for rings, mirror, caps in ((torso, False, (True, True)),
-                               (leg, False, (True, True)), (leg, True, (True, True)),
-                               (arm, False, (True, True)), (arm, True, (True, True))):
-        off = len(verts)
-        v, t = loft(rings, mirror, fat)
-        verts += v
-        tris += [(a + off, b + off, c + off) for (a, b, c) in t]
-        if caps[0]:
-            cap(verts, tris, off, mirror)
-        if caps[1]:
-            cap(verts, tris, off + (len(rings) - 1) * SEG, not mirror)
-    return verts, tris
-
-
-def normals(verts, tris):
-    n = [[0.0, 0.0, 0.0] for _ in verts]
+def neighbours(nv, tris):
+    nb = [set() for _ in range(nv)]
     for (a, b, c) in tris:
-        ax, ay, az = verts[a]
-        bx, by, bz = verts[b]
-        cx, cy, cz = verts[c]
-        ux, uy, uz = bx - ax, by - ay, bz - az
-        vx, vy, vz = cx - ax, cy - ay, cz - az
-        fx, fy, fz = uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx
-        for i in (a, b, c):
-            n[i][0] += fx
-            n[i][1] += fy
-            n[i][2] += fz
-    out = []
-    for (x, y, z) in n:
-        m = math.sqrt(x * x + y * y + z * z) or 1.0
-        out.append((x / m, y / m, z / m))
-    return out
+        nb[a].update((b, c))
+        nb[b].update((a, c))
+        nb[c].update((a, b))
+    return [np.fromiter(s, dtype=np.int64) for s in nb]
 
+
+def relax(verts, tris, sdf, rounds=3, lam=0.5):
+    """Laplacian smoothing with re-projection: the voxel grain goes without the
+    limbs shrinking."""
+    nb = neighbours(len(verts), tris)
+    v = verts.copy()
+    for _ in range(rounds):
+        avg = np.stack([v[n].mean(axis=0) if len(n) else v[i]
+                        for i, n in enumerate(nb)])
+        v = v * (1 - lam) + avg * lam
+        v = project(v, sdf, steps=3)
+    return v
+
+
+def vert_normals(v, tris):
+    n = np.zeros_like(v)
+    fn = np.cross(v[tris[:, 1]] - v[tris[:, 0]], v[tris[:, 2]] - v[tris[:, 0]])
+    for i in range(3):
+        np.add.at(n, tris[:, i], fn)
+    ln = np.linalg.norm(n, axis=1, keepdims=True)
+    ln[ln == 0] = 1
+    return n / ln
+
+
+# ── glTF writer (unchanged contract) ─────────────────────────────────────────
 
 def pad4(b, fill=b"\x00"):
-    """glTF chunks are 4-byte aligned. The JSON chunk must be padded with SPACES,
-    not nulls — a JSON parser will choke on a trailing NUL, and it only shows up
-    when the payload length happens not to already be a multiple of four."""
+    """glTF chunks are 4-byte aligned. The JSON chunk must be padded with
+    SPACES, not nulls — a JSON parser will choke on a trailing NUL."""
     return b + fill * ((4 - len(b) % 4) % 4)
 
 
-def write_glb(path, sex):
-    base_bf = LEVELS[0]
-    base_v, tris = build(sex, 0.0)
-    base_n = normals(base_v, tris)
-
-    shapes = []
-    for bf in LEVELS[1:]:
-        v, _ = build(sex, (bf - base_bf) / 100.0)
-        shapes.append((v, normals(v, tris)))
-
+def write_glb(path, sex, base_v, base_n, tris, targets, levels):
     buf = bytearray()
     views, accs = [], []
 
@@ -254,42 +352,29 @@ def write_glb(path, sex):
                      | ({"target": target} if target else {}))
         a = {"bufferView": len(views) - 1, "componentType": comp,
              "count": count, "type": typ}
-        if mn:
+        if mn is not None:
             a["min"], a["max"] = mn, mx
         accs.append(a)
         return len(accs) - 1
 
     def vec3(vs):
-        d = bytearray()
-        mn = [1e9] * 3
-        mx = [-1e9] * 3
-        for v in vs:
-            d.extend(struct.pack("<3f", *v))
-            for i in range(3):
-                mn[i] = min(mn[i], v[i])
-                mx[i] = max(mx[i], v[i])
-        return bytes(d), mn, mx
+        arr = np.asarray(vs, dtype="<f4")
+        return arr.tobytes(), arr.min(axis=0).tolist(), arr.max(axis=0).tolist()
 
     d, mn, mx = vec3(base_v)
     a_pos = add(d, 34962, 5126, "VEC3", len(base_v), mn, mx)
     d, _, _ = vec3(base_n)
     a_nrm = add(d, 34962, 5126, "VEC3", len(base_n))
-    idx = bytearray()
-    for t in tris:
-        idx.extend(struct.pack("<3I", *t))
-    a_idx = add(bytes(idx), 34963, 5125, "SCALAR", len(tris) * 3)
+    a_idx = add(np.asarray(tris, dtype="<u4").tobytes(),
+                34963, 5125, "SCALAR", len(tris) * 3)
 
-    targets = []
-    for (v, n) in shapes:
-        dv = [(v[i][0] - base_v[i][0], v[i][1] - base_v[i][1], v[i][2] - base_v[i][2])
-              for i in range(len(v))]
-        dn = [(n[i][0] - base_n[i][0], n[i][1] - base_n[i][1], n[i][2] - base_n[i][2])
-              for i in range(len(n))]
-        d, mn, mx = vec3(dv)
-        tp = add(d, 34962, 5126, "VEC3", len(dv), mn, mx)
-        d, _, _ = vec3(dn)
-        tn = add(d, 34962, 5126, "VEC3", len(dn))
-        targets.append({"POSITION": tp, "NORMAL": tn})
+    tgt = []
+    for (v, n) in targets:
+        d, mn, mx = vec3(v - base_v)
+        tp = add(d, 34962, 5126, "VEC3", len(v), mn, mx)
+        d, _, _ = vec3(n - base_n)
+        tn = add(d, 34962, 5126, "VEC3", len(n))
+        tgt.append({"POSITION": tp, "NORMAL": tn})
 
     gltf = {
         "asset": {"version": "2.0", "generator": "opendiet/build_body_glb.py"},
@@ -298,16 +383,16 @@ def write_glb(path, sex):
         "nodes": [{"mesh": 0, "name": "body"}],
         "meshes": [{
             "name": "body",
-            "weights": [0.0] * len(targets),
+            "weights": [0.0] * len(tgt),
             "primitives": [{
                 "attributes": {"POSITION": a_pos, "NORMAL": a_nrm},
                 "indices": a_idx,
-                "targets": targets
+                "targets": tgt
             }],
             "extras": {
-                "bodyFat": LEVELS,
+                "bodyFat": levels,
                 "sex": sex,
-                "targetNames": ["bf%d" % b for b in LEVELS[1:]]
+                "targetNames": ["bf%d" % b for b in levels[1:]]
             }
         }],
         "accessors": accs,
@@ -318,19 +403,72 @@ def write_glb(path, sex):
     js = pad4(json.dumps(gltf, separators=(",", ":")).encode("utf-8"), b" ")
     bn = pad4(bytes(buf))
     total = 12 + 8 + len(js) + 8 + len(bn)
-    with open(path, "wb") as f:
-        f.write(struct.pack("<III", 0x46546C67, 2, total))
-        f.write(struct.pack("<II", len(js), 0x4E4F534A))
-        f.write(js)
-        f.write(struct.pack("<II", len(bn), 0x004E4942))
-        f.write(bn)
-    return len(base_v), len(tris), total
+    with open(path, "wb") as fh:
+        fh.write(struct.pack("<III", 0x46546C67, 2, total))
+        fh.write(struct.pack("<II", len(js), 0x4E4F534A))
+        fh.write(js)
+        fh.write(struct.pack("<II", len(bn), 0x004E4942))
+        fh.write(bn)
+    return total
+
+
+def build(sex):
+    levels = LEVELS[sex]
+    span = levels[-1] - levels[0]
+    t0 = time.time()
+
+    def sdf_at(bf):
+        f = (bf - levels[0]) / span
+        return lambda P: sdf_body(np.atleast_2d(P), sex, f)
+
+    base_sdf = sdf_at(levels[0])
+    lo, hi = (-0.43, -0.02, -0.20), (0.43, 1.80, 0.24)
+    v, tris = surface_nets(base_sdf, lo, hi, VOX)
+    v = relax(v, tris, base_sdf)
+    n = vert_normals(v, tris)
+
+    # Fatter levels are reached by walking THROUGH the levels rather than
+    # jumping to each from the base: every step is a small inflation, so where
+    # two surfaces close on each other — an arm against a flank, a bust onto a
+    # belly — the vertices are carried outward gradually instead of being torn
+    # between the two sides of a gap that no longer exists.
+    #
+    # The arms need one more courtesy. Fat does not only inflate them, it
+    # TRANSLATES them (the ao term): a sideways shift larger than the arm's own
+    # radius scrambles nearest-point correspondence — inner-wall vertices land
+    # on the outer wall and the tube crumples. So the known shift is applied to
+    # the arm vertices first, and the projection is left with nothing to do but
+    # the inflation it is good at.
+    def prewarp(vv, dao):
+        x, y = vv[:, 0], vv[:, 1]
+        wx = np.clip((np.abs(x) - 0.13) / 0.05, 0, 1)
+        wy = np.clip((y - 0.70) / 0.10, 0, 1) * np.clip((1.47 - y) / 0.12, 0, 1)
+        out = vv.copy()
+        out[:, 0] += np.sign(x) * dao * wx * wy
+        return out
+
+    targets = []
+    cur = v
+    fprev = 0.0
+    for bf in levels[1:]:
+        fnow = (bf - levels[0]) / span
+        sdf = sdf_at(bf)
+        cur = prewarp(cur, (fnow - fprev) * 0.055)
+        cur = project(cur, sdf, steps=10)
+        # A light touch only: a strong relax averages small features — the
+        # hands — out of existence before the projection can put them back.
+        cur = relax(cur, tris, sdf, rounds=1, lam=0.22)
+        targets.append((cur.copy(), vert_normals(cur, tris)))
+        fprev = fnow
+
+    path = os.path.join(OUT, "body-%s.glb" % sex)
+    size = write_glb(path, sex, v, n, tris, targets, levels)
+    print("%s  %d verts  %d tris  %d targets  %.0f KB  %.1fs"
+          % (os.path.relpath(path, HERE), len(v), len(tris),
+             len(levels) - 1, size / 1024.0, time.time() - t0))
 
 
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
     for sex in ("m", "f"):
-        p = os.path.join(OUT, "body-%s.glb" % sex)
-        nv, nt, sz = write_glb(p, sex)
-        print("%s  %d verts  %d tris  %d morph targets  %.0f KB"
-              % (os.path.relpath(p, HERE), nv, nt, len(LEVELS) - 1, sz / 1024.0))
+        build(sex)
