@@ -127,16 +127,16 @@ def sdf_body(P, sex, f):
                    g(0.090 if m else 0.094, 0.45 if m else 0.50))), 0.068)
 
     # glutes: two masses, so the surface between them is a real crease.
-    gr = g(0.059 if m else 0.066, 0.55 if m else 0.95)
-    gz = -0.064 - f * 0.015
-    d = smin(d, S(P, (+0.058, 0.975, gz), gr), 0.050)
-    d = smin(d, S(P, (-0.058, 0.975, gz), gr), 0.050)
+    gr = g(0.059 if m else 0.061, 0.55 if m else 0.78)
+    gz = -0.056 - f * 0.012
+    d = smin(d, S(P, (+0.056, 0.975, gz), gr), 0.062)
+    d = smin(d, S(P, (-0.056, 0.975, gz), gr), 0.062)
 
     # hip pads — the width a woman carries at the trochanter.
     if not m:
-        hr = (g(0.050, 0.95), 0.125, 0.072)
-        d = smin(d, E(P, (+0.106, 0.935, 0.0), hr), 0.065)
-        d = smin(d, E(P, (-0.106, 0.935, 0.0), hr), 0.065)
+        hr = (g(0.043, 0.80), 0.125, 0.072)
+        d = smin(d, E(P, (+0.101, 0.935, 0.0), hr), 0.078)
+        d = smin(d, E(P, (-0.101, 0.935, 0.0), hr), 0.078)
 
     # upper chest, so the clavicle region is a plane rather than a hollow.
     d = smin(d, E(P, (0, 1.400, 0.026),
@@ -160,23 +160,23 @@ def sdf_body(P, sex, f):
 
     # trapezius: the slope from neck to shoulder that a tube body never has.
     d = smin(d, RC(P, (0.015, 1.488, -0.012),
-                   (+shx * 0.94, 1.428, -0.006), 0.030, 0.036), 0.050)
+                   (+shx * 0.94, 1.428, -0.006), 0.028, 0.033 if m else 0.030), 0.050)
     d = smin(d, RC(P, (-0.015, 1.488, -0.012),
-                   (-shx * 0.94, 1.428, -0.006), 0.030, 0.036), 0.050)
+                   (-shx * 0.94, 1.428, -0.006), 0.028, 0.033 if m else 0.030), 0.050)
 
     # arms: deltoid, upper arm, forearm, hand, in a slight A-pose with a bent
     # elbow. The deltoid joins the arm to the body instead of crossing it.
     ao = f * 0.055                     # a wider body pushes the arms out
     for sgn in (+1.0, -1.0):
         sh = (sgn * (shx + ao * 0.5), 1.412, 0.0)
-        el = (sgn * (shx + 0.066 + ao), 1.130, 0.012)
-        wr = (sgn * (shx + 0.098 + ao), 0.882, 0.040)
-        d = smin(d, S(P, sh, g(0.049 if m else 0.040, 0.30)), 0.055)
-        d = smin(d, RC(P, sh, el, g(0.045 if m else 0.038, 0.55),
-                       g(0.035 if m else 0.029, 0.48)), 0.038)
-        d = smin(d, RC(P, el, wr, g(0.038 if m else 0.031, 0.40),
-                       g(0.024 if m else 0.020, 0.30)), 0.042)
-        d = smin(d, E(P, (wr[0] + sgn * 0.004, 0.795, 0.044),
+        el = (sgn * (shx + 0.054 + ao), 1.130, 0.008)
+        wr = (sgn * (shx + 0.078 + ao), 0.882, 0.028)
+        d = smin(d, S(P, sh, g(0.049 if m else 0.036, 0.30)), 0.055)
+        d = smin(d, RC(P, sh, el, g(0.045 if m else 0.036, 0.55),
+                       g(0.035 if m else 0.028, 0.48)), 0.038)
+        d = smin(d, RC(P, el, wr, g(0.036 if m else 0.028, 0.45),
+                       g(0.024 if m else 0.019, 0.30)), 0.042)
+        d = smin(d, E(P, (wr[0] + sgn * 0.004, 0.795, 0.036),
                       (0.020, 0.072, 0.029)), 0.026)
 
     # neck and head.
@@ -197,7 +197,7 @@ def sdf_body(P, sex, f):
         d = smin(d, RC(P, hip, knee,
                        g(0.079 if m else 0.078, 0.55 if m else 1.00),
                        g(0.052, 0.18)), 0.060)
-        d = smin(d, S(P, (knee[0], 0.505, 0.006), 0.042), 0.050)
+        d = smin(d, S(P, (knee[0], 0.505, 0.0), 0.038), 0.055)
         d = smin(d, RC(P, knee, ank, 0.048, 0.025), 0.040)
         d = smin(d, E(P, (knee[0] + sgn * 0.002, 0.385, -0.022),
                       (0.043, 0.085, g(0.049, 0.30))), 0.035)
