@@ -1,8 +1,8 @@
 # Calorie calc — plan
 
-**Status: built and live, with the body render still a placeholder.** The seven-step run,
-the model, both sliders and the curves panel are working; where the rotating figure will go
-there is a line-drawn person holding the space. Sections 5 and 8 are the outstanding work.
+**Status: built and live.** The seven-step run, the model, both sliders and the curves
+panel are working, and the rotating figure is a real body — baked from MakeHuman's CC0
+mesh data, morphing continuously across the fat range (§5).
 
 The third app. FOOD SEARCH answers "what is in this?"; CALORIE GAME answers "which is
 bigger?"; CALC answers "how much, and what happens if I hold it?"
@@ -397,8 +397,8 @@ narrative review.* Sports (Basel). 2019;7(7):154.
 
 ## 5. The body
 
-**Built, as a morph-target glTF blended in Three.js. The mesh shipping today is a
-placeholder; the pipeline around it is real.**
+**Built, as a morph-target glTF blended in Three.js. The mesh shipping today is baked
+from MakeHuman's CC0 data — a professionally sculpted body, not our placeholder.**
 
 ### Why not sprite sheets, and why not a generative model
 
@@ -433,15 +433,28 @@ level axis. That makes the result exactly the linear interpolation between the t
 either side and nothing else — and because the deltas are measured from the base rather
 than from each other, only those two are ever non-zero.
 
-### The real bake
+### The bake that shipped
 
-`tools/mblab_bake.py` — MB-Lab (AGPL, Blender 4.x) for the bodies, then Blender for the
-part that must be exact. You build one character per fat level with **only the body-mass
-slider moved**, finalize each, and name them `bf8`, `bf15` and so on; the script joins them
-onto the leanest as shape keys, decimates to about 6,000 triangles, writes the body-fat
-list into the mesh's custom properties and exports the .glb. It refuses to run if the
-levels differ in vertex count, because `join_shapes` maps by index and the failure is
-silent otherwise.
+Hand-tuning a body from primitives turned out to be the trap it looked like: every fix
+exposed the next flaw, asymptotically. The answer was to stop sculpting and take the
+professionals' data. **MakeHuman** (makehumancommunity.org) released its base mesh and
+its entire morph-target library as **CC0** in 2020 — a sculpted, watertight human of
+13,380 body vertices with parametric targets for sex, weight, muscle and dozens of local
+details, refined by that community over roughly fifteen years.
+
+`tools/makehuman_bake.py` composes each fat level *numerically* — no Blender in the
+loop: base mesh + the sex macro target + the weight macro blended the way MakeHuman's
+own slider does it (min/average/max-weight targets cross-faded, muscle held at average).
+MakeHuman's max weight stops at chubby, so the top of our scale extrapolates it past
+1.0 and layers detail targets on top — stomach tone and roundness, hip width and depth,
+buttock volume, per-limb fat — ramped in over the upper half of the range. The arms are
+then lowered from MakeHuman's 45° A-pose to a relaxed 16° by rotating each arm about its
+shoulder joint (position: the centroid of the skeleton's joint-cube vertices), with the
+angle scaled per-vertex by the arm bones' skin weights so the shoulder blends instead of
+creasing. Helper geometry (eyes, teeth, hair proxies) is stripped, quads triangulated,
+and the result written through `build_body_glb.write_glb` — same contract, no runtime
+change. `tools/mblab_bake.py` (MB-Lab via Blender) remains as an alternative route to
+the same contract.
 
 ### Reading as a body
 
@@ -482,19 +495,13 @@ dragging through the year *is* the animation.
 
 ### Still to do
 
-* The real MB-Lab bake, eventually — but the placeholder is no longer a lofted stack of
-  rings. It is a **signed distance field**: anatomical masses (ribcage, pelvis, glutes,
-  bust or pectorals, deltoids, tapered limbs) blended into one continuous surface, meshed
-  once with surface nets, with each fat level made by walking the same vertices through
-  the levels onto the fatter field. That buys what a loft never could — valleys between
-  masses (a sternal valley, a waist, a thigh gap), joints instead of intersections, and a
-  slight A-pose. Two lessons that cost a debug cycle each: a sub-voxel gap between two
-  surfaces welds them in the grid and the weld tears when it morphs, so the arm must
-  clear the flank by a couple of voxels; and fat that *translates* a part (the arms swing
-  out as the body widens) scrambles nearest-point projection, so the known shift is
-  applied to those vertices before the projection handles the inflation.
-* One axis only, still: body fat. Lean mass rides on the chart. See the argument in §5 of
-  the earlier plan, which still holds.
+* One axis only, still: body fat. Lean mass rides on the chart — MakeHuman's muscle
+  targets are sitting right there if that ever changes. See the argument in §5 of the
+  earlier plan, which still holds.
+* The retired SDF placeholder (`tools/build_body_glb.py`) still owns the glTF writer the
+  bake imports, and its two hard-won lessons stay recorded there: sub-voxel gaps weld in
+  a voxel grid and tear when morphed, and parts that translate with fat must be prewarped
+  before projection.
 
 ## 6. Mobile screens
 

@@ -171,10 +171,11 @@ trajectory: dragging through the year *is* the animation. Three.js is vendored i
 repo and loaded only when this app is opened, and a browser without WebGL gets a line
 drawing instead.
 
-The mesh shipping today is a placeholder built by `tools/build_body_glb.py`; the real one
-comes from MB-Lab through `tools/mblab_bake.py`, and drops into the same loader because the
-only contract is the one those two files share. [`CALC.md`](CALC.md) is the plan, with
-every equation cited.
+The mesh is baked by `tools/makehuman_bake.py` from the
+[MakeHuman](http://www.makehumancommunity.org/) community's base mesh and morph-target
+library, released CC0 — each fat level is their sculpted body with their own weight and
+fat targets composed numerically, the arms lowered by their skeleton's skin weights, no
+Blender in the loop. [`CALC.md`](CALC.md) is the plan, with every equation cited.
 
 ## The data
 
@@ -248,3 +249,9 @@ you like with it.
 The four portion marks in the calorie game are from
 [Material Design Icons](https://pictogrammers.com/library/mdi/), used under the Apache
 License 2.0 and inlined as SVG paths.
+
+The calc app's body meshes are derived from the
+[MakeHuman](http://www.makehumancommunity.org/) project's base mesh and morph targets,
+released by the MakeHuman Team as **CC0** — thank you. The bake is
+`tools/makehuman_bake.py`; the upstream data is not committed here, the script says
+where to fetch it.
