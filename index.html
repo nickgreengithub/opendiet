@@ -380,12 +380,38 @@ option{background:#070b12;color:#d7e6ef}
         <sc-if value="{{ cBackOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ cBack }}" style="{{ cBackS }}" style-hover="color:#22d3ee"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M15 5l-7 7 7 7"></path></svg></button></sc-if>
         <span style="{{ cTitleS }}">{{ cTitle }}</span>
       </span>
+      <sc-if value="{{ cFigOn }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cFigWrap }}">
         <sc-if value="{{ cBody3D }}" hint-placeholder-val="{{ true }}"><canvas data-body style="{{ cCanvasS }}"></canvas></sc-if>
         <sc-if value="{{ cBodySvg }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 64 136" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="{{ cFigS }}"><circle cx="32" cy="14" r="10"></circle><path d="{{ cBodyGlyph }}"></path></svg></sc-if>
       </span>
+      </sc-if>
+      <sc-if value="{{ cQOn }}" hint-placeholder-val="{{ true }}">
+        <span style="{{ cQSpace }}"></span>
+        <span style="{{ cQTitleS }}">{{ cQ }}</span>
+      </sc-if>
       <sc-if value="{{ cIsSex }}" hint-placeholder-val="{{ true }}">
         <span style="{{ cSexRow }}"><sc-for list="{{ cSexTiles }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)">{{ t.label }}</button></sc-for></span>
+      </sc-if>
+      <sc-if value="{{ cIsNumQ }}" hint-placeholder-val="{{ false }}">
+        <span style="{{ cQValRow }}"><span style="{{ cQValS }}">{{ cField.val }}</span><span style="{{ cQValUnit }}">{{ cField.unit }}</span></span>
+        <input type="range" min="{{ cField.min }}" max="{{ cField.max }}" step="1" value="{{ cField.val }}" onChange="{{ cField.onSlide }}">
+      </sc-if>
+      <sc-if value="{{ cIsDay }}" hint-placeholder-val="{{ false }}">
+        <span style="{{ cCol }}"><sc-for list="{{ cDayTiles }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span></button></sc-for></span>
+      </sc-if>
+      <sc-if value="{{ cIsTrain }}" hint-placeholder-val="{{ false }}">
+        <span style="{{ cQValRow }}"><span style="{{ cQValS }}">{{ cTrainN }}</span><span style="{{ cQValUnit }}">SESSIONS A WEEK</span></span>
+        <input type="range" min="0" max="14" step="1" value="{{ cTrainN }}" onChange="{{ cTrainNSlide }}">
+        <sc-if value="{{ cTrainDetail }}" hint-placeholder-val="{{ true }}">
+          <span style="{{ cSubRow }}"><span style="{{ cSubVal }}">{{ cTrainMin }}</span><span style="{{ cValUnit }}">MINUTES EACH</span></span>
+          <input type="range" min="10" max="180" step="5" value="{{ cTrainMin }}" onChange="{{ cTrainMinSlide }}">
+          <span style="{{ cMetRow }}"><sc-for list="{{ cMetTiles }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)">{{ t.label }}</button></sc-for></span>
+        </sc-if>
+      </sc-if>
+      <sc-if value="{{ cQOn }}" hint-placeholder-val="{{ true }}">
+        <sc-if value="{{ cQNextOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ cNext }}" style="{{ cQNextS }}" style-hover="border-color:rgba(34,211,238,.85);background:rgba(34,211,238,.18)">NEXT<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button></sc-if>
+        <span style="{{ cQSpace2 }}"></span>
       </sc-if>
       <sc-if value="{{ cIsNum }}" hint-placeholder-val="{{ false }}">
         <span style="{{ cValRow }}"><span style="{{ cValS }}">{{ cField.val }}</span><span style="{{ cValUnit }}">{{ cField.unit }}</span></span>
@@ -400,21 +426,6 @@ option{background:#070b12;color:#d7e6ef}
           <input type="range" min="{{ cBfMin }}" max="{{ cBfMax }}" step="1" value="{{ cBfVal }}" onChange="{{ cBfSlide }}">
           <button onClick="{{ cNext }}" style="{{ cGoS }}" style-hover="border-color:rgba(34,211,238,.85);background:rgba(34,211,238,.18)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button>
         </span>
-      </sc-if>
-      <sc-if value="{{ cIsDay }}" hint-placeholder-val="{{ false }}">
-        <span style="{{ cCol }}"><sc-for list="{{ cDayTiles }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span></button></sc-for></span>
-      </sc-if>
-      <sc-if value="{{ cIsTrain }}" hint-placeholder-val="{{ false }}">
-        <span style="{{ cValRow }}"><span style="{{ cValS }}">{{ cTrainN }}</span><span style="{{ cValUnit }}">SESSIONS A WEEK</span></span>
-        <span style="{{ cFieldRow }}">
-          <input type="range" min="0" max="14" step="1" value="{{ cTrainN }}" onChange="{{ cTrainNSlide }}">
-          <button onClick="{{ cNext }}" style="{{ cGoS }}" style-hover="border-color:rgba(34,211,238,.85);background:rgba(34,211,238,.18)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button>
-        </span>
-        <sc-if value="{{ cTrainDetail }}" hint-placeholder-val="{{ true }}">
-          <span style="{{ cSubRow }}"><span style="{{ cSubVal }}">{{ cTrainMin }}</span><span style="{{ cValUnit }}">MINUTES EACH</span></span>
-          <input type="range" min="10" max="180" step="5" value="{{ cTrainMin }}" onChange="{{ cTrainMinSlide }}">
-          <span style="{{ cMetRow }}"><sc-for list="{{ cMetTiles }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)">{{ t.label }}</button></sc-for></span>
-        </sc-if>
       </sc-if>
     </sc-if>
     <sc-if value="{{ cResOn }}" hint-placeholder-val="{{ false }}">
@@ -4035,7 +4046,11 @@ class Component extends DCLogic {
         // One question a screen, so the body can have the rest of it. A figure that
         // fills the screen is the point of this app; four controls stacked under a
         // thumbnail is not.
-        const STEPS = ["SEX", "AGE", "HEIGHT", "WEIGHT", "BODY FAT", "YOUR DAY", "TRAINING"];
+        // The day and the training come before the body: the first five questions
+        // are quick centred slides, and the figure enters at WEIGHT — the first
+        // question it can actually answer — and stays through BODY FAT and the
+        // result.
+        const STEPS = ["SEX", "AGE", "HEIGHT", "YOUR DAY", "TRAINING", "WEIGHT", "BODY FAT"];
         const FIELDS = [
           { k: "cAge", lab: "AGE", unit: "YEARS", lo: 18, hi: 90, dflt: 30 },
           { k: "cHt", lab: "HEIGHT", unit: "CM", lo: 140, hi: 215, dflt: 175 },
@@ -4099,7 +4114,9 @@ class Component extends DCLogic {
           color: col || "#eaf5fb" });
         return {
           cStepOn: !done, cResOn: done,
-          cTitle: done ? "" : STEPS[step],
+          // On the centred slides the question is the big text mid-screen, so the
+          // header carries only the way back; the title returns with the figure.
+          cTitle: done || step < 5 ? "" : STEPS[step],
           // A bar rather than "STEP 3 OF 7". It says the same thing without asking
           // anyone to do the arithmetic, and it is one line thick.
           cBarTrack: { flex: "none", display: "block", width: "100%", height: "2px",
@@ -4111,13 +4128,20 @@ class Component extends DCLogic {
           cBackOn: step > 0,
           cBack: () => go(step - 1),
           cQuit: () => this.setState({ app: "home" }),
-          cIsSex: step === 0, cIsNum: step >= 1 && step <= 3,
-          cIsBf: step === 4, cIsDay: step === 5, cIsTrain: step === 6,
+          cIsSex: step === 0, cIsNumQ: step === 1 || step === 2,
+          cIsDay: step === 3, cIsTrain: step === 4,
+          cIsNum: step === 5, cIsBf: step === 6,
+          // The first five questions are centred slides without the figure; it
+          // arrives with WEIGHT, the first answer it can show.
+          cFigOn: step >= 5,
+          cQOn: step < 5,
+          cQ: STEPS[step],
+          cQNextOn: step === 1 || step === 2 || step === 4,
           // One field per screen, so this is the field this screen is for.
           cField: (() => {
             // cField is built on every step, not just the three it is for, so the
-            // index has to be clamped at both ends rather than only the bottom.
-            const f = FIELDS[Math.min(FIELDS.length - 1, Math.max(0, step - 1))];
+            // index is pinned per step: age and height early, weight at step 5.
+            const f = FIELDS[step === 5 ? 2 : Math.min(1, Math.max(0, step - 1))];
             const v = clampF(f, s[f.k]);
             return { lab: f.lab, unit: f.unit, val: String(v),
               min: String(f.lo), max: String(f.hi),
@@ -4159,6 +4183,8 @@ class Component extends DCLogic {
           cDayTiles: CALC_DAY.map((d, i) =>
             tile(d.label, "", s.cDay === i, () => set("cDay", i))),
           cTrainN: String(tr.n || 0),
+          cTrainNSlide: e => setTr({ n: Math.max(0, Math.min(14, +e.target.value)) }),
+          cTrainMinSlide: e => setTr({ min: Math.max(10, Math.min(180, +e.target.value)) }),
           cTrainNDec: () => setTr({ n: Math.max(0, (tr.n || 0) - 1) }),
           cTrainNInc: () => setTr({ n: Math.min(14, (tr.n || 0) + 1) }),
           cTrainDetail: (tr.n || 0) > 0,
@@ -4238,6 +4264,31 @@ class Component extends DCLogic {
           // The value is the thing being set, so it is what you read; the slider is
           // the hand on it and the chevron is the way out. Big figure, thin rule,
           // one row.
+          // ── the centred slides ───────────────────────────────────────────────────
+          // Question, big number, slider, NEXT — one thing mid-screen, spacers
+          // above and below so the group floats where the eye already is.
+          cQSpace: { flex: "1 1 0" },
+          cQSpace2: { flex: "1.25 1 0" },
+          cQTitleS: { flex: "none", display: "block", textAlign: "center",
+            fontFamily: "var(--font-2)", fontSize: s.narrow ? "1.25rem" : "1.4rem",
+            letterSpacing: ".28em", textIndent: ".28em", color: "#d7e6ef",
+            paddingBottom: "1.7rem" },
+          cQValRow: { flex: "none", display: "flex", alignItems: "baseline",
+            justifyContent: "center", gap: ".55rem", paddingBottom: "1rem" },
+          cQValS: { fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: s.narrow ? "3.7rem" : "4.2rem", lineHeight: 1,
+            fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
+          cQValUnit: { fontFamily: "var(--font-2)", fontSize: ".95rem",
+            letterSpacing: ".16em", color: "#9fb3c0" },
+          cQNextS: { flex: "none", alignSelf: "center", display: "flex",
+            alignItems: "center", justifyContent: "center", gap: ".55rem",
+            minWidth: "11.5rem", height: "3.2rem", marginTop: "2rem",
+            padding: "0 1.5rem", boxSizing: "border-box", borderRadius: 0,
+            cursor: "pointer", border: "1px solid rgba(34,211,238,.5)",
+            background: "rgba(34,211,238,.08)", color: "#3fdcf2",
+            fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".24em",
+            textIndent: ".24em",
+            transition: "background 160ms ease, border-color 160ms ease" },
           cValRow: { flex: "none", display: "flex", alignItems: "baseline",
             justifyContent: "center", gap: ".45rem", paddingBottom: ".1rem" },
           cValS: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "2.9rem",
