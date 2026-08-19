@@ -149,10 +149,12 @@ online calculator uses is *below* the FAO floor of 1.40 for a sedentary lifestyl
 Harris–Benedict-era convention, not a measured category, and it is one reason calculators
 read low. The app uses the FAO bands.
 
-**Question B — the training you choose.** Sessions per week × minutes × how hard. Priced
-in METs rather than adjectives, which is what makes an explainer possible: a MET is a
-multiple of resting metabolism, so the app can say what each option *is* rather than what
-it is called.
+**Question B — the training you choose.** Asked as one slider: ten steps of weekly burn,
+0 to 2,500 kcal. Nobody knows their sessions × minutes × METs, but everybody can place
+themselves against an equivalence, so each step states what it buys in the easy currency
+and the hard one — "3 hours of brisk walking" against "1 h 10 of running" — with the
+equivalences derived from the MET arithmetic below for a reference 75 kg body. The METs
+are still doing the pricing; they have just moved from the question to the explanation.
 
 ```
 kcal per session ≈ (MET − 1) × weight(kg) × hours

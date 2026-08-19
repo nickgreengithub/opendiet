@@ -407,16 +407,20 @@ option{background:#070b12;color:#d7e6ef}
         </span>
       </sc-if>
       <sc-if value="{{ cIsDay }}" hint-placeholder-val="{{ false }}">
-        <span style="{{ cCol }}"><sc-for list="{{ cDayTiles }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="{{ t.icoS }}"><circle cx="{{ t.cx }}" cy="{{ t.cy }}" r="2"></circle><path d="{{ t.icon }}"></path></svg><span style="{{ t.txtS }}"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.noteS }}">{{ t.note }}</span></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3fdcf2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ t.tickS }}"><path d="M5 12l5 5L20 7"></path></svg></button></sc-for></span>
+        <span style="{{ cCol }}"><sc-for list="{{ cDayTiles }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="{{ t.icoS }}"><circle cx="{{ t.cx }}" cy="{{ t.cy }}" r="2"></circle><path d="{{ t.icon }}"></path></svg><span style="{{ t.txtS }}"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.noteS }}">{{ t.note }}</span></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3fdcf2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ t.tickS }}"><path d="M5 12l5 5L20 7"></path></svg></button></sc-for></span>
       </sc-if>
       <sc-if value="{{ cIsTrain }}" hint-placeholder-val="{{ false }}">
-        <span style="{{ cTrainPanel }}">
-          <span style="{{ cBodyRow }}"><span style="{{ cBodyLab }}">SESSIONS</span><input type="range" min="0" max="14" step="1" value="{{ cTrainN }}" onChange="{{ cTrainNSlide }}" style="{{ cTrainNTrack }}"><span style="{{ cBodyValCell }}"><span style="{{ cBodyVal }}">{{ cTrainN }}</span><span style="{{ cBodyUnit }}">A WK</span></span></span>
-          <span style="{{ cTrainDim }}">
-            <span style="{{ cBodyRow }}"><span style="{{ cBodyLab }}">MINUTES</span><input type="range" min="10" max="180" step="5" value="{{ cTrainMin }}" onChange="{{ cTrainMinSlide }}" style="{{ cTrainMinTrack }}"><span style="{{ cBodyValCell }}"><span style="{{ cBodyVal }}">{{ cTrainMin }}</span><span style="{{ cBodyUnit }}">MIN</span></span></span>
-            <span style="{{ cMetHead }}">INTENSITY</span>
-            <span style="{{ cMetRow }}"><sc-for list="{{ cMetTiles }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.noteS }}">{{ t.note }}</span></button></sc-for></span>
-          </span>
+        <span style="{{ cQValRow }}"><span style="{{ cBurnValS }}">{{ cBurnVal }}</span><span style="{{ cQValUnit }}">KCAL A WEEK</span></span>
+        <span style="{{ cQSlideBox }}">
+          <input type="range" min="0" max="9" step="1" value="{{ cBurnIdx }}" onChange="{{ cBurnSlide }}" style="{{ cBurnTrack }}">
+          <span style="{{ cQEnds }}"><span>0</span><span>2500</span></span>
+        </span>
+        <span style="{{ cEqPanel }}">
+          <sc-if value="{{ cBurnOn }}" hint-placeholder-val="{{ true }}">
+            <span style="{{ cEqRow }}"><span style="{{ cEqTag }}">LOW</span><span style="{{ cEqTxt }}">{{ cEqLow }}</span></span>
+            <span style="{{ cEqRow }}"><span style="{{ cEqTag }}">HIGH</span><span style="{{ cEqTxt }}">{{ cEqHigh }}</span></span>
+          </sc-if>
+          <sc-if value="{{ cBurnZero }}" hint-placeholder-val="{{ false }}"><span style="{{ cEqNone }}">No training on top of the day.</span></sc-if>
         </span>
       </sc-if>
       <sc-if value="{{ cQOn }}" hint-placeholder-val="{{ true }}">
@@ -1028,6 +1032,22 @@ const CALC_MET = [
   { label: "MODERATE", note: "Brisk walking, weights with rest, doubles tennis", met: 5 },
   { label: "VIGOROUS", note: "Running, circuits, hard cycling", met: 8.5 },
   { label: "VERY HARD", note: "Intervals, sprints, competitive sport", met: 11 }
+];
+// The training question, as ten steps of weekly burn. The equivalences are the
+// MET arithmetic run backwards for a reference 75 kg body — brisk walking at
+// 4.5 METs nets about 260 kcal an hour, running at 10 nets about 675 — so the
+// same figure is stated once in the easy currency and once in the hard one.
+const CALC_BURN = [
+  { k: 0 },
+  { k: 250, lo: "an hour of brisk walking", hi: "20 minutes of running" },
+  { k: 500, lo: "2 hours of brisk walking", hi: "45 minutes of running" },
+  { k: 750, lo: "3 hours of brisk walking", hi: "1 h 10 of running" },
+  { k: 1000, lo: "4 hours of brisk walking", hi: "1½ hours of running" },
+  { k: 1250, lo: "5 hours of brisk walking", hi: "1¾ hours of running" },
+  { k: 1500, lo: "6 hours of brisk walking", hi: "2¼ hours of running" },
+  { k: 1750, lo: "6¾ hours of brisk walking", hi: "2½ hours of running" },
+  { k: 2000, lo: "7½ hours of brisk walking", hi: "3 hours of running" },
+  { k: 2500, lo: "9½ hours of brisk walking", hi: "3¾ hours of running" }
 ];
 // Eight bands each, which is as fine as anyone can pick themselves out of a line-up.
 const CALC_BF = { m: [8, 12, 16, 20, 25, 30, 35, 40], f: [16, 20, 24, 28, 32, 36, 40, 45] };
@@ -1760,12 +1780,12 @@ class Component extends DCLogic {
       : 10 * W + 6.25 * ht - 5 * age + (sex === "m" ? 5 : -161);
     const day = CALC_DAY[s.cDay == null ? 0 : s.cDay];
     const pal = day.pal;
-    const tr = s.cTrain || { n: 0, min: 45, met: 1 };
-    const metDef = CALC_MET[tr.met == null ? 1 : tr.met];
-    // (MET - 1), because resting metabolism is already counted once in the RMR and an
-    // hour of training is not an hour of extra existing. Spread over the week, since the
-    // model runs in days and nobody trains in sevenths.
-    const trainDay0 = (tr.n || 0) * ((tr.min || 0) / 60) * (metDef.met - 1) * wt / 7;
+    // The training answer is a weekly burn picked off ten steps, already net of
+    // resting metabolism (the equivalences it was picked against are built on
+    // MET − 1). Spread over the week, since the model runs in days and nobody
+    // trains in sevenths.
+    const burn = CALC_BURN[Math.max(0, Math.min(CALC_BURN.length - 1, s.cBurn || 0))];
+    const trainDay0 = burn.k / 7;
     const tdee0 = rmrOf(wt, ffm0) * pal + trainDay0;
     const maint = Math.round(tdee0);
     const floor = CALC_FLOOR[sex];
@@ -1800,7 +1820,7 @@ class Component extends DCLogic {
       return out;
     };
     return { sex, age, ht, wt, bmi, bfEst, bfPicked, bf0, fm0, ffm0,
-      pal, day, trainDay0, metDef, tdee0, maint, floor, ess, sim };
+      pal, day, trainDay0, burn, tdee0, maint, floor, ess, sim };
   }
   gNext() {
     this.gClearTimers();
@@ -4012,7 +4032,7 @@ class Component extends DCLogic {
       // belonging to that app rather than to the bar.
       cResetOn: app === "calc",
       cResetAll: () => this.setState({ cStep: 0, cSex: null, cAge: 30, cHt: 175,
-        cWt: 80, cBf: null, cDay: null, cTrain: { n: 0, min: 45, met: 1 },
+        cWt: 80, cBf: null, cDay: null, cBurn: 0,
         cKcal: null, cWks: 26, cCurves: false, cTip: false }),
       cResetS: { display: "flex", alignItems: "center", justifyContent: "center",
         width: "1.9rem", height: "2.1rem", marginLeft: "-.15rem", padding: 0,
@@ -4057,8 +4077,6 @@ class Component extends DCLogic {
           { k: "cWt", lab: "WEIGHT", unit: "KG", lo: 40, hi: 200, dflt: 80 }
         ];
         const clampF = (f, v) => Math.max(f.lo, Math.min(f.hi, Math.round(v || f.dflt)));
-        const tr = s.cTrain || { n: 0, min: 45, met: 1 };
-        const setTr = patch => this.setState({ cTrain: Object.assign({}, tr, patch) });
         // ── the running model, only once the questions are done ────────────────────
         const bfLo = ESSENTIAL_BF[m.sex], bfHi = 55;
         const bfVal = Math.max(bfLo, Math.min(bfHi,
@@ -4222,7 +4240,7 @@ class Component extends DCLogic {
               tickS: { display: "block", flex: "none",
                 opacity: on ? 1 : 0, transition: "opacity 160ms ease" },
               s: { display: "flex", alignItems: "center", gap: "1rem",
-                width: "100%", minHeight: "5.2rem", padding: ".8rem 1rem",
+                width: "100%", height: "7.2rem", padding: ".8rem 1rem",
                 boxSizing: "border-box", textAlign: "left", borderRadius: 0,
                 cursor: "pointer",
                 border: "1px solid " + (on ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.22)"),
@@ -4231,35 +4249,38 @@ class Component extends DCLogic {
                 transition: "border-color 160ms ease, background 160ms ease" }
             };
           }),
-          cTrainN: String(tr.n || 0),
-          cTrainNSlide: e => setTr({ n: Math.max(0, Math.min(14, +e.target.value)) }),
-          cTrainMinSlide: e => setTr({ min: Math.max(10, Math.min(180, +e.target.value)) }),
-          cTrainNTrack: { "--p": (100 * (tr.n || 0) / 14).toFixed(1) + "%" },
-          cTrainMinTrack: { "--p": (100 * ((tr.min || 45) - 10) / 170).toFixed(1) + "%" },
-          cTrainNDec: () => setTr({ n: Math.max(0, (tr.n || 0) - 1) }),
-          cTrainNInc: () => setTr({ n: Math.min(14, (tr.n || 0) + 1) }),
-          cTrainDetail: (tr.n || 0) > 0,
-          cTrainMin: String(tr.min || 45),
-          cTrainMinDec: () => setTr({ min: Math.max(10, (tr.min || 45) - 5) }),
-          cTrainMinInc: () => setTr({ min: Math.min(240, (tr.min || 45) + 5) }),
-          cMetTiles: CALC_MET.map((d, i) => ({
-            label: d.label, note: d.note,
-            onClick: () => setTr({ met: i }),
-            labS: { fontFamily: "var(--font-2)", fontSize: ".95rem",
-              letterSpacing: ".14em",
-              color: tr.met === i ? "#3fdcf2" : "#d7e6ef" },
-            noteS: { fontFamily: "var(--font-1)", fontWeight: 300,
-              fontSize: ".88rem", lineHeight: 1.3, color: "#8fa5b3",
-              textWrap: "pretty" },
-            s: { display: "flex", flexDirection: "column", alignItems: "flex-start",
-              justifyContent: "center", gap: ".3rem",
-              minHeight: "4.6rem", padding: ".55rem .8rem", boxSizing: "border-box",
-              borderRadius: 0, cursor: "pointer", textAlign: "left",
-              border: "1px solid " + (tr.met === i ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.22)"),
-              background: tr.met === i ? "rgba(34,211,238,.12)"
-                : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
-              transition: "border-color 160ms ease, background 160ms ease" }
-          })),
+          // Training as one slider: ten steps of weekly burn, each stated as
+          // what it buys in the easy currency and the hard one. The value keeps
+          // a fixed-width box and the equivalence panel a fixed height, so the
+          // slider moves numbers and words — never the screen.
+          cBurnIdx: String(s.cBurn || 0),
+          cBurnVal: String(CALC_BURN[s.cBurn || 0].k),
+          cBurnSlide: e => this.setState({ cBurn: Math.max(0,
+            Math.min(CALC_BURN.length - 1, +e.target.value)) }),
+          cBurnTrack: { "--p": (100 * (s.cBurn || 0) / (CALC_BURN.length - 1)).toFixed(1) + "%" },
+          cBurnOn: (s.cBurn || 0) > 0,
+          cBurnZero: !(s.cBurn || 0),
+          cEqLow: CALC_BURN[s.cBurn || 0].lo || "",
+          cEqHigh: CALC_BURN[s.cBurn || 0].hi || "",
+          cBurnValS: { display: "block", width: "9.4rem", textAlign: "right",
+            fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: s.narrow ? "3.7rem" : "4.2rem", lineHeight: 1,
+            fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
+          cEqPanel: { flex: "none", alignSelf: "center", width: "100%",
+            maxWidth: "21.5rem", height: "5.4rem", marginTop: "1.6rem",
+            display: "flex", flexDirection: "column", justifyContent: "center",
+            gap: ".55rem", padding: "0 1rem", boxSizing: "border-box",
+            border: "1px solid rgba(34,211,238,.18)",
+            background: "linear-gradient(180deg, rgba(34,211,238,.04), rgba(34,211,238,.012))" },
+          cEqRow: { display: "grid", gridTemplateColumns: "2.9rem minmax(0,1fr)",
+            alignItems: "baseline", gap: ".7rem" },
+          cEqTag: { fontFamily: "var(--font-2)", fontSize: ".84rem",
+            letterSpacing: ".16em", color: "#22d3ee" },
+          cEqTxt: { fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1.02rem", lineHeight: 1.3, color: "#d7e6ef",
+            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
+          cEqNone: { fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1.02rem", color: "#8fa5b3", textAlign: "center" },
           // ── result ───────────────────────────────────────────────────────────────
           cMaint: String(m.maint),
           cKcalVal: String(kcal), cKcalMin: String(lo), cKcalMax: String(hi),
@@ -4401,10 +4422,6 @@ class Component extends DCLogic {
             lineHeight: 1.05, fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
           cValUnit: { fontFamily: "var(--font-2)", fontSize: ".84rem",
             letterSpacing: ".16em", color: "#9fb3c0" },
-          cSubRow: { flex: "none", display: "flex", alignItems: "baseline",
-            justifyContent: "center", gap: ".45rem", padding: "1.5rem 0 .6rem" },
-          cSubVal: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.9rem",
-            lineHeight: 1.05, fontVariantNumeric: "tabular-nums", color: "#eaf5fb" },
           cFieldRow: { flex: "none", display: "flex", alignItems: "center",
             gap: ".9rem", paddingTop: ".1rem" },
           cGoS: { flex: "none", display: "flex", alignItems: "center",
@@ -4412,23 +4429,6 @@ class Component extends DCLogic {
             boxSizing: "border-box", borderRadius: 0, cursor: "pointer",
             border: "1px solid rgba(34,211,238,.5)", background: "rgba(34,211,238,.08)",
             color: "#3fdcf2", transition: "background 160ms ease, border-color 160ms ease" },
-          // Two by two rather than four across: VERY HARD does not have to fold
-          // itself in half to fit a phone.
-          cMetRow: { display: "grid",
-            gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: ".55rem" },
-          cMetHead: { fontFamily: "var(--font-2)", fontSize: ".88rem",
-            letterSpacing: ".14em", color: "#a9bcc8",
-            padding: ".9rem 0 .1rem" },
-          // The training screen holds still: the minutes and the intensity are
-          // always on it, dimmed until there is a session for them to describe,
-          // because a screen that reshuffles under a slider reads as broken.
-          cTrainPanel: { flex: "none", alignSelf: "center", width: "100%",
-            maxWidth: "21.5rem", display: "flex", flexDirection: "column",
-            gap: ".55rem" },
-          cTrainDim: { display: "flex", flexDirection: "column", gap: ".55rem",
-            opacity: (tr.n || 0) > 0 ? 1 : .35,
-            pointerEvents: (tr.n || 0) > 0 ? "auto" : "none",
-            transition: "opacity 240ms ease" },
           cFigS: { display: "block", height: "100%", maxHeight: s.narrow ? "11rem" : "13rem",
             width: "auto", color: "#3b5364" },
           cFigBigS: { display: "block", height: "100%",

@@ -149,9 +149,11 @@ as an estimate, and picked off a row of reference figures — and the moment it 
 rather than guessed, the resting-metabolism equation switches to the one that reads lean
 mass instead of weight. Activity is two questions rather than one, because the day you
 spend anyway and the training you choose are estimated differently and priced differently:
-the first on the FAO lifestyle bands read at their exercise-free end, the second in METs,
-at `(MET − 1) × kg × hours` — the −1 because resting metabolism is already counted once and
-an hour of training is not an hour of extra existing.
+the first on the FAO lifestyle bands read at their exercise-free end, the second as a
+weekly burn picked off ten steps, each stated as what it is equivalent to at low and at
+high intensity — hours of brisk walking against minutes of running, both derived from the
+MET table at `(MET − 1) × kg × hours`, the −1 because resting metabolism is already
+counted once and an hour of training is not an hour of extra existing.
 
 The trajectory is not 3,500 kcal a pound. That rule is static, and applied to a year it
 overestimates badly. The deficit here is applied against a maintenance recomputed every day
