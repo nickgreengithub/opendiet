@@ -388,6 +388,7 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ cBodyPanel }}">
         <span style="{{ cBodyRow }}"><span style="{{ cBodyLab }}">WEIGHT</span><input type="range" min="{{ cWtMin }}" max="{{ cWtMax }}" step="1" value="{{ cWtVal }}" onChange="{{ cWtSlide }}" style="{{ cWtTrack }}"><span style="{{ cBodyValCell }}"><span style="{{ cBodyVal }}">{{ cWtVal }}</span><span style="{{ cBodyUnit }}">KG</span></span></span>
         <span style="{{ cBodyRow }}"><span style="{{ cBodyLab }}">BODY FAT<sc-if value="{{ cBfEstOn }}" hint-placeholder-val="{{ false }}"><span style="{{ cEstTag }}">EST</span></sc-if></span><input type="range" min="{{ cBfMin }}" max="{{ cBfMax }}" step="1" value="{{ cBfVal }}" onChange="{{ cBfSlide }}" style="{{ cBfTrack }}"><span style="{{ cBodyValCell }}"><span style="{{ cBodyVal }}">{{ cBfVal }}</span><span style="{{ cBodyUnit }}">%</span></span></span>
+        <span style="{{ cCompS }}">{{ cComp }}</span>
         <button onClick="{{ cNext }}" style="{{ cBodyNextS }}" style-hover="border-color:rgba(34,211,238,.85);background:rgba(34,211,238,.18)">SEE THE NUMBER<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button>
       </span>
       </sc-if>
@@ -4175,6 +4176,17 @@ class Component extends DCLogic {
             / (FIELDS[2].hi - FIELDS[2].lo)).toFixed(1) + "%" },
           cBfTrack: { "--p": (100 * (bfVal - bfLo) / (bfHi - bfLo)).toFixed(1) + "%" },
           cBfEstOn: s.cBf == null,
+          // What the two sliders are actually saying, in kilograms — because a
+          // fat percentage held while the weight climbs is a claim about lean
+          // mass, and that claim should be on the screen it is being made on.
+          cComp: (() => {
+            const w = clampF(FIELDS[2], s.cWt);
+            const lean = w * (1 - bfVal / 100);
+            return Math.round(lean) + " kg lean · " + Math.round(w - lean) + " kg fat";
+          })(),
+          cCompS: { display: "block", textAlign: "center", paddingTop: ".3rem",
+            fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".95rem",
+            lineHeight: 1.2, color: "#a9bcc8", fontVariantNumeric: "tabular-nums" },
           // The figure is WebGL when WebGL will have it, and the line drawing when it
           // will not — an old browser, a blocked context, a model that failed to load.
           cBody3D: !s.cBodyFail, cBodySvg: !!s.cBodyFail,
