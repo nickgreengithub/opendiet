@@ -127,18 +127,54 @@ def weight_factors(w):
     return {"averageweight": max(0.0, 2 - 2 * w), "maxweight": 2 * w - 1}
 
 
-def compose(base, targets, sex, bf, levels):
+# Detail targets that give the muscle axis its visible bulk. The macro
+# min/max-muscle grid mostly firms and softens — the shape that reads as
+# "muscular" from across a room (pecs, lats, delts, thicker limbs, V-taper)
+# lives in the detail library, exactly as the obesity shape did.
+MUS_HI = [
+    ("torso/torso-muscle-pectoral-incr", 0.55),
+    ("torso/torso-muscle-dorsi-incr", 0.55),
+    ("torso/torso-vshape-incr", 0.45),
+    ("armslegs/l-upperarm-muscle-incr", 0.65),
+    ("armslegs/r-upperarm-muscle-incr", 0.65),
+    ("armslegs/l-upperarm-shoulder-muscle-incr", 0.60),
+    ("armslegs/r-upperarm-shoulder-muscle-incr", 0.60),
+    ("armslegs/l-lowerarm-muscle-incr", 0.50),
+    ("armslegs/r-lowerarm-muscle-incr", 0.50),
+    ("armslegs/l-upperleg-muscle-incr", 0.55),
+    ("armslegs/r-upperleg-muscle-incr", 0.55),
+    ("armslegs/l-lowerleg-muscle-incr", 0.50),
+    ("armslegs/r-lowerleg-muscle-incr", 0.50),
+]
+MUS_LO = [
+    ("torso/torso-muscle-pectoral-decr", 0.45),
+    ("torso/torso-muscle-dorsi-decr", 0.40),
+    ("armslegs/l-upperarm-muscle-decr", 0.55),
+    ("armslegs/r-upperarm-muscle-decr", 0.55),
+    ("armslegs/l-lowerarm-muscle-decr", 0.40),
+    ("armslegs/r-lowerarm-muscle-decr", 0.40),
+    ("armslegs/l-upperleg-muscle-decr", 0.45),
+    ("armslegs/r-upperleg-muscle-decr", 0.45),
+    ("armslegs/l-lowerleg-muscle-decr", 0.40),
+    ("armslegs/r-lowerleg-muscle-decr", 0.40),
+]
+
+
+def compose(base, targets, sex, bf, levels, muscle="averagemuscle"):
     t = (bf - levels[0]) / (levels[-1] - levels[0])
     V = base.copy()
     targets.add(V, "macrodetails/caucasian-%s-young" % SEXNAME[sex], 1.0)
     for name, f in weight_factors(FAT_TO_W[sex][bf]).items():
         if f:
-            targets.add(V, "macrodetails/universal-%s-young-averagemuscle-%s"
-                        % (SEXNAME[sex], name), f)
+            targets.add(V, "macrodetails/universal-%s-young-%s-%s"
+                        % (SEXNAME[sex], muscle, name), f)
     e = max(0.0, (t - 0.5) / 0.5) ** 1.3
     if e > 0:
         for name, top in FAT_KIT[sex]:
             targets.add(V, name, top * e)
+    if muscle != "averagemuscle":
+        for name, f in (MUS_HI if muscle == "maxmuscle" else MUS_LO):
+            targets.add(V, name, f)
     return V
 
 
@@ -199,6 +235,16 @@ def build(sex, data_dir, base, faces, targets, joints, blend, out_dir):
         V = compose(base, targets, sex, bf, levels)
         posed.append(lower_arms(V, joints, blend))
 
+    # Muscle, as its own axis. Fat levels are baked at average muscle; these
+    # two deltas — MakeHuman's min/max-muscle grid against the average, at
+    # the mid fat level — let the runtime add or strip lean mass on top of
+    # any fat level, driven by FFMI. Additive rather than the full 2D grid,
+    # which is a close approximation at a fraction of the bytes.
+    REF = 2
+    posed_mus = [lower_arms(compose(base, targets, sex, levels[REF], levels,
+                                    muscle=mus), joints, blend)
+                 for mus in ("minmuscle", "maxmuscle")]
+
     # helper geometry off; body verts are the first N_BODY
     tris = []
     for q in faces:
@@ -213,19 +259,25 @@ def build(sex, data_dir, base, faces, targets, joints, blend, out_dir):
     ymin, ymax = b0[:, 1].min(), b0[:, 1].max()
     scale = 1.75 / ((ymax - ymin) * 0.1)
     zc = b0[:, 2].mean() * 0.1 * scale
-    out = []
-    for P in bodies:
+
+    def xf(P):
         M = P * 0.1 * scale
         M[:, 1] -= ymin * 0.1 * scale
         M[:, 2] -= zc
-        out.append(np.ascontiguousarray(M))
+        return np.ascontiguousarray(M)
 
+    out = [xf(P) for P in bodies]
     base_v = out[0]
     base_n = vert_normals(base_v, tris)
     tgts = [(v, vert_normals(v, tris)) for v in out[1:]]
+    muscle = []
+    for P in posed_mus:
+        v = base_v + (xf(P[:N_BODY]) - out[REF])
+        muscle.append((v, vert_normals(v, tris)))
     path = os.path.join(out_dir, "body-%s.glb" % sex)
-    total = write_glb(path, sex, base_v, base_n, tris, tgts, levels)
-    print("%s: %d verts, %d tris, %d levels, %.2f MB -> %s"
+    total = write_glb(path, sex, base_v, base_n, tris, tgts, levels,
+                      muscle=muscle)
+    print("%s: %d verts, %d tris, %d fat levels + 2 muscle, %.2f MB -> %s"
           % (sex, len(base_v), len(tris), len(levels), total / 1e6, path))
 
 

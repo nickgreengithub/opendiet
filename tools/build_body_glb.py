@@ -332,7 +332,10 @@ def pad4(b, fill=b"\x00"):
     return b + fill * ((4 - len(b) % 4) % 4)
 
 
-def write_glb(path, sex, base_v, base_n, tris, targets, levels):
+def write_glb(path, sex, base_v, base_n, tris, targets, levels, muscle=None):
+    """targets: fat levels ascending. muscle: optional [(v,n) lo, (v,n) hi]
+    pair appended after them — less/more muscular at constant fat — declared
+    in extras.muscle so the runtime can drive them from lean mass."""
     buf = bytearray()
     views, accs = [], []
 
@@ -362,7 +365,7 @@ def write_glb(path, sex, base_v, base_n, tris, targets, levels):
                 34963, 5125, "SCALAR", len(tris) * 3)
 
     tgt = []
-    for (v, n) in targets:
+    for (v, n) in list(targets) + list(muscle or []):
         d, mn, mx = vec3(v - base_v)
         tp = add(d, 34962, 5126, "VEC3", len(v), mn, mx)
         d, _, _ = vec3(n - base_n)
@@ -386,6 +389,8 @@ def write_glb(path, sex, base_v, base_n, tris, targets, levels):
                 "bodyFat": levels,
                 "sex": sex,
                 "targetNames": ["bf%d" % b for b in levels[1:]]
+                + (["muscleLo", "muscleHi"] if muscle else []),
+                "muscle": ["lo", "hi"] if muscle else []
             }
         }],
         "accessors": accs,

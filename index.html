@@ -1149,7 +1149,7 @@ class Component extends DCLogic {
     }
     const want = this._bodyWant;
     if (!want) return;
-    if (this._body) { this._body.set(want.sex, want.bf, want.ht); return; }
+    if (this._body) { this._body.set(want.sex, want.bf, want.ht, want.kg); return; }
     if (this._bodyLoading) return;
     this._bodyLoading = true;
     // 670 KB of three, fetched the first time someone opens the app that needs it
@@ -1161,7 +1161,7 @@ class Component extends DCLogic {
       if (!api) { this.setState({ cBodyFail: true }); return; }
       this._body = api;
       const w = this._bodyWant;
-      api.set(w.sex, w.bf, w.ht);
+      api.set(w.sex, w.bf, w.ht, w.kg);
     }).catch(() => {
       this._bodyLoading = false;
       this.setState({ cBodyFail: true });
@@ -4089,7 +4089,11 @@ class Component extends DCLogic {
         }
         // What the figure should be showing. Recorded rather than pushed, because the
         // canvas does not exist yet at render time — componentDidUpdate reads it.
-        this._bodyWant = { sex: m.sex, bf: done && at ? at.bf : bfVal, ht: m.ht };
+        // Weight rides along so the figure can carry lean mass as its own axis:
+        // on the result screen it is the scrubbed trajectory's weight, so a year
+        // of deficit slims the figure by what the model says, not by relabelling.
+        this._bodyWant = { sex: m.sex, bf: done && at ? at.bf : bfVal, ht: m.ht,
+          kg: done && at ? at.w : m.wt };
         const num = (v, col) => ({ fontFamily: "var(--font-1)", fontWeight: 300,
           fontSize: s.narrow ? "1.5rem" : "1.7rem", fontVariantNumeric: "tabular-nums",
           color: col || "#eaf5fb" });

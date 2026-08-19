@@ -164,10 +164,12 @@ Behind a mark are the curves: weight, fat mass and lean mass on one axis, and un
 the line nobody draws — maintenance falling to meet the intake, which is why the twelfth
 month does less than the first.
 
-The figure is a body, and it turns. It is a glTF carrying one mesh and five morph targets
-— one per body-fat level — blended continuously, so moving the slider moves the body rather
-than cutting between pictures, and on the result screen it is driven by the scrubbed
-trajectory: dragging through the year *is* the animation. Three.js is vendored into the
+The figure is a body, and it turns. It is a glTF carrying one mesh and seven morph
+targets — five fat levels blended continuously, plus a muscle pair driven by lean mass —
+so at a constant weight, sliding body fat down makes a fitter body rather than a smaller
+one, which is what the arithmetic says it should do. Moving a slider moves the body
+rather than cutting between pictures, and on the result screen it is driven by the
+scrubbed trajectory: dragging through the year *is* the animation. Three.js is vendored into the
 repo and loaded only when this app is opened, and a browser without WebGL gets a line
 drawing instead.
 

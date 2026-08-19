@@ -433,6 +433,21 @@ level axis. That makes the result exactly the linear interpolation between the t
 either side and nothing else — and because the deltas are measured from the base rather
 than from each other, only those two are ever non-zero.
 
+### The muscle axis
+
+Body fat alone cannot draw a body, and driving the figure from it alone had a tell:
+sliding fat down at a constant weight made the figure *smaller*, when the arithmetic
+says that person has more lean mass, not less of everything. So lean mass is its own
+axis: a pair of morph targets — less and more muscular at constant fat, built from
+MakeHuman's muscle grid plus its detail targets (pectorals, lats, delts, per-limb
+muscle, V-taper), which is where the visible bulk actually lives — driven by **FFMI**,
+lean kilograms over height squared, computed from the weight, height and body fat the
+user actually entered. Anchors put the population-average FFMI on the baked average
+body (men ≈ 18.5, women ≈ 15), the max target at a clearly athletic figure, the min at
+the low end of normal. On the result screen the scrubbed trajectory supplies both the
+weight and the fat, so a year of deficit slims the figure by exactly what Forbes says
+it loses — mostly fat, a little lean.
+
 ### The bake that shipped
 
 Hand-tuning a body from primitives turned out to be the trap it looked like: every fix
@@ -495,9 +510,6 @@ dragging through the year *is* the animation.
 
 ### Still to do
 
-* One axis only, still: body fat. Lean mass rides on the chart — MakeHuman's muscle
-  targets are sitting right there if that ever changes. See the argument in §5 of the
-  earlier plan, which still holds.
 * The retired SDF placeholder (`tools/build_body_glb.py`) still owns the glTF writer the
   bake imports, and its two hard-won lessons stay recorded there: sub-voxel gaps weld in
   a voxel grid and tear when morphed, and parts that translate with fat must be prewarped
