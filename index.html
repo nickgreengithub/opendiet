@@ -211,9 +211,9 @@ input:focus{outline:none;background:rgba(34,211,238,.14)!important;box-shadow:in
    not let you restyle from the style attribute, so it lives here. */
 input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2.4rem;margin:0;background:transparent;cursor:pointer;display:block}
 input[type=range]:focus{outline:none;background:transparent!important;box-shadow:none}
-input[type=range]::-webkit-slider-runnable-track{height:2px;background:rgba(34,211,238,.3)}
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:linear-gradient(90deg,rgba(34,211,238,.95) var(--p,50%),rgba(34,211,238,.18) var(--p,50%))}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:1.5rem;height:1.5rem;margin-top:-.68rem;border-radius:50%;background:#0a1016;border:2px solid #22d3ee;box-shadow:0 0 14px rgba(34,211,238,.45)}
-input[type=range]::-moz-range-track{height:2px;background:rgba(34,211,238,.3)}
+input[type=range]::-moz-range-track{height:2px;background:linear-gradient(90deg,rgba(34,211,238,.95) var(--p,50%),rgba(34,211,238,.18) var(--p,50%))}
 input[type=range]::-moz-range-thumb{width:1.5rem;height:1.5rem;border-radius:50%;background:#0a1016;border:2px solid #22d3ee;box-shadow:0 0 14px rgba(34,211,238,.45)}
 input::placeholder{color:#7b91a3;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:1}
 /* Without this, reaching the end of a table hands the gesture to the page: iOS rubber-bands
@@ -385,47 +385,48 @@ option{background:#070b12;color:#d7e6ef}
         <sc-if value="{{ cBody3D }}" hint-placeholder-val="{{ true }}"><canvas data-body style="{{ cCanvasS }}"></canvas></sc-if>
         <sc-if value="{{ cBodySvg }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 64 136" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="{{ cFigS }}"><circle cx="32" cy="14" r="10"></circle><path d="{{ cBodyGlyph }}"></path></svg></sc-if>
       </span>
+      <span style="{{ cBodyPanel }}">
+        <span style="{{ cBodyRow }}"><span style="{{ cBodyLab }}">WEIGHT</span><input type="range" min="{{ cWtMin }}" max="{{ cWtMax }}" step="1" value="{{ cWtVal }}" onChange="{{ cWtSlide }}" style="{{ cWtTrack }}"><span style="{{ cBodyValCell }}"><span style="{{ cBodyVal }}">{{ cWtVal }}</span><span style="{{ cBodyUnit }}">KG</span></span></span>
+        <span style="{{ cBodyRow }}"><span style="{{ cBodyLab }}">BODY FAT<sc-if value="{{ cBfEstOn }}" hint-placeholder-val="{{ false }}"><span style="{{ cEstTag }}">EST</span></sc-if></span><input type="range" min="{{ cBfMin }}" max="{{ cBfMax }}" step="1" value="{{ cBfVal }}" onChange="{{ cBfSlide }}" style="{{ cBfTrack }}"><span style="{{ cBodyValCell }}"><span style="{{ cBodyVal }}">{{ cBfVal }}</span><span style="{{ cBodyUnit }}">%</span></span></span>
+        <button onClick="{{ cNext }}" style="{{ cBodyNextS }}" style-hover="border-color:rgba(34,211,238,.85);background:rgba(34,211,238,.18)">SEE THE NUMBER<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button>
+      </span>
       </sc-if>
       <sc-if value="{{ cQOn }}" hint-placeholder-val="{{ true }}">
         <span style="{{ cQSpace }}"></span>
         <span style="{{ cQTitleS }}">{{ cQ }}</span>
+        <span style="{{ cQRule }}"></span>
       </sc-if>
       <sc-if value="{{ cIsSex }}" hint-placeholder-val="{{ true }}">
-        <span style="{{ cSexRow }}"><sc-for list="{{ cSexTiles }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)">{{ t.label }}</button></sc-for></span>
+        <span style="{{ cSexRow }}"><sc-for list="{{ cSexTiles }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55);color:#3fdcf2"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="display:block;opacity:.85"><circle cx="{{ t.cx }}" cy="{{ t.cy }}" r="5"></circle><path d="{{ t.icon }}"></path></svg>{{ t.label }}</button></sc-for></span>
       </sc-if>
       <sc-if value="{{ cIsNumQ }}" hint-placeholder-val="{{ false }}">
         <span style="{{ cQValRow }}"><span style="{{ cQValS }}">{{ cField.val }}</span><span style="{{ cQValUnit }}">{{ cField.unit }}</span></span>
-        <input type="range" min="{{ cField.min }}" max="{{ cField.max }}" step="1" value="{{ cField.val }}" onChange="{{ cField.onSlide }}">
+        <span style="{{ cQSlideBox }}">
+          <input type="range" min="{{ cField.min }}" max="{{ cField.max }}" step="1" value="{{ cField.val }}" onChange="{{ cField.onSlide }}" style="{{ cField.trackS }}">
+          <span style="{{ cQEnds }}"><span>{{ cField.min }}</span><span>{{ cField.max }}</span></span>
+        </span>
       </sc-if>
       <sc-if value="{{ cIsDay }}" hint-placeholder-val="{{ false }}">
-        <span style="{{ cCol }}"><sc-for list="{{ cDayTiles }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span></button></sc-for></span>
+        <span style="{{ cCol }}"><sc-for list="{{ cDayTiles }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3fdcf2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ t.tickS }}"><path d="M5 12l5 5L20 7"></path></svg></button></sc-for></span>
       </sc-if>
       <sc-if value="{{ cIsTrain }}" hint-placeholder-val="{{ false }}">
         <span style="{{ cQValRow }}"><span style="{{ cQValS }}">{{ cTrainN }}</span><span style="{{ cQValUnit }}">SESSIONS A WEEK</span></span>
-        <input type="range" min="0" max="14" step="1" value="{{ cTrainN }}" onChange="{{ cTrainNSlide }}">
+        <span style="{{ cQSlideBox }}">
+          <input type="range" min="0" max="14" step="1" value="{{ cTrainN }}" onChange="{{ cTrainNSlide }}" style="{{ cTrainNTrack }}">
+          <span style="{{ cQEnds }}"><span>0</span><span>14</span></span>
+        </span>
         <sc-if value="{{ cTrainDetail }}" hint-placeholder-val="{{ true }}">
-          <span style="{{ cSubRow }}"><span style="{{ cSubVal }}">{{ cTrainMin }}</span><span style="{{ cValUnit }}">MINUTES EACH</span></span>
-          <input type="range" min="10" max="180" step="5" value="{{ cTrainMin }}" onChange="{{ cTrainMinSlide }}">
+          <span style="{{ cSubRow }}"><span style="{{ cSubVal }}">{{ cTrainMin }}</span><span style="{{ cQValUnit }}">MINUTES EACH</span></span>
+          <span style="{{ cQSlideBox }}">
+            <input type="range" min="10" max="180" step="5" value="{{ cTrainMin }}" onChange="{{ cTrainMinSlide }}" style="{{ cTrainMinTrack }}">
+            <span style="{{ cQEnds }}"><span>10</span><span>180</span></span>
+          </span>
           <span style="{{ cMetRow }}"><sc-for list="{{ cMetTiles }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)">{{ t.label }}</button></sc-for></span>
         </sc-if>
       </sc-if>
       <sc-if value="{{ cQOn }}" hint-placeholder-val="{{ true }}">
         <sc-if value="{{ cQNextOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ cNext }}" style="{{ cQNextS }}" style-hover="border-color:rgba(34,211,238,.85);background:rgba(34,211,238,.18)">NEXT<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button></sc-if>
         <span style="{{ cQSpace2 }}"></span>
-      </sc-if>
-      <sc-if value="{{ cIsNum }}" hint-placeholder-val="{{ false }}">
-        <span style="{{ cValRow }}"><span style="{{ cValS }}">{{ cField.val }}</span><span style="{{ cValUnit }}">{{ cField.unit }}</span></span>
-        <span style="{{ cFieldRow }}">
-          <input type="range" min="{{ cField.min }}" max="{{ cField.max }}" step="1" value="{{ cField.val }}" onChange="{{ cField.onSlide }}">
-          <button onClick="{{ cNext }}" style="{{ cGoS }}" style-hover="border-color:rgba(34,211,238,.85);background:rgba(34,211,238,.18)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button>
-        </span>
-      </sc-if>
-      <sc-if value="{{ cIsBf }}" hint-placeholder-val="{{ false }}">
-        <span style="{{ cValRow }}"><span style="{{ cValS }}">{{ cBfVal }}</span><span style="{{ cValUnit }}">% FAT</span></span>
-        <span style="{{ cFieldRow }}">
-          <input type="range" min="{{ cBfMin }}" max="{{ cBfMax }}" step="1" value="{{ cBfVal }}" onChange="{{ cBfSlide }}">
-          <button onClick="{{ cNext }}" style="{{ cGoS }}" style-hover="border-color:rgba(34,211,238,.85);background:rgba(34,211,238,.18)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button>
-        </span>
       </sc-if>
     </sc-if>
     <sc-if value="{{ cResOn }}" hint-placeholder-val="{{ false }}">
@@ -444,11 +445,11 @@ option{background:#070b12;color:#d7e6ef}
       </span>
       <span style="{{ cSlideBlock }}">
         <span style="{{ cSlideHead }}"><span>EAT</span><span style="{{ cSlideVal }}">{{ cKcalVal }} kcal a day</span></span>
-        <input type="range" min="{{ cKcalMin }}" max="{{ cKcalMax }}" step="10" value="{{ cKcalVal }}" onChange="{{ cKcalSet }}">
+        <input type="range" min="{{ cKcalMin }}" max="{{ cKcalMax }}" step="10" value="{{ cKcalVal }}" onChange="{{ cKcalSet }}" style="{{ cKcalTrack }}">
       </span>
       <span style="{{ cSlideBlock }}">
         <span style="{{ cSlideHead }}"><span>FOR</span><span style="{{ cSlideVal }}">{{ cWhen }}</span></span>
-        <input type="range" min="0" max="52" step="1" value="{{ cWksVal }}" onChange="{{ cWksSet }}">
+        <input type="range" min="0" max="52" step="1" value="{{ cWksVal }}" onChange="{{ cWksSet }}" style="{{ cWksTrack }}">
       </span>
       <sc-if value="{{ cFast }}" hint-placeholder-val="{{ false }}"><span style="{{ cFastS }}">{{ cFastNote }}</span></sc-if>
       <span style="{{ cFootRow }}">
@@ -4024,19 +4025,23 @@ class Component extends DCLogic {
         color: "#5f7688", transition: "color 160ms ease" },
       ...(app !== "calc" ? {} : (() => {
         const m = this.calcModel(s);
-        const step = s.cStep || 0, done = step >= 7;
+        const step = Math.min(s.cStep || 0, 6), done = step >= 6;
         const set = (k, v) => this.setState({ [k]: v });
-        const go = n => this.setState({ cStep: Math.max(0, Math.min(7, n)) });
+        const go = n => this.setState({ cStep: Math.max(0, Math.min(6, n)) });
         // Tiles answer and advance in the same tap: a tile is a decision, and asking for
         // a second tap on NEXT to confirm one is how a seven-step run starts to feel long.
         const tile = (label, note, on, pick) => ({
           label, on,
           onClick: () => { pick(); go(step + 1); },
-          s: { display: "flex", flexDirection: "column", gap: ".2rem", width: "100%",
-            padding: s.narrow ? "1rem .9rem" : "1.05rem 1.1rem", boxSizing: "border-box",
+          tickS: { display: "block", flex: "none",
+            opacity: on ? 1 : 0, transition: "opacity 160ms ease" },
+          s: { display: "flex", alignItems: "center", gap: ".6rem", width: "100%",
+            justifyContent: "space-between", minHeight: "3.7rem",
+            padding: ".6rem 1.1rem", boxSizing: "border-box",
             textAlign: "left", borderRadius: 0, cursor: "pointer",
-            border: "1px solid " + (on ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.18)"),
-            background: on ? "rgba(34,211,238,.10)" : "#0a1016",
+            border: "1px solid " + (on ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.22)"),
+            background: on ? "rgba(34,211,238,.10)"
+              : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
             transition: "border-color 160ms ease, background 160ms ease" },
           labS: { fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".12em",
             color: on ? "#3fdcf2" : "#d7e6ef" },
@@ -4047,10 +4052,10 @@ class Component extends DCLogic {
         // fills the screen is the point of this app; four controls stacked under a
         // thumbnail is not.
         // The day and the training come before the body: the first five questions
-        // are quick centred slides, and the figure enters at WEIGHT — the first
-        // question it can actually answer — and stays through BODY FAT and the
-        // result.
-        const STEPS = ["SEX", "AGE", "HEIGHT", "YOUR DAY", "TRAINING", "WEIGHT", "BODY FAT"];
+        // are quick centred slides, and the figure enters on the last screen —
+        // weight and body fat share it, because they are the two numbers the
+        // figure can answer, and answering them against it beats answering blind.
+        const STEPS = ["SEX", "AGE", "HEIGHT", "YOUR DAY", "TRAINING", "BODY"];
         const FIELDS = [
           { k: "cAge", lab: "AGE", unit: "YEARS", lo: 18, hi: 90, dflt: 30 },
           { k: "cHt", lab: "HEIGHT", unit: "CM", lo: 140, hi: 215, dflt: 175 },
@@ -4130,43 +4135,59 @@ class Component extends DCLogic {
           cQuit: () => this.setState({ app: "home" }),
           cIsSex: step === 0, cIsNumQ: step === 1 || step === 2,
           cIsDay: step === 3, cIsTrain: step === 4,
-          cIsNum: step === 5, cIsBf: step === 6,
           // The first five questions are centred slides without the figure; it
-          // arrives with WEIGHT, the first answer it can show.
-          cFigOn: step >= 5,
+          // arrives on the last screen, where weight and body fat share it.
+          cFigOn: step === 5,
           cQOn: step < 5,
           cQ: STEPS[step],
           cQNextOn: step === 1 || step === 2 || step === 4,
           // One field per screen, so this is the field this screen is for.
           cField: (() => {
-            // cField is built on every step, not just the three it is for, so the
-            // index is pinned per step: age and height early, weight at step 5.
-            const f = FIELDS[step === 5 ? 2 : Math.min(1, Math.max(0, step - 1))];
+            // cField is built on every step, not just the two it is for, so the
+            // index is clamped to the age and height fields.
+            const f = FIELDS[Math.min(1, Math.max(0, step - 1))];
             const v = clampF(f, s[f.k]);
             return { lab: f.lab, unit: f.unit, val: String(v),
               min: String(f.lo), max: String(f.hi),
+              trackS: { "--p": (100 * (v - f.lo) / (f.hi - f.lo)).toFixed(1) + "%" },
               onSlide: e => this.setState({ [f.k]: clampF(f, +e.target.value) }),
               onType: e => { const n = parseInt(String(e.target.value).replace(/[^0-9]/g, ""), 10);
                 this.setState({ [f.k]: isNaN(n) ? f.dflt : Math.max(f.lo, Math.min(f.hi, n)) }); } };
           })(),
+          // The last screen: the figure with both of its numbers under it.
+          cWtVal: String(clampF(FIELDS[2], s.cWt)),
+          cWtMin: String(FIELDS[2].lo), cWtMax: String(FIELDS[2].hi),
+          cWtSlide: e => this.setState({ cWt: clampF(FIELDS[2], +e.target.value) }),
+          cWtTrack: { "--p": (100 * (clampF(FIELDS[2], s.cWt) - FIELDS[2].lo)
+            / (FIELDS[2].hi - FIELDS[2].lo)).toFixed(1) + "%" },
+          cBfTrack: { "--p": (100 * (bfVal - bfLo) / (bfHi - bfLo)).toFixed(1) + "%" },
+          cBfEstOn: s.cBf == null,
           // The figure is WebGL when WebGL will have it, and the line drawing when it
           // will not — an old browser, a blocked context, a model that failed to load.
           cBody3D: !s.cBodyFail, cBodySvg: !!s.cBodyFail,
           cCanvasS: { display: "block", width: "100%", height: "100%",
             touchAction: "none", cursor: "grab" },
-          // Two tiles in a row rather than two rows: it is one choice of two, and stacking
-          // it made it look like the start of a list.
-          cSexRow: { flex: "none", display: "grid",
-            gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: ".5rem" },
+          // Two tiles in a row rather than two rows: it is one choice of two, and
+          // stacking it made it look like the start of a list. The marks are the
+          // oldest glyphs there are for the question, drawn in the same stroke as
+          // every other mark on the site.
+          cSexRow: { flex: "none", alignSelf: "center", width: "100%",
+            maxWidth: "21.5rem", display: "grid",
+            gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: ".7rem" },
           cSexTiles: ["m", "f"].map(k => ({
             label: k === "m" ? "MALE" : "FEMALE", on: s.cSex === k,
+            cx: k === "m" ? 10 : 12, cy: k === "m" ? 14 : 8,
+            icon: k === "m" ? "M13.7 10.3L20 4M15 4h5v5" : "M12 13v8M9 18h6",
             onClick: () => { set("cSex", k); go(step + 1); },
-            s: { display: "flex", alignItems: "center", justifyContent: "center",
-              height: "3.1rem", padding: "0 .6rem", boxSizing: "border-box",
+            s: { display: "flex", flexDirection: "column", alignItems: "center",
+              justifyContent: "center", gap: ".8rem",
+              height: "7.2rem", padding: "0 .6rem", boxSizing: "border-box",
               borderRadius: 0, cursor: "pointer",
-              border: "1px solid " + (s.cSex === k ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.2)"),
-              background: s.cSex === k ? "rgba(34,211,238,.12)" : "#0a1016",
-              fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".14em",
+              border: "1px solid " + (s.cSex === k ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.22)"),
+              background: s.cSex === k ? "rgba(34,211,238,.12)"
+                : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
+              fontFamily: "var(--font-2)", fontSize: "1.02rem", letterSpacing: ".2em",
+              textIndent: ".2em",
               color: s.cSex === k ? "#3fdcf2" : "#c3d3dd",
               transition: "border-color 160ms ease, background 160ms ease, color 160ms ease" }
           })),
@@ -4185,6 +4206,8 @@ class Component extends DCLogic {
           cTrainN: String(tr.n || 0),
           cTrainNSlide: e => setTr({ n: Math.max(0, Math.min(14, +e.target.value)) }),
           cTrainMinSlide: e => setTr({ min: Math.max(10, Math.min(180, +e.target.value)) }),
+          cTrainNTrack: { "--p": (100 * (tr.n || 0) / 14).toFixed(1) + "%" },
+          cTrainMinTrack: { "--p": (100 * ((tr.min || 45) - 10) / 170).toFixed(1) + "%" },
           cTrainNDec: () => setTr({ n: Math.max(0, (tr.n || 0) - 1) }),
           cTrainNInc: () => setTr({ n: Math.min(14, (tr.n || 0) + 1) }),
           cTrainDetail: (tr.n || 0) > 0,
@@ -4195,11 +4218,12 @@ class Component extends DCLogic {
             label: d.label,
             onClick: () => setTr({ met: i }),
             s: { display: "flex", alignItems: "center", justifyContent: "center",
-              minHeight: "2.7rem", padding: ".3rem .4rem", boxSizing: "border-box",
+              minHeight: "3rem", padding: ".3rem .5rem", boxSizing: "border-box",
               borderRadius: 0, cursor: "pointer", textAlign: "center",
-              border: "1px solid " + (tr.met === i ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.2)"),
-              background: tr.met === i ? "rgba(34,211,238,.12)" : "#0a1016",
-              fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".08em",
+              border: "1px solid " + (tr.met === i ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.22)"),
+              background: tr.met === i ? "rgba(34,211,238,.12)"
+                : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
+              fontFamily: "var(--font-2)", fontSize: ".92rem", letterSpacing: ".12em",
               lineHeight: 1.2,
               color: tr.met === i ? "#3fdcf2" : "#c3d3dd" }
           })),
@@ -4207,7 +4231,9 @@ class Component extends DCLogic {
           cMaint: String(m.maint),
           cKcalVal: String(kcal), cKcalMin: String(lo), cKcalMax: String(hi),
           cKcalSet: e => this.setState({ cKcal: +e.target.value }),
+          cKcalTrack: { "--p": (100 * (kcal - lo) / Math.max(1, hi - lo)).toFixed(1) + "%" },
           cWksVal: String(wks), cWksSet: e => this.setState({ cWks: +e.target.value }),
+          cWksTrack: { "--p": (100 * wks / 52).toFixed(1) + "%" },
           cWhen: whenLab,
           cBfNow: at ? g1(now.bf) + "%" : "", cBfThen: at ? g1(at.bf) + "%" : "",
           cWtNow: at ? g1(now.w) + " kg" : "", cWtThen: at ? g1(at.w) + " kg" : "",
@@ -4266,28 +4292,72 @@ class Component extends DCLogic {
           // one row.
           // ── the centred slides ───────────────────────────────────────────────────
           // Question, big number, slider, NEXT — one thing mid-screen, spacers
-          // above and below so the group floats where the eye already is.
+          // above and below so the group floats where the eye already is. Every
+          // element sits on the same 21.5rem column, because half the cheapness
+          // of a whipped-up screen is elements that each picked their own width.
           cQSpace: { flex: "1 1 0" },
           cQSpace2: { flex: "1.25 1 0" },
           cQTitleS: { flex: "none", display: "block", textAlign: "center",
             fontFamily: "var(--font-2)", fontSize: s.narrow ? "1.25rem" : "1.4rem",
-            letterSpacing: ".28em", textIndent: ".28em", color: "#d7e6ef",
-            paddingBottom: "1.7rem" },
+            letterSpacing: ".3em", textIndent: ".3em", color: "#d7e6ef" },
+          // A short lit rule under the question — the one piece of ornament, and
+          // it is the same cyan line the progress bar and the sliders are made of.
+          cQRule: { flex: "none", alignSelf: "center", width: "2.4rem", height: "2px",
+            margin: "1.1rem 0 2.1rem", background: "#22d3ee",
+            boxShadow: "0 0 10px rgba(34,211,238,.55)" },
           cQValRow: { flex: "none", display: "flex", alignItems: "baseline",
-            justifyContent: "center", gap: ".55rem", paddingBottom: "1rem" },
+            justifyContent: "center", gap: ".55rem", paddingBottom: "1.1rem" },
           cQValS: { fontFamily: "var(--font-1)", fontWeight: 300,
             fontSize: s.narrow ? "3.7rem" : "4.2rem", lineHeight: 1,
             fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
           cQValUnit: { fontFamily: "var(--font-2)", fontSize: ".95rem",
             letterSpacing: ".16em", color: "#9fb3c0" },
+          cQSlideBox: { flex: "none", alignSelf: "center", width: "100%",
+            maxWidth: "21.5rem", display: "flex", flexDirection: "column" },
+          // The ends of the scale, faintly, so the slider says where it can go
+          // before a finger asks it.
+          cQEnds: { display: "flex", justifyContent: "space-between",
+            paddingTop: ".15rem", fontFamily: "var(--font-2)", fontSize: ".84rem",
+            letterSpacing: ".08em", color: "#71879a",
+            fontVariantNumeric: "tabular-nums" },
           cQNextS: { flex: "none", alignSelf: "center", display: "flex",
             alignItems: "center", justifyContent: "center", gap: ".55rem",
-            minWidth: "11.5rem", height: "3.2rem", marginTop: "2rem",
+            width: "100%", maxWidth: "21.5rem", height: "3.3rem", marginTop: "2.2rem",
             padding: "0 1.5rem", boxSizing: "border-box", borderRadius: 0,
             cursor: "pointer", border: "1px solid rgba(34,211,238,.5)",
             background: "rgba(34,211,238,.08)", color: "#3fdcf2",
+            boxShadow: "0 0 22px rgba(34,211,238,.10)",
             fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".24em",
             textIndent: ".24em",
+            transition: "background 160ms ease, border-color 160ms ease" },
+          // ── the body screen: figure above, its two numbers under it ─────────────
+          cBodyPanel: { flex: "none", display: "flex", flexDirection: "column",
+            gap: ".35rem", width: "100%", maxWidth: "24rem", alignSelf: "center" },
+          cBodyRow: { display: "grid",
+            gridTemplateColumns: "5.6rem minmax(0,1fr) 4.2rem",
+            alignItems: "center", gap: ".9rem" },
+          cBodyLab: { display: "flex", alignItems: "center", gap: ".45rem",
+            fontFamily: "var(--font-2)", fontSize: ".88rem", letterSpacing: ".14em",
+            color: "#a9bcc8", whiteSpace: "nowrap" },
+          cEstTag: { fontSize: ".82rem", letterSpacing: ".12em", color: "#22d3ee",
+            border: "1px solid rgba(34,211,238,.45)", padding: ".05rem .28rem",
+            lineHeight: 1.2 },
+          cBodyValCell: { display: "flex", alignItems: "baseline",
+            justifyContent: "flex-end", gap: ".3rem" },
+          cBodyVal: { fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1.55rem", lineHeight: 1, fontVariantNumeric: "tabular-nums",
+            color: "#f2f8fc" },
+          cBodyUnit: { fontFamily: "var(--font-2)", fontSize: ".8rem",
+            letterSpacing: ".1em", color: "#9fb3c0" },
+          cBodyNextS: { flex: "none", display: "flex", alignItems: "center",
+            justifyContent: "center", gap: ".55rem", width: "100%",
+            height: "3.1rem", marginTop: ".75rem", padding: "0 1.5rem",
+            boxSizing: "border-box", borderRadius: 0, cursor: "pointer",
+            border: "1px solid rgba(34,211,238,.5)",
+            background: "rgba(34,211,238,.08)", color: "#3fdcf2",
+            boxShadow: "0 0 22px rgba(34,211,238,.10)",
+            fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".22em",
+            textIndent: ".22em",
             transition: "background 160ms ease, border-color 160ms ease" },
           cValRow: { flex: "none", display: "flex", alignItems: "baseline",
             justifyContent: "center", gap: ".45rem", paddingBottom: ".1rem" },
@@ -4296,8 +4366,8 @@ class Component extends DCLogic {
           cValUnit: { fontFamily: "var(--font-2)", fontSize: ".84rem",
             letterSpacing: ".16em", color: "#9fb3c0" },
           cSubRow: { flex: "none", display: "flex", alignItems: "baseline",
-            justifyContent: "center", gap: ".4rem", paddingTop: ".6rem" },
-          cSubVal: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.5rem",
+            justifyContent: "center", gap: ".45rem", padding: "1.5rem 0 .6rem" },
+          cSubVal: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.9rem",
             lineHeight: 1.05, fontVariantNumeric: "tabular-nums", color: "#eaf5fb" },
           cFieldRow: { flex: "none", display: "flex", alignItems: "center",
             gap: ".9rem", paddingTop: ".1rem" },
@@ -4306,9 +4376,12 @@ class Component extends DCLogic {
             boxSizing: "border-box", borderRadius: 0, cursor: "pointer",
             border: "1px solid rgba(34,211,238,.5)", background: "rgba(34,211,238,.08)",
             color: "#3fdcf2", transition: "background 160ms ease, border-color 160ms ease" },
-          cMetRow: { flex: "none", display: "grid",
-            gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: ".4rem",
-            paddingTop: ".5rem" },
+          // Two by two rather than four across: VERY HARD does not have to fold
+          // itself in half to fit a phone.
+          cMetRow: { flex: "none", alignSelf: "center", width: "100%",
+            maxWidth: "21.5rem", display: "grid",
+            gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: ".55rem",
+            paddingTop: "1.1rem" },
           cFigS: { display: "block", height: "100%", maxHeight: s.narrow ? "11rem" : "13rem",
             width: "auto", color: "#3b5364" },
           cFigBigS: { display: "block", height: "100%",
@@ -4335,7 +4408,9 @@ class Component extends DCLogic {
           cLeadS: { flex: "none", display: "block", padding: ".45rem 0 1rem",
             fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.05rem",
             lineHeight: 1.4, color: "#eaf5fb", textWrap: "pretty" },
-          cCol: { flex: "none", display: "flex", flexDirection: "column", gap: ".55rem" },
+          cCol: { flex: "none", alignSelf: "center", width: "100%",
+            maxWidth: "21.5rem", display: "flex", flexDirection: "column",
+            gap: ".6rem" },
           cScroll: { flex: 1, minHeight: 0, overflowY: "auto", display: "flex",
             flexDirection: "column", gap: ".55rem", paddingBottom: ".5rem" },
           // The stepper is the plate's own, at the size a question deserves.
