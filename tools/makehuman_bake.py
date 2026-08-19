@@ -132,10 +132,14 @@ def weight_factors(w):
 # "muscular" from across a room (pecs, lats, delts, thicker limbs, V-taper)
 # lives in the detail library, exactly as the obesity shape did.
 MUS_HI = [
-    ("torso/torso-muscle-pectoral-incr", 1.00),
+    # Pectoral held well under the limbs: at full strength the pec mass
+    # balloons and rides up toward the clavicle. Ab tone lives mostly on
+    # the fat axis (LEAN_TONE) where it belongs — leanness reveals it —
+    # so it is only seasoning here.
+    ("torso/torso-muscle-pectoral-incr", 0.50),
     ("torso/torso-muscle-dorsi-incr", 1.00),
     ("torso/torso-vshape-incr", 0.80),
-    ("stomach/stomach-tone-incr", 0.80),
+    ("stomach/stomach-tone-incr", 0.35),
     ("armslegs/l-upperarm-muscle-incr", 1.10),
     ("armslegs/r-upperarm-muscle-incr", 1.10),
     ("armslegs/l-upperarm-shoulder-muscle-incr", 1.05),
@@ -173,6 +177,13 @@ def compose(base, targets, sex, bf, levels, muscle="averagemuscle"):
     if e > 0:
         for name, top in FAT_KIT[sex]:
             targets.add(V, name, top * e)
+    # Definition is what leanness reveals: stomach tone ramps in over the
+    # bottom third of the fat range, so abs sharpen as the slider drops
+    # rather than only when FFMI is high.
+    lean = max(0.0, (0.35 - t) / 0.35)
+    if lean > 0:
+        targets.add(V, "stomach/stomach-tone-incr",
+                    (0.75 if sex == "m" else 0.50) * lean)
     if muscle != "averagemuscle":
         for name, f in (MUS_HI if muscle == "maxmuscle" else MUS_LO):
             targets.add(V, name, f)
