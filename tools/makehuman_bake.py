@@ -132,19 +132,20 @@ def weight_factors(w):
 # "muscular" from across a room (pecs, lats, delts, thicker limbs, V-taper)
 # lives in the detail library, exactly as the obesity shape did.
 MUS_HI = [
-    ("torso/torso-muscle-pectoral-incr", 0.55),
-    ("torso/torso-muscle-dorsi-incr", 0.55),
-    ("torso/torso-vshape-incr", 0.45),
-    ("armslegs/l-upperarm-muscle-incr", 0.65),
-    ("armslegs/r-upperarm-muscle-incr", 0.65),
-    ("armslegs/l-upperarm-shoulder-muscle-incr", 0.60),
-    ("armslegs/r-upperarm-shoulder-muscle-incr", 0.60),
-    ("armslegs/l-lowerarm-muscle-incr", 0.50),
-    ("armslegs/r-lowerarm-muscle-incr", 0.50),
-    ("armslegs/l-upperleg-muscle-incr", 0.55),
-    ("armslegs/r-upperleg-muscle-incr", 0.55),
-    ("armslegs/l-lowerleg-muscle-incr", 0.50),
-    ("armslegs/r-lowerleg-muscle-incr", 0.50),
+    ("torso/torso-muscle-pectoral-incr", 1.00),
+    ("torso/torso-muscle-dorsi-incr", 1.00),
+    ("torso/torso-vshape-incr", 0.80),
+    ("stomach/stomach-tone-incr", 0.80),
+    ("armslegs/l-upperarm-muscle-incr", 1.10),
+    ("armslegs/r-upperarm-muscle-incr", 1.10),
+    ("armslegs/l-upperarm-shoulder-muscle-incr", 1.05),
+    ("armslegs/r-upperarm-shoulder-muscle-incr", 1.05),
+    ("armslegs/l-lowerarm-muscle-incr", 0.90),
+    ("armslegs/r-lowerarm-muscle-incr", 0.90),
+    ("armslegs/l-upperleg-muscle-incr", 1.00),
+    ("armslegs/r-upperleg-muscle-incr", 1.00),
+    ("armslegs/l-lowerleg-muscle-incr", 0.90),
+    ("armslegs/r-lowerleg-muscle-incr", 0.90),
 ]
 MUS_LO = [
     ("torso/torso-muscle-pectoral-decr", 0.45),
