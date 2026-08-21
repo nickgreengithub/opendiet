@@ -450,6 +450,15 @@ the low end of normal. On the result screen the scrubbed trajectory supplies bot
 weight and the fat, so a year of deficit slims the figure by exactly what Forbes says
 it loses — mostly fat, a little lean.
 
+The fat axis has the mirror-image correction. Driven by the percentage it dressed 104 kg
+and 70 kg at 30% identically, when one carries 31 kg of fat and the other 21 — one is
+bulky fat, the other skinny fat. So with a weight in hand the fat morph runs on **FMI**,
+fat kilograms over height squared, against per-level anchors set at the fat mass of the
+reference body each level was sculpted as. And because the muscle targets carry the
+V-taper and the ab tone — which nobody shows at 30% whatever their lean mass — the
+muscular side of the FFMI influence is damped as body fat climbs, so a strongman at 30%
+reads bulky rather than sculpted, while a narrow frame stays narrow under its fat.
+
 ### The bake that shipped
 
 Hand-tuning a body from primitives turned out to be the trap it looked like: every fix

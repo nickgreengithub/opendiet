@@ -57,6 +57,17 @@ function weightsFor(levels, bf) {
   return w;
 }
 
+// What the fat axis actually answers to when the weight is known: fat MASS over
+// height squared, not the percentage. 104 kg and 70 kg at the same 30% carry
+// 31 kg and 21 kg of fat — one is bulky fat, the other skinny fat — and a
+// percentage-driven morph would dress them identically. Each baked level is
+// anchored at the fat-mass index of the reference body it was sculpted as
+// (e.g. the male 30% level as a 92 kg man: 27.6 kg fat / 1.75² ≈ 9.0).
+const FMI_LEVELS = {
+  m: [1.9, 3.7, 5.9, 9.0, 13.2, 18.6],
+  f: [2.4, 3.8, 5.8, 8.2, 12.1, 17.3]
+};
+
 export function mount(canvas) {
   if (canvas.__body) return canvas.__body;
 
@@ -146,7 +157,13 @@ export function mount(canvas) {
 
   const apply = () => {
     if (!mesh || !levels) return;
-    const w = weightsFor(levels, want.bf);
+    // With a weight in hand the fat axis runs on fat-mass index, so the same
+    // percentage on a heavier body is visibly more fat; without one (an older
+    // caller), it falls back to the percentage against the baked levels.
+    const hm = Math.pow((want.ht || 175) / 100, 2);
+    const w = want.kg > 0 && FMI_LEVELS[want.sex]
+      ? weightsFor(FMI_LEVELS[want.sex], want.kg * (want.bf / 100) / hm)
+      : weightsFor(levels, want.bf);
     for (let i = 0; i < mesh.morphTargetInfluences.length; i++)
       mesh.morphTargetInfluences[i] = w[i] || 0;
     // Lean mass is its own axis. Body fat alone cannot tell a wiry 60 kg
@@ -157,15 +174,21 @@ export function mount(canvas) {
     // the arithmetic says it means.
     if (nMus === 2 && want.kg > 0) {
       const nFat = levels.length - 1;
-      const ffmi = want.kg * (1 - want.bf / 100) / Math.pow((want.ht || 175) / 100, 2);
+      const ffmi = want.kg * (1 - want.bf / 100) / hm;
       // Anchors: population-average FFMI maps to the baked average body,
       // the max-muscle target sits at a clearly athletic figure, and the
       // min-muscle one at the low end of normal.
       const A = want.sex === "f"
         ? { lo: 12.5, avg: 15.0, hi: 18.5 }
         : { lo: 15.5, avg: 18.5, hi: 22.5 };
+      // Fat buries definition: the muscle target carries the V-taper and the
+      // ab tone, and at 30% body fat nobody shows either, whatever their lean
+      // mass. So the muscular side is damped as fat climbs — a strongman at
+      // 30% reads bulky, not sculpted. The low side is left alone: a narrow
+      // frame stays visibly narrow under fat.
+      const mask = Math.max(0.35, Math.min(1, 1.35 - 0.03 * want.bf));
       const m = ffmi >= A.avg
-        ? Math.min(1.3, (ffmi - A.avg) / (A.hi - A.avg))
+        ? Math.min(1.3, (ffmi - A.avg) / (A.hi - A.avg)) * mask
         : -Math.min(1, (A.avg - ffmi) / (A.avg - A.lo));
       mesh.morphTargetInfluences[nFat] = m < 0 ? -m : 0;
       mesh.morphTargetInfluences[nFat + 1] = m > 0 ? m : 0;
