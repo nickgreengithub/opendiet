@@ -386,9 +386,8 @@ option{background:#070b12;color:#d7e6ef}
         <sc-if value="{{ cBodySvg }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 64 136" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="{{ cFigS }}"><circle cx="32" cy="14" r="10"></circle><path d="{{ cBodyGlyph }}"></path></svg></sc-if>
       </span>
       <span style="{{ cBodyPanel }}">
-        <span style="{{ cBodyRow }}"><span style="{{ cBodyLab }}">WEIGHT</span><input type="range" min="{{ cWtMin }}" max="{{ cWtMax }}" step="1" value="{{ cWtVal }}" onChange="{{ cWtSlide }}" style="{{ cWtTrack }}"><span style="{{ cBodyValCell }}"><span style="{{ cBodyVal }}">{{ cWtVal }}</span><span style="{{ cBodyUnit }}">KG</span></span></span>
-        <span style="{{ cBodyRow }}"><span style="{{ cBodyLab }}">BODY FAT<sc-if value="{{ cBfEstOn }}" hint-placeholder-val="{{ false }}"><span style="{{ cEstTag }}">EST</span></sc-if></span><input type="range" min="{{ cBfMin }}" max="{{ cBfMax }}" step="1" value="{{ cBfVal }}" onChange="{{ cBfSlide }}" style="{{ cBfTrack }}"><span style="{{ cBodyValCell }}"><span style="{{ cBodyVal }}">{{ cBfVal }}</span><span style="{{ cBodyUnit }}">%</span></span></span>
-        <span style="{{ cCompS }}">{{ cComp }}</span>
+        <span style="{{ cMetGrid }}"><sc-for list="{{ cMetCells }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}<span style="{{ t.estS }}">EST</span></span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
+        <input type="range" min="{{ cSelMin }}" max="{{ cSelMax }}" step="{{ cSelStep }}" value="{{ cSelVal }}" onChange="{{ cSelSlide }}" style="{{ cSelTrack }}">
         <button onClick="{{ cNext }}" style="{{ cBodyNextS }}" style-hover="border-color:rgba(34,211,238,.85);background:rgba(34,211,238,.18)">SEE THE NUMBER<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button>
       </span>
       </sc-if>
@@ -4033,7 +4032,7 @@ class Component extends DCLogic {
       // belonging to that app rather than to the bar.
       cResetOn: app === "calc",
       cResetAll: () => this.setState({ cStep: 0, cSex: null, cAge: 30, cHt: 175,
-        cWt: 80, cBf: null, cDay: null, cBurn: 0,
+        cWt: 80, cBf: null, cDay: null, cBurn: 0, cBodySel: "wt",
         cKcal: null, cWks: 26, cCurves: false, cTip: false }),
       cResetS: { display: "flex", alignItems: "center", justifyContent: "center",
         width: "1.9rem", height: "2.1rem", marginLeft: "-.15rem", padding: 0,
@@ -4168,25 +4167,78 @@ class Component extends DCLogic {
               onType: e => { const n = parseInt(String(e.target.value).replace(/[^0-9]/g, ""), 10);
                 this.setState({ [f.k]: isNaN(n) ? f.dflt : Math.max(f.lo, Math.min(f.hi, n)) }); } };
           })(),
-          // The last screen: the figure with both of its numbers under it.
-          cWtVal: String(clampF(FIELDS[2], s.cWt)),
-          cWtMin: String(FIELDS[2].lo), cWtMax: String(FIELDS[2].hi),
-          cWtSlide: e => this.setState({ cWt: clampF(FIELDS[2], +e.target.value) }),
-          cWtTrack: { "--p": (100 * (clampF(FIELDS[2], s.cWt) - FIELDS[2].lo)
-            / (FIELDS[2].hi - FIELDS[2].lo)).toFixed(1) + "%" },
-          cBfTrack: { "--p": (100 * (bfVal - bfLo) / (bfHi - bfLo)).toFixed(1) + "%" },
-          cBfEstOn: s.cBf == null,
-          // What the two sliders are actually saying, in kilograms — because a
-          // fat percentage held while the weight climbs is a claim about lean
-          // mass, and that claim should be on the screen it is being made on.
-          cComp: (() => {
-            const w = clampF(FIELDS[2], s.cWt);
-            const lean = w * (1 - bfVal / 100);
-            return Math.round(lean) + " kg lean · " + Math.round(w - lean) + " kg fat";
+          // The last screen: every metric a cell — weight, BMI, body fat, lean —
+          // one always selected, and a single slider below driving whichever it
+          // is. BMI and lean have no state of their own; they write back through
+          // the arithmetic — BMI is weight at this height, lean is body fat at
+          // this weight — so the four cells can never disagree.
+          ...(() => {
+            const wtF = FIELDS[2];
+            const wtV = clampF(wtF, s.cWt);
+            const hm = Math.pow(m.ht / 100, 2);
+            const bmi = wtV / hm;
+            const lean = wtV * (1 - bfVal / 100);
+            const setWt = v => this.setState({ cWt: clampF(wtF, v) });
+            const M = {
+              wt: { label: "WEIGHT", unit: " KG", val: String(wtV),
+                lo: wtF.lo, hi: wtF.hi, stp: 1, cur: wtV, set: setWt },
+              bmi: { label: "BMI", unit: "", val: bmi.toFixed(1),
+                lo: Math.ceil(10 * wtF.lo / hm) / 10,
+                hi: Math.floor(10 * wtF.hi / hm) / 10,
+                stp: 0.1, cur: bmi, set: v => setWt(v * hm) },
+              bf: { label: "BODY FAT", unit: " %", val: String(bfVal),
+                est: s.cBf == null, lo: bfLo, hi: bfHi, stp: 1, cur: bfVal,
+                set: v => this.setState({ cBf: Math.round(v) }) },
+              lean: { label: "LEAN", unit: " KG", val: String(Math.round(lean)),
+                lo: Math.round(wtV * 0.45),
+                hi: Math.round(wtV * (1 - bfLo / 100)),
+                stp: 1, cur: lean,
+                set: v => this.setState({ cBf: Math.max(bfLo, Math.min(bfHi,
+                  Math.round(100 * (1 - v / wtV)))) }) }
+            };
+            const sel = M[s.cBodySel] ? s.cBodySel : "wt";
+            const d = M[sel];
+            return {
+              cMetGrid: { display: "grid",
+                gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: ".5rem" },
+              cMetCells: Object.keys(M).map(k => {
+                const mm = M[k], on = k === sel;
+                return {
+                  label: mm.label,
+                  val: mm.val, unit: mm.unit,
+                  onClick: () => this.setState({ cBodySel: k }),
+                  s: { position: "relative", display: "flex",
+                    flexDirection: "column", alignItems: "center",
+                    justifyContent: "center", gap: ".4rem", minWidth: 0,
+                    height: "4.4rem", padding: ".3rem .2rem",
+                    boxSizing: "border-box", borderRadius: 0, cursor: "pointer",
+                    border: "1px solid " + (on ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.22)"),
+                    background: on ? "rgba(34,211,238,.10)"
+                      : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
+                    transition: "border-color 160ms ease, background 160ms ease" },
+                  labS: { fontFamily: "var(--font-2)", fontSize: ".84rem",
+                    letterSpacing: ".06em", whiteSpace: "nowrap",
+                    color: on ? "#3fdcf2" : "#a9bcc8" },
+                  valS: { fontFamily: "var(--font-1)", fontWeight: 300,
+                    fontSize: "1.45rem", lineHeight: 1,
+                    fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
+                  unitS: { fontFamily: "var(--font-2)", fontSize: ".8rem",
+                    letterSpacing: ".08em", color: "#9fb3c0" },
+                  // Pinned to the corner so its arrival and departure move
+                  // nothing — the estimate mark is a note, not a layout event.
+                  estS: { position: "absolute", top: ".25rem", right: ".25rem",
+                    fontFamily: "var(--font-2)", fontSize: ".7rem",
+                    letterSpacing: ".1em", color: "#22d3ee", lineHeight: 1.2,
+                    opacity: mm.est ? 1 : 0 }
+                };
+              }),
+              cSelMin: String(d.lo), cSelMax: String(d.hi),
+              cSelStep: String(d.stp), cSelVal: String(d.cur),
+              cSelSlide: e => d.set(+e.target.value),
+              cSelTrack: { "--p": (100 * (d.cur - d.lo)
+                / Math.max(1e-6, d.hi - d.lo)).toFixed(1) + "%" }
+            };
           })(),
-          cCompS: { display: "block", textAlign: "center", paddingTop: ".3rem",
-            fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".95rem",
-            lineHeight: 1.2, color: "#a9bcc8", fontVariantNumeric: "tabular-nums" },
           // The figure is WebGL when WebGL will have it, and the line drawing when it
           // will not — an old browser, a blocked context, a model that failed to load.
           cBody3D: !s.cBodyFail, cBodySvg: !!s.cBodyFail,
@@ -4218,13 +4270,6 @@ class Component extends DCLogic {
           })),
           cNext: () => go(step + 1),
           cNextLab: step === STEPS.length - 1 ? "SEE THE NUMBER" : "NEXT",
-          // The estimate is shown before the slider rather than instead of it: the person is
-          // told what the arithmetic already thinks, and then asked to look. No number box
-          // here — nobody knows their body fat to the percent, and a field that invites a
-          // typed figure implies a precision that does not exist.
-          cBfVal: String(bfVal), cBfPct: bfVal + "%",
-          cBfMin: String(bfLo), cBfMax: String(bfHi),
-          cBfSlide: e => this.setState({ cBf: +e.target.value }),
 
           // Three little scenes in the site's stroke — a day is easier to
           // recognise than to read, and the sentence under each label does the
@@ -4396,28 +4441,9 @@ class Component extends DCLogic {
             fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".24em",
             textIndent: ".24em",
             transition: "background 160ms ease, border-color 160ms ease" },
-          // ── the body screen: figure above, its two numbers under it ─────────────
+          // ── the body screen: figure above, its metrics under it ─────────────────
           cBodyPanel: { flex: "none", display: "flex", flexDirection: "column",
-            gap: ".35rem", width: "100%", maxWidth: "24rem", alignSelf: "center" },
-          cBodyRow: { display: "grid",
-            gridTemplateColumns: "5.6rem minmax(0,1fr) 4.2rem",
-            alignItems: "center", gap: ".9rem" },
-          // The label stacks its EST tag beneath rather than beside, so the tag
-          // appearing or going never moves the slider next to it.
-          cBodyLab: { display: "flex", flexDirection: "column",
-            alignItems: "flex-start", gap: ".25rem",
-            fontFamily: "var(--font-2)", fontSize: ".88rem", letterSpacing: ".14em",
-            color: "#a9bcc8", whiteSpace: "nowrap" },
-          cEstTag: { fontSize: ".82rem", letterSpacing: ".12em", color: "#22d3ee",
-            border: "1px solid rgba(34,211,238,.45)", padding: ".05rem .28rem",
-            lineHeight: 1.2 },
-          cBodyValCell: { display: "flex", alignItems: "baseline",
-            justifyContent: "flex-end", gap: ".3rem" },
-          cBodyVal: { fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: "1.55rem", lineHeight: 1, fontVariantNumeric: "tabular-nums",
-            color: "#f2f8fc" },
-          cBodyUnit: { fontFamily: "var(--font-2)", fontSize: ".8rem",
-            letterSpacing: ".1em", color: "#9fb3c0" },
+            gap: ".45rem", width: "100%", maxWidth: "24rem", alignSelf: "center" },
           cBodyNextS: { flex: "none", display: "flex", alignItems: "center",
             justifyContent: "center", gap: ".55rem", width: "100%",
             height: "3.1rem", marginTop: ".75rem", padding: "0 1.5rem",
