@@ -380,16 +380,24 @@ option{background:#070b12;color:#d7e6ef}
         <span style="{{ cTitleS }}">{{ cTitle }}</span>
       </span>
       <sc-if value="{{ cBackOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ cBack }}" style="{{ cNotchL }}" style-hover="background:rgba(34,211,238,.18);border-color:rgba(34,211,238,.85)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M15 5l-7 7 7 7"></path></svg></button></sc-if>
+      <sc-if value="{{ cRNotchOn }}" hint-placeholder-val="{{ true }}"><button onClick="{{ cNext }}" style="{{ cNotchR }}" style-hover="background:rgba(34,211,238,.18);border-color:rgba(34,211,238,.85)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button></sc-if>
       <sc-if value="{{ cFigOn }}" hint-placeholder-val="{{ false }}">
-      <button onClick="{{ cNext }}" style="{{ cNotchR }}" style-hover="background:rgba(34,211,238,.18);border-color:rgba(34,211,238,.85)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button>
       <span style="{{ cFigWrap }}">
         <sc-if value="{{ cBody3D }}" hint-placeholder-val="{{ true }}"><canvas data-body style="{{ cCanvasS }}"></canvas></sc-if>
         <sc-if value="{{ cBodySvg }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 64 136" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="{{ cFigS }}"><circle cx="32" cy="14" r="10"></circle><path d="{{ cBodyGlyph }}"></path></svg></sc-if>
       </span>
+      <sc-if value="{{ cIsHt }}" hint-placeholder-val="{{ false }}">
+      <span style="{{ cBodyPanel }}">
+        <span style="{{ cHtGrid }}"><span style="{{ cHtCell }}"><span style="{{ cHtLabS }}">HEIGHT</span><span style="{{ cHtValS }}">{{ cHtVal }}<span style="{{ cHtUnitS }}"> CM</span></span></span></span>
+        <span style="{{ cSliderBox }}"><input type="range" min="{{ cHtMin }}" max="{{ cHtMax }}" step="1" value="{{ cHtVal }}" onChange="{{ cHtSlide }}" style="{{ cHtTrack }}"></span>
+      </span>
+      </sc-if>
+      <sc-if value="{{ cIsBody }}" hint-placeholder-val="{{ true }}">
       <span style="{{ cBodyPanel }}">
         <span style="{{ cMetGrid }}"><sc-for list="{{ cMetCells }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}<span style="{{ t.estS }}">EST</span></span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
         <span style="{{ cSliderBox }}"><input type="range" min="{{ cSelMin }}" max="{{ cSelMax }}" step="{{ cSelStep }}" value="{{ cSelVal }}" onChange="{{ cSelSlide }}" style="{{ cSelTrack }}"></span>
       </span>
+      </sc-if>
       </sc-if>
       <sc-if value="{{ cQOn }}" hint-placeholder-val="{{ true }}">
         <span style="{{ cQSpace }}"></span>
@@ -406,25 +414,19 @@ option{background:#070b12;color:#d7e6ef}
           <span style="{{ cQEnds }}"><span>{{ cField.min }}</span><span>{{ cField.max }}</span></span>
         </span>
       </sc-if>
-      <sc-if value="{{ cIsDay }}" hint-placeholder-val="{{ false }}">
-        <span style="{{ cCol }}"><sc-for list="{{ cDayTiles }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="{{ t.icoS }}"><circle cx="{{ t.cx }}" cy="{{ t.cy }}" r="2"></circle><path d="{{ t.icon }}"></path></svg><span style="{{ t.txtS }}"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.noteS }}">{{ t.note }}</span></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3fdcf2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ t.tickS }}"><path d="M5 12l5 5L20 7"></path></svg></button></sc-for></span>
-      </sc-if>
-      <sc-if value="{{ cIsTrain }}" hint-placeholder-val="{{ false }}">
-        <span style="{{ cQValRow }}"><span style="{{ cBurnValS }}">{{ cBurnVal }}</span><span style="{{ cQValUnit }}">KCAL A WEEK</span></span>
+      <sc-if value="{{ cIsAct }}" hint-placeholder-val="{{ false }}">
+        <span style="{{ cQValRow }}"><span style="{{ cActValS }}">{{ cActKcal }}</span><span style="{{ cQValUnit }}">KCAL A WEEK</span></span>
         <span style="{{ cQSlideBox }}">
-          <input type="range" min="0" max="9" step="1" value="{{ cBurnIdx }}" onChange="{{ cBurnSlide }}" style="{{ cBurnTrack }}">
-          <span style="{{ cQEnds }}"><span>0</span><span>2500</span></span>
+          <input type="range" min="0" max="7" step="1" value="{{ cActIdx }}" onChange="{{ cActSlide }}" style="{{ cActTrack }}">
+          <span style="{{ cQEnds }}"><span>{{ cActLo }}</span><span>{{ cActHi }}</span></span>
         </span>
-        <span style="{{ cEqPanel }}">
-          <sc-if value="{{ cBurnOn }}" hint-placeholder-val="{{ true }}">
-            <span style="{{ cEqRow }}"><span style="{{ cEqTag }}">LOW</span><span style="{{ cEqTxt }}">{{ cEqLow }}</span></span>
-            <span style="{{ cEqRow }}"><span style="{{ cEqTag }}">HIGH</span><span style="{{ cEqTxt }}">{{ cEqHigh }}</span></span>
-          </sc-if>
-          <sc-if value="{{ cBurnZero }}" hint-placeholder-val="{{ false }}"><span style="{{ cEqNone }}">No training on top of the day.</span></sc-if>
+        <span style="{{ cActPanel }}">
+          <span style="{{ cActLabS }}">{{ cActLabel }}</span>
+          <span style="{{ cActNoteS }}">{{ cActNote }}</span>
         </span>
+        <button onClick="{{ cNext }}" style="{{ cQNextS }}" style-hover="border-color:rgba(34,211,238,.85);background:rgba(34,211,238,.18)">SEE THE NUMBER<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button>
       </sc-if>
       <sc-if value="{{ cQOn }}" hint-placeholder-val="{{ true }}">
-        <sc-if value="{{ cQNextOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ cNext }}" style="{{ cQNextS }}" style-hover="border-color:rgba(34,211,238,.85);background:rgba(34,211,238,.18)">NEXT<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button></sc-if>
         <span style="{{ cQSpace2 }}"></span>
       </sc-if>
     </sc-if>
@@ -1020,34 +1022,28 @@ const PICKED_BG = "#0b1a20";
 // The day a person spends anyway, priced on the FAO/WHO/UNU lifestyle bands and read at
 // the exercise-free end of each, because training is asked for separately and billing it
 // twice is the classic way a calculator reads high.
-const CALC_DAY = [
-  { label: "AT A DESK", note: "Seated most of the day, short walks either side of it.", pal: 1.45 },
-  { label: "ON YOUR FEET", note: "Standing or walking for much of it \u2014 teaching, retail, nursing, a job with stairs.", pal: 1.70 },
-  { label: "PHYSICAL WORK", note: "Lifting, carrying or walking all day \u2014 trades, warehouse, farming, delivery.", pal: 1.95 }
-];
-// Training, priced in METs rather than adjectives, so each tile can say what it is
-// instead of what it is called. Values are indicative, from the Compendium.
-const CALC_MET = [
-  { label: "LIGHT", note: "Walking, easy cycling, yoga", met: 3 },
-  { label: "MODERATE", note: "Brisk walking, weights with rest, doubles tennis", met: 5 },
-  { label: "VIGOROUS", note: "Running, circuits, hard cycling", met: 8.5 },
-  { label: "VERY HARD", note: "Intervals, sprints, competitive sport", met: 11 }
-];
-// The training question, as ten steps of weekly burn. The equivalences are the
-// MET arithmetic run backwards for a reference 75 kg body — brisk walking at
-// 4.5 METs nets about 260 kcal an hour, running at 10 nets about 675 — so the
-// same figure is stated once in the easy currency and once in the hard one.
-const CALC_BURN = [
-  { k: 0 },
-  { k: 250, lo: "an hour of brisk walking", hi: "20 minutes of running" },
-  { k: 500, lo: "2 hours of brisk walking", hi: "45 minutes of running" },
-  { k: 750, lo: "3 hours of brisk walking", hi: "1 h 10 of running" },
-  { k: 1000, lo: "4 hours of brisk walking", hi: "1½ hours of running" },
-  { k: 1250, lo: "5 hours of brisk walking", hi: "1¾ hours of running" },
-  { k: 1500, lo: "6 hours of brisk walking", hi: "2¼ hours of running" },
-  { k: 1750, lo: "6¾ hours of brisk walking", hi: "2½ hours of running" },
-  { k: 2000, lo: "7½ hours of brisk walking", hi: "3 hours of running" },
-  { k: 2500, lo: "9½ hours of brisk walking", hi: "3¾ hours of running" }
+// The one activity question: eight bands of a week, each a PAL from the FAO
+// range with a name and a sentence of what that life looks like. The screen
+// prices the band in this body's own calories (RMR x PAL x 7), so the figure
+// read off the slider is the week it describes. The floor is 1.25: bed rest
+// with meals is about 1.2, so no living week goes lower.
+const CALC_ACT = [
+  { pal: 1.25, label: "VERY MINIMAL ACTIVITY",
+    note: "Housebound days \u2014 sitting nearly all of it, a few hundred steps, no training." },
+  { pal: 1.40, label: "SEDENTARY",
+    note: "A desk day and little else \u2014 short walks to the car or the shops, no training." },
+  { pal: 1.55, label: "LIGHTLY ACTIVE",
+    note: "On your feet part of the day, or two or three easy sessions a week." },
+  { pal: 1.70, label: "MODERATELY ACTIVE",
+    note: "A standing or walking job, or training four or five days a week." },
+  { pal: 1.85, label: "ACTIVE",
+    note: "Physical work most days, or a walking job plus regular hard training." },
+  { pal: 2.00, label: "VERY ACTIVE",
+    note: "A physical job with training on top, or hard training nearly every day." },
+  { pal: 2.20, label: "ATHLETE",
+    note: "Heavy training most days \u2014 sport in season, serious weekly volume." },
+  { pal: 2.40, label: "EXTREME",
+    note: "Hard labour plus training, or two-a-days \u2014 few people live here for long." }
 ];
 // Eight bands each, which is as fine as anyone can pick themselves out of a line-up.
 const CALC_BF = { m: [8, 12, 16, 20, 25, 30, 35, 40], f: [16, 20, 24, 28, 32, 36, 40, 45] };
@@ -1140,6 +1136,40 @@ class Component extends DCLogic {
       if (n !== this.state.narrow || tab !== this.state.tablet) this.setState({ narrow: n, tablet: tab });
     };
     window.addEventListener("resize", this._onResize);
+    // A range input on iOS only surrenders to a finger that lands square on
+    // its thumb; a touch anywhere else on the track is ignored or read as a
+    // scroll. So the sliders are driven by hand: pointer down anywhere on one
+    // becomes the value, and the drag follows from wherever it started.
+    this._slide = e => {
+      const r = e.target;
+      if (!(r instanceof HTMLInputElement) || r.type !== "range" || e.button > 0) return;
+      const dec = (String(r.step || "1").split(".")[1] || "").length;
+      const setV = x => {
+        const rect = r.getBoundingClientRect();
+        const pad = 14;
+        const f = Math.max(0, Math.min(1,
+          (x - rect.left - pad) / Math.max(1, rect.width - 2 * pad)));
+        const lo = +r.min || 0, hi = +r.max || 100, st = +r.step || 1;
+        const v = (Math.round((lo + f * (hi - lo)) / st) * st).toFixed(dec);
+        const setter = Object.getOwnPropertyDescriptor(
+          HTMLInputElement.prototype, "value").set;
+        setter.call(r, v);
+        r.dispatchEvent(new Event("input", { bubbles: true }));
+      };
+      setV(e.clientX);
+      const move = ev => { setV(ev.clientX); ev.preventDefault(); };
+      const up = () => {
+        r.removeEventListener("pointermove", move);
+        r.removeEventListener("pointerup", up);
+        r.removeEventListener("pointercancel", up);
+      };
+      try { r.setPointerCapture(e.pointerId); } catch (x) {}
+      r.addEventListener("pointermove", move, { passive: false });
+      r.addEventListener("pointerup", up);
+      r.addEventListener("pointercancel", up);
+      e.preventDefault();
+    };
+    document.addEventListener("pointerdown", this._slide, { passive: false });
     this.syncBody();
     // When the keyboard opens, iOS shrinks the visual viewport and scrolls the layout
     // viewport to reveal the focused field — which shoves a 100dvh shell off the top.
@@ -1778,15 +1808,12 @@ class Component extends DCLogic {
     const rmrOf = (W, FFM) => bfPicked
       ? 370 + 21.6 * FFM
       : 10 * W + 6.25 * ht - 5 * age + (sex === "m" ? 5 : -161);
-    const day = CALC_DAY[s.cDay == null ? 0 : s.cDay];
-    const pal = day.pal;
-    // The training answer is a weekly burn picked off ten steps, already net of
-    // resting metabolism (the equivalences it was picked against are built on
-    // MET − 1). Spread over the week, since the model runs in days and nobody
-    // trains in sevenths.
-    const burn = CALC_BURN[Math.max(0, Math.min(CALC_BURN.length - 1, s.cBurn || 0))];
-    const trainDay0 = burn.k / 7;
-    const tdee0 = rmrOf(wt, ffm0) * pal + trainDay0;
+    // One activity answer: a PAL band picked off the weekly-calories slider.
+    const act = CALC_ACT[Math.max(0, Math.min(CALC_ACT.length - 1,
+      s.cAct == null ? 1 : s.cAct))];
+    const pal = act.pal;
+    const rmr0 = rmrOf(wt, ffm0);
+    const tdee0 = rmr0 * pal;
     const maint = Math.round(tdee0);
     const floor = CALC_FLOOR[sex];
     const ess = ESSENTIAL_BF[sex] / 100;
@@ -1805,7 +1832,7 @@ class Component extends DCLogic {
           // accounts for, more the deeper the deficit, ramping in over about eight weeks.
           // A simplification of the term in Hall's model, and marked as one in CALC.md.
           const adapt = 0.10 * Math.min(1, defFrac / 0.25) * (1 - Math.exp(-d / 56));
-          tdee = (rmrOf(W, FFM) * pal + trainDay0 * (W / wt)) * (1 - adapt);
+          tdee = rmrOf(W, FFM) * pal * (1 - adapt);
           // Forbes: the fat-free share of a weight change falls as fat mass rises. This is
           // the line that makes a lean person's deficit a different proposition from a
           // heavy person's at the same number of calories.
@@ -1820,7 +1847,7 @@ class Component extends DCLogic {
       return out;
     };
     return { sex, age, ht, wt, bmi, bfEst, bfPicked, bf0, fm0, ffm0,
-      pal, day, trainDay0, burn, tdee0, maint, floor, ess, sim };
+      pal, act, rmr0, tdee0, maint, floor, ess, sim };
   }
   gNext() {
     this.gClearTimers();
@@ -4032,7 +4059,7 @@ class Component extends DCLogic {
       // belonging to that app rather than to the bar.
       cResetOn: app === "calc",
       cResetAll: () => this.setState({ cStep: 0, cSex: null, cAge: 30, cHt: 175,
-        cWt: 80, cBf: null, cDay: null, cBurn: 0, cBodySel: "wt",
+        cWt: 80, cBf: null, cAct: 1, cBodySel: "wt",
         cKcal: null, cWks: 26, cCurves: false, cTip: false }),
       cResetS: { display: "flex", alignItems: "center", justifyContent: "center",
         width: "1.9rem", height: "2.1rem", marginLeft: "-.15rem", padding: 0,
@@ -4040,37 +4067,14 @@ class Component extends DCLogic {
         color: "#5f7688", transition: "color 160ms ease" },
       ...(app !== "calc" ? {} : (() => {
         const m = this.calcModel(s);
-        const step = Math.min(s.cStep || 0, 6), done = step >= 6;
+        const step = Math.min(s.cStep || 0, 5), done = step >= 5;
         const set = (k, v) => this.setState({ [k]: v });
-        const go = n => this.setState({ cStep: Math.max(0, Math.min(6, n)) });
-        // Tiles answer and advance in the same tap: a tile is a decision, and asking for
-        // a second tap on NEXT to confirm one is how a seven-step run starts to feel long.
-        const tile = (label, note, on, pick) => ({
-          label, on,
-          onClick: () => { pick(); go(step + 1); },
-          tickS: { display: "block", flex: "none",
-            opacity: on ? 1 : 0, transition: "opacity 160ms ease" },
-          s: { display: "flex", alignItems: "center", gap: ".6rem", width: "100%",
-            justifyContent: "space-between", minHeight: "3.7rem",
-            padding: ".6rem 1.1rem", boxSizing: "border-box",
-            textAlign: "left", borderRadius: 0, cursor: "pointer",
-            border: "1px solid " + (on ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.22)"),
-            background: on ? "rgba(34,211,238,.10)"
-              : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
-            transition: "border-color 160ms ease, background 160ms ease" },
-          labS: { fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".12em",
-            color: on ? "#3fdcf2" : "#d7e6ef" },
-          noteS: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1rem",
-            lineHeight: 1.4, color: "#b3c5d0", textWrap: "pretty" }
-        });
-        // One question a screen, so the body can have the rest of it. A figure that
-        // fills the screen is the point of this app; four controls stacked under a
-        // thumbnail is not.
-        // The day and the training come before the body: the first five questions
-        // are quick centred slides, and the figure enters on the last screen —
-        // weight and body fat share it, because they are the two numbers the
-        // figure can answer, and answering them against it beats answering blind.
-        const STEPS = ["SEX", "AGE", "HEIGHT", "YOUR DAY", "TRAINING", "BODY"];
+        const go = n => this.setState({ cStep: Math.max(0, Math.min(5, n)) });
+        // One question a screen, and one way of moving: the notches. Height and
+        // body carry the figure — height right before the body screen, same
+        // layout, one cell — and the week's calories come last, priced against
+        // the body just described.
+        const STEPS = ["SEX", "AGE", "HEIGHT", "BODY", "WEEKLY CALORIES"];
         const FIELDS = [
           { k: "cAge", lab: "AGE", unit: "YEARS", lo: 18, hi: 90, dflt: 30 },
           { k: "cHt", lab: "HEIGHT", unit: "CM", lo: 140, hi: 215, dflt: 175 },
@@ -4134,7 +4138,7 @@ class Component extends DCLogic {
           cStepOn: !done, cResOn: done,
           // On the centred slides the question is the big text mid-screen, so the
           // header carries only the way back; the title returns with the figure.
-          cTitle: done || step < 5 ? "" : STEPS[step],
+          cTitle: done || !(step === 2 || step === 3) ? "" : STEPS[step],
           // A bar rather than "STEP 3 OF 7". It says the same thing without asking
           // anyone to do the arithmetic, and it is one line thick.
           cBarTrack: { flex: "none", display: "block", width: "100%", height: "2px",
@@ -4146,27 +4150,45 @@ class Component extends DCLogic {
           cBackOn: step > 0,
           cBack: () => go(step - 1),
           cQuit: () => this.setState({ app: "home" }),
-          cIsSex: step === 0, cIsNumQ: step === 1 || step === 2,
-          cIsDay: step === 3, cIsTrain: step === 4,
-          // The first five questions are centred slides without the figure; it
-          // arrives on the last screen, where weight and body fat share it.
-          cFigOn: step === 5,
-          cQOn: step < 5,
+          cIsSex: step === 0, cIsNumQ: step === 1,
+          cIsHt: step === 2, cIsBody: step === 3, cIsAct: step === 4,
+          // The figure carries height and body; the first two questions and the
+          // last are centred slides.
+          cFigOn: step === 2 || step === 3,
+          cQOn: step === 0 || step === 1 || step === 4,
           cQ: STEPS[step],
-          cQNextOn: step === 1 || step === 2 || step === 4,
+          // The way forward is the right notch on every screen but the last,
+          // which closes with a real button.
+          cRNotchOn: step < 4,
           // One field per screen, so this is the field this screen is for.
           cField: (() => {
-            // cField is built on every step, not just the two it is for, so the
-            // index is clamped to the age and height fields.
-            const f = FIELDS[Math.min(1, Math.max(0, step - 1))];
+            const f = FIELDS[0];
             const v = clampF(f, s[f.k]);
             return { lab: f.lab, unit: f.unit, val: String(v),
               min: String(f.lo), max: String(f.hi),
               trackS: { "--p": (100 * (v - f.lo) / (f.hi - f.lo)).toFixed(1) + "%" },
-              onSlide: e => this.setState({ [f.k]: clampF(f, +e.target.value) }),
-              onType: e => { const n = parseInt(String(e.target.value).replace(/[^0-9]/g, ""), 10);
-                this.setState({ [f.k]: isNaN(n) ? f.dflt : Math.max(f.lo, Math.min(f.hi, n)) }); } };
+              onSlide: e => this.setState({ [f.k]: clampF(f, +e.target.value) }) };
           })(),
+          // Height, on the body layout: the figure above, one cell, one slider.
+          cHtVal: String(clampF(FIELDS[1], s.cHt)),
+          cHtMin: String(FIELDS[1].lo), cHtMax: String(FIELDS[1].hi),
+          cHtSlide: e => this.setState({ cHt: clampF(FIELDS[1], +e.target.value) }),
+          cHtTrack: { "--p": (100 * (clampF(FIELDS[1], s.cHt) - FIELDS[1].lo)
+            / (FIELDS[1].hi - FIELDS[1].lo)).toFixed(1) + "%" },
+          // Weekly calories: the activity bands priced in this body's own
+          // arithmetic — RMR × PAL × 7. The value box is fixed-width and the
+          // explainer panel fixed-height, so the slider changes words and
+          // numbers and nothing else.
+          cActIdx: String(s.cAct == null ? 1 : s.cAct),
+          cActSlide: e => this.setState({ cAct: Math.max(0,
+            Math.min(CALC_ACT.length - 1, +e.target.value)) }),
+          cActTrack: { "--p": (100 * (s.cAct == null ? 1 : s.cAct)
+            / (CALC_ACT.length - 1)).toFixed(1) + "%" },
+          cActKcal: String(Math.round(m.rmr0 * m.pal * 7 / 100) * 100),
+          cActLo: String(Math.round(m.rmr0 * CALC_ACT[0].pal * 7 / 100) * 100),
+          cActHi: String(Math.round(m.rmr0 * CALC_ACT[CALC_ACT.length - 1].pal * 7 / 100) * 100),
+          cActLabel: m.act.label,
+          cActNote: m.act.note,
           // The last screen: every metric a cell — weight, BMI, body fat, lean —
           // one always selected, and a single slider below driving whichever it
           // is. BMI and lean have no state of their own; they write back through
@@ -4281,73 +4303,42 @@ class Component extends DCLogic {
           cNext: () => go(step + 1),
           cNextLab: step === STEPS.length - 1 ? "SEE THE NUMBER" : "NEXT",
 
-          // Three little scenes in the site's stroke — a day is easier to
-          // recognise than to read, and the sentence under each label does the
-          // reading for whoever wants it.
-          cDayTiles: CALC_DAY.map((d, i) => {
-            const on = s.cDay === i;
-            return {
-              label: d.label, note: d.note,
-              cx: [7, 12, 12][i], cy: [5.5, 4.5, 10.5][i],
-              icon: [
-                "M7 7.5v4.5M7 12h4v4.5M13 9h7M15 9v7.5",
-                "M12 6.5v5.5M12 8.5l-3.2 2M12 8.5l3.2 2M12 12l-3 7M12 12l3 7",
-                "M8 2.5h8v5H8zM9 7.5l1.6 3.5M15 7.5l-1.6 3.5M12 12.5v3.5M12 16l-3 5M12 16l3 5"
-              ][i],
-              onClick: () => { set("cDay", i); go(step + 1); },
-              icoS: { display: "block", flex: "none",
-                color: on ? "#3fdcf2" : "#6d8496", opacity: .95 },
-              txtS: { display: "flex", flexDirection: "column", gap: ".25rem",
-                flex: "1 1 auto", minWidth: 0 },
-              labS: { fontFamily: "var(--font-2)", fontSize: "1.02rem",
-                letterSpacing: ".16em", color: on ? "#3fdcf2" : "#d7e6ef" },
-              noteS: { fontFamily: "var(--font-1)", fontWeight: 300,
-                fontSize: ".92rem", lineHeight: 1.35, color: "#8fa5b3",
-                textWrap: "pretty" },
-              tickS: { display: "block", flex: "none",
-                opacity: on ? 1 : 0, transition: "opacity 160ms ease" },
-              s: { display: "flex", alignItems: "center", gap: "1rem",
-                width: "100%", height: "7.2rem", padding: ".8rem 1rem",
-                boxSizing: "border-box", textAlign: "left", borderRadius: 0,
-                cursor: "pointer",
-                border: "1px solid " + (on ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.22)"),
-                background: on ? "rgba(34,211,238,.10)"
-                  : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
-                transition: "border-color 160ms ease, background 160ms ease" }
-            };
-          }),
-          // Training as one slider: ten steps of weekly burn, each stated as
-          // what it buys in the easy currency and the hard one. The value keeps
-          // a fixed-width box and the equivalence panel a fixed height, so the
-          // slider moves numbers and words — never the screen.
-          cBurnIdx: String(s.cBurn || 0),
-          cBurnVal: String(CALC_BURN[s.cBurn || 0].k),
-          cBurnSlide: e => this.setState({ cBurn: Math.max(0,
-            Math.min(CALC_BURN.length - 1, +e.target.value)) }),
-          cBurnTrack: { "--p": (100 * (s.cBurn || 0) / (CALC_BURN.length - 1)).toFixed(1) + "%" },
-          cBurnOn: (s.cBurn || 0) > 0,
-          cBurnZero: !(s.cBurn || 0),
-          cEqLow: CALC_BURN[s.cBurn || 0].lo || "",
-          cEqHigh: CALC_BURN[s.cBurn || 0].hi || "",
-          cBurnValS: { display: "block", width: "9.4rem", textAlign: "right",
-            fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: s.narrow ? "3.7rem" : "4.2rem", lineHeight: 1,
+          // The height cell: the body screen's tab, alone. Same tray, same
+          // seam, one metric.
+          cHtGrid: { position: "relative", zIndex: 1, marginBottom: "-1px",
+            display: "flex", justifyContent: "center" },
+          cHtCell: { position: "relative", display: "flex",
+            flexDirection: "column", alignItems: "center",
+            justifyContent: "center", gap: ".4rem", width: "10rem",
+            height: "4.4rem", padding: ".3rem .2rem", boxSizing: "border-box",
+            borderRadius: 0, borderStyle: "solid", borderWidth: "1px",
+            borderColor: "rgba(34,211,238,.75) rgba(34,211,238,.75) #0d1a20",
+            background: "#0d1a20" },
+          cHtLabS: { fontFamily: "var(--font-2)", fontSize: ".84rem",
+            letterSpacing: ".06em", whiteSpace: "nowrap", color: "#3fdcf2" },
+          cHtValS: { fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1.45rem", lineHeight: 1,
             fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
-          cEqPanel: { flex: "none", alignSelf: "center", width: "100%",
-            maxWidth: "21.5rem", height: "5.4rem", marginTop: "1.6rem",
+          cHtUnitS: { fontFamily: "var(--font-2)", fontSize: ".8rem",
+            letterSpacing: ".08em", color: "#9fb3c0" },
+          // The weekly-calories readout: fixed-width figure, fixed-height
+          // explainer, so the slider changes words and digits and nothing
+          // else moves.
+          cActValS: { display: "block", width: "11rem", textAlign: "right",
+            fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: s.narrow ? "3.4rem" : "3.9rem", lineHeight: 1,
+            fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
+          cActPanel: { flex: "none", alignSelf: "center", width: "100%",
+            maxWidth: "21.5rem", height: "7rem", marginTop: "1.5rem",
             display: "flex", flexDirection: "column", justifyContent: "center",
-            gap: ".55rem", padding: "0 1rem", boxSizing: "border-box",
+            gap: ".5rem", padding: "0 1rem", boxSizing: "border-box",
             border: "1px solid rgba(34,211,238,.18)",
             background: "linear-gradient(180deg, rgba(34,211,238,.04), rgba(34,211,238,.012))" },
-          cEqRow: { display: "grid", gridTemplateColumns: "2.9rem minmax(0,1fr)",
-            alignItems: "baseline", gap: ".7rem" },
-          cEqTag: { fontFamily: "var(--font-2)", fontSize: ".84rem",
-            letterSpacing: ".16em", color: "#22d3ee" },
-          cEqTxt: { fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: "1.02rem", lineHeight: 1.3, color: "#d7e6ef",
-            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
-          cEqNone: { fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: "1.02rem", color: "#8fa5b3", textAlign: "center" },
+          cActLabS: { fontFamily: "var(--font-2)", fontSize: ".95rem",
+            letterSpacing: ".18em", color: "#3fdcf2" },
+          cActNoteS: { fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: ".98rem", lineHeight: 1.4, color: "#b3c5d0",
+            textWrap: "pretty" },
           // ── result ───────────────────────────────────────────────────────────────
           cMaint: String(m.maint),
           cKcalVal: String(kcal), cKcalMin: String(lo), cKcalMax: String(hi),
@@ -4464,7 +4455,7 @@ class Component extends DCLogic {
             borderRadius: 0, background: "rgba(34,211,238,.08)", color: "#3fdcf2",
             boxShadow: "0 0 18px rgba(34,211,238,.12)", cursor: "pointer",
             transition: "background 160ms ease, border-color 160ms ease" },
-          cNotchR: { position: "absolute", right: s.narrow ? "-.5rem" : "-1px",
+          cNotchR: { position: "absolute", right: s.narrow ? "0" : "-1px",
             top: "42%", transform: "translateY(-50%)", zIndex: 5,
             display: "flex", alignItems: "center", justifyContent: "center",
             width: "2.1rem", height: "4.8rem", padding: 0, boxSizing: "border-box",

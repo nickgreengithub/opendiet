@@ -147,13 +147,11 @@ body fat percentage and the date all answer; move the time slider and the year p
 Body fat is not asked for as a number. It is estimated from height, weight and age, shown
 as an estimate, and picked off a row of reference figures — and the moment it is stated
 rather than guessed, the resting-metabolism equation switches to the one that reads lean
-mass instead of weight. Activity is two questions rather than one, because the day you
-spend anyway and the training you choose are estimated differently and priced differently:
-the first on the FAO lifestyle bands read at their exercise-free end, the second as a
-weekly burn picked off ten steps, each stated as what it is equivalent to at low and at
-high intensity — hours of brisk walking against minutes of running, both derived from the
-MET table at `(MET − 1) × kg × hours`, the −1 because resting metabolism is already
-counted once and an hour of training is not an hour of extra existing.
+mass instead of weight. Activity is one question, asked last and priced in the body just
+described: eight bands of a week on the FAO's PAL range, from very minimal activity to
+extreme, each named, each explained in a sentence of what that life looks like, and each
+stated as this body's own weekly calories — resting metabolism × the band × seven — so
+the figure read off the slider is the week it describes.
 
 The trajectory is not 3,500 kcal a pound. That rule is static, and applied to a year it
 overestimates badly. The deficit here is applied against a maintenance recomputed every day

@@ -125,21 +125,29 @@ about 5% in modern populations, and is kept only as a comparison line if the app
 one. Schofield (1985) is the FAO/WHO/UNU basis and the Oxford revision (Henry 2005) is its
 successor — both are defensible and worth holding as alternates behind the same interface.
 
-### Activity, in two questions
+### Activity, as one question, asked last
 
-One five-way "activity level" dropdown is the worst control in every calorie calculator
-ever built. It asks a person to average their whole life into one adjective, it silently
-mixes two quite different things, and everybody picks one band too high. It splits cleanly:
+Activity began here as two questions — the day spent anyway and the training chosen on
+top, priced separately in FAO bands and METs. In use the split cost more than it earned:
+two screens, a double-counting trap between them, and a training answer given before the
+app knew the body it belonged to. It is now **one question, asked after the body**: eight
+bands of a week on the FAO's PAL range, 1.25 to 2.40, from "very minimal activity"
+(housebound — bed rest with meals measures about 1.2, so no living week goes lower) to
+"extreme" (hard labour plus training). Each band carries a name, a sentence of what that
+life looks like, and — because the body is already known — a price in this body's own
+weekly calories: RMR × PAL × 7. The slider reads in kcal a week with the descriptor
+under it, so the adjective and the number keep each other honest.
 
-**Question A — the day you spend anyway.** Desk, on your feet, or physical work. This is
-NEAT plus occupational activity, it is by far the larger of the two for most people, and it
-is the one nobody thinks to count. Priced as a baseline PAL on the FAO/WHO/UNU bands:
-
-| Category | PAL |
+| Band | PAL |
 |---|---|
-| Sedentary / light activity lifestyle | 1.40 – 1.69 |
-| Moderately active | 1.70 – 1.99 |
-| Vigorously active | 2.00 – 2.40 |
+| Very minimal activity | 1.25 |
+| Sedentary | 1.40 |
+| Lightly active | 1.55 |
+| Moderately active | 1.70 |
+| Active | 1.85 |
+| Very active | 2.00 |
+| Athlete | 2.20 |
+| Extreme | 2.40 |
 
 FAO/WHO/UNU. *Human Energy Requirements.* Report of a Joint Expert Consultation, Rome,
 2001 (published 2004).
@@ -147,52 +155,16 @@ FAO/WHO/UNU. *Human Energy Requirements.* Report of a Joint Expert Consultation,
 **Worth stating plainly in the app:** the 1.2 "sedentary" multiplier that almost every
 online calculator uses is *below* the FAO floor of 1.40 for a sedentary lifestyle. It is a
 Harris–Benedict-era convention, not a measured category, and it is one reason calculators
-read low. The app uses the FAO bands.
+read low. The app keeps 1.40 as its sedentary band and reserves 1.25 for a genuinely
+housebound week.
 
-**Question B — the training you choose.** Asked as one slider: ten steps of weekly burn,
-0 to 2,500 kcal. Nobody knows their sessions × minutes × METs, but everybody can place
-themselves against an equivalence, so each step states what it buys in the easy currency
-and the hard one — "3 hours of brisk walking" against "1 h 10 of running" — with the
-equivalences derived from the MET arithmetic below for a reference 75 kg body. The METs
-are still doing the pricing; they have just moved from the question to the explanation.
-
-```
-kcal per session ≈ (MET − 1) × weight(kg) × hours
-```
-
-The −1 matters and is usually dropped: resting metabolism is already counted in the RMR, so
-charging the full MET double-counts an hour of being alive. Over a year of training that is
-not a rounding error.
-
-Indicative values, all from the Compendium:
-
-| Intensity | Looks like | MET |
-|---|---|---|
-| Light | Walking, easy cycling, yoga | 2.5 – 3.5 |
-| Moderate | Brisk walking, weights with rest, doubles tennis | 4 – 6 |
-| Vigorous | Running, circuits, hard cycling, singles | 7 – 10 |
-| Very hard | Intervals, sprints, competitive sport | 10 – 14 |
-
-[Ainsworth BE, Haskell WL, Herrmann SD, et al. *2011 Compendium of Physical Activities: a
-second update of codes and MET values.* Med Sci Sports Exerc.
-2011;43(8):1575–1581.](https://pubmed.ncbi.nlm.nih.gov/21681120/) — now superseded by the
-[2024 Adult Compendium](https://www.sciencedirect.com/science/article/pii/S2095254623001084),
-which is the one to cite and to take values from.
-
-**Two traps this split creates, both worth handling:**
-
-1. **Double counting.** If Question A's band already includes training, adding Question B on
-   top counts it twice. So Question A must say *"not counting exercise"* on the screen, in
-   those words, and its bands must be read as lifestyle-only.
-2. **Exercise does not add linearly.** Total energy expenditure plateaus above moderate
-   activity rather than rising with it — more active populations do not spend proportionally
-   more. [Pontzer H, Durazo-Arvizu R, Dugas LR, et al. *Constrained total energy expenditure
-   and metabolic adaptation to physical activity in adult humans.* Curr Biol.
-   2016;26(3):410–417.](https://pubmed.ncbi.nlm.nih.gov/26832439/) A calculator that adds
-   every session at face value overestimates, and overestimating maintenance is exactly how
-   people end up eating at maintenance while believing they are in a deficit. v1 should at
-   minimum say this on the result; a compensation factor on high training volumes is the
-   better answer and needs a decision (§7).
+**One trap survives the merge:** exercise does not add linearly. Total energy
+expenditure plateaus above moderate activity rather than rising with it — more active
+populations do not spend proportionally more. [Pontzer H, Durazo-Arvizu R, Dugas LR, et
+al. *Constrained total energy expenditure and metabolic adaptation to physical activity
+in adult humans.* Curr Biol. 2016;26(3):410–417.](https://pubmed.ncbi.nlm.nih.gov/26832439/)
+The single PAL scale absorbs some of this — its top is 2.40, not RMR plus every session at
+face value — but the upper bands should still be read as generous.
 
 The 2023 DRI update reorganised this into four categories — inactive, low active, active,
 very active — set at approximate quartiles of the PAL distribution in doubly-labelled-water
