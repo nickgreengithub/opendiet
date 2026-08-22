@@ -394,7 +394,7 @@ option{background:#070b12;color:#d7e6ef}
       </sc-if>
       <sc-if value="{{ cIsBody }}" hint-placeholder-val="{{ true }}">
       <span style="{{ cBodyPanel }}">
-        <span style="{{ cMetGrid }}"><sc-for list="{{ cMetCells }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}<span style="{{ t.estS }}">EST</span></span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
+        <span style="{{ cMetGrid }}"><sc-for list="{{ cMetCells }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
         <span style="{{ cSliderBox }}"><input type="range" min="{{ cSelMin }}" max="{{ cSelMax }}" step="{{ cSelStep }}" value="{{ cSelVal }}" onChange="{{ cSelSlide }}" style="{{ cSelTrack }}"></span>
       </span>
       </sc-if>
@@ -1055,6 +1055,15 @@ const CALC_BF = { m: [8, 12, 16, 20, 25, 30, 35, 40], f: [16, 20, 24, 28, 32, 36
 const CALC_FLOOR = { m: 1500, f: 1200 };
 // Essential fat (ACSM): the model will not take anyone below it.
 const ESSENTIAL_BF = { m: 5, f: 12 };
+// The body-fat slider's floor sits above the essential minimum, at stage-lean:
+// 8% on a man and its usual female equivalent, 16%.
+const CALC_BF_MIN = { m: 8, f: 16 };
+// Height and weight per sex: defaults near the UK adult averages (ONS), and
+// slider ranges covering roughly the middle 98% of the population.
+const CALC_RANGE = {
+  m: { htLo: 158, htHi: 195, htD: 175, wtLo: 55, wtHi: 140, wtD: 84 },
+  f: { htLo: 145, htHi: 180, htD: 162, wtLo: 45, wtHi: 120, wtD: 72 }
+};
 // kcal per kg of tissue. Fat is nearly all energy; lean tissue is mostly water.
 const RHO_FAT = 9400, RHO_LEAN = 1800;
 // A placeholder standing in for the rotating figure that is not built yet. Drawn in the
@@ -1797,7 +1806,10 @@ class Component extends DCLogic {
   // reading a live simulation rather than an interpolation of a cached one.
   calcModel(s) {
     const sex = s.cSex === "f" ? "f" : "m";
-    const age = s.cAge || 30, ht = s.cHt || 175, wt = s.cWt || 80;
+    const R = CALC_RANGE[sex];
+    const age = s.cAge || 30;
+    const ht = Math.max(R.htLo, Math.min(R.htHi, s.cHt || R.htD));
+    const wt = Math.max(R.wtLo, Math.min(R.wtHi, s.cWt || R.wtD));
     const bmi = wt / Math.pow(ht / 100, 2);
     // Deurenberg, for when the picker has not been touched. A population estimate, and
     // labelled as one wherever it is shown.
@@ -4062,8 +4074,8 @@ class Component extends DCLogic {
       // screens. It appears beside CALC only while CALC is open, so it reads as
       // belonging to that app rather than to the bar.
       cResetOn: app === "calc",
-      cResetAll: () => this.setState({ cStep: 0, cSex: null, cAge: 30, cHt: 175,
-        cWt: 80, cBf: null, cAct: 1, cBodySel: "wt", cHtSel: "cm",
+      cResetAll: () => this.setState({ cStep: 0, cSex: null, cAge: 30, cHt: null,
+        cWt: null, cBf: null, cAct: 1, cBodySel: "wt", cHtSel: "cm",
         cKcal: null, cWks: 26, cCurves: false, cTip: false }),
       cResetS: { display: "flex", alignItems: "center", justifyContent: "center",
         width: "1.9rem", height: "2.1rem", marginLeft: "-.15rem", padding: 0,
@@ -4079,14 +4091,15 @@ class Component extends DCLogic {
         // layout, one cell — and the week's calories come last, priced against
         // the body just described.
         const STEPS = ["SEX", "AGE", "HEIGHT", "BODY", "WEEKLY CALORIES"];
+        const RG = CALC_RANGE[m.sex];
         const FIELDS = [
           { k: "cAge", lab: "AGE", unit: "YEARS", lo: 18, hi: 90, dflt: 30 },
-          { k: "cHt", lab: "HEIGHT", unit: "CM", lo: 140, hi: 215, dflt: 175 },
-          { k: "cWt", lab: "WEIGHT", unit: "KG", lo: 40, hi: 200, dflt: 80 }
+          { k: "cHt", lab: "HEIGHT", unit: "CM", lo: RG.htLo, hi: RG.htHi, dflt: RG.htD },
+          { k: "cWt", lab: "WEIGHT", unit: "KG", lo: RG.wtLo, hi: RG.wtHi, dflt: RG.wtD }
         ];
         const clampF = (f, v) => Math.max(f.lo, Math.min(f.hi, Math.round(v || f.dflt)));
         // ── the running model, only once the questions are done ────────────────────
-        const bfLo = ESSENTIAL_BF[m.sex], bfHi = 55;
+        const bfLo = CALC_BF_MIN[m.sex], bfHi = 55;
         const bfVal = Math.max(bfLo, Math.min(bfHi,
           s.cBf == null ? Math.round(m.bfEst) : s.cBf));
         const lo = m.floor, hi = Math.round(m.maint * 1.35 / 10) * 10;
@@ -4218,15 +4231,16 @@ class Component extends DCLogic {
                     letterSpacing: ".08em", color: "#9fb3c0" }
                 };
               }),
-              cHtMin: sel === "cm" ? String(f.lo) : "55",
-              cHtMax: sel === "cm" ? String(f.hi) : "85",
+              cHtMin: sel === "cm" ? String(f.lo) : String(Math.ceil(f.lo / 2.54)),
+              cHtMax: sel === "cm" ? String(f.hi) : String(Math.floor(f.hi / 2.54)),
               cHtSlV: sel === "cm" ? String(cm) : String(ti),
               cHtSlide: e => this.setState({ cHt: clampF(f,
                 sel === "cm" ? +e.target.value
                   : Math.round(+e.target.value * 2.54)) }),
               cHtTrack: { "--p": (sel === "cm"
                 ? 100 * (cm - f.lo) / (f.hi - f.lo)
-                : 100 * (ti - 55) / 30).toFixed(1) + "%" }
+                : 100 * (ti - Math.ceil(f.lo / 2.54))
+                  / (Math.floor(f.hi / 2.54) - Math.ceil(f.lo / 2.54))).toFixed(1) + "%" }
             };
           })(),
           // Sex, on the age layout: the same big value, the same slider — two
@@ -4271,7 +4285,7 @@ class Component extends DCLogic {
                 set: v => this.setState({ cBf: Math.max(bfLo, Math.min(bfHi,
                   Math.round(100 * (1 - v / wtV)))) }) },
               bf: { label: "BODY FAT", unit: " %", val: String(bfVal),
-                est: s.cBf == null, lo: bfLo, hi: bfHi, stp: 1, cur: bfVal,
+                lo: bfLo, hi: bfHi, stp: 1, cur: bfVal,
                 set: v => this.setState({ cBf: Math.round(v) }) },
               bmi: { label: "BMI", unit: "", val: bmi.toFixed(1),
                 lo: Math.ceil(10 * wtF.lo / hm) / 10,
@@ -4315,13 +4329,7 @@ class Component extends DCLogic {
                     fontSize: "1.45rem", lineHeight: 1,
                     fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
                   unitS: { fontFamily: "var(--font-2)", fontSize: ".8rem",
-                    letterSpacing: ".08em", color: "#9fb3c0" },
-                  // Pinned to the corner so its arrival and departure move
-                  // nothing — the estimate mark is a note, not a layout event.
-                  estS: { position: "absolute", bottom: ".22rem", right: ".28rem",
-                    fontFamily: "var(--font-2)", fontSize: ".7rem",
-                    letterSpacing: ".1em", color: "#22d3ee", lineHeight: 1.2,
-                    opacity: mm.est ? 1 : 0 }
+                    letterSpacing: ".08em", color: "#9fb3c0" }
                 };
               }),
               cSelMin: String(d.lo), cSelMax: String(d.hi),
