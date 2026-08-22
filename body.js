@@ -184,12 +184,15 @@ export function mount(canvas) {
       // Fat buries definition: the muscle target carries the V-taper and the
       // ab tone, and at 30% body fat nobody shows either, whatever their lean
       // mass. So the muscular side is damped as fat climbs — a strongman at
-      // 30% reads bulky, not sculpted. The low side is left alone: a narrow
-      // frame stays visibly narrow under fat.
+      // 30% reads bulky, not sculpted. The LOW side has the mirror problem:
+      // MakeHuman's min-muscle is an untrained softness, and softness is a
+      // fat-adjacent look — a 44 kg man at 9% is wiry, not flabby — so it is
+      // damped as fat falls instead.
       const mask = Math.max(0.35, Math.min(1, 1.35 - 0.03 * want.bf));
+      const loMask = Math.max(0.25, Math.min(1, 0.2 + (want.bf - 10) / 25));
       const m = ffmi >= A.avg
         ? Math.min(1.3, (ffmi - A.avg) / (A.hi - A.avg)) * mask
-        : -Math.min(1, (A.avg - ffmi) / (A.avg - A.lo));
+        : -Math.min(1, (A.avg - ffmi) / (A.avg - A.lo)) * loMask;
       mesh.morphTargetInfluences[nFat] = m < 0 ? -m : 0;
       mesh.morphTargetInfluences[nFat + 1] = m > 0 ? m : 0;
     }

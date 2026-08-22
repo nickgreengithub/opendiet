@@ -457,7 +457,10 @@ fat kilograms over height squared, against per-level anchors set at the fat mass
 reference body each level was sculpted as. And because the muscle targets carry the
 V-taper and the ab tone — which nobody shows at 30% whatever their lean mass — the
 muscular side of the FFMI influence is damped as body fat climbs, so a strongman at 30%
-reads bulky rather than sculpted, while a narrow frame stays narrow under its fat.
+reads bulky rather than sculpted, while a narrow frame stays narrow under its fat. The
+low side is damped the opposite way: MakeHuman's min-muscle is an untrained *softness*,
+which is a fat-adjacent look, so as body fat falls it fades — an underweight body at 9%
+reads wiry, not flabby.
 
 ### The bake that shipped
 
