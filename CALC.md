@@ -462,6 +462,14 @@ low side is damped the opposite way: MakeHuman's min-muscle is an untrained *sof
 which is a fat-adjacent look, so as body fat falls it fades — an underweight body at 9%
 reads wiry, not flabby.
 
+Two additions close the range out. A third extra target — **emaciated**, MakeHuman's
+minweight pushed past its floor plus min-muscle, with the frame narrowed and the face
+hollowed — ramps in as FFMI falls below the low anchor, so 40 kg at 7% finally looks like
+what it is instead of wearing the same body as 60 kg. And the face now rides every axis:
+cheeks fill and the neck doubles at the heavy end of the fat range, cheeks lean out over
+its bottom third, cheekbones sharpen faintly with muscle, and the emaciated target
+hollows the face outright.
+
 ### The bake that shipped
 
 Hand-tuning a body from primitives turned out to be the trap it looked like: every fix

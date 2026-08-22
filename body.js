@@ -172,7 +172,7 @@ export function mount(canvas) {
     // muscle pair is driven by FFMI, lean kilograms over height squared:
     // at a constant weight, less fat now means more muscle, which is what
     // the arithmetic says it means.
-    if (nMus === 2 && want.kg > 0) {
+    if (nMus >= 2 && want.kg > 0) {
       const nFat = levels.length - 1;
       const ffmi = want.kg * (1 - want.bf / 100) / hm;
       // Anchors: population-average FFMI maps to the baked average body,
@@ -193,8 +193,14 @@ export function mount(canvas) {
       const m = ffmi >= A.avg
         ? Math.min(1.3, (ffmi - A.avg) / (A.hi - A.avg)) * mask
         : -Math.min(1, (A.avg - ffmi) / (A.avg - A.lo)) * loMask;
-      mesh.morphTargetInfluences[nFat] = m < 0 ? -m : 0;
+      // Below the low anchor the pair runs out of body: the emaciated target
+      // takes over, gaunt face and narrowed frame, ramping in as FFMI falls
+      // under it and pushing the plain low-muscle softness out of its way.
+      const thin = nMus >= 3
+        ? Math.max(0, Math.min(1.2, (A.lo - ffmi) / 3.5)) : 0;
+      mesh.morphTargetInfluences[nFat] = (m < 0 ? -m : 0) * (1 - Math.min(1, thin));
       mesh.morphTargetInfluences[nFat + 1] = m > 0 ? m : 0;
+      if (nMus >= 3) mesh.morphTargetInfluences[nFat + 2] = thin;
     }
     // The mesh is authored at 1.75 m, so height is a scale about the feet.
     mesh.scale.setScalar((want.ht || 175) / 175);

@@ -389,8 +389,9 @@ def write_glb(path, sex, base_v, base_n, tris, targets, levels, muscle=None):
                 "bodyFat": levels,
                 "sex": sex,
                 "targetNames": ["bf%d" % b for b in levels[1:]]
-                + (["muscleLo", "muscleHi"] if muscle else []),
-                "muscle": ["lo", "hi"] if muscle else []
+                + ["muscle" + n.capitalize() for n in
+                   ["lo", "hi", "thin"][:len(muscle or [])]],
+                "muscle": ["lo", "hi", "thin"][:len(muscle or [])]
             }
         }],
         "accessors": accs,

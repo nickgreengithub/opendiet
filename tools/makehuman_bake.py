@@ -62,6 +62,10 @@ FAT_KIT = {
     "f": [
         ("stomach/stomach-tone-decr", 0.60),
         ("stomach/stomach-pregnant-incr", 0.25),
+        ("cheek/l-cheek-volume-incr", 0.55),
+        ("cheek/r-cheek-volume-incr", 0.55),
+        ("neck/neck-double-incr", 0.60),
+        ("neck/neck-scale-horiz-incr", 0.35),
         ("hip/hip-scale-horiz-incr", 0.40),
         ("hip/hip-scale-depth-incr", 0.35),
         ("buttocks/buttocks-volume-incr", 0.45),
@@ -78,6 +82,10 @@ FAT_KIT = {
     "m": [
         ("stomach/stomach-tone-decr", 0.45),
         ("stomach/stomach-pregnant-incr", 0.50),
+        ("cheek/l-cheek-volume-incr", 0.55),
+        ("cheek/r-cheek-volume-incr", 0.55),
+        ("neck/neck-double-incr", 0.70),
+        ("neck/neck-scale-horiz-incr", 0.40),
         ("torso/torso-scale-depth-incr", 0.45),
         ("hip/hip-scale-depth-incr", 0.25),
         ("buttocks/buttocks-volume-incr", 0.20),
@@ -135,11 +143,14 @@ MUS_HI = [
     # Pectoral held well under the limbs: at full strength the pec mass
     # balloons and rides up toward the clavicle. Ab tone lives mostly on
     # the fat axis (LEAN_TONE) where it belongs — leanness reveals it —
-    # so it is only seasoning here.
+    # so it is only seasoning here. The face rides along faintly: a
+    # trained body carries a slightly cut face.
     ("torso/torso-muscle-pectoral-incr", 0.50),
     ("torso/torso-muscle-dorsi-incr", 1.00),
     ("torso/torso-vshape-incr", 0.80),
     ("stomach/stomach-tone-incr", 0.35),
+    ("cheek/l-cheek-bones-incr", 0.25),
+    ("cheek/r-cheek-bones-incr", 0.25),
     ("armslegs/l-upperarm-muscle-incr", 1.10),
     ("armslegs/r-upperarm-muscle-incr", 1.10),
     ("armslegs/l-upperarm-shoulder-muscle-incr", 1.05),
@@ -163,13 +174,30 @@ MUS_LO = [
     ("armslegs/l-lowerleg-muscle-decr", 0.40),
     ("armslegs/r-lowerleg-muscle-decr", 0.40),
 ]
+# The third extra target: emaciated. The morph range used to bottom out at
+# "slim" — 40 kg at 7% wore the same body as 60 kg. This is minweight pushed
+# past MakeHuman's floor plus minmuscle, with the frame narrowed and the face
+# hollowed, so an underweight body finally looks underweight.
+THIN_KIT = [
+    ("torso/torso-scale-horiz-decr", 0.40),
+    ("neck/neck-scale-horiz-decr", 0.40),
+    ("cheek/l-cheek-volume-decr", 0.90),
+    ("cheek/r-cheek-volume-decr", 0.90),
+    ("cheek/l-cheek-bones-incr", 0.45),
+    ("cheek/r-cheek-bones-incr", 0.45),
+    ("armslegs/l-upperarm-scale-horiz-decr", 0.35),
+    ("armslegs/r-upperarm-scale-horiz-decr", 0.35),
+    ("armslegs/l-upperleg-scale-horiz-decr", 0.30),
+    ("armslegs/r-upperleg-scale-horiz-decr", 0.30),
+]
 
 
-def compose(base, targets, sex, bf, levels, muscle="averagemuscle"):
+def compose(base, targets, sex, bf, levels, muscle="averagemuscle", wov=None):
     t = (bf - levels[0]) / (levels[-1] - levels[0])
     V = base.copy()
     targets.add(V, "macrodetails/caucasian-%s-young" % SEXNAME[sex], 1.0)
-    for name, f in weight_factors(FAT_TO_W[sex][bf]).items():
+    for name, f in weight_factors(
+            FAT_TO_W[sex][bf] if wov is None else wov).items():
         if f:
             targets.add(V, "macrodetails/universal-%s-young-%s-%s"
                         % (SEXNAME[sex], muscle, name), f)
@@ -177,13 +205,15 @@ def compose(base, targets, sex, bf, levels, muscle="averagemuscle"):
     if e > 0:
         for name, top in FAT_KIT[sex]:
             targets.add(V, name, top * e)
-    # Definition is what leanness reveals: stomach tone ramps in over the
-    # bottom third of the fat range, so abs sharpen as the slider drops
-    # rather than only when FFMI is high.
+    # Definition is what leanness reveals: stomach tone and a leaner face ramp
+    # in over the bottom third of the fat range, so the body sharpens as the
+    # slider drops rather than only when FFMI is high.
     lean = max(0.0, (0.35 - t) / 0.35)
     if lean > 0:
         targets.add(V, "stomach/stomach-tone-incr",
                     (0.75 if sex == "m" else 0.50) * lean)
+        targets.add(V, "cheek/l-cheek-volume-decr", 0.30 * lean)
+        targets.add(V, "cheek/r-cheek-volume-decr", 0.30 * lean)
     if muscle != "averagemuscle":
         for name, f in (MUS_HI if muscle == "maxmuscle" else MUS_LO):
             targets.add(V, name, f)
@@ -286,10 +316,17 @@ def build(sex, data_dir, base, faces, targets, joints, blend, out_dir):
     for P in posed_mus:
         v = base_v + (xf(P[:N_BODY]) - out[REF])
         muscle.append((v, vert_normals(v, tris)))
+    # The emaciated target, measured against the leanest level it stacks on.
+    Vt = compose(base, targets, sex, levels[0], levels,
+                 muscle="minmuscle", wov=-0.1)
+    for name, f in THIN_KIT:
+        targets.add(Vt, name, f)
+    v = base_v + (xf(lower_arms(Vt, joints, blend)[:N_BODY]) - out[0])
+    muscle.append((v, vert_normals(v, tris)))
     path = os.path.join(out_dir, "body-%s.glb" % sex)
     total = write_glb(path, sex, base_v, base_n, tris, tgts, levels,
                       muscle=muscle)
-    print("%s: %d verts, %d tris, %d fat levels + 2 muscle, %.2f MB -> %s"
+    print("%s: %d verts, %d tris, %d fat levels + 3 extras, %.2f MB -> %s"
           % (sex, len(base_v), len(tris), len(levels), total / 1e6, path))
 
 
