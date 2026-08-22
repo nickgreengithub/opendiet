@@ -388,8 +388,8 @@ option{background:#070b12;color:#d7e6ef}
       </span>
       <sc-if value="{{ cIsHt }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cBodyPanel }}">
-        <span style="{{ cHtGrid }}"><span style="{{ cHtCell }}"><span style="{{ cHtLabS }}">HEIGHT</span><span style="{{ cHtValS }}">{{ cHtVal }}<span style="{{ cHtUnitS }}"> CM</span></span></span></span>
-        <span style="{{ cSliderBox }}"><input type="range" min="{{ cHtMin }}" max="{{ cHtMax }}" step="1" value="{{ cHtVal }}" onChange="{{ cHtSlide }}" style="{{ cHtTrack }}"></span>
+        <span style="{{ cHtGrid }}"><sc-for list="{{ cHtCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
+        <span style="{{ cSliderBox }}"><input type="range" min="{{ cHtMin }}" max="{{ cHtMax }}" step="1" value="{{ cHtSlV }}" onChange="{{ cHtSlide }}" style="{{ cHtTrack }}"></span>
       </span>
       </sc-if>
       <sc-if value="{{ cIsBody }}" hint-placeholder-val="{{ true }}">
@@ -405,7 +405,11 @@ option{background:#070b12;color:#d7e6ef}
         <span style="{{ cQRule }}"></span>
       </sc-if>
       <sc-if value="{{ cIsSex }}" hint-placeholder-val="{{ true }}">
-        <span style="{{ cSexRow }}"><sc-for list="{{ cSexTiles }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55);color:#3fdcf2"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="display:block;opacity:.85"><circle cx="{{ t.cx }}" cy="{{ t.cy }}" r="5"></circle><path d="{{ t.icon }}"></path></svg>{{ t.label }}</button></sc-for></span>
+        <span style="{{ cQValRow }}"><span style="{{ cQValS }}">{{ cSexVal }}</span></span>
+        <span style="{{ cQSlideBox }}">
+          <input type="range" min="0" max="1" step="1" value="{{ cSexIdx }}" onChange="{{ cSexSlide }}" style="{{ cSexTrack }}">
+          <span style="{{ cQEnds }}"><span>MALE</span><span>FEMALE</span></span>
+        </span>
       </sc-if>
       <sc-if value="{{ cIsNumQ }}" hint-placeholder-val="{{ false }}">
         <span style="{{ cQValRow }}"><span style="{{ cQValS }}">{{ cField.val }}</span><span style="{{ cQValUnit }}">{{ cField.unit }}</span></span>
@@ -4059,7 +4063,7 @@ class Component extends DCLogic {
       // belonging to that app rather than to the bar.
       cResetOn: app === "calc",
       cResetAll: () => this.setState({ cStep: 0, cSex: null, cAge: 30, cHt: 175,
-        cWt: 80, cBf: null, cAct: 1, cBodySel: "wt",
+        cWt: 80, cBf: null, cAct: 1, cBodySel: "wt", cHtSel: "cm",
         cKcal: null, cWks: 26, cCurves: false, cTip: false }),
       cResetS: { display: "flex", alignItems: "center", justifyContent: "center",
         width: "1.9rem", height: "2.1rem", marginLeft: "-.15rem", padding: 0,
@@ -4169,12 +4173,68 @@ class Component extends DCLogic {
               trackS: { "--p": (100 * (v - f.lo) / (f.hi - f.lo)).toFixed(1) + "%" },
               onSlide: e => this.setState({ [f.k]: clampF(f, +e.target.value) }) };
           })(),
-          // Height, on the body layout: the figure above, one cell, one slider.
-          cHtVal: String(clampF(FIELDS[1], s.cHt)),
-          cHtMin: String(FIELDS[1].lo), cHtMax: String(FIELDS[1].hi),
-          cHtSlide: e => this.setState({ cHt: clampF(FIELDS[1], +e.target.value) }),
-          cHtTrack: { "--p": (100 * (clampF(FIELDS[1], s.cHt) - FIELDS[1].lo)
-            / (FIELDS[1].hi - FIELDS[1].lo)).toFixed(1) + "%" },
+          // Height, on the body layout: the figure above, two cells spanning
+          // the width — the same height in centimetres and in feet and inches —
+          // and the selected cell decides the unit the one slider runs in.
+          ...(() => {
+            const f = FIELDS[1];
+            const cm = clampF(f, s.cHt);
+            const ti = Math.round(cm / 2.54);
+            const sel = s.cHtSel === "ft" ? "ft" : "cm";
+            const TRAY = "#0d1a20";
+            return {
+              cHtGrid: { position: "relative", zIndex: 1, marginBottom: "-1px",
+                display: "grid",
+                gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: ".5rem" },
+              cHtCells: [
+                { k: "cm", label: "HEIGHT CM", val: String(cm), unit: " CM" },
+                { k: "ft", label: "HEIGHT FT",
+                  val: Math.floor(ti / 12) + "′" + (ti % 12) + "″",
+                  unit: "" }
+              ].map(c => {
+                const on = c.k === sel;
+                return {
+                  label: c.label, val: c.val, unit: c.unit,
+                  onClick: () => this.setState({ cHtSel: c.k }),
+                  s: { position: "relative", display: "flex",
+                    flexDirection: "column", alignItems: "center",
+                    justifyContent: "center", gap: ".4rem", minWidth: 0,
+                    height: "4.4rem", padding: ".3rem .2rem",
+                    boxSizing: "border-box", borderRadius: 0, cursor: "pointer",
+                    borderStyle: "solid", borderWidth: "1px",
+                    borderColor: on
+                      ? "rgba(34,211,238,.75) rgba(34,211,238,.75) " + TRAY
+                      : "rgba(34,211,238,.22)",
+                    background: on ? TRAY
+                      : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
+                    transition: "border-color 160ms ease, background 160ms ease" },
+                  labS: { fontFamily: "var(--font-2)", fontSize: ".84rem",
+                    letterSpacing: ".06em", whiteSpace: "nowrap",
+                    color: on ? "#3fdcf2" : "#a9bcc8" },
+                  valS: { fontFamily: "var(--font-1)", fontWeight: 300,
+                    fontSize: "1.45rem", lineHeight: 1,
+                    fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
+                  unitS: { fontFamily: "var(--font-2)", fontSize: ".8rem",
+                    letterSpacing: ".08em", color: "#9fb3c0" }
+                };
+              }),
+              cHtMin: sel === "cm" ? String(f.lo) : "55",
+              cHtMax: sel === "cm" ? String(f.hi) : "85",
+              cHtSlV: sel === "cm" ? String(cm) : String(ti),
+              cHtSlide: e => this.setState({ cHt: clampF(f,
+                sel === "cm" ? +e.target.value
+                  : Math.round(+e.target.value * 2.54)) }),
+              cHtTrack: { "--p": (sel === "cm"
+                ? 100 * (cm - f.lo) / (f.hi - f.lo)
+                : 100 * (ti - 55) / 30).toFixed(1) + "%" }
+            };
+          })(),
+          // Sex, on the age layout: the same big value, the same slider — two
+          // stops, male left, female right — so no screen asks for a new hand.
+          cSexVal: s.cSex === "f" ? "FEMALE" : "MALE",
+          cSexIdx: s.cSex === "f" ? "1" : "0",
+          cSexSlide: e => set("cSex", +e.target.value >= 1 ? "f" : "m"),
+          cSexTrack: { "--p": s.cSex === "f" ? "100%" : "0%" },
           // Weekly calories: the activity bands priced in this body's own
           // arithmetic — RMR × PAL × 7. The value box is fixed-width and the
           // explainer panel fixed-height, so the slider changes words and
@@ -4276,51 +4336,8 @@ class Component extends DCLogic {
           cBody3D: !s.cBodyFail, cBodySvg: !!s.cBodyFail,
           cCanvasS: { display: "block", width: "100%", height: "100%",
             touchAction: "none", cursor: "grab" },
-          // Two tiles in a row rather than two rows: it is one choice of two, and
-          // stacking it made it look like the start of a list. The marks are the
-          // oldest glyphs there are for the question, drawn in the same stroke as
-          // every other mark on the site.
-          cSexRow: { flex: "none", alignSelf: "center", width: "100%",
-            maxWidth: "21.5rem", display: "grid",
-            gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: ".7rem" },
-          cSexTiles: ["m", "f"].map(k => ({
-            label: k === "m" ? "MALE" : "FEMALE", on: s.cSex === k,
-            cx: k === "m" ? 10 : 12, cy: k === "m" ? 14 : 8,
-            icon: k === "m" ? "M13.7 10.3L20 4M15 4h5v5" : "M12 13v8M9 18h6",
-            onClick: () => { set("cSex", k); go(step + 1); },
-            s: { display: "flex", flexDirection: "column", alignItems: "center",
-              justifyContent: "center", gap: ".8rem",
-              height: "7.2rem", padding: "0 .6rem", boxSizing: "border-box",
-              borderRadius: 0, cursor: "pointer",
-              border: "1px solid " + (s.cSex === k ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.22)"),
-              background: s.cSex === k ? "rgba(34,211,238,.12)"
-                : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
-              fontFamily: "var(--font-2)", fontSize: "1.02rem", letterSpacing: ".2em",
-              textIndent: ".2em",
-              color: s.cSex === k ? "#3fdcf2" : "#c3d3dd",
-              transition: "border-color 160ms ease, background 160ms ease, color 160ms ease" }
-          })),
           cNext: () => go(step + 1),
           cNextLab: step === STEPS.length - 1 ? "SEE THE NUMBER" : "NEXT",
-
-          // The height cell: the body screen's tab, alone. Same tray, same
-          // seam, one metric.
-          cHtGrid: { position: "relative", zIndex: 1, marginBottom: "-1px",
-            display: "flex", justifyContent: "center" },
-          cHtCell: { position: "relative", display: "flex",
-            flexDirection: "column", alignItems: "center",
-            justifyContent: "center", gap: ".4rem", width: "10rem",
-            height: "4.4rem", padding: ".3rem .2rem", boxSizing: "border-box",
-            borderRadius: 0, borderStyle: "solid", borderWidth: "1px",
-            borderColor: "rgba(34,211,238,.75) rgba(34,211,238,.75) #0d1a20",
-            background: "#0d1a20" },
-          cHtLabS: { fontFamily: "var(--font-2)", fontSize: ".84rem",
-            letterSpacing: ".06em", whiteSpace: "nowrap", color: "#3fdcf2" },
-          cHtValS: { fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: "1.45rem", lineHeight: 1,
-            fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
-          cHtUnitS: { fontFamily: "var(--font-2)", fontSize: ".8rem",
-            letterSpacing: ".08em", color: "#9fb3c0" },
           // The weekly-calories readout: fixed-width figure, fixed-height
           // explainer, so the slider changes words and digits and nothing
           // else moves.
