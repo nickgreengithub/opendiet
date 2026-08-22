@@ -36,6 +36,11 @@ function loadBody(sex) {
   return cache.get(sex);
 }
 
+// Warm the cache before any canvas exists. Importing this module already
+// cost the caller three.js; this starts the mesh itself, so by the time a
+// screen wants the figure both are in hand.
+export function preload(sex) { return loadBody(sex); }
+
 // The blend. With one parameter swept across N shapes, the influence of each is
 // a hat function on the level axis — which makes the result exactly the linear
 // interpolation between the two shapes either side, and nothing else.

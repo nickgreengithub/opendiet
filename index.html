@@ -1208,6 +1208,22 @@ class Component extends DCLogic {
   // template puts one on the page and this keeps whatever is on it in step.
   syncBody() {
     const on = this.state.app === "calc" && !this.state.cBodyFail;
+    // The figure is warmed the moment the app opens rather than when its
+    // first canvas appears: three.js and the current sex's mesh start
+    // fetching on the SEX screen, so by HEIGHT the body is already in hand.
+    // Flipping the sex slider re-warms for the other mesh; the caches make
+    // every repeat call free.
+    if (on) {
+      const sx = this._bodyWant ? this._bodyWant.sex : "m";
+      if (this._bodyMod) this._bodyMod.preload(sx);
+      else if (!this._bodyWarming) {
+        this._bodyWarming = true;
+        import("./body.js").then(mod => {
+          this._bodyMod = mod;
+          if (mod.preload) mod.preload(this._bodyWant ? this._bodyWant.sex : sx);
+        }).catch(() => {});
+      }
+    }
     const el = on ? document.querySelector("[data-body]") : null;
     if (!el) {
       if (this._body) { this._body.dispose(); this._body = null; this._bodyEl = null; }
