@@ -444,9 +444,10 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ cPhList }}"><sc-for list="{{ cPhBlocks }}" as="t" hint-placeholder-count="3"><span style="{{ t.blockS }}"><span style="{{ cPhBlockHRow }}"><span style="{{ cPhBlockNum }}">{{ t.num }}</span><span style="{{ cPhBlockH }}">{{ t.head }}</span></span><span style="{{ t.rateS }}">{{ t.r1 }}<span style="{{ cPhNum }}">{{ t.rN }}</span>{{ t.r2 }}</span><span style="{{ cPhLine }}">{{ t.e1 }}<span style="{{ cPhNum }}">{{ t.eN1 }}</span>{{ t.e2 }}<span style="{{ cPhNum }}">{{ t.eN2 }}</span>{{ t.e3 }}</span><span style="{{ t.l2s }}">{{ t.l2a }}<span style="{{ cPhNum }}">{{ t.l2N }}</span>{{ t.l2b }}</span></span></sc-for></span>
       </sc-if>
       <sc-if value="{{ cPhInfoOn }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ cPhInfoBox }}"><sc-for list="{{ cPhInfoLines }}" as="t" hint-placeholder-count="6"><span style="{{ cPhInfoRow }}"><span style="{{ cPhInfoDot }}"></span><span style="{{ cPhInfoTxt }}">{{ t.txt }}</span></span></sc-for></span>
+      <span style="{{ cPhInfoBox }}"><sc-for list="{{ cPhInfoLines }}" as="t" hint-placeholder-count="6"><span style="{{ cPhInfoRow }}"><span style="{{ cPhInfoDot }}"></span><span style="{{ cPhInfoTxt }}">{{ t.a }}<span style="{{ cPhInfoHi }}">{{ t.n1 }}</span>{{ t.b }}<span style="{{ cPhInfoHi }}">{{ t.n2 }}</span>{{ t.c }}</span></span></sc-for></span>
       </sc-if>
       <span style="{{ cQSpace2 }}"></span>
+      <sc-if value="{{ cPhPlanOn }}" hint-placeholder-val="{{ true }}">
       <span style="{{ cPhFoot }}">
         <span style="{{ cPhChart }}">
           <svg viewBox="0 0 100 44" preserveAspectRatio="none" style="{{ cPhSvg }}">
@@ -468,6 +469,7 @@ option{background:#070b12;color:#d7e6ef}
         <span style="{{ cPhDayS }}">{{ cPhDay }}</span>
         <span style="{{ cPhMeasRow }}"><sc-for list="{{ cPhMeas }}" as="t" hint-placeholder-count="3"><span style="{{ cPhMeasItem }}"><span style="{{ cPhMeasLab }}">{{ t.lab }}</span><span style="{{ cPhMeasVal }}">{{ t.val }}</span></span></sc-for></span>
       </span>
+      </sc-if>
     </sc-if>
   </div>
   </sc-if>
@@ -4806,24 +4808,39 @@ class Component extends DCLogic {
             marginTop: ".5rem", borderRadius: "50%", background: "#22d3ee",
             boxShadow: "0 0 6px rgba(34,211,238,.6)" },
           cPhInfoTxt: { fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: "1.02rem", lineHeight: 1.5, color: "#c3d3dd",
+            fontSize: "1.02rem", lineHeight: 1.5, color: "#8fa5b4",
             textWrap: "pretty", fontVariantNumeric: "tabular-nums" },
-          cPhInfoLines: [
-            { txt: "You lift 3\u20134 times a week and eat enough "
-              + "protein, all the way through." },
-            { txt: "Cuts run at 0.6% of body weight a week \u2014 "
-              + "the pace that spares muscle." },
-            { txt: "Even so, about " + Math.round(100 * plan.sL)
-              + "% of what a cut loses is lean \u2014 the gain phase "
-              + "is sized to win it back." },
-            { txt: "Lean builds at about " + plan.gLeanWk.toFixed(2)
-              + " kg a week for your sex and age, and roughly a quarter "
-              + "of any surplus becomes fat." },
-            { txt: "A short maintenance block sits between phases so "
-              + "the next one starts fresh." },
-            { txt: "Every figure is within about 10% for an "
-              + "individual \u2014 arithmetic, not medical advice." }
-          ],
+          cPhInfoHi: { color: "#f2f8fc" },
+          cPhInfoLines: (() => {
+            const cut = phases.find(pp => pp.key === "cut");
+            const mid = phases.find(pp => pp.key === "mid");
+            const cutG = Math.round((cut
+              ? Math.abs(cut.dwWk) : 0.006 * m.wt) * 100) * 10;
+            const gainG = Math.round(plan.gLeanWk * 100) * 10;
+            const midWk = mid ? mid.wks + (mid.wks === 1
+              ? " week" : " weeks") : "2\u20134 weeks";
+            const B = (a, n1, b, n2, c) => ({ a, n1, b: b || "",
+              n2: n2 || "", c: c || "" });
+            return [
+              B("You lift ", "3\u20135 times a week",
+                " and eat enough protein, all the way through."),
+              B("Cuts lose ", cutG + " g a week",
+                " \u2014 the pace that spares muscle."),
+              B("", Math.round(100 * plan.sL) + "%",
+                " of what a cut loses is lean \u2014 the gain phase is "
+                + "sized to win it back."),
+              B("Lean builds at ", gainG + " g a week",
+                " for your sex and age; ", "25%",
+                " of any surplus becomes fat."),
+              B("", midWk, " at maintenance between phases \u2014 a "
+                + "deficit drags metabolic rate and training output "
+                + "down, and holding steady restores both before the "
+                + "next phase."),
+              B("Every figure carries a ", "10%",
+                " individual margin \u2014 arithmetic, not medical "
+                + "advice.")
+            ];
+          })(),
           cBodyGlyph: GLYPH_BODY,
           // ── new field controls ───────────────────────────────────────────────────
           cFieldBlock: { flex: "none", display: "block", paddingTop: ".55rem" },
