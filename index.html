@@ -4839,16 +4839,17 @@ class Component extends DCLogic {
               B("", Math.round(100 * plan.sL) + "%",
                 " of what a cut loses is lean \u2014 the gain phase is "
                 + "sized to win it back."),
-              B("Lean builds at ", gainG + " g per week",
-                " for your sex and age; ", "25%",
-                " of any surplus becomes fat."),
               B("", midWk, " at maintenance between phases \u2014 a "
                 + "deficit drags metabolic rate and training output "
                 + "down, and holding steady restores both before the "
                 + "next phase."),
-              B("Every figure carries a ", "10%",
-                " individual margin \u2014 arithmetic, not medical "
-                + "advice.")
+              B("Lean builds at ", gainG + " g per week",
+                " for your sex and age; ", "25%",
+                " of any surplus becomes fat."),
+              B("Numbers based on the average ", m.age + " year old "
+                + (m.sex === "f" ? "woman" : "man"),
+                " \u2014 results vary by genetics and assume no ",
+                "performance-enhancing drugs", ".")
             ];
           })(),
           cBodyGlyph: GLYPH_BODY,
