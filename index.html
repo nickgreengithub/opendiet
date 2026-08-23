@@ -444,37 +444,30 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ cHead }}">
         <span style="{{ cTitleS }}">YOUR PLAN</span>
       </span>
-      <span style="{{ cVTabRow }}"><sc-for list="{{ cPhTabs }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="color:#3fdcf2">{{ t.label }}</button></sc-for></span>
-      <span style="{{ cQSpace }}"></span>
-      <sc-if value="{{ cPhNumOn }}" hint-placeholder-val="{{ true }}">
-      <span style="{{ cPhWksS }}">{{ cPhWks }}</span>
-      <span style="{{ cQValRow }}"><span style="{{ cQValS }}">{{ cPhKcal }}</span><span style="{{ cQValUnit }}">KCAL A DAY</span></span>
-      <span style="{{ cPhNoteS }}">{{ cPhNote }}</span>
+      <span style="{{ cVTabRow }}"><sc-for list="{{ cPhTabs }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="color:#3fdcf2">{{ t.label }}</button></sc-for></span>
+      <sc-if value="{{ cPhPlanOn }}" hint-placeholder-val="{{ true }}">
+      <span style="{{ cPhTableS }}"><sc-for list="{{ cPhCells }}" as="t" hint-placeholder-count="12"><span style="{{ t.s }}"><span style="{{ t.ts }}">{{ t.t }}</span><span style="{{ t.ss }}">{{ t.sub }}</span></span></sc-for></span>
       </sc-if>
       <sc-if value="{{ cPhInfoOn }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ cPhInfoBox }}"><sc-for list="{{ cPhInfoLines }}" as="t" hint-placeholder-count="7"><span style="{{ cPhInfoLine }}">{{ t.txt }}</span></sc-for></span>
+      <span style="{{ cPhInfoBox }}"><sc-for list="{{ cPhInfoLines }}" as="t" hint-placeholder-count="4"><span style="{{ cPhInfoLine }}">{{ t.txt }}</span></sc-for></span>
       </sc-if>
       <span style="{{ cQSpace2 }}"></span>
+      <sc-if value="{{ cPhPlanOn }}" hint-placeholder-val="{{ true }}">
       <span style="{{ cPhFoot }}">
-        <span style="{{ cPhRow }}">
-          <span style="{{ cPhCellCol }}">
-            <span style="{{ cPhCell }}"><span style="{{ cPhCellLab }}">WEIGHT</span><span style="{{ cPhCellVal }}">{{ cPhW }}<span style="{{ cPhCellUnit }}"> KG</span></span></span>
-            <span style="{{ cPhCell }}"><span style="{{ cPhCellLab }}">BODY FAT</span><span style="{{ cPhCellVal }}">{{ cPhBf }}<span style="{{ cPhCellUnit }}"> %</span></span></span>
-          </span>
-          <span style="{{ cPhChart }}">
-            <svg viewBox="0 0 100 66" preserveAspectRatio="none" style="{{ cPhSvg }}">
-              <path d="{{ cPhBoundPath }}" fill="none" stroke="rgba(34,211,238,.22)" stroke-width="1" vector-effect="non-scaling-stroke"></path>
-              <path d="{{ cPhWPath }}" fill="none" stroke="#d7e6ef" stroke-width="1.2" vector-effect="non-scaling-stroke"></path>
-              <path d="{{ cPhBfPath }}" fill="none" stroke="#f08c7a" stroke-width="1.2" vector-effect="non-scaling-stroke"></path>
-            </svg>
-            <span style="{{ cPhScrubS }}"></span>
-            <span style="{{ cPhMkW }}"></span>
-            <span style="{{ cPhMkB }}"></span>
-            <input type="range" min="0" max="{{ cPhSlMax }}" step="1" value="{{ cPhSlVal }}" onChange="{{ cPhSlSet }}" style="{{ cPhSlS }}">
-          </span>
+        <span style="{{ cPhChart }}">
+          <svg viewBox="0 0 100 40" preserveAspectRatio="none" style="{{ cPhSvg }}">
+            <path d="{{ cPhBoundPath }}" fill="none" stroke="rgba(34,211,238,.22)" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+            <path d="{{ cPhWPath }}" fill="none" stroke="#d7e6ef" stroke-width="1.2" vector-effect="non-scaling-stroke"></path>
+          </svg>
+          <span style="{{ cPhScrubS }}"></span>
+          <span style="{{ cPhMkW }}"></span>
+          <span style="{{ cPhValS }}">{{ cPhVal }}</span>
+          <input type="range" min="0" max="{{ cPhSlMax }}" step="1" value="{{ cPhSlVal }}" onChange="{{ cPhSlSet }}" style="{{ cPhSlS }}">
         </span>
         <span style="{{ cPhDayS }}">{{ cPhDay }}</span>
+        <span style="{{ cPhMeasRow }}"><sc-for list="{{ cPhMeas }}" as="t" hint-placeholder-count="3"><span style="{{ cPhMeasItem }}"><span style="{{ cPhMeasLab }}">{{ t.lab }}</span><span style="{{ cPhMeasVal }}">{{ t.val }}</span></span></sc-for></span>
       </span>
+      </sc-if>
     </sc-if>
   </div>
   </sc-if>
@@ -4212,13 +4205,9 @@ class Component extends DCLogic {
           const cutPh = () => {
             const wk = Math.max(2, Math.round(X / (0.006 * W)));
             const def = (X / wk) * (sL * RHO_LEAN + (1 - sL) * RHO_FAT) / 7;
-            out.push({ key: "cut", label: "CUT", wks: wk,
+            out.push({ key: "cut", label: "CUT", wks: wk, dwWk: -X / wk,
               kcal: Math.max(m.floor,
-                r50(maintAt(W - X / 2, FFM - sL * X / 2) - def)),
-              note: "About " + r50(def) + " below maintenance \u2014 0.6% of "
-                + "body weight a week, the rate that spares muscle. Even so, "
-                + "about " + Math.round(100 * sL) + "% of the loss will be "
-                + "lean \u2014 the plan accounts for it." });
+                r50(maintAt(W - X / 2, FFM - sL * X / 2) - def)) });
             seg(wk, -X, -(1 - sL) * X);
             W -= X; FFM -= sL * X;
           };
@@ -4226,21 +4215,15 @@ class Component extends DCLogic {
             const wk = Math.max(2, Math.round(G * sG / gLeanWk));
             const sur = (G / wk) * (sG * RHO_LEAN + (1 - sG) * RHO_FAT) / 7;
             out.push({ key: "gain", label: "LEAN GAIN", wks: wk,
-              kcal: r50(maintAt(W + G / 2, FFM + sG * G / 2) + sur),
-              note: "About " + r50(sur) + " over maintenance \u2014 near "
-                + gLeanWk.toFixed(2) + " kg of lean a week for your sex and "
-                + "age, on the 3\u20134 sessions; about a quarter of the "
-                + "total gain is fat, and the plan accounts for it." });
+              dwWk: G / wk,
+              kcal: r50(maintAt(W + G / 2, FFM + sG * G / 2) + sur) });
             seg(wk, G, (1 - sG) * G);
             W += G; FFM += sG * G;
           };
           const midPh = () => {
             const wk = Math.max(2, Math.min(4, Math.round(out[0].wks / 4)));
-            out.push({ key: "mid", label: "MAINTAIN", wks: wk,
-              kcal: r50(maintAt(W, FFM)),
-              note: "Maintenance between the phases \u2014 " + wk + " weeks "
-                + "for metabolism and training quality to recover before "
-                + "the next block." });
+            out.push({ key: "mid", label: "MAINTAIN", wks: wk, dwWk: 0,
+              kcal: r50(maintAt(W, FFM)) });
             seg(wk, 0, 0);
           };
           if (X > 0.25 && G > 0.25) {
@@ -4249,24 +4232,17 @@ class Component extends DCLogic {
           } else if (X > 0.25) cutPh();
           else if (G > 0.25) gainPh();
           if (!out.length) {
-            out.push({ key: "hold", label: "MAINTAIN", wks: 0,
-              kcal: r50(maintAt(m.wt, FFM)),
-              note: "You are already at your goal \u2014 this is the number "
-                + "that holds it, with the 3\u20134 sessions a week keeping "
-                + "the lean mass you have." });
+            out.push({ key: "hold", label: "MAINTAIN", wks: 0, dwWk: 0,
+              kcal: r50(maintAt(m.wt, FFM)) });
             seg(8, 0, 0);
           }
           return { list: out, nodes, sL, gLeanWk };
         })();
         const phases = plan.list, phNodes = plan.nodes;
-        // The tabs are the phases plus INFO, always last — the assumptions
-        // and their sources, one place, always in reach.
-        const phTabN = phases.length + (phases.length ? 1 : 0);
-        const phTab = Math.max(0, Math.min(Math.max(0, phTabN - 1),
-          s.cResTab || 0));
-        const phInfo = phases.length > 0 && phTab === phases.length;
-        const ph = phInfo ? null : (phases[phTab] || null);
-        const phTotal = phases.reduce((a, p) => a + p.wks, 0);
+        // Two tabs: PLAN — the phase table over the weight trajectory —
+        // and INFO, the assumptions and their sources.
+        const phTab = Math.max(0, Math.min(1, s.cResTab || 0));
+        const phInfo = phTab === 1;
         // The scrubber: a day along the whole plan, defaulting to its last
         // day, read against the weekly nodes by linear interpolation.
         const phDays = Math.max(1, (phNodes.length - 1) * 7);
@@ -4293,9 +4269,7 @@ class Component extends DCLogic {
             + " " + y(v).toFixed(2)).join(" ") };
         };
         const phWVals = phNodes.map(n => n.w);
-        const phBfVals = phNodes.map(n => 100 * n.fm / n.w);
-        const phWB = done ? phBand(phWVals, 4, 28) : null;
-        const phFB = done ? phBand(phBfVals, 40, 64) : null;
+        const phWB = done ? phBand(phWVals, 6, 33) : null;
         const phX = 100 * phD / phDays;
         const num = (v, col) => ({ fontFamily: "var(--font-1)", fontWeight: 300,
           fontSize: s.narrow ? "1.5rem" : "1.7rem", fontVariantNumeric: "tabular-nums",
@@ -4339,7 +4313,7 @@ class Component extends DCLogic {
           cQ: STEPS[step],
           // The way forward is the right notch on every screen; the last one
           // simply notches into the result.
-          cRNotchOn: done ? phTab < phTabN - 1 : true,
+          cRNotchOn: done ? phTab < 1 : true,
           // CURRENT and YOUR GOAL, as underlined tabs over the figure. The
           // first visit to the goal births it from the current numbers; after
           // that the two bodies stand side by side and the tab picks which
@@ -4585,8 +4559,7 @@ class Component extends DCLogic {
           // and only from YOUR GOAL does it leave the screen.
           cNext: () => {
             if (done) {
-              if (phTab < phTabN - 1)
-                this.setState({ cResTab: phTab + 1 });
+              if (phTab < 1) this.setState({ cResTab: 1 });
               return;
             }
             if (step === 3 && s.cView !== "goal") {
@@ -4615,104 +4588,83 @@ class Component extends DCLogic {
             fontSize: ".98rem", lineHeight: 1.4, color: "#b3c5d0",
             textWrap: "pretty" },
           // ── the plan screen: a tab per phase, the timeline as the footer ─────────
-          cPhTabs: phases.map(p => p.label).concat(["INFO"])
-            .map((label, i) => ({ label,
-              onClick: () => this.setState({ cResTab: i }),
-              s: (on => ({ padding: "0 .15rem .4rem", border: 0,
-                borderRadius: 0, background: "transparent", cursor: "pointer",
-                fontFamily: "var(--font-2)",
-                fontSize: phases.length >= 3 ? ".82rem" : ".95rem",
-                letterSpacing: ".14em", textIndent: ".14em",
-                color: on ? "#3fdcf2" : "#7b91a3",
-                borderBottom: on ? "2px solid #22d3ee" : "2px solid transparent",
-                transition: "color 160ms ease, border-color 160ms ease"
-              }))(i === phTab) })),
-          cPhNumOn: !!ph,
+          cPhTabs: ["PLAN", "INFO"].map((label, i) => ({ label,
+            onClick: () => this.setState({ cResTab: i }),
+            s: (on => ({ padding: "0 .15rem .4rem", border: 0,
+              borderRadius: 0, background: "transparent", cursor: "pointer",
+              fontFamily: "var(--font-2)", fontSize: ".95rem",
+              letterSpacing: ".2em", textIndent: ".2em",
+              color: on ? "#3fdcf2" : "#7b91a3",
+              borderBottom: on ? "2px solid #22d3ee" : "2px solid transparent",
+              transition: "color 160ms ease, border-color 160ms ease"
+            }))(i === phTab) })),
+          cPhPlanOn: !phInfo,
           cPhInfoOn: phInfo,
-          cPhInfoBox: { flex: "none", alignSelf: "center", width: "100%",
-            maxWidth: "19.5rem", display: "flex", flexDirection: "column",
-            gap: ".45rem", padding: ".4rem 0 .6rem" },
-          cPhInfoLine: { fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: ".88rem", lineHeight: 1.4, color: "#b3c5d0",
-            textWrap: "pretty" },
-          cPhInfoLines: [
-            { txt: "Assumes weight training 3–4× a week and protein "
-              + "near 1.6 g/kg a day throughout (Morton 2018)." },
-            { txt: "Cuts run at 0.6% of body weight a week — the rate "
-              + "shown to spare lean mass in trained dieters (Garthe 2011; "
-              + "Helms 2014)." },
-            { txt: "Even trained, about " + Math.round(100 * plan.sL)
-              + "% of a cut's loss is lean at your body fat and age — "
-              + "half the untrained share (Forbes 2000; Hall 2007), rising "
-              + "with age. The plan sizes the phases so the lean comes back." },
-            { txt: "Lean gain at " + plan.gLeanWk.toFixed(2) + " kg a week "
-              + "for your sex and age (Wernbom 2007), slowing with age; a "
-              + "modest surplus splits about 75% lean (Garthe 2013)." },
-            { txt: "A 2–4 week maintenance block sits between phases so "
-              + "metabolism and training quality recover (Trexler 2014; "
-              + "Peos 2019)." },
-            { txt: "Order: cut first unless already lean (under ~15% men, "
-              + "~23% women) — a surplus partitions better to lean at "
-              + "low body fat (Forbes), so a lean body builds first and "
-              + "trims after." },
-            { txt: "Resting metabolism from " + (m.bfPicked
-              ? "Katch–McArdle" : "Mifflin–St Jeor")
-              + "; activity from your calorie burn. Every figure carries "
-              + "roughly ±10% for an individual — arithmetic, not "
-              + "medical advice." }
-          ],
-          cPhWks: ph ? (ph.wks ? "PHASE OF " + ph.wks + " WEEKS" : "ONGOING") : "",
-          cPhWksS: { flex: "none", display: "block", textAlign: "center",
-            fontFamily: "var(--font-2)", fontSize: ".95rem",
-            letterSpacing: ".18em", color: "#3fdcf2", paddingBottom: "1rem" },
-          cPhKcal: ph
-            ? String(ph.kcal).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "",
-          cPhNote: ph ? ph.note : "",
-          cPhNoteS: { flex: "none", alignSelf: "center", width: "100%",
-            maxWidth: "18.5rem", height: "5.4rem", display: "flex",
-            alignItems: "flex-start", justifyContent: "center",
-            paddingTop: ".5rem", boxSizing: "border-box", textAlign: "center",
-            fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".98rem",
-            lineHeight: 1.4, color: "#b3c5d0", textWrap: "pretty" },
-          // The footer: WEIGHT and BODY FAT stacked as cells, each with its
-          // progression drawn to the right on one shared time axis, no x
-          // labels \u2014 the phases are the faint verticals. A scrub line runs
-          // through both charts with a marker where it crosses each series;
-          // it starts on the plan's last day, and dragging anywhere on the
-          // charts moves it, the cells and the day line answering.
+          // The phase table: no outer edge, gridlines only on the inside.
+          // Phase, the daily calories to hit, and the weekly change signed
+          // in kilograms.
+          cPhTableS: { flex: "none", alignSelf: "center", width: "100%",
+            maxWidth: "19.5rem", marginTop: "1.6rem", display: "grid",
+            gridTemplateColumns: "1.15fr 1fr 1fr" },
+          cPhCells: (() => {
+            const cells = [];
+            const line = "1px solid rgba(34,211,238,.28)";
+            const push = (row, col, t, sub, head, num) => cells.push({
+              t, sub: sub || "",
+              s: { display: "flex", flexDirection: "column",
+                justifyContent: "center", alignItems: col === 0
+                  ? "flex-start" : "flex-end",
+                gap: ".25rem", minHeight: head ? "2.4rem" : "3.4rem",
+                padding: ".45rem .6rem", boxSizing: "border-box",
+                borderTop: row > 0 ? line : "none",
+                borderLeft: col > 0 ? line : "none" },
+              ts: head
+                ? { fontFamily: "var(--font-2)", fontSize: ".9rem",
+                  letterSpacing: ".1em", color: "#9fb3c0",
+                  whiteSpace: "nowrap" }
+                : num
+                  ? { fontFamily: "var(--font-1)", fontWeight: 300,
+                    fontSize: "1.2rem", fontVariantNumeric: "tabular-nums",
+                    color: "#eaf5fb", whiteSpace: "nowrap" }
+                  : { fontFamily: "var(--font-2)", fontSize: ".95rem",
+                    letterSpacing: ".08em", color: "#d7e6ef",
+                    whiteSpace: "nowrap" },
+              ss: { display: sub ? "block" : "none",
+                fontFamily: "var(--font-2)", fontSize: ".9rem",
+                letterSpacing: ".06em", color: "#7b91a3",
+                whiteSpace: "nowrap" }
+            });
+            push(0, 0, "PHASE", "", true);
+            push(0, 1, "DAILY KCAL", "", true);
+            push(0, 2, "WEEKLY", "", true);
+            phases.forEach((pp, i) => {
+              const r = i + 1;
+              push(r, 0, pp.label, pp.wks ? pp.wks + " WK" : "ONGOING");
+              push(r, 1,
+                String(pp.kcal).replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+                "", false, true);
+              push(r, 2, (pp.dwWk > 0.049 ? "+" : pp.dwWk < -0.049
+                ? "\u2212" : "") + Math.abs(pp.dwWk).toFixed(1) + " KG",
+                "", false, true);
+            });
+            return cells;
+          })(),
+          // The footer: the weight trajectory full width, the kilograms
+          // riding just above the line at the scrub, the day and its date
+          // under it, and the other measures on their own row.
           cPhFoot: { flex: "none", display: "flex", flexDirection: "column",
             gap: ".55rem", width: "100%", maxWidth: "24rem",
-            alignSelf: "center", padding: "0 0 .5rem", boxSizing: "border-box" },
-          cPhRow: { display: "flex", gap: ".6rem", width: "100%",
-            alignItems: "stretch" },
-          cPhCellCol: { flex: "none", display: "flex", flexDirection: "column",
-            gap: ".5rem", width: "7.4rem" },
-          cPhCell: { display: "flex", flexDirection: "column",
-            alignItems: "center", justifyContent: "center", gap: ".35rem",
-            height: "4.2rem", boxSizing: "border-box",
-            border: "1px solid rgba(34,211,238,.22)",
-            background: "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))" },
-          cPhCellLab: { fontFamily: "var(--font-2)", fontSize: ".8rem",
-            letterSpacing: ".06em", color: "#a9bcc8", whiteSpace: "nowrap" },
-          cPhCellVal: { fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: "1.4rem", lineHeight: 1, fontVariantNumeric: "tabular-nums",
-            color: "#eaf5fb" },
-          cPhCellUnit: { fontFamily: "var(--font-2)", fontSize: ".8rem",
-            letterSpacing: ".06em", color: "#8fa5b4" },
-          cPhW: phCur.w ? phCur.w.toFixed(1) : "",
-          cPhBf: phCur.w ? (100 * phCur.fm / phCur.w).toFixed(1) : "",
-          cPhChart: { position: "relative", flex: "1 1 auto", minWidth: 0,
-            height: "8.9rem" },
+            alignSelf: "center", padding: "0 0 .4rem", boxSizing: "border-box" },
+          cPhChart: { position: "relative", width: "100%", height: "7.2rem" },
           cPhSvg: { position: "absolute", inset: 0, width: "100%",
             height: "100%", display: "block" },
           cPhWPath: phWB ? phWB.path : "",
-          cPhBfPath: phFB ? phFB.path : "",
           cPhBoundPath: (() => {
             let acc = 0;
-            return phases.slice(0, -1).map(p => {
-              acc += p.wks;
+            return phases.slice(0, -1).map(pp => {
+              acc += pp.wks;
               const x = (100 * acc / Math.max(1, phNodes.length - 1)).toFixed(2);
-              return "M" + x + " 0 L" + x + " 66";
+              return "M" + x + " 0 L" + x + " 40";
             }).join(" ");
           })(),
           cPhScrubS: { position: "absolute", top: 0, bottom: 0,
@@ -4720,16 +4672,19 @@ class Component extends DCLogic {
             background: "#22d3ee", boxShadow: "0 0 8px rgba(34,211,238,.6)",
             pointerEvents: "none" },
           cPhMkW: { position: "absolute", left: phX + "%",
-            top: phWB ? (100 * phWB.y(phCur.w) / 66) + "%" : "0%",
-            width: ".55rem", height: ".55rem", borderRadius: "50%",
+            top: phWB ? (100 * phWB.y(phCur.w) / 40) + "%" : "0%",
+            width: ".6rem", height: ".6rem", borderRadius: "50%",
             transform: "translate(-50%,-50%)", background: "#d7e6ef",
             boxShadow: "0 0 8px rgba(215,230,239,.8)", pointerEvents: "none" },
-          cPhMkB: { position: "absolute", left: phX + "%",
-            top: phFB && phCur.w
-              ? (100 * phFB.y(100 * phCur.fm / phCur.w) / 66) + "%" : "0%",
-            width: ".55rem", height: ".55rem", borderRadius: "50%",
-            transform: "translate(-50%,-50%)", background: "#f08c7a",
-            boxShadow: "0 0 8px rgba(240,140,122,.8)", pointerEvents: "none" },
+          cPhVal: phCur.w ? phCur.w.toFixed(1) + " KG" : "",
+          cPhValS: { position: "absolute",
+            left: Math.max(10, Math.min(88, phX)) + "%",
+            top: phWB ? (100 * phWB.y(phCur.w) / 40) + "%" : "0%",
+            transform: "translate(-50%,-150%)",
+            fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1rem",
+            fontVariantNumeric: "tabular-nums", color: "#eaf5fb",
+            whiteSpace: "nowrap", pointerEvents: "none",
+            textShadow: "0 0 8px rgba(5,8,13,.9)" },
           cPhSlMax: String(phDays),
           cPhSlVal: String(phD),
           cPhSlSet: e => this.setState({ cResDay: +e.target.value }),
@@ -4737,11 +4692,60 @@ class Component extends DCLogic {
             height: "100%", margin: 0, opacity: 0, cursor: "ew-resize",
             touchAction: "none" },
           cPhDayS: { display: "block", textAlign: "center",
-            fontFamily: "var(--font-2)", fontSize: ".9rem",
-            letterSpacing: ".14em", color: "#3fdcf2",
+            fontFamily: "var(--font-2)", fontSize: ".95rem",
+            letterSpacing: ".12em", color: "#3fdcf2",
             fontVariantNumeric: "tabular-nums" },
-          cPhDay: phD === 0 ? "TODAY"
-            : "IN " + phD + (phD === 1 ? " DAY" : " DAYS"),
+          cPhDay: (() => {
+            if (phD === 0) return "TODAY";
+            const d = new Date(Date.now() + phD * 864e5);
+            const MO = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL",
+              "AUG", "SEP", "OCT", "NOV", "DEC"];
+            return "IN " + phD + (phD === 1 ? " DAY" : " DAYS")
+              + " \u00b7 " + d.getDate() + " " + MO[d.getMonth()] + " "
+              + d.getFullYear();
+          })(),
+          cPhMeasRow: { display: "flex", justifyContent: "space-between",
+            padding: "0 .2rem" },
+          cPhMeasItem: { display: "flex", alignItems: "baseline",
+            gap: ".45rem" },
+          cPhMeasLab: { fontFamily: "var(--font-2)", fontSize: ".9rem",
+            letterSpacing: ".08em", color: "#9fb3c0" },
+          cPhMeasVal: { fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1.1rem", fontVariantNumeric: "tabular-nums",
+            color: "#eaf5fb" },
+          cPhMeas: (() => {
+            if (!phCur.w) return [];
+            const bfv = 100 * phCur.fm / phCur.w;
+            const lean = phCur.w - phCur.fm;
+            const bmi = phCur.w / Math.pow(m.ht / 100, 2);
+            return [
+              { lab: "BODY FAT", val: bfv.toFixed(1) + " %" },
+              { lab: "LEAN", val: lean.toFixed(1) + " KG" },
+              { lab: "BMI", val: bmi.toFixed(1) }
+            ];
+          })(),
+          cPhInfoBox: { flex: "none", alignSelf: "center", width: "100%",
+            maxWidth: "19.5rem", marginTop: "1.6rem", display: "flex",
+            flexDirection: "column", gap: ".8rem" },
+          cPhInfoLine: { fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: ".98rem", lineHeight: 1.5, color: "#b3c5d0",
+            textWrap: "pretty" },
+          cPhInfoLines: [
+            { txt: "Weight training 3\u20134\u00d7 a week and about "
+              + "1.6 g/kg of protein a day, throughout (Morton 2018)." },
+            { txt: "Cuts run at 0.6% of body weight a week (Garthe 2011; "
+              + "Helms 2014). About " + Math.round(100 * plan.sL)
+              + "% of the loss is lean (Forbes 2000) \u2014 the plan sizes "
+              + "the gain to win it back." },
+            { txt: "Lean gain at " + plan.gLeanWk.toFixed(2) + " kg a week "
+              + "for your sex and age (Wernbom 2007); a modest surplus is "
+              + "about 75% lean (Garthe 2013). Between phases, 2\u20134 "
+              + "weeks at maintenance (Trexler 2014)." },
+            { txt: "Resting metabolism from " + (m.bfPicked
+              ? "Katch\u2013McArdle" : "Mifflin\u2013St Jeor")
+              + ". Every figure is roughly \u00b110% for an individual "
+              + "\u2014 arithmetic, not medical advice." }
+          ],
           cBodyGlyph: GLYPH_BODY,
           // ── new field controls ───────────────────────────────────────────────────
           cFieldBlock: { flex: "none", display: "block", paddingTop: ".55rem" },

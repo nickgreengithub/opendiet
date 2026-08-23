@@ -554,17 +554,17 @@ one label carry it.
 
 This is the app. Everything above it is data entry.
 
-The screen is a **phased plan from the current body to the goal**, up to three phases,
-one underlined tab each in the body screen's tab language, walked by the same edge
-notches (right notch to the next phase, back notch through the phases and then back out).
-Each tab shows one number — the calories to target per day in that phase — with the
-phase's length above it and a sentence of what the phase is doing below it. The footer
-is the trajectory: WEIGHT and BODY FAT stacked as two cells, each with its progression
-drawn to the right on one shared time axis (no x labels; the phase boundaries are faint
-verticals). A scrub line runs through both charts with a marker where it crosses each
-series; it starts on the plan's last day, the line under it saying the day relative to
-today ("IN 238 DAYS" / "TODAY"), and dragging anywhere on the charts moves it, the two
-cells answering with the values on that date.
+The screen is two tabs, PLAN and INFO, in the body screen's tab language, walked by the
+same edge notches. PLAN is a table — no outer border, gridlines only on the inside —
+one row per phase: PHASE (with its weeks under the name), DAILY KCAL, and WEEKLY change
+signed in kilograms. Under it, the weight trajectory drawn full width, the phase
+boundaries as faint verticals, a scrub line with the kilograms riding just above the
+curve at the marker; beneath, the day and its calendar date ("IN 266 DAYS · 16 MAY
+2027" / "TODAY"), and a final row with the other measures at that date — body fat, lean,
+BMI. Dragging anywhere on the chart moves the scrub. INFO is four short paragraphs: the
+training and protein premise, the cut rate and this person's lean-loss share, the gain
+rate and the maintenance blocks, and the RMR equation with the ±10% caveat — each with
+its sources.
 
 The phases are **solved, not sketched**. Two coupled facts the arithmetic respects: a cut
 loses lean mass even with training — modelled as half the untrained Forbes share (Forbes
