@@ -4232,11 +4232,11 @@ class Component extends DCLogic {
           if (X > 0.25 && G > 0.25) {
             if (gainFirst) {
               gainPh();
-              midPh("Before trimming the little fat the build added");
+              midPh("Advised recovery period");
               cutPh();
             } else {
               cutPh();
-              midPh("Before winning back the muscle the cut cost");
+              midPh("Advised recovery period");
               gainPh();
             }
           } else if (X > 0.25) cutPh();
@@ -4703,7 +4703,8 @@ class Component extends DCLogic {
             opacity: i === phActive ? 0 : 1,
             transition: "opacity 180ms ease" } })),
           cPhAxisRow: { display: "flex", justifyContent: "space-between",
-            width: "100%", maxWidth: "19.5rem", alignSelf: "center",
+            width: "100%", alignSelf: "center",
+            marginTop: "-.55rem", marginBottom: ".35rem",
             fontFamily: "var(--font-2)", fontSize: ".9rem",
             letterSpacing: ".1em", color: "#7b91a3",
             fontVariantNumeric: "tabular-nums" },
