@@ -555,9 +555,11 @@ one label carry it.
 This is the app. Everything above it is data entry.
 
 The screen is two tabs, PLAN and INFO, in the body screen's tab language, walked by the
-same edge notches. PLAN is a table — no outer border, gridlines only on the inside —
-one row per phase: PHASE (with its weeks under the name), DAILY KCAL, and WEEKLY change
-signed in kilograms. Under it, the weight trajectory drawn full width, the phase
+same edge notches. PLAN is the phases as short statements, a cyan header each: the rate
+in the header ("CUT · LOSE 0.5 KG A WEEK"), then "Eat 1,850 kcal a day for 25 weeks",
+then where the phase lands you ("Reach 71.2 kg", the last one marked "— your goal";
+MAINTAIN instead says what it is for, e.g. "Before winning back the muscle the cut
+cost"). Under it, the weight trajectory drawn full width, the phase
 boundaries as faint verticals, a scrub line with the kilograms riding just above the
 curve at the marker; beneath, the day and its calendar date ("IN 266 DAYS · 16 MAY
 2027" / "TODAY"), and a final row with the other measures at that date — body fat, lean,

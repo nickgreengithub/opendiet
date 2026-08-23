@@ -446,7 +446,7 @@ option{background:#070b12;color:#d7e6ef}
       </span>
       <span style="{{ cVTabRow }}"><sc-for list="{{ cPhTabs }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="color:#3fdcf2">{{ t.label }}</button></sc-for></span>
       <sc-if value="{{ cPhPlanOn }}" hint-placeholder-val="{{ true }}">
-      <span style="{{ cPhTableS }}"><sc-for list="{{ cPhCells }}" as="t" hint-placeholder-count="12"><span style="{{ t.s }}"><span style="{{ t.ts }}">{{ t.t }}</span><span style="{{ t.ss }}">{{ t.sub }}</span></span></sc-for></span>
+      <span style="{{ cPhList }}"><sc-for list="{{ cPhBlocks }}" as="t" hint-placeholder-count="3"><span style="{{ cPhBlock }}"><span style="{{ cPhBlockH }}">{{ t.head }}</span><span style="{{ cPhBlockL }}">{{ t.l1 }}</span><span style="{{ t.l2s }}">{{ t.l2 }}</span></span></sc-for></span>
       </sc-if>
       <sc-if value="{{ cPhInfoOn }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cPhInfoBox }}"><sc-for list="{{ cPhInfoLines }}" as="t" hint-placeholder-count="4"><span style="{{ cPhInfoLine }}">{{ t.txt }}</span></sc-for></span>
@@ -4206,6 +4206,7 @@ class Component extends DCLogic {
             const wk = Math.max(2, Math.round(X / (0.006 * W)));
             const def = (X / wk) * (sL * RHO_LEAN + (1 - sL) * RHO_FAT) / 7;
             out.push({ key: "cut", label: "CUT", wks: wk, dwWk: -X / wk,
+              endW: W - X,
               kcal: Math.max(m.floor,
                 r50(maintAt(W - X / 2, FFM - sL * X / 2) - def)) });
             seg(wk, -X, -(1 - sL) * X);
@@ -4215,25 +4216,32 @@ class Component extends DCLogic {
             const wk = Math.max(2, Math.round(G * sG / gLeanWk));
             const sur = (G / wk) * (sG * RHO_LEAN + (1 - sG) * RHO_FAT) / 7;
             out.push({ key: "gain", label: "LEAN GAIN", wks: wk,
-              dwWk: G / wk,
+              dwWk: G / wk, endW: W + G,
               kcal: r50(maintAt(W + G / 2, FFM + sG * G / 2) + sur) });
             seg(wk, G, (1 - sG) * G);
             W += G; FFM += sG * G;
           };
-          const midPh = () => {
+          const midPh = purpose => {
             const wk = Math.max(2, Math.min(4, Math.round(out[0].wks / 4)));
             out.push({ key: "mid", label: "MAINTAIN", wks: wk, dwWk: 0,
-              kcal: r50(maintAt(W, FFM)) });
+              endW: W, purpose, kcal: r50(maintAt(W, FFM)) });
             seg(wk, 0, 0);
           };
           if (X > 0.25 && G > 0.25) {
-            if (gainFirst) { gainPh(); midPh(); cutPh(); }
-            else { cutPh(); midPh(); gainPh(); }
+            if (gainFirst) {
+              gainPh();
+              midPh("Before trimming the little fat the build added");
+              cutPh();
+            } else {
+              cutPh();
+              midPh("Before winning back the muscle the cut cost");
+              gainPh();
+            }
           } else if (X > 0.25) cutPh();
           else if (G > 0.25) gainPh();
           if (!out.length) {
             out.push({ key: "hold", label: "MAINTAIN", wks: 0, dwWk: 0,
-              kcal: r50(maintAt(m.wt, FFM)) });
+              endW: m.wt, kcal: r50(maintAt(m.wt, FFM)) });
             seg(8, 0, 0);
           }
           return { list: out, nodes, sL, gLeanWk };
@@ -4600,54 +4608,46 @@ class Component extends DCLogic {
             }))(i === phTab) })),
           cPhPlanOn: !phInfo,
           cPhInfoOn: phInfo,
-          // The phase table: no outer edge, gridlines only on the inside.
-          // Phase, the daily calories to hit, and the weekly change signed
-          // in kilograms.
-          cPhTableS: { flex: "none", alignSelf: "center", width: "100%",
-            maxWidth: "19.5rem", marginTop: "1.6rem", display: "grid",
-            gridTemplateColumns: "1.15fr 1fr 1fr" },
-          cPhCells: (() => {
-            const cells = [];
-            const line = "1px solid rgba(34,211,238,.28)";
-            const push = (row, col, t, sub, head, num) => cells.push({
-              t, sub: sub || "",
-              s: { display: "flex", flexDirection: "column",
-                justifyContent: "center", alignItems: col === 0
-                  ? "flex-start" : "flex-end",
-                gap: ".25rem", minHeight: head ? "2.4rem" : "3.4rem",
-                padding: ".45rem .6rem", boxSizing: "border-box",
-                borderTop: row > 0 ? line : "none",
-                borderLeft: col > 0 ? line : "none" },
-              ts: head
-                ? { fontFamily: "var(--font-2)", fontSize: ".9rem",
-                  letterSpacing: ".1em", color: "#9fb3c0",
-                  whiteSpace: "nowrap" }
-                : num
-                  ? { fontFamily: "var(--font-1)", fontWeight: 300,
-                    fontSize: "1.2rem", fontVariantNumeric: "tabular-nums",
-                    color: "#eaf5fb", whiteSpace: "nowrap" }
-                  : { fontFamily: "var(--font-2)", fontSize: ".95rem",
-                    letterSpacing: ".08em", color: "#d7e6ef",
-                    whiteSpace: "nowrap" },
-              ss: { display: sub ? "block" : "none",
-                fontFamily: "var(--font-2)", fontSize: ".9rem",
-                letterSpacing: ".06em", color: "#7b91a3",
-                whiteSpace: "nowrap" }
+          // The phases as short statements, a header each: the rate in the
+          // header, the daily calories and the weeks on the first line, and
+          // where the phase lands you on the second.
+          cPhList: { flex: "none", alignSelf: "center", width: "100%",
+            maxWidth: "19.5rem", marginTop: "1.6rem", display: "flex",
+            flexDirection: "column", gap: "1.45rem" },
+          cPhBlock: { display: "flex", flexDirection: "column",
+            gap: ".35rem" },
+          cPhBlockH: { fontFamily: "var(--font-2)", fontSize: ".92rem",
+            letterSpacing: ".08em", color: "#3fdcf2",
+            fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
+          cPhBlockL: { fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1rem", lineHeight: 1.45, color: "#c3d3dd",
+            fontVariantNumeric: "tabular-nums" },
+          cPhBlocks: (() => {
+            const cm = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            return phases.map((pp, i) => {
+              const last = i === phases.length - 1;
+              let head = pp.label;
+              if (pp.key === "cut")
+                head = "CUT \u00b7 LOSE "
+                  + Math.abs(pp.dwWk).toFixed(1) + " KG A WEEK";
+              else if (pp.key === "gain")
+                head = "LEAN GAIN \u00b7 GAIN "
+                  + pp.dwWk.toFixed(1) + " KG A WEEK";
+              const l1 = pp.wks
+                ? "Eat " + cm(pp.kcal) + " kcal a day for " + pp.wks
+                  + " weeks"
+                : "Eat " + cm(pp.kcal) + " kcal a day";
+              let l2 = "";
+              if (pp.key === "cut" || pp.key === "gain")
+                l2 = "Reach " + pp.endW.toFixed(1) + " kg"
+                  + (last ? " \u2014 your goal" : "");
+              else if (pp.key === "mid") l2 = pp.purpose;
+              else l2 = "You are at your goal";
+              return { head, l1, l2, l2s: { display: l2 ? "block" : "none",
+                fontFamily: "var(--font-1)", fontWeight: 300,
+                fontSize: "1rem", lineHeight: 1.45, color: "#c3d3dd",
+                fontVariantNumeric: "tabular-nums" } };
             });
-            push(0, 0, "PHASE", "", true);
-            push(0, 1, "DAILY KCAL", "", true);
-            push(0, 2, "WEEKLY", "", true);
-            phases.forEach((pp, i) => {
-              const r = i + 1;
-              push(r, 0, pp.label, pp.wks ? pp.wks + " WK" : "ONGOING");
-              push(r, 1,
-                String(pp.kcal).replace(/\B(?=(\d{3})+(?!\d))/g, ","),
-                "", false, true);
-              push(r, 2, (pp.dwWk > 0.049 ? "+" : pp.dwWk < -0.049
-                ? "\u2212" : "") + Math.abs(pp.dwWk).toFixed(1) + " KG",
-                "", false, true);
-            });
-            return cells;
           })(),
           // The footer: the weight trajectory full width, the kilograms
           // riding just above the line at the scrub, the day and its date
