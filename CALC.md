@@ -563,10 +563,11 @@ cost"). Under it, the weight trajectory drawn full width, the phase
 boundaries as faint verticals, a scrub line with the kilograms riding just above the
 curve at the marker; beneath, the day and its calendar date ("IN 266 DAYS · 16 MAY
 2027" / "TODAY"), and a final row with the other measures at that date — body fat, lean,
-BMI. Dragging anywhere on the chart moves the scrub. INFO is four short paragraphs: the
-training and protein premise, the cut rate and this person's lean-loss share, the gain
-rate and the maintenance blocks, and the RMR equation with the ±10% caveat — each with
-its sources.
+BMI. Dragging anywhere on the chart moves the scrub. ASSUMPTIONS is six plain bullets — what
+the forecast rests on, in this person's own numbers, no citations on screen (they live
+here and in the commit history): the training premise, the cut rate, the lean share of a
+cut's loss, the gain rate and surplus split, the maintenance blocks, and the ±10%
+caveat. The trajectory chart stays under both tabs.
 
 The phases are **solved, not sketched**. Two coupled facts the arithmetic respects: a cut
 loses lean mass even with training — modelled as half the untrained Forbes share (Forbes

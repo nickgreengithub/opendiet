@@ -444,10 +444,9 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ cPhList }}"><sc-for list="{{ cPhBlocks }}" as="t" hint-placeholder-count="3"><span style="{{ t.blockS }}"><span style="{{ cPhBlockHRow }}"><span style="{{ cPhBlockNum }}">{{ t.num }}</span><span style="{{ cPhBlockH }}">{{ t.head }}</span></span><span style="{{ t.rateS }}">{{ t.r1 }}<span style="{{ cPhNum }}">{{ t.rN }}</span>{{ t.r2 }}</span><span style="{{ cPhLine }}">{{ t.e1 }}<span style="{{ cPhNum }}">{{ t.eN1 }}</span>{{ t.e2 }}<span style="{{ cPhNum }}">{{ t.eN2 }}</span>{{ t.e3 }}</span><span style="{{ t.l2s }}">{{ t.l2a }}<span style="{{ cPhNum }}">{{ t.l2N }}</span>{{ t.l2b }}</span></span></sc-for></span>
       </sc-if>
       <sc-if value="{{ cPhInfoOn }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ cPhInfoBox }}"><sc-for list="{{ cPhInfoLines }}" as="t" hint-placeholder-count="4"><span style="{{ cPhInfoLine }}">{{ t.txt }}</span></sc-for></span>
+      <span style="{{ cPhInfoBox }}"><sc-for list="{{ cPhInfoLines }}" as="t" hint-placeholder-count="6"><span style="{{ cPhInfoRow }}"><span style="{{ cPhInfoDot }}"></span><span style="{{ cPhInfoTxt }}">{{ t.txt }}</span></span></sc-for></span>
       </sc-if>
       <span style="{{ cQSpace2 }}"></span>
-      <sc-if value="{{ cPhPlanOn }}" hint-placeholder-val="{{ true }}">
       <span style="{{ cPhFoot }}">
         <span style="{{ cPhChart }}">
           <svg viewBox="0 0 100 44" preserveAspectRatio="none" style="{{ cPhSvg }}">
@@ -469,7 +468,6 @@ option{background:#070b12;color:#d7e6ef}
         <span style="{{ cPhDayS }}">{{ cPhDay }}</span>
         <span style="{{ cPhMeasRow }}"><sc-for list="{{ cPhMeas }}" as="t" hint-placeholder-count="3"><span style="{{ cPhMeasItem }}"><span style="{{ cPhMeasLab }}">{{ t.lab }}</span><span style="{{ cPhMeasVal }}">{{ t.val }}</span></span></sc-for></span>
       </span>
-      </sc-if>
     </sc-if>
   </div>
   </sc-if>
@@ -4618,7 +4616,7 @@ class Component extends DCLogic {
             fontSize: ".98rem", lineHeight: 1.4, color: "#b3c5d0",
             textWrap: "pretty" },
           // ── the plan screen: a tab per phase, the timeline as the footer ─────────
-          cPhTabs: ["YOUR PLAN", "INFO"].map((label, i) => ({ label,
+          cPhTabs: ["YOUR PLAN", "ASSUMPTIONS"].map((label, i) => ({ label,
             onClick: () => this.setState({ cResTab: i }),
             s: (on => ({ padding: "0 .15rem .4rem", border: 0,
               borderRadius: 0, background: "transparent", cursor: "pointer",
@@ -4797,27 +4795,34 @@ class Component extends DCLogic {
               { lab: "BMI", val: bmi.toFixed(1) }
             ];
           })(),
+          // What the forecast rests on, as plain bullets — no citations,
+          // this person's own numbers, big enough to read.
           cPhInfoBox: { flex: "none", alignSelf: "center", width: "100%",
             maxWidth: "19.5rem", marginTop: "1.6rem", display: "flex",
-            flexDirection: "column", gap: ".8rem" },
-          cPhInfoLine: { fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: ".98rem", lineHeight: 1.5, color: "#b3c5d0",
-            textWrap: "pretty" },
+            flexDirection: "column", gap: "1.05rem" },
+          cPhInfoRow: { display: "flex", alignItems: "flex-start",
+            gap: ".7rem" },
+          cPhInfoDot: { flex: "none", width: ".45rem", height: ".45rem",
+            marginTop: ".5rem", borderRadius: "50%", background: "#22d3ee",
+            boxShadow: "0 0 6px rgba(34,211,238,.6)" },
+          cPhInfoTxt: { fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1.02rem", lineHeight: 1.5, color: "#c3d3dd",
+            textWrap: "pretty", fontVariantNumeric: "tabular-nums" },
           cPhInfoLines: [
-            { txt: "Weight training 3\u20134\u00d7 a week and about "
-              + "1.6 g/kg of protein a day, throughout (Morton 2018)." },
-            { txt: "Cuts run at 0.6% of body weight a week (Garthe 2011; "
-              + "Helms 2014). About " + Math.round(100 * plan.sL)
-              + "% of the loss is lean (Forbes 2000) \u2014 the plan sizes "
-              + "the gain to win it back." },
-            { txt: "Lean gain at " + plan.gLeanWk.toFixed(2) + " kg a week "
-              + "for your sex and age (Wernbom 2007); a modest surplus is "
-              + "about 75% lean (Garthe 2013). Between phases, 2\u20134 "
-              + "weeks at maintenance (Trexler 2014)." },
-            { txt: "Resting metabolism from " + (m.bfPicked
-              ? "Katch\u2013McArdle" : "Mifflin\u2013St Jeor")
-              + ". Every figure is roughly \u00b110% for an individual "
-              + "\u2014 arithmetic, not medical advice." }
+            { txt: "You lift 3\u20134 times a week and eat enough "
+              + "protein, all the way through." },
+            { txt: "Cuts run at 0.6% of body weight a week \u2014 "
+              + "the pace that spares muscle." },
+            { txt: "Even so, about " + Math.round(100 * plan.sL)
+              + "% of what a cut loses is lean \u2014 the gain phase "
+              + "is sized to win it back." },
+            { txt: "Lean builds at about " + plan.gLeanWk.toFixed(2)
+              + " kg a week for your sex and age, and roughly a quarter "
+              + "of any surplus becomes fat." },
+            { txt: "A short maintenance block sits between phases so "
+              + "the next one starts fresh." },
+            { txt: "Every figure is within about 10% for an "
+              + "individual \u2014 arithmetic, not medical advice." }
           ],
           cBodyGlyph: GLYPH_BODY,
           // ── new field controls ───────────────────────────────────────────────────
