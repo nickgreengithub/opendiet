@@ -378,17 +378,15 @@ option{background:#070b12;color:#d7e6ef}
       <sc-if value="{{ cRNotchOn }}" hint-placeholder-val="{{ true }}"><button onClick="{{ cNext }}" style="{{ cNotchR }}" style-hover="background:rgba(34,211,238,.18);border-color:rgba(34,211,238,.85)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button></sc-if>
     <sc-if value="{{ cStepOn }}" hint-placeholder-val="{{ true }}">
       <span style="{{ cBarTrack }}"><span style="{{ cBarFill }}"></span></span>
-      <span style="{{ cHead }}">
-        <span style="{{ cTitleS }}">{{ cTitle }}</span>
-      </span>
       <sc-if value="{{ cFigOn }}" hint-placeholder-val="{{ false }}">
       <sc-if value="{{ cIsBody }}" hint-placeholder-val="{{ true }}">
-      <span style="{{ cVTabRow }}"><button onClick="{{ cViewCur }}" style="{{ cVTabCur }}" style-hover="color:#3fdcf2">CURRENT</button><button onClick="{{ cViewGoal }}" style="{{ cVTabGoal }}" style-hover="color:#3fdcf2">YOUR GOAL</button></span>
+      <span style="{{ cVTabRow }}"><button onClick="{{ cViewCur }}" style="{{ cVTabCur }}" style-hover="color:#3fdcf2">CURRENT BODY</button><button onClick="{{ cViewGoal }}" style="{{ cVTabGoal }}" style-hover="color:#3fdcf2">YOUR GOAL</button></span>
       </sc-if>
       <sc-if value="{{ cIsHt }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ cVTabGhost }}"><button style="{{ cVTabCur }}">CURRENT</button></span>
+      <span style="{{ cVTabRow }}"><button style="{{ cVTabOne }}">HEIGHT</button></span>
       </sc-if>
       <sc-if value="{{ cIsAct }}" hint-placeholder-val="{{ false }}">
+        <span style="{{ cVTabRow }}"><button style="{{ cVTabOne }}">CALORIE BURN</button></span>
         <span style="{{ cActPanel }}">
           <span style="{{ cActLabS }}">{{ cActLabel }}</span>
           <span style="{{ cActNoteS }}">{{ cActNote }}</span>
@@ -441,9 +439,6 @@ option{background:#070b12;color:#d7e6ef}
       </sc-if>
     </sc-if>
     <sc-if value="{{ cResOn }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ cHead }}">
-        <span style="{{ cTitleS }}">YOUR PLAN</span>
-      </span>
       <span style="{{ cVTabRow }}"><sc-for list="{{ cPhTabs }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="color:#3fdcf2">{{ t.label }}</button></sc-for></span>
       <sc-if value="{{ cPhPlanOn }}" hint-placeholder-val="{{ true }}">
       <span style="{{ cPhList }}"><sc-for list="{{ cPhBlocks }}" as="t" hint-placeholder-count="3"><span style="{{ cPhBlock }}"><span style="{{ cPhBlockH }}">{{ t.head }}</span><span style="{{ cPhBlockL }}">{{ t.l1 }}</span><span style="{{ t.l2s }}">{{ t.l2 }}</span></span></sc-for></span>
@@ -4286,7 +4281,6 @@ class Component extends DCLogic {
           cStepOn: !done, cResOn: done,
           // On the centred slides the question is the big text mid-screen, so the
           // header carries only the way back; the title returns with the figure.
-          cTitle: done || step < 2 ? "" : STEPS[step],
           // A bar rather than "STEP 3 OF 7". It says the same thing without asking
           // anyone to do the arithmetic, and it is one line thick.
           cBarTrack: { flex: "none", display: "block", width: "100%", height: "2px",
@@ -4332,11 +4326,14 @@ class Component extends DCLogic {
             cGBf: s.cGBf == null ? gDef.bf : s.cGBf }),
           cVTabRow: { flex: "none", display: "flex", justifyContent: "center",
             gap: "2.2rem", padding: ".15rem 0 .1rem" },
-          // The height screen wears an invisible copy of the body screen's
-          // tab row, so the figure's canvas is the same height on both and
-          // the body does not change size walking between them.
-          cVTabGhost: { flex: "none", display: "flex", justifyContent: "center",
-            gap: "2.2rem", padding: ".15rem 0 .1rem", visibility: "hidden" },
+          // The single-tab screens (HEIGHT, CALORIE BURN) wear the same tab
+          // row as the body screen — one lit tab, not a control — which also
+          // keeps the figure's canvas the same height on every screen.
+          cVTabOne: { padding: "0 .15rem .4rem", border: 0, borderRadius: 0,
+            background: "transparent", cursor: "default",
+            fontFamily: "var(--font-2)", fontSize: ".95rem",
+            letterSpacing: ".2em", textIndent: ".2em", color: "#3fdcf2",
+            borderBottom: "2px solid #22d3ee" },
           cVTabCur: (on => ({ padding: "0 .15rem .4rem", border: 0,
             borderRadius: 0, background: "transparent", cursor: "pointer",
             fontFamily: "var(--font-2)", fontSize: ".95rem",
@@ -4589,14 +4586,15 @@ class Component extends DCLogic {
           cActPanel: { flex: "none", alignSelf: "center", width: "100%",
             maxWidth: "21.5rem", height: "6.1rem",
             display: "flex", flexDirection: "column", justifyContent: "center",
-            gap: ".4rem", boxSizing: "border-box" },
+            alignItems: "center", textAlign: "center", gap: ".4rem",
+            boxSizing: "border-box" },
           cActLabS: { fontFamily: "var(--font-2)", fontSize: ".95rem",
             letterSpacing: ".18em", color: "#3fdcf2" },
           cActNoteS: { fontFamily: "var(--font-1)", fontWeight: 300,
             fontSize: ".98rem", lineHeight: 1.4, color: "#b3c5d0",
             textWrap: "pretty" },
           // ── the plan screen: a tab per phase, the timeline as the footer ─────────
-          cPhTabs: ["PLAN", "INFO"].map((label, i) => ({ label,
+          cPhTabs: ["YOUR PLAN", "INFO"].map((label, i) => ({ label,
             onClick: () => this.setState({ cResTab: i }),
             s: (on => ({ padding: "0 .15rem .4rem", border: 0,
               borderRadius: 0, background: "transparent", cursor: "pointer",
