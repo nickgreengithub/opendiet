@@ -420,11 +420,18 @@ export function mount(canvas) {
     const [a2, b2] = [...pts.values()];
     return Math.hypot(a2.x - b2.x, a2.y - b2.y);
   };
+  // A tap on one of the pair is a tab switch: the host registers a callback
+  // and a press that neither dragged nor lingered picks the figure under it
+  // by screen half — current on the left, goal on the right.
+  let pickCb = null, tap0 = null;
   const down = e => {
     pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
     vel = 0;
-    if (pts.size === 2) { pinch0 = spread(); zoom0 = zoom; drag = null; }
-    else if (pts.size === 1) drag = { x: e.clientX, y: e.clientY };
+    if (pts.size === 2) { pinch0 = spread(); zoom0 = zoom; drag = null; tap0 = null; }
+    else if (pts.size === 1) {
+      drag = { x: e.clientX, y: e.clientY };
+      tap0 = { x: e.clientX, y: e.clientY, t: performance.now() };
+    }
     if (canvas.setPointerCapture) try { canvas.setPointerCapture(e.pointerId); } catch (x) {}
   };
   const move = e => {
@@ -444,6 +451,13 @@ export function mount(canvas) {
   const up = e => {
     pts.delete(e.pointerId);
     if (pts.size < 2) pinch0 = 0;
+    if (tap0 && pts.size === 0 && pairOn && pickCb
+        && Math.hypot(e.clientX - tap0.x, e.clientY - tap0.y) < 8
+        && performance.now() - tap0.t < 450) {
+      const r = canvas.getBoundingClientRect();
+      pickCb(e.clientX - r.left < r.width / 2 ? "a" : "b");
+    }
+    if (pts.size === 0) tap0 = null;
     // Whichever finger is left takes over the drag, so lifting one out of a pinch
     // does not jump the body.
     drag = pts.size === 1 ? { ...[...pts.values()][0] } : null;
@@ -473,6 +487,9 @@ export function mount(canvas) {
       dirty = true;
       return Object.keys(poseIx);
     },
+    // Register the tap-to-pick callback: called with "a" (current) or "b"
+    // (goal) when a figure of the pair is tapped.
+    onPick(fn) { pickCb = fn; },
     // The activity animation, driven by the calorie-burn slider: p in [0,1]
     // across the burn range, or null to stand the figure back up.
     act(p) {

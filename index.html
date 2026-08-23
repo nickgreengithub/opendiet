@@ -1247,6 +1247,9 @@ class Component extends DCLogic {
       else api.set(w.sex, w.bf, w.ht, w.kg);
       // The calorie-burn screen animates the figure along its slider.
       if (api.act) api.act(w.act == null ? null : w.act);
+      // Tapping a figure of the pair selects its tab.
+      if (api.onPick) api.onPick(side =>
+        this.setState({ cView: side === "b" ? "goal" : "cur" }));
     };
     if (this._body) { drive(this._body); return; }
     if (this._bodyLoading) return;
@@ -4189,6 +4192,15 @@ class Component extends DCLogic {
           : Math.max(RG.wtLo, Math.min(RG.wtHi, Math.round(s.cGWt)));
         const gBf = Math.max(bfLo, Math.min(bfHi,
           s.cGBf == null ? bfVal : Math.round(s.cGBf)));
+        // An untouched goal is born aspirational rather than a copy of the
+        // current body: "very good" shape — BMI 24 at 14% for men, BMI 22 at
+        // 22% for women — priced at this person's own height. Changing sex
+        // or height clears the goal, so it is re-derived for the new body.
+        const gDef = {
+          wt: Math.max(RG.wtLo, Math.min(RG.wtHi,
+            Math.round((m.sex === "f" ? 22 : 24) * Math.pow(m.ht / 100, 2)))),
+          bf: m.sex === "f" ? 22 : 14
+        };
         this._bodyWant = { sex: m.sex, bf: done && at ? at.bf : bfVal, ht: m.ht,
           kg: done && at ? at.w : m.wt,
           goal: !done && step === 3 && s.cGWt != null
@@ -4212,7 +4224,15 @@ class Component extends DCLogic {
             background: "#22d3ee", boxShadow: "0 0 10px rgba(34,211,238,.55)",
             transition: "width 320ms cubic-bezier(.22,1,.36,1)" },
           cBackOn: step > 0,
-          cBack: () => go(step - 1),
+          // The mirror of the right notch: from YOUR GOAL the back notch
+          // returns to CURRENT first, and only from CURRENT leaves the step.
+          cBack: () => {
+            if (step === 3 && s.cView === "goal") {
+              this.setState({ cView: "cur" });
+              return;
+            }
+            go(step - 1);
+          },
           cQuit: () => this.setState({ app: "home" }),
           cIsSex: step === 0, cIsNumQ: step === 1,
           cIsHt: step === 2, cIsBody: step === 3, cIsAct: step === 4,
@@ -4230,8 +4250,8 @@ class Component extends DCLogic {
           // one is lit and which the cells edit.
           cViewCur: () => this.setState({ cView: "cur" }),
           cViewGoal: () => this.setState({ cView: "goal",
-            cGWt: s.cGWt == null ? m.wt : s.cGWt,
-            cGBf: s.cGBf == null ? bfVal : s.cGBf }),
+            cGWt: s.cGWt == null ? gDef.wt : s.cGWt,
+            cGBf: s.cGBf == null ? gDef.bf : s.cGBf }),
           cVTabRow: { flex: "none", display: "flex", justifyContent: "center",
             gap: "2.2rem", padding: ".15rem 0 .1rem" },
           cVTabCur: (on => ({ padding: "0 .15rem .4rem", border: 0,
@@ -4307,7 +4327,8 @@ class Component extends DCLogic {
               cHtSlV: sel === "cm" ? String(cm) : String(ti),
               cHtSlide: e => this.setState({ cHt: clampF(f,
                 sel === "cm" ? +e.target.value
-                  : Math.round(+e.target.value * 2.54)) }),
+                  : Math.round(+e.target.value * 2.54)),
+                cGWt: null, cGBf: null }),
               cHtTrack: { "--p": (sel === "cm"
                 ? 100 * (cm - f.lo) / (f.hi - f.lo)
                 : 100 * (ti - Math.ceil(f.lo / 2.54))
@@ -4318,7 +4339,9 @@ class Component extends DCLogic {
           // stops, male left, female right — so no screen asks for a new hand.
           cSexVal: s.cSex === "f" ? "FEMALE" : "MALE",
           cSexIdx: s.cSex === "f" ? "1" : "0",
-          cSexSlide: e => set("cSex", +e.target.value >= 1 ? "f" : "m"),
+          cSexSlide: e => this.setState({
+            cSex: +e.target.value >= 1 ? "f" : "m",
+            cGWt: null, cGBf: null }),
           cSexTrack: { "--p": s.cSex === "f" ? "100%" : "0%" },
           // Calorie burn: a burn in 100-kcal steps between the outermost
           // activity bands, priced in this body's own arithmetic. The nearest
@@ -4462,8 +4485,8 @@ class Component extends DCLogic {
           cNext: () => {
             if (step === 3 && s.cView !== "goal") {
               this.setState({ cView: "goal",
-                cGWt: s.cGWt == null ? m.wt : s.cGWt,
-                cGBf: s.cGBf == null ? bfVal : s.cGBf });
+                cGWt: s.cGWt == null ? gDef.wt : s.cGWt,
+                cGBf: s.cGBf == null ? gDef.bf : s.cGBf });
               return;
             }
             go(step + 1);
