@@ -4452,7 +4452,18 @@ class Component extends DCLogic {
           cBody3D: !s.cBodyFail, cBodySvg: !!s.cBodyFail,
           cCanvasS: { display: "block", width: "100%", height: "100%",
             touchAction: "none", cursor: "grab" },
-          cNext: () => go(step + 1),
+          // On the body screen the right notch reads the tabs first: from
+          // CURRENT it walks to YOUR GOAL (birthing the goal if untouched),
+          // and only from YOUR GOAL does it leave the screen.
+          cNext: () => {
+            if (step === 3 && s.cView !== "goal") {
+              this.setState({ cView: "goal",
+                cGWt: s.cGWt == null ? m.wt : s.cGWt,
+                cGBf: s.cGBf == null ? bfVal : s.cGBf });
+              return;
+            }
+            go(step + 1);
+          },
           cNextLab: step === STEPS.length - 1 ? "SEE THE NUMBER" : "NEXT",
           // The weekly-calories readout: fixed-width figure, fixed-height
           // explainer, so the slider changes words and digits and nothing
