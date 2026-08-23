@@ -4493,13 +4493,12 @@ class Component extends DCLogic {
           },
           cNextLab: step === STEPS.length - 1 ? "SEE THE NUMBER" : "NEXT",
           // The band explainer: a fixed-height strip above the figure, so the
-          // slider changes words and digits and nothing else moves.
+          // slider changes words and digits and nothing else moves. Bare
+          // text, no box — the words stand on the page like the titles do.
           cActPanel: { flex: "none", alignSelf: "center", width: "100%",
             maxWidth: "21.5rem", height: "6.1rem",
             display: "flex", flexDirection: "column", justifyContent: "center",
-            gap: ".4rem", padding: "0 1rem", boxSizing: "border-box",
-            border: "1px solid rgba(34,211,238,.18)",
-            background: "linear-gradient(180deg, rgba(34,211,238,.04), rgba(34,211,238,.012))" },
+            gap: ".4rem", boxSizing: "border-box" },
           cActLabS: { fontFamily: "var(--font-2)", fontSize: ".95rem",
             letterSpacing: ".18em", color: "#3fdcf2" },
           cActNoteS: { fontFamily: "var(--font-1)", fontWeight: 300,
