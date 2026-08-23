@@ -45,6 +45,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from build_body_glb import LEVELS, vert_normals, write_glb  # noqa: E402
+from pose_rig import POSES, Rig  # noqa: E402
 
 # Body-fat % → MakeHuman weight-macro position (0 = minweight,
 # 0.5 = averageweight, 1 = maxweight; >1 extrapolates maxweight, which
@@ -270,7 +271,8 @@ def lower_arms(V, joints, blend):
     return out
 
 
-def build(sex, data_dir, base, faces, targets, joints, blend, out_dir):
+def build(sex, data_dir, base, faces, targets, joints, blend, out_dir,
+          skel, wdata):
     levels = LEVELS[sex]
     posed = []
     for bf in levels:
@@ -323,11 +325,24 @@ def build(sex, data_dir, base, faces, targets, joints, blend, out_dir):
         targets.add(Vt, name, f)
     v = base_v + (xf(lower_arms(Vt, joints, blend)[:N_BODY]) - out[0])
     muscle.append((v, vert_normals(v, tris)))
+    # The pose keyframes for the activity screen: the whole skeleton this
+    # time, forward kinematics with joints measured on the shipped level-0
+    # body. Each posed mesh is refloored (feet back on the ground) and
+    # recentred so the figure animates in place under the fixed camera.
+    rig = Rig(skel, wdata, posed[0])
+    poses = []
+    for name, spec in POSES:
+        Pv = xf(rig.pose(posed[0], spec)[:N_BODY])
+        Pv[:, 1] -= Pv[:, 1].min() - base_v[:, 1].min()
+        Pv[:, 0] -= Pv[:, 0].mean() - base_v[:, 0].mean()
+        Pv[:, 2] -= Pv[:, 2].mean() - base_v[:, 2].mean()
+        poses.append((name, Pv, vert_normals(Pv, tris)))
     path = os.path.join(out_dir, "body-%s.glb" % sex)
     total = write_glb(path, sex, base_v, base_n, tris, tgts, levels,
-                      muscle=muscle)
-    print("%s: %d verts, %d tris, %d fat levels + 3 extras, %.2f MB -> %s"
-          % (sex, len(base_v), len(tris), len(levels), total / 1e6, path))
+                      muscle=muscle, poses=poses)
+    print("%s: %d verts, %d tris, %d fat levels + 3 extras + %d poses,"
+          " %.2f MB -> %s" % (sex, len(base_v), len(tris), len(levels),
+                              len(poses), total / 1e6, path))
 
 
 def main():
@@ -339,11 +354,14 @@ def main():
     targets = Targets(npz)
     sk = json.load(open(os.path.join(data_dir, "mh_default.mhskel")))
     joints = sk["joints"]
+    wdata = json.load(open(os.path.join(
+        data_dir, "mh_default_weights.mhw")))["weights"]
     blend = arm_blend(os.path.join(data_dir, "mh_default_weights.mhw"))
     out_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                            "..", "data", "body")
     for sex in ("f", "m"):
-        build(sex, data_dir, base, faces, targets, joints, blend, out_dir)
+        build(sex, data_dir, base, faces, targets, joints, blend, out_dir,
+              sk, wdata)
 
 
 if __name__ == "__main__":

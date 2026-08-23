@@ -332,10 +332,13 @@ def pad4(b, fill=b"\x00"):
     return b + fill * ((4 - len(b) % 4) % 4)
 
 
-def write_glb(path, sex, base_v, base_n, tris, targets, levels, muscle=None):
+def write_glb(path, sex, base_v, base_n, tris, targets, levels, muscle=None,
+              poses=None):
     """targets: fat levels ascending. muscle: optional [(v,n) lo, (v,n) hi]
     pair appended after them — less/more muscular at constant fat — declared
-    in extras.muscle so the runtime can drive them from lean mass."""
+    in extras.muscle so the runtime can drive them from lean mass. poses:
+    optional [(name, v, n)] skeleton keyframes appended last, declared in
+    extras.pose so the runtime can animate the activity screen."""
     buf = bytearray()
     views, accs = [], []
 
@@ -365,7 +368,8 @@ def write_glb(path, sex, base_v, base_n, tris, targets, levels, muscle=None):
                 34963, 5125, "SCALAR", len(tris) * 3)
 
     tgt = []
-    for (v, n) in list(targets) + list(muscle or []):
+    for (v, n) in (list(targets) + list(muscle or [])
+                   + [(v, n) for (_, v, n) in (poses or [])]):
         d, mn, mx = vec3(v - base_v)
         tp = add(d, 34962, 5126, "VEC3", len(v), mn, mx)
         d, _, _ = vec3(n - base_n)
@@ -390,8 +394,10 @@ def write_glb(path, sex, base_v, base_n, tris, targets, levels, muscle=None):
                 "sex": sex,
                 "targetNames": ["bf%d" % b for b in levels[1:]]
                 + ["muscle" + n.capitalize() for n in
-                   ["lo", "hi", "thin"][:len(muscle or [])]],
-                "muscle": ["lo", "hi", "thin"][:len(muscle or [])]
+                   ["lo", "hi", "thin"][:len(muscle or [])]]
+                + [name for (name, _, _) in (poses or [])],
+                "muscle": ["lo", "hi", "thin"][:len(muscle or [])],
+                "pose": [name for (name, _, _) in (poses or [])]
             }
         }],
         "accessors": accs,

@@ -385,6 +385,12 @@ option{background:#070b12;color:#d7e6ef}
       <sc-if value="{{ cIsBody }}" hint-placeholder-val="{{ true }}">
       <span style="{{ cVTabRow }}"><button onClick="{{ cViewCur }}" style="{{ cVTabCur }}" style-hover="color:#3fdcf2">CURRENT</button><button onClick="{{ cViewGoal }}" style="{{ cVTabGoal }}" style-hover="color:#3fdcf2">YOUR GOAL</button></span>
       </sc-if>
+      <sc-if value="{{ cIsAct }}" hint-placeholder-val="{{ false }}">
+        <span style="{{ cActPanel }}">
+          <span style="{{ cActLabS }}">{{ cActLabel }}</span>
+          <span style="{{ cActNoteS }}">{{ cActNote }}</span>
+        </span>
+      </sc-if>
       <span style="{{ cFigWrap }}">
         <sc-if value="{{ cBody3D }}" hint-placeholder-val="{{ true }}"><canvas data-body style="{{ cCanvasS }}"></canvas></sc-if>
         <sc-if value="{{ cBodySvg }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 64 136" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="{{ cFigS }}"><circle cx="32" cy="14" r="10"></circle><path d="{{ cBodyGlyph }}"></path></svg></sc-if>
@@ -399,6 +405,12 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ cBodyPanel }}">
         <span style="{{ cMetGrid }}"><sc-for list="{{ cMetCells }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.55);border-left-color:rgba(34,211,238,.55);border-right-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
         <span style="{{ cSliderBox }}"><input type="range" min="{{ cSelMin }}" max="{{ cSelMax }}" step="{{ cSelStep }}" value="{{ cSelVal }}" onChange="{{ cSelSlide }}" style="{{ cSelTrack }}"></span>
+      </span>
+      </sc-if>
+      <sc-if value="{{ cIsAct }}" hint-placeholder-val="{{ false }}">
+      <span style="{{ cBodyPanel }}">
+        <span style="{{ cHtGrid }}"><sc-for list="{{ cActCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.55);border-left-color:rgba(34,211,238,.55);border-right-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}</span></button></sc-for></span>
+        <span style="{{ cSliderBox }}"><input type="range" min="{{ cActMin }}" max="{{ cActMax }}" step="{{ cActStep }}" value="{{ cActIdx }}" onChange="{{ cActSlide }}" style="{{ cActTrack }}"></span>
       </span>
       </sc-if>
       </sc-if>
@@ -421,20 +433,8 @@ option{background:#070b12;color:#d7e6ef}
           <span style="{{ cQEnds }}"><span>{{ cField.min }}</span><span>{{ cField.max }}</span></span>
         </span>
       </sc-if>
-      <sc-if value="{{ cIsAct }}" hint-placeholder-val="{{ false }}">
-        <span style="{{ cActPanel }}">
-          <span style="{{ cActLabS }}">{{ cActLabel }}</span>
-          <span style="{{ cActNoteS }}">{{ cActNote }}</span>
-        </span>
-      </sc-if>
       <sc-if value="{{ cQOn }}" hint-placeholder-val="{{ true }}">
         <span style="{{ cQSpace2 }}"></span>
-      </sc-if>
-      <sc-if value="{{ cIsAct }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ cBodyPanel }}">
-        <span style="{{ cHtGrid }}"><sc-for list="{{ cActCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.55);border-left-color:rgba(34,211,238,.55);border-right-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}</span></button></sc-for></span>
-        <span style="{{ cSliderBox }}"><input type="range" min="{{ cActMin }}" max="{{ cActMax }}" step="{{ cActStep }}" value="{{ cActIdx }}" onChange="{{ cActSlide }}" style="{{ cActTrack }}"></span>
-      </span>
       </sc-if>
     </sc-if>
     <sc-if value="{{ cResOn }}" hint-placeholder-val="{{ false }}">
@@ -1245,6 +1245,8 @@ class Component extends DCLogic {
         api.setPair({ sex: w.sex, bf: w.bf, ht: w.ht, kg: w.kg },
           { sex: w.sex, bf: w.goal.bf, ht: w.ht, kg: w.goal.kg }, w.focus);
       else api.set(w.sex, w.bf, w.ht, w.kg);
+      // The calorie-burn screen animates the figure along its slider.
+      if (api.act) api.act(w.act == null ? null : w.act);
     };
     if (this._body) { drive(this._body); return; }
     if (this._bodyLoading) return;
@@ -1895,7 +1897,8 @@ class Component extends DCLogic {
       return out;
     };
     return { sex, age, ht, wt, bmi, bfEst, bfPicked, bf0, fm0, ffm0,
-      pal, act, rmr0, tdee0, bLo, bHi, maint, floor, ess, sim };
+      pal, act, rmr0, tdee0, bLo, bHi, maint, floor, ess, sim,
+      actP: (tdee0 - bLo) / Math.max(1, bHi - bLo) };
   }
   gNext() {
     this.gClearTimers();
@@ -4190,6 +4193,7 @@ class Component extends DCLogic {
           kg: done && at ? at.w : m.wt,
           goal: !done && step === 3 && s.cGWt != null
             ? { bf: gBf, kg: gWt } : null,
+          act: !done && step === 4 ? m.actP : null,
           focus: goalView ? "b" : "a" };
         const num = (v, col) => ({ fontFamily: "var(--font-1)", fontWeight: 300,
           fontSize: s.narrow ? "1.5rem" : "1.7rem", fontVariantNumeric: "tabular-nums",
@@ -4198,7 +4202,7 @@ class Component extends DCLogic {
           cStepOn: !done, cResOn: done,
           // On the centred slides the question is the big text mid-screen, so the
           // header carries only the way back; the title returns with the figure.
-          cTitle: done || !(step === 2 || step === 3) ? "" : STEPS[step],
+          cTitle: done || step < 2 ? "" : STEPS[step],
           // A bar rather than "STEP 3 OF 7". It says the same thing without asking
           // anyone to do the arithmetic, and it is one line thick.
           cBarTrack: { flex: "none", display: "block", width: "100%", height: "2px",
@@ -4212,10 +4216,10 @@ class Component extends DCLogic {
           cQuit: () => this.setState({ app: "home" }),
           cIsSex: step === 0, cIsNumQ: step === 1,
           cIsHt: step === 2, cIsBody: step === 3, cIsAct: step === 4,
-          // The figure carries height and body; the first two questions and the
-          // last are centred slides.
-          cFigOn: step === 2 || step === 3,
-          cQOn: step === 0 || step === 1 || step === 4,
+          // The figure carries height, body and the calorie-burn animation;
+          // the first two questions are centred slides.
+          cFigOn: step === 2 || step === 3 || step === 4,
+          cQOn: step === 0 || step === 1,
           cQ: STEPS[step],
           // The way forward is the right notch on every screen; the last one
           // simply notches into the result.
@@ -4465,13 +4469,12 @@ class Component extends DCLogic {
             go(step + 1);
           },
           cNextLab: step === STEPS.length - 1 ? "SEE THE NUMBER" : "NEXT",
-          // The weekly-calories readout: fixed-width figure, fixed-height
-          // explainer, so the slider changes words and digits and nothing
-          // else moves.
+          // The band explainer: a fixed-height strip above the figure, so the
+          // slider changes words and digits and nothing else moves.
           cActPanel: { flex: "none", alignSelf: "center", width: "100%",
-            maxWidth: "21.5rem", height: "7rem",
+            maxWidth: "21.5rem", height: "6.1rem",
             display: "flex", flexDirection: "column", justifyContent: "center",
-            gap: ".5rem", padding: "0 1rem", boxSizing: "border-box",
+            gap: ".4rem", padding: "0 1rem", boxSizing: "border-box",
             border: "1px solid rgba(34,211,238,.18)",
             background: "linear-gradient(180deg, rgba(34,211,238,.04), rgba(34,211,238,.012))" },
           cActLabS: { fontFamily: "var(--font-2)", fontSize: ".95rem",

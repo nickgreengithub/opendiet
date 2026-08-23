@@ -29,7 +29,8 @@ function loadBody(sex) {
         const ex = g.parser.json.meshes[0].extras || {};
         const bf = (mesh.geometry.userData && mesh.geometry.userData.bodyFat)
           || ex.bodyFat;
-        res({ geometry: mesh.geometry, bodyFat: bf, nMus: (ex.muscle || []).length });
+        res({ geometry: mesh.geometry, bodyFat: bf,
+          nMus: (ex.muscle || []).length, pose: ex.pose || [] });
       }, undefined, rej);
     }));
   }
@@ -132,8 +133,16 @@ export function mount(canvas) {
   scene.add(pivotB);
 
   let mesh = null, meshB = null, geoRef = null, levels = null, nMus = 0,
+    poseIx = null,
     want = { sex: "m", bf: 20, ht: 175, kg: 0 },
     wantB = null, focus = "a", pairOn = false;
+  // The activity animation: a position on the calorie-burn axis, eased, plus
+  // a gait clock. At the bottom the figure sits at a laptop; sliding up it
+  // pushes out of the chair, stands, walks, and finally runs — the pose
+  // keyframes baked by tools/pose_rig.py, blended here.
+  let actOn = false, actP = 0, actEase = 0, actLast = 0, gaitTh = 0;
+  let props = null, chairG = null, lapG = null, chairMat = null,
+    lapMat = null, screenMat = null;
   // The slide-and-dim: pivot x positions, the camera's pull-back, and each
   // material's brightness, eased toward their targets every frame.
   const anim = { ax: 0, bx: 0, cam: 1, aB: 1, bB: 1 };
@@ -195,7 +204,12 @@ export function mount(canvas) {
     const w = cfg.kg > 0 && FMI_LEVELS[cfg.sex]
       ? weightsFor(FMI_LEVELS[cfg.sex], cfg.kg * (cfg.bf / 100) / hm)
       : weightsFor(levels, cfg.bf);
-    for (let i = 0; i < msh.morphTargetInfluences.length; i++)
+    // Only the shape targets — fat and muscle. The pose targets after them
+    // belong to the activity clock in tick(), which must not be stomped
+    // every time a slider recomputes the body.
+    const nShape = (levels.length - 1) + nMus;
+    const nInfl = Math.min(msh.morphTargetInfluences.length, nShape);
+    for (let i = 0; i < nInfl; i++)
       msh.morphTargetInfluences[i] = w[i] || 0;
     // Lean mass is its own axis. Body fat alone cannot tell a wiry 60 kg
     // frame from a solid 100 kg one, and worse, sliding it down strips lean
@@ -260,11 +274,89 @@ export function mount(canvas) {
     mesh.position.y = FLOOR;      // feet on the floor of the frame, not centred
     levels = b.bodyFat;
     nMus = b.nMus || 0;
+    poseIx = null;
+    if (b.pose && b.pose.length) {
+      poseIx = {};
+      const base = (levels.length - 1) + nMus;
+      b.pose.forEach((n, i) => { poseIx[n] = base + i; });
+    }
+    if (props) mesh.add(props);   // the chair follows the body across a swap
     pivot.add(mesh);
     apply();
   }).catch(() => { canvas.setAttribute("data-body-failed", "1"); });
 
   let loaded = null;
+
+  // The chair and the laptop: dark slabs in the body's own space (child of
+  // the mesh, so they scale with height and turn with the spin), present
+  // only while the figure is seated and fading as it gets up and walks off.
+  const ensureProps = () => {
+    if (!mesh) return;
+    if (props) {
+      if (props.parent !== mesh) mesh.add(props);
+      return;
+    }
+    props = new THREE.Group();
+    chairMat = new THREE.MeshStandardMaterial({
+      color: 0x24363f, roughness: 0.85, metalness: 0.1, transparent: true });
+    lapMat = new THREE.MeshStandardMaterial({
+      color: 0x2c3f4a, roughness: 0.6, metalness: 0.25, transparent: true });
+    screenMat = new THREE.MeshStandardMaterial({
+      color: 0x16272e, roughness: 0.4, metalness: 0.1, transparent: true,
+      emissive: 0x17414e, emissiveIntensity: 1.1 });
+    chairG = new THREE.Group();
+    const part = (g, geo, m2, x, y, z, rx) => {
+      const p = new THREE.Mesh(geo, m2);
+      p.position.set(x, y, z);
+      if (rx) p.rotation.x = rx;
+      g.add(p);
+    };
+    part(chairG, new THREE.BoxGeometry(0.46, 0.06, 0.44), chairMat,
+      0, 0.44, -0.20);
+    part(chairG, new THREE.BoxGeometry(0.44, 0.52, 0.05), chairMat,
+      0, 0.76, -0.44, -0.09);
+    part(chairG, new THREE.CylinderGeometry(0.028, 0.028, 0.38, 16), chairMat,
+      0, 0.22, -0.20);
+    part(chairG, new THREE.CylinderGeometry(0.20, 0.24, 0.035, 24), chairMat,
+      0, 0.02, -0.20);
+    lapG = new THREE.Group();
+    part(lapG, new THREE.BoxGeometry(0.30, 0.012, 0.21), lapMat,
+      0, 0.615, 0.02);
+    part(lapG, new THREE.BoxGeometry(0.30, 0.20, 0.01), screenMat,
+      0, 0.70, 0.15, 0.30);
+    props.add(chairG);
+    props.add(lapG);
+    props.visible = false;
+    mesh.add(props);
+  };
+  const setPropOp = (cOp, lOp) => {
+    if (!props) return;
+    props.visible = cOp > 0.01;
+    chairG.visible = cOp > 0.01;
+    lapG.visible = lOp > 0.01;
+    chairMat.opacity = cOp;
+    lapMat.opacity = lOp;
+    screenMat.opacity = lOp;
+  };
+  // Slider position -> pose weights. Seated below .14; pushing out of the
+  // chair to .26; on their feet; walking from .42; running from .72. The
+  // walk and run each blend two mirrored stride keyframes on the gait
+  // clock, so the figure moves rather than freezes mid-step.
+  const poseWeightsAt = (p, s) => {
+    const w = { sit: 0, rise: 0, walkA: 0, walkB: 0, runA: 0, runB: 0 };
+    if (p < 0.14) w.sit = 1;
+    else if (p < 0.26) {
+      const t = (p - 0.14) / 0.12;
+      w.sit = Math.max(0, 1 - 2 * t);
+      w.rise = 1 - Math.abs(2 * t - 1);
+    }
+    const wa = Math.max(0, Math.min(1, (p - 0.42) / 0.13));
+    const ru = Math.max(0, Math.min(1, (p - 0.72) / 0.12));
+    const g = wa * (1 - ru);
+    w.walkA = g * s; w.walkB = g * (1 - s);
+    w.runA = ru * s; w.runB = ru * (1 - s);
+    return w;
+  };
 
   const tick = () => {
     if (!alive) return;
@@ -291,6 +383,27 @@ export function mount(canvas) {
       material.color.copy(DIMC).lerp(BRIGHT, anim.aB);
       materialB.color.copy(DIMC).lerp(BRIGHT, anim.bB);
       place();
+    }
+    // The activity clock. The slider position is eased so a jump across the
+    // scale plays through the story — up out of the chair, walking, breaking
+    // into a run — rather than teleporting between poses.
+    if (actOn && mesh && poseIx) {
+      const now = performance.now() / 1000;
+      const dt = actLast ? Math.min(0.05, now - actLast) : 0;
+      actLast = now;
+      actEase += (actP - actEase) * Math.min(1, dt * 5);
+      if (Math.abs(actP - actEase) < 0.002) actEase = actP;
+      const p = actEase;
+      const ru = Math.max(0, Math.min(1, (p - 0.72) / 0.12));
+      if (!still && p > 0.42) gaitTh += dt * 2 * Math.PI * (1.5 + 1.3 * ru);
+      const s = still ? 1 : 0.5 + 0.5 * Math.sin(gaitTh);
+      const w = poseWeightsAt(p, s);
+      for (const k in w) if (poseIx[k] != null)
+        mesh.morphTargetInfluences[poseIx[k]] = w[k];
+      ensureProps();
+      setPropOp(Math.max(0, Math.min(1, (0.30 - p) / 0.10)),
+        Math.max(0, Math.min(1, (0.15 - p) / 0.06)));
+      dirty = true;
     }
     if (!dirty) return;
     pivot.rotation.y = spin;
@@ -350,6 +463,35 @@ export function mount(canvas) {
     // Turn to an exact angle — used by the preview harness, harmless to keep.
     view(rad) { spin = rad; vel = 0; pivot.rotation.y = spin; dirty = true; },
     infl() { return mesh ? Array.from(mesh.morphTargetInfluences) : null; },
+    // Pin one pose keyframe at full weight — the preview harness again.
+    pose(name, v) {
+      if (!mesh || !poseIx) return null;
+      actOn = false;
+      for (const k in poseIx) mesh.morphTargetInfluences[poseIx[k]] = 0;
+      if (name && poseIx[name] != null)
+        mesh.morphTargetInfluences[poseIx[name]] = v == null ? 1 : v;
+      dirty = true;
+      return Object.keys(poseIx);
+    },
+    // The activity animation, driven by the calorie-burn slider: p in [0,1]
+    // across the burn range, or null to stand the figure back up.
+    act(p) {
+      if (p == null) {
+        if (actOn) {
+          actOn = false;
+          if (mesh && poseIx)
+            for (const k in poseIx) mesh.morphTargetInfluences[poseIx[k]] = 0;
+          if (props) props.visible = false;
+          dirty = true;
+        }
+        return;
+      }
+      const v = Math.max(0, Math.min(1, p));
+      if (!actOn) { actLast = 0; actEase = v; gaitTh = 0; }
+      actOn = true;
+      actP = v;
+      dirty = true;
+    },
     set(sex, bf, ht, kg) {
       if (pairOn) { pairOn = false; wantB = null; pivotB.visible = false; retarget(); }
       want.bf = bf;
