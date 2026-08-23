@@ -441,7 +441,7 @@ option{background:#070b12;color:#d7e6ef}
     <sc-if value="{{ cResOn }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cVTabRow }}"><sc-for list="{{ cPhTabs }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="color:#3fdcf2">{{ t.label }}</button></sc-for></span>
       <sc-if value="{{ cPhPlanOn }}" hint-placeholder-val="{{ true }}">
-      <span style="{{ cPhList }}"><sc-for list="{{ cPhBlocks }}" as="t" hint-placeholder-count="3"><span style="{{ t.blockS }}"><span style="{{ cPhBlockHRow }}"><span style="{{ cPhBlockNum }}">{{ t.num }}</span><span style="{{ cPhBlockH }}">{{ t.head }}</span></span><span style="{{ t.rateS }}">{{ t.r1 }}<span style="{{ cPhNum }}">{{ t.rN }}</span>{{ t.r2 }}</span><span style="{{ cPhLine }}">{{ t.e1 }}<span style="{{ cPhNum }}">{{ t.eN1 }}</span>{{ t.e2 }}<span style="{{ cPhNum }}">{{ t.eN2 }}</span>{{ t.e3 }}</span><span style="{{ t.l2s }}">{{ t.l2a }}<span style="{{ cPhNum }}">{{ t.l2N }}</span>{{ t.l2b }}</span></span></sc-for></span>
+      <span style="{{ cPhList }}"><sc-for list="{{ cPhBlocks }}" as="t" hint-placeholder-count="3"><span onClick="{{ t.onClick }}" style="{{ t.blockS }}"><span style="{{ cPhBlockHRow }}"><span style="{{ cPhBlockNum }}">{{ t.num }}</span><span style="{{ cPhBlockH }}">{{ t.head }}</span></span><span style="{{ t.rateS }}">{{ t.r1 }}<span style="{{ cPhNum }}">{{ t.rN }}</span>{{ t.r2 }}</span><span style="{{ cPhLine }}">{{ t.e1 }}<span style="{{ cPhNum }}">{{ t.eN1 }}</span>{{ t.e2 }}<span style="{{ cPhNum }}">{{ t.eN2 }}</span>{{ t.e3 }}</span><span style="{{ t.l2s }}">{{ t.l2a }}<span style="{{ cPhNum }}">{{ t.l2N }}</span>{{ t.l2b }}</span></span></sc-for></span>
       </sc-if>
       <sc-if value="{{ cPhInfoOn }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cPhInfoBox }}"><sc-for list="{{ cPhInfoLines }}" as="t" hint-placeholder-count="6"><span style="{{ cPhInfoRow }}"><span style="{{ cPhInfoDot }}"></span><span style="{{ cPhInfoTxt }}">{{ t.a }}<span style="{{ cPhInfoHi }}">{{ t.n1 }}</span>{{ t.b }}<span style="{{ cPhInfoHi }}">{{ t.n2 }}</span>{{ t.c }}</span></span></sc-for></span>
@@ -4651,6 +4651,9 @@ class Component extends DCLogic {
             const cm = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             const line = { fontFamily: "var(--font-1)", fontWeight: 300,
               fontSize: "1rem", lineHeight: 1.45, color: "#8fa5b4" };
+            let accWk = 0;
+            const starts = phases.map(pp => {
+              const s = accWk; accWk += pp.wks; return s; });
             return phases.map((pp, i) => {
               const last = i === phases.length - 1;
               const on = i === phActive;
@@ -4675,9 +4678,13 @@ class Component extends DCLogic {
               else l2a = "You are at your goal";
               return Object.assign({ num: "0" + (i + 1), head,
                 r1, rN, r2, l2a, l2N, l2b,
+                onClick: () => this.setState({ cResDay: starts[i] * 7 }),
                 blockS: { display: "flex", flexDirection: "column",
                   gap: ".35rem", opacity: on ? 1 : 0.42,
-                  transition: "opacity 180ms ease" },
+                  borderLeft: "2px solid "
+                    + (on ? "#22d3ee" : "rgba(34,211,238,.35)"),
+                  paddingLeft: ".9rem", cursor: "pointer",
+                  transition: "opacity 180ms ease, border-color 180ms ease" },
                 rateS: Object.assign({ display: r1 ? "block" : "none" },
                   line),
                 l2s: Object.assign({ display: l2a ? "block" : "none" },
