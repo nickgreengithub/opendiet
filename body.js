@@ -119,12 +119,26 @@ export function mount(canvas) {
   const material = new THREE.MeshStandardMaterial({
     color: 0x4d6b80, roughness: 0.66, metalness: 0.04, flatShading: false
   });
+  // The second figure: the goal. Same geometry, its own material, because the
+  // unfocused body dims by COLOUR rather than opacity — a self-overlapping
+  // mesh goes wrong under transparency and stays honest under darkness.
+  const materialB = material.clone();
+  const BRIGHT = new THREE.Color(0x4d6b80), DIMC = new THREE.Color(0x263640);
 
   const pivot = new THREE.Group();
   scene.add(pivot);
+  const pivotB = new THREE.Group();
+  pivotB.visible = false;
+  scene.add(pivotB);
 
-  let mesh = null, levels = null, nMus = 0,
-    want = { sex: "m", bf: 20, ht: 175, kg: 0 };
+  let mesh = null, meshB = null, geoRef = null, levels = null, nMus = 0,
+    want = { sex: "m", bf: 20, ht: 175, kg: 0 },
+    wantB = null, focus = "a", pairOn = false;
+  // The slide-and-dim: pivot x positions, the camera's pull-back, and each
+  // material's brightness, eased toward their targets every frame.
+  const anim = { ax: 0, bx: 0, cam: 1, aB: 1, bB: 1 };
+  let tgt = { ax: 0, bx: 0.45, cam: 1, aB: 1, bB: 1 };
+  const XOFF = 0.45;
   let spin = 0, drag = null, vel = 0, raf = 0, alive = true, dirty = true;
   // Pinch. The camera pulls in and out rather than the body scaling, so the
   // perspective stays honest at every zoom.
@@ -138,9 +152,21 @@ export function mount(canvas) {
     const half = (FRAME / 2) / zoom;              // half the visible height, metres
     const lim = Math.max(0, FRAME / 2 - half);
     panY = Math.max(-lim, Math.min(lim, panY));
-    camera.position.set(0, panY, BASE_D / zoom);
+    camera.position.set(0, panY, BASE_D * anim.cam / zoom);
     camera.lookAt(0, panY, 0);
     dirty = true;
+  };
+  // In pair mode the camera pulls back until both figures fit the width; on
+  // its own the frame stays fixed, which is what lets height changes show.
+  const retarget = () => {
+    const kPair = Math.max(1, 1.8 / (FRAME * (camera.aspect || 1)));
+    tgt = {
+      ax: pairOn ? -XOFF : 0,
+      bx: XOFF,
+      cam: pairOn ? kPair : 1,
+      aB: pairOn && focus === "b" ? 0 : 1,
+      bB: focus === "b" ? 1 : 0
+    };
   };
   const setZoom = z => {
     zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, z));
@@ -156,34 +182,34 @@ export function mount(canvas) {
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
+      retarget();
       dirty = true;
     }
   };
 
-  const apply = () => {
-    if (!mesh || !levels) return;
+  const applyTo = (msh, cfg) => {
     // With a weight in hand the fat axis runs on fat-mass index, so the same
     // percentage on a heavier body is visibly more fat; without one (an older
     // caller), it falls back to the percentage against the baked levels.
-    const hm = Math.pow((want.ht || 175) / 100, 2);
-    const w = want.kg > 0 && FMI_LEVELS[want.sex]
-      ? weightsFor(FMI_LEVELS[want.sex], want.kg * (want.bf / 100) / hm)
-      : weightsFor(levels, want.bf);
-    for (let i = 0; i < mesh.morphTargetInfluences.length; i++)
-      mesh.morphTargetInfluences[i] = w[i] || 0;
+    const hm = Math.pow((cfg.ht || 175) / 100, 2);
+    const w = cfg.kg > 0 && FMI_LEVELS[cfg.sex]
+      ? weightsFor(FMI_LEVELS[cfg.sex], cfg.kg * (cfg.bf / 100) / hm)
+      : weightsFor(levels, cfg.bf);
+    for (let i = 0; i < msh.morphTargetInfluences.length; i++)
+      msh.morphTargetInfluences[i] = w[i] || 0;
     // Lean mass is its own axis. Body fat alone cannot tell a wiry 60 kg
     // frame from a solid 100 kg one, and worse, sliding it down strips lean
     // mass with the fat — everyone bottoms out looking starved. So the
     // muscle pair is driven by FFMI, lean kilograms over height squared:
     // at a constant weight, less fat now means more muscle, which is what
     // the arithmetic says it means.
-    if (nMus >= 2 && want.kg > 0) {
+    if (nMus >= 2 && cfg.kg > 0) {
       const nFat = levels.length - 1;
-      const ffmi = want.kg * (1 - want.bf / 100) / hm;
+      const ffmi = cfg.kg * (1 - cfg.bf / 100) / hm;
       // Anchors: population-average FFMI maps to the baked average body,
       // the max-muscle target sits at a clearly athletic figure, and the
       // min-muscle one at the low end of normal.
-      const A = want.sex === "f"
+      const A = cfg.sex === "f"
         ? { lo: 12.5, avg: 15.0, hi: 18.5 }
         : { lo: 15.5, avg: 18.5, hi: 22.5 };
       // Fat buries definition: the muscle target carries the V-taper and the
@@ -193,8 +219,8 @@ export function mount(canvas) {
       // MakeHuman's min-muscle is an untrained softness, and softness is a
       // fat-adjacent look — a 44 kg man at 9% is wiry, not flabby — so it is
       // damped as fat falls instead.
-      const mask = Math.max(0.35, Math.min(1, 1.35 - 0.03 * want.bf));
-      const loMask = Math.max(0.25, Math.min(1, 0.2 + (want.bf - 10) / 25));
+      const mask = Math.max(0.35, Math.min(1, 1.35 - 0.03 * cfg.bf));
+      const loMask = Math.max(0.25, Math.min(1, 0.2 + (cfg.bf - 10) / 25));
       const m = ffmi >= A.avg
         ? Math.min(1.3, (ffmi - A.avg) / (A.hi - A.avg)) * mask
         : -Math.min(1, (A.avg - ffmi) / (A.avg - A.lo)) * loMask;
@@ -203,19 +229,34 @@ export function mount(canvas) {
       // under it and pushing the plain low-muscle softness out of its way.
       const thin = nMus >= 3
         ? Math.max(0, Math.min(1.2, (A.lo - ffmi) / 3.5)) : 0;
-      mesh.morphTargetInfluences[nFat] = (m < 0 ? -m : 0) * (1 - Math.min(1, thin));
-      mesh.morphTargetInfluences[nFat + 1] = m > 0 ? m : 0;
-      if (nMus >= 3) mesh.morphTargetInfluences[nFat + 2] = thin;
+      msh.morphTargetInfluences[nFat] = (m < 0 ? -m : 0) * (1 - Math.min(1, thin));
+      msh.morphTargetInfluences[nFat + 1] = m > 0 ? m : 0;
+      if (nMus >= 3) msh.morphTargetInfluences[nFat + 2] = thin;
     }
     // The mesh is authored at 1.75 m, so height is a scale about the feet.
-    mesh.scale.setScalar((want.ht || 175) / 175);
+    msh.scale.setScalar((cfg.ht || 175) / 175);
+  };
+
+  const ensureB = () => {
+    if (meshB || !geoRef) return;
+    meshB = new THREE.Mesh(geoRef, materialB);
+    meshB.position.y = FLOOR;
+    pivotB.add(meshB);
+  };
+
+  const apply = () => {
+    if (!levels) return;
+    if (mesh) applyTo(mesh, want);
+    if (pairOn) { ensureB(); if (meshB && wantB) applyTo(meshB, wantB); }
     dirty = true;
   };
 
   const swap = sex => loadBody(sex).then(b => {
     if (!alive) return;
     if (mesh) { pivot.remove(mesh); }
-    mesh = new THREE.Mesh(b.geometry, material);
+    if (meshB) { pivotB.remove(meshB); meshB = null; }
+    geoRef = b.geometry;
+    mesh = new THREE.Mesh(geoRef, material);
     mesh.position.y = FLOOR;      // feet on the floor of the frame, not centred
     levels = b.bodyFat;
     nMus = b.nMus || 0;
@@ -236,8 +277,24 @@ export function mount(canvas) {
     } else if (Math.abs(vel) > 1e-5) {
       spin += vel; vel *= 0.9; dirty = true;
     }
+    // Ease the slide-and-dim toward its targets: positions, camera, and the
+    // two brightnesses, all in one motion.
+    let mv = false;
+    for (const k in anim) {
+      const d = tgt[k] - anim[k];
+      if (Math.abs(d) > 0.003) { anim[k] += d * 0.14; mv = true; }
+      else if (anim[k] !== tgt[k]) { anim[k] = tgt[k]; mv = true; }
+    }
+    if (mv) {
+      pivot.position.x = anim.ax;
+      pivotB.position.x = anim.bx;
+      material.color.copy(DIMC).lerp(BRIGHT, anim.aB);
+      materialB.color.copy(DIMC).lerp(BRIGHT, anim.bB);
+      place();
+    }
     if (!dirty) return;
     pivot.rotation.y = spin;
+    pivotB.rotation.y = spin;
     renderer.render(scene, camera);
     dirty = false;
   };
@@ -294,11 +351,29 @@ export function mount(canvas) {
     view(rad) { spin = rad; vel = 0; pivot.rotation.y = spin; dirty = true; },
     infl() { return mesh ? Array.from(mesh.morphTargetInfluences) : null; },
     set(sex, bf, ht, kg) {
+      if (pairOn) { pairOn = false; wantB = null; pivotB.visible = false; retarget(); }
       want.bf = bf;
       if (ht) want.ht = ht;
       if (kg) want.kg = kg;
       if (sex !== loaded) { loaded = sex; want.sex = sex; swap(sex); }
       else apply();
+    },
+    // Two figures: the current body and the goal, side by side. On the first
+    // call the goal is born where the current stands and slides to the right
+    // while the camera pulls back; whichever holds focus is lit, the other
+    // dims. f is "a" (current) or "b" (goal).
+    setPair(a, b, f) {
+      const was = pairOn;
+      want = Object.assign({}, a);
+      wantB = Object.assign({}, b);
+      focus = f === "b" ? "b" : "a";
+      pairOn = true;
+      pivotB.visible = true;
+      if (!was) { anim.bx = anim.ax; anim.bB = anim.aB; }
+      if (a.sex !== loaded) { loaded = a.sex; swap(a.sex); }
+      else apply();
+      retarget();
+      dirty = true;
     },
     dispose() {
       alive = false;

@@ -382,19 +382,22 @@ option{background:#070b12;color:#d7e6ef}
       <sc-if value="{{ cBackOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ cBack }}" style="{{ cNotchL }}" style-hover="background:rgba(34,211,238,.18);border-color:rgba(34,211,238,.85)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M15 5l-7 7 7 7"></path></svg></button></sc-if>
       <sc-if value="{{ cRNotchOn }}" hint-placeholder-val="{{ true }}"><button onClick="{{ cNext }}" style="{{ cNotchR }}" style-hover="background:rgba(34,211,238,.18);border-color:rgba(34,211,238,.85)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button></sc-if>
       <sc-if value="{{ cFigOn }}" hint-placeholder-val="{{ false }}">
+      <sc-if value="{{ cIsBody }}" hint-placeholder-val="{{ true }}">
+      <span style="{{ cVTabRow }}"><button onClick="{{ cViewCur }}" style="{{ cVTabCur }}" style-hover="color:#3fdcf2">CURRENT</button><button onClick="{{ cViewGoal }}" style="{{ cVTabGoal }}" style-hover="color:#3fdcf2">YOUR GOAL</button></span>
+      </sc-if>
       <span style="{{ cFigWrap }}">
         <sc-if value="{{ cBody3D }}" hint-placeholder-val="{{ true }}"><canvas data-body style="{{ cCanvasS }}"></canvas></sc-if>
         <sc-if value="{{ cBodySvg }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 64 136" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="{{ cFigS }}"><circle cx="32" cy="14" r="10"></circle><path d="{{ cBodyGlyph }}"></path></svg></sc-if>
       </span>
       <sc-if value="{{ cIsHt }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cBodyPanel }}">
-        <span style="{{ cHtGrid }}"><sc-for list="{{ cHtCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
+        <span style="{{ cHtGrid }}"><sc-for list="{{ cHtCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.55);border-left-color:rgba(34,211,238,.55);border-right-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
         <span style="{{ cSliderBox }}"><input type="range" min="{{ cHtMin }}" max="{{ cHtMax }}" step="1" value="{{ cHtSlV }}" onChange="{{ cHtSlide }}" style="{{ cHtTrack }}"></span>
       </span>
       </sc-if>
       <sc-if value="{{ cIsBody }}" hint-placeholder-val="{{ true }}">
       <span style="{{ cBodyPanel }}">
-        <span style="{{ cMetGrid }}"><sc-for list="{{ cMetCells }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
+        <span style="{{ cMetGrid }}"><sc-for list="{{ cMetCells }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.55);border-left-color:rgba(34,211,238,.55);border-right-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
         <span style="{{ cSliderBox }}"><input type="range" min="{{ cSelMin }}" max="{{ cSelMax }}" step="{{ cSelStep }}" value="{{ cSelVal }}" onChange="{{ cSelSlide }}" style="{{ cSelTrack }}"></span>
       </span>
       </sc-if>
@@ -429,7 +432,7 @@ option{background:#070b12;color:#d7e6ef}
       </sc-if>
       <sc-if value="{{ cIsAct }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cBodyPanel }}">
-        <span style="{{ cHtGrid }}"><sc-for list="{{ cActCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}</span></button></sc-for></span>
+        <span style="{{ cHtGrid }}"><sc-for list="{{ cActCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.55);border-left-color:rgba(34,211,238,.55);border-right-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}</span></button></sc-for></span>
         <span style="{{ cSliderBox }}"><input type="range" min="0" max="7" step="1" value="{{ cActIdx }}" onChange="{{ cActSlide }}" style="{{ cActTrack }}"></span>
       </span>
       </sc-if>
@@ -1235,7 +1238,15 @@ class Component extends DCLogic {
     }
     const want = this._bodyWant;
     if (!want) return;
-    if (this._body) { this._body.set(want.sex, want.bf, want.ht, want.kg); return; }
+    // One figure, or the current-and-goal pair with focus on the active tab.
+    const drive = api => {
+      const w = this._bodyWant;
+      if (w.goal && api.setPair)
+        api.setPair({ sex: w.sex, bf: w.bf, ht: w.ht, kg: w.kg },
+          { sex: w.sex, bf: w.goal.bf, ht: w.ht, kg: w.goal.kg }, w.focus);
+      else api.set(w.sex, w.bf, w.ht, w.kg);
+    };
+    if (this._body) { drive(this._body); return; }
     if (this._bodyLoading) return;
     this._bodyLoading = true;
     // 670 KB of three, fetched the first time someone opens the app that needs it
@@ -1246,8 +1257,7 @@ class Component extends DCLogic {
       const api = mod.mount(el);
       if (!api) { this.setState({ cBodyFail: true }); return; }
       this._body = api;
-      const w = this._bodyWant;
-      api.set(w.sex, w.bf, w.ht, w.kg);
+      drive(api);
     }).catch(() => {
       this._bodyLoading = false;
       this.setState({ cBodyFail: true });
@@ -4092,6 +4102,7 @@ class Component extends DCLogic {
       cResetOn: app === "calc",
       cResetAll: () => this.setState({ cStep: 0, cSex: null, cAge: 30, cHt: null,
         cWt: null, cBf: null, cAct: 1, cBodySel: "wt", cHtSel: "cm", cActSel: "day",
+        cView: "cur", cGWt: null, cGBf: null,
         cKcal: null, cWks: 26, cCurves: false, cTip: false }),
       cResetS: { display: "flex", alignItems: "center", justifyContent: "center",
         width: "1.9rem", height: "2.1rem", marginLeft: "-.15rem", padding: 0,
@@ -4162,8 +4173,18 @@ class Component extends DCLogic {
         // Weight rides along so the figure can carry lean mass as its own axis:
         // on the result screen it is the scrubbed trajectory's weight, so a year
         // of deficit slims the figure by what the model says, not by relabelling.
+        // Once a goal exists, the body screen carries both figures — the current
+        // and the goal — with focus following the tab.
+        const goalView = s.cView === "goal";
+        const gWt = s.cGWt == null ? m.wt
+          : Math.max(RG.wtLo, Math.min(RG.wtHi, Math.round(s.cGWt)));
+        const gBf = Math.max(bfLo, Math.min(bfHi,
+          s.cGBf == null ? bfVal : Math.round(s.cGBf)));
         this._bodyWant = { sex: m.sex, bf: done && at ? at.bf : bfVal, ht: m.ht,
-          kg: done && at ? at.w : m.wt };
+          kg: done && at ? at.w : m.wt,
+          goal: !done && step === 3 && s.cGWt != null
+            ? { bf: gBf, kg: gWt } : null,
+          focus: goalView ? "b" : "a" };
         const num = (v, col) => ({ fontFamily: "var(--font-1)", fontWeight: 300,
           fontSize: s.narrow ? "1.5rem" : "1.7rem", fontVariantNumeric: "tabular-nums",
           color: col || "#eaf5fb" });
@@ -4193,6 +4214,30 @@ class Component extends DCLogic {
           // The way forward is the right notch on every screen; the last one
           // simply notches into the result.
           cRNotchOn: true,
+          // CURRENT and YOUR GOAL, as underlined tabs over the figure. The
+          // first visit to the goal births it from the current numbers; after
+          // that the two bodies stand side by side and the tab picks which
+          // one is lit and which the cells edit.
+          cViewCur: () => this.setState({ cView: "cur" }),
+          cViewGoal: () => this.setState({ cView: "goal",
+            cGWt: s.cGWt == null ? m.wt : s.cGWt,
+            cGBf: s.cGBf == null ? bfVal : s.cGBf }),
+          cVTabRow: { flex: "none", display: "flex", justifyContent: "center",
+            gap: "2.2rem", padding: ".15rem 0 .1rem" },
+          cVTabCur: (on => ({ padding: "0 .15rem .4rem", border: 0,
+            borderRadius: 0, background: "transparent", cursor: "pointer",
+            fontFamily: "var(--font-2)", fontSize: ".95rem",
+            letterSpacing: ".2em", textIndent: ".2em",
+            color: on ? "#3fdcf2" : "#7b91a3",
+            borderBottom: on ? "2px solid #22d3ee" : "2px solid transparent",
+            transition: "color 160ms ease, border-color 160ms ease" }))(s.cView !== "goal"),
+          cVTabGoal: (on => ({ padding: "0 .15rem .4rem", border: 0,
+            borderRadius: 0, background: "transparent", cursor: "pointer",
+            fontFamily: "var(--font-2)", fontSize: ".95rem",
+            letterSpacing: ".2em", textIndent: ".2em",
+            color: on ? "#3fdcf2" : "#7b91a3",
+            borderBottom: on ? "2px solid #22d3ee" : "2px solid transparent",
+            transition: "color 160ms ease, border-color 160ms ease" }))(s.cView === "goal"),
           // One field per screen, so this is the field this screen is for.
           cField: (() => {
             const f = FIELDS[0];
@@ -4318,11 +4363,15 @@ class Component extends DCLogic {
           // this weight — so the four cells can never disagree.
           ...(() => {
             const wtF = FIELDS[2];
-            const wtV = clampF(wtF, s.cWt);
+            // On the goal tab the same cells edit the goal's numbers, backed by
+            // their own state keys; the current body's stay untouched behind it.
+            const WK = goalView ? "cGWt" : "cWt", BK = goalView ? "cGBf" : "cBf";
+            const wtV = goalView ? gWt : clampF(wtF, s.cWt);
+            const bfV = goalView ? gBf : bfVal;
             const hm = Math.pow(m.ht / 100, 2);
             const bmi = wtV / hm;
-            const lean = wtV * (1 - bfVal / 100);
-            const setWt = v => this.setState({ cWt: clampF(wtF, v) });
+            const lean = wtV * (1 - bfV / 100);
+            const setWt = v => this.setState({ [WK]: clampF(wtF, v) });
             const M = {
               wt: { label: "WEIGHT", unit: " KG", val: String(wtV),
                 lo: wtF.lo, hi: wtF.hi, stp: 1, cur: wtV, set: setWt },
@@ -4330,11 +4379,11 @@ class Component extends DCLogic {
                 lo: Math.round(wtV * 0.45),
                 hi: Math.round(wtV * (1 - bfLo / 100)),
                 stp: 1, cur: lean,
-                set: v => this.setState({ cBf: Math.max(bfLo, Math.min(bfHi,
+                set: v => this.setState({ [BK]: Math.max(bfLo, Math.min(bfHi,
                   Math.round(100 * (1 - v / wtV)))) }) },
-              bf: { label: "BODY FAT", unit: " %", val: String(bfVal),
-                lo: bfLo, hi: bfHi, stp: 1, cur: bfVal,
-                set: v => this.setState({ cBf: Math.round(v) }) },
+              bf: { label: "BODY FAT", unit: " %", val: String(bfV),
+                lo: bfLo, hi: bfHi, stp: 1, cur: bfV,
+                set: v => this.setState({ [BK]: Math.round(v) }) },
               bmi: { label: "BMI", unit: "", val: bmi.toFixed(1),
                 lo: Math.ceil(10 * wtF.lo / hm) / 10,
                 hi: Math.floor(10 * wtF.hi / hm) / 10,
