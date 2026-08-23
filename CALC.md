@@ -141,12 +141,14 @@ to 100). Daily and weekly readings are the same figure at 1× and 7×, both mult
 100. The band whose PAL sits nearest the chosen burn supplies the descriptor, so the
 adjective follows the number and the two keep each other honest.
 
-The figure acts the answer out. Six pose keyframes are baked into the body meshes by
+The figure acts the answer out. Seven pose keyframes are baked into the body meshes by
 `tools/pose_rig.py` — forward kinematics over MakeHuman's default skeleton, skinned with
-its own weights: seated at a laptop, pushing up out of the chair, two walk phases, two
-run phases. The slider position eases through them, so the bottom of the scale is a
-figure in a computer chair and the top is a runner mid-stride, with the walk and run
-cycled live on a gait clock (held still under prefers-reduced-motion).
+its own weights: sunk in a recliner with a TV remote, seated at a laptop, pushing up out
+of the chair, two walk phases and two run phases, the gait pairs carrying pelvis–shoulder
+counter-rotation with the head unwinding it. The slider position eases through them, so
+the very bottom of the scale is a couch potato with the remote, sedentary is the desk
+chair and laptop, and the top is a runner mid-stride, with the walk and run cycled live
+on a gait clock (held still under prefers-reduced-motion).
 
 | Band | PAL |
 |---|---|

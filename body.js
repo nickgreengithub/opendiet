@@ -141,8 +141,9 @@ export function mount(canvas) {
   // pushes out of the chair, stands, walks, and finally runs — the pose
   // keyframes baked by tools/pose_rig.py, blended here.
   let actOn = false, actP = 0, actEase = 0, actLast = 0, gaitTh = 0;
-  let props = null, chairG = null, lapG = null, chairMat = null,
-    lapMat = null, screenMat = null;
+  let props = null, chairG = null, lapG = null, recG = null, remG = null,
+    chairMat = null, lapMat = null, screenMat = null, recMat = null,
+    remMat = null;
   // The slide-and-dim: pivot x positions, the camera's pull-back, and each
   // material's brightness, eased toward their targets every frame.
   const anim = { ax: 0, bx: 0, cam: 1, aB: 1, bB: 1 };
@@ -324,33 +325,81 @@ export function mount(canvas) {
       0, 0.615, 0.02);
     part(lapG, new THREE.BoxGeometry(0.30, 0.20, 0.01), screenMat,
       0, 0.70, 0.15, 0.30);
+    // The recliner at the very bottom of the scale: cushion, tipped-back
+    // backrest, armrests, an ottoman under the calves — and a TV remote in
+    // the raised right hand.
+    recMat = new THREE.MeshStandardMaterial({
+      color: 0x202f39, roughness: 0.9, metalness: 0.05, transparent: true });
+    remMat = new THREE.MeshStandardMaterial({
+      color: 0x24343d, roughness: 0.5, metalness: 0.2, transparent: true,
+      emissive: 0x155060, emissiveIntensity: 1.0 });
+    recG = new THREE.Group();
+    part(recG, new THREE.BoxGeometry(0.52, 0.10, 0.50), recMat,
+      0, 0.42, -0.16);
+    part(recG, new THREE.BoxGeometry(0.52, 0.62, 0.10), recMat,
+      0, 0.72, -0.47, -0.40);
+    part(recG, new THREE.BoxGeometry(0.10, 0.10, 0.50), recMat,
+      0.33, 0.55, -0.10);
+    part(recG, new THREE.BoxGeometry(0.10, 0.10, 0.50), recMat,
+      -0.33, 0.55, -0.10);
+    part(recG, new THREE.BoxGeometry(0.40, 0.20, 0.30), recMat,
+      0, 0.12, 0.44);
+    part(recG, new THREE.BoxGeometry(0.50, 0.06, 0.48), recMat,
+      0, 0.03, -0.15);
+    remG = new THREE.Group();
+    part(remG, new THREE.BoxGeometry(0.045, 0.035, 0.17), remMat,
+      -0.315, 0.925, 0.145, -0.95);
     props.add(chairG);
     props.add(lapG);
+    props.add(recG);
+    props.add(remG);
     props.visible = false;
     mesh.add(props);
   };
-  const setPropOp = (cOp, lOp) => {
+  // Each prop follows the pose that uses it: the recliner and remote belong
+  // to the reclining couch potato, the office chair to the sit and the push
+  // out of it, the laptop to the sit alone.
+  const setPropOp = w => {
     if (!props) return;
-    props.visible = cOp > 0.01;
+    // The hand-held props keep to their poses: the laptop only fades in over
+    // the last stretch of the sit blend, and the remote lets go over the
+    // first stretch of leaving the recline — neither hovers over a body
+    // that is between poses.
+    const cOp = Math.min(1, w.sit + w.rise),
+      lOp = Math.max(0, Math.min(1, (w.sit - 0.55) / 0.45)),
+      rOp = w.recline,
+      mOp = Math.max(0, Math.min(1, (w.recline - 0.5) / 0.5));
+    props.visible = cOp > 0.01 || rOp > 0.01;
     chairG.visible = cOp > 0.01;
     lapG.visible = lOp > 0.01;
+    recG.visible = rOp > 0.01;
+    remG.visible = mOp > 0.01;
     chairMat.opacity = cOp;
     lapMat.opacity = lOp;
     screenMat.opacity = lOp;
+    recMat.opacity = rOp;
+    remMat.opacity = mOp;
   };
-  // Slider position -> pose weights. Seated below .14; pushing out of the
-  // chair to .26; on their feet; walking from .42; running from .72. The
-  // walk and run each blend two mirrored stride keyframes on the gait
-  // clock, so the figure moves rather than freezes mid-step.
+  // Slider position -> pose weights. Reclined with the remote at the very
+  // bottom; at a laptop through the sedentary band; pushing out of the
+  // chair around lightly-active; on their feet; walking from .38; running
+  // from .72. The walk and run each blend two mirrored stride keyframes on
+  // the gait clock, so the figure moves rather than freezes mid-step.
   const poseWeightsAt = (p, s) => {
-    const w = { sit: 0, rise: 0, walkA: 0, walkB: 0, runA: 0, runB: 0 };
-    if (p < 0.14) w.sit = 1;
-    else if (p < 0.26) {
-      const t = (p - 0.14) / 0.12;
+    const w = { recline: 0, sit: 0, rise: 0,
+      walkA: 0, walkB: 0, runA: 0, runB: 0 };
+    if (p < 0.065) w.recline = 1;
+    else if (p < 0.13) {
+      const t = (p - 0.065) / 0.065;
+      w.recline = 1 - t;
+      w.sit = t;
+    } else if (p < 0.20) w.sit = 1;
+    else if (p < 0.32) {
+      const t = (p - 0.20) / 0.12;
       w.sit = Math.max(0, 1 - 2 * t);
       w.rise = 1 - Math.abs(2 * t - 1);
     }
-    const wa = Math.max(0, Math.min(1, (p - 0.42) / 0.13));
+    const wa = Math.max(0, Math.min(1, (p - 0.38) / 0.14));
     const ru = Math.max(0, Math.min(1, (p - 0.72) / 0.12));
     const g = wa * (1 - ru);
     w.walkA = g * s; w.walkB = g * (1 - s);
@@ -395,14 +444,13 @@ export function mount(canvas) {
       if (Math.abs(actP - actEase) < 0.002) actEase = actP;
       const p = actEase;
       const ru = Math.max(0, Math.min(1, (p - 0.72) / 0.12));
-      if (!still && p > 0.42) gaitTh += dt * 2 * Math.PI * (1.5 + 1.3 * ru);
+      if (!still && p > 0.38) gaitTh += dt * 2 * Math.PI * (1.5 + 1.3 * ru);
       const s = still ? 1 : 0.5 + 0.5 * Math.sin(gaitTh);
       const w = poseWeightsAt(p, s);
       for (const k in w) if (poseIx[k] != null)
         mesh.morphTargetInfluences[poseIx[k]] = w[k];
       ensureProps();
-      setPropOp(Math.max(0, Math.min(1, (0.30 - p) / 0.10)),
-        Math.max(0, Math.min(1, (0.15 - p) / 0.06)));
+      setPropOp(w);
       dirty = true;
     }
     if (!dirty) return;
@@ -477,13 +525,27 @@ export function mount(canvas) {
     // Turn to an exact angle — used by the preview harness, harmless to keep.
     view(rad) { spin = rad; vel = 0; pivot.rotation.y = spin; dirty = true; },
     infl() { return mesh ? Array.from(mesh.morphTargetInfluences) : null; },
+    // Prop visibility snapshot — the preview harness again.
+    props() {
+      return props ? {
+        chair: [chairG.visible, chairMat.opacity],
+        lap: [lapG.visible, lapMat.opacity],
+        rec: [recG.visible, recMat.opacity],
+        rem: [remG.visible, remMat.opacity]
+      } : null;
+    },
     // Pin one pose keyframe at full weight — the preview harness again.
     pose(name, v) {
       if (!mesh || !poseIx) return null;
       actOn = false;
       for (const k in poseIx) mesh.morphTargetInfluences[poseIx[k]] = 0;
-      if (name && poseIx[name] != null)
+      const w = { recline: 0, sit: 0, rise: 0 };
+      if (name && poseIx[name] != null) {
         mesh.morphTargetInfluences[poseIx[name]] = v == null ? 1 : v;
+        if (name in w) w[name] = v == null ? 1 : v;
+      }
+      ensureProps();
+      setPropOp(w);
       dirty = true;
       return Object.keys(poseIx);
     },

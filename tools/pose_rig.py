@@ -127,6 +127,26 @@ def _mirror(spec):
 # model +X rotation takes an up-pointing bone forward and a down-pointing
 # bone backward, so hip flexion is negative and knee flexion positive.
 
+# The bottom of the scale: sunk into a recliner with a TV remote — legs up
+# on the footrest, torso tipped back, the right forearm raised to point the
+# remote, the left draped on the armrest. Face level, at the television.
+RECLINE = {
+    "spine05": [("x", -20)],
+    "spine03": [("x", -12)],
+    "neck01": [("x", 10)],
+    "head": [("x", 14)],
+    "upperleg01.L": [("x", -68), ("z", 6)],
+    "upperleg01.R": [("x", -68), ("z", -6)],
+    "lowerleg01.L": [("x", 30)],
+    "lowerleg01.R": [("x", 30)],
+    "foot.L": [("x", 20)],
+    "foot.R": [("x", 20)],
+    "upperarm01.L": [("x", -2)],
+    "upperarm01.R": [("x", -18)],
+    "lowerarm01.L": [("x", -12)],
+    "lowerarm01.R": [("x", -42)],
+}
+
 SIT = {
     "root": [("x", -6)],
     "spine02": [("x", 10)],
@@ -161,8 +181,17 @@ RISE = {
     "lowerarm01.R": [("x", -42)],
 }
 
+# Gait twist: the pelvis turns with the leading leg (negative y takes the
+# left hip forward), the shoulders counter-rotate past it with the leading
+# arm, and the neck and head unwind the difference so the face stays on the
+# road. The mirror flips the y senses with the sides.
 WALK_A = {
+    "root": [("y", -4)],
+    "spine02": [("y", 5)],
+    "spine01": [("y", 3)],
     "spine03": [("x", 4)],
+    "neck01": [("y", -3)],
+    "head": [("y", -2)],
     "upperleg01.L": [("x", -26)],
     "lowerleg01.L": [("x", 10)],
     "foot.L": [("x", -8)],
@@ -177,10 +206,13 @@ WALK_A = {
 WALK_B = _mirror(WALK_A)
 
 RUN_A = {
+    "root": [("y", -7)],
     "spine05": [("x", 9)],
     "spine03": [("x", 6)],
-    "neck01": [("x", -5)],
-    "head": [("x", -6)],
+    "spine02": [("y", 9)],
+    "spine01": [("y", 8)],
+    "neck01": [("x", -5), ("y", -5)],
+    "head": [("x", -6), ("y", -5)],
     "upperleg01.L": [("x", -48)],
     "lowerleg01.L": [("x", 42)],
     "foot.L": [("x", 4)],
@@ -194,5 +226,6 @@ RUN_A = {
 }
 RUN_B = _mirror(RUN_A)
 
-POSES = [("sit", SIT), ("rise", RISE), ("walkA", WALK_A),
-         ("walkB", WALK_B), ("runA", RUN_A), ("runB", RUN_B)]
+POSES = [("recline", RECLINE), ("sit", SIT), ("rise", RISE),
+         ("walkA", WALK_A), ("walkB", WALK_B), ("runA", RUN_A),
+         ("runB", RUN_B)]
