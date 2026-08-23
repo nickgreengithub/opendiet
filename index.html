@@ -433,7 +433,7 @@ option{background:#070b12;color:#d7e6ef}
       <sc-if value="{{ cIsAct }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cBodyPanel }}">
         <span style="{{ cHtGrid }}"><sc-for list="{{ cActCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.55);border-left-color:rgba(34,211,238,.55);border-right-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}</span></button></sc-for></span>
-        <span style="{{ cSliderBox }}"><input type="range" min="0" max="7" step="1" value="{{ cActIdx }}" onChange="{{ cActSlide }}" style="{{ cActTrack }}"></span>
+        <span style="{{ cSliderBox }}"><input type="range" min="{{ cActMin }}" max="{{ cActMax }}" step="{{ cActStep }}" value="{{ cActIdx }}" onChange="{{ cActSlide }}" style="{{ cActTrack }}"></span>
       </span>
       </sc-if>
     </sc-if>
@@ -1850,12 +1850,18 @@ class Component extends DCLogic {
     const rmrOf = (W, FFM) => bfPicked
       ? 370 + 21.6 * FFM
       : 10 * W + 6.25 * ht - 5 * age + (sex === "m" ? 5 : -161);
-    // One activity answer: a PAL band picked off the weekly-calories slider.
-    const act = CALC_ACT[Math.max(0, Math.min(CALC_ACT.length - 1,
-      s.cAct == null ? 1 : s.cAct))];
-    const pal = act.pal;
+    // One activity answer: a daily burn in 100-kcal steps, bounded by the same
+    // PAL bands the explainer describes. The band text is whichever band the
+    // chosen burn sits nearest, so the words follow the number, not the reverse.
     const rmr0 = rmrOf(wt, ffm0);
-    const tdee0 = rmr0 * pal;
+    const bLo = Math.round(rmr0 * CALC_ACT[0].pal / 100) * 100;
+    const bHi = Math.round(rmr0 * CALC_ACT[CALC_ACT.length - 1].pal / 100) * 100;
+    const burn0 = s.cBurn == null ? Math.round(rmr0 * 1.40 / 100) * 100 : s.cBurn;
+    const tdee0 = Math.max(bLo, Math.min(bHi, Math.round(burn0 / 100) * 100));
+    const pal = tdee0 / rmr0;
+    let act = CALC_ACT[0];
+    for (const a of CALC_ACT)
+      if (Math.abs(a.pal - pal) < Math.abs(act.pal - pal)) act = a;
     const maint = Math.round(tdee0);
     const floor = CALC_FLOOR[sex];
     const ess = ESSENTIAL_BF[sex] / 100;
@@ -1889,7 +1895,7 @@ class Component extends DCLogic {
       return out;
     };
     return { sex, age, ht, wt, bmi, bfEst, bfPicked, bf0, fm0, ffm0,
-      pal, act, rmr0, tdee0, maint, floor, ess, sim };
+      pal, act, rmr0, tdee0, bLo, bHi, maint, floor, ess, sim };
   }
   gNext() {
     this.gClearTimers();
@@ -4101,7 +4107,7 @@ class Component extends DCLogic {
       // belonging to that app rather than to the bar.
       cResetOn: app === "calc",
       cResetAll: () => this.setState({ cStep: 0, cSex: null, cAge: 30, cHt: null,
-        cWt: null, cBf: null, cAct: 1, cBodySel: "wt", cHtSel: "cm", cActSel: "day",
+        cWt: null, cBf: null, cBurn: null, cBodySel: "wt", cHtSel: "cm", cActSel: "day",
         cView: "cur", cGWt: null, cGBf: null,
         cKcal: null, cWks: 26, cCurves: false, cTip: false }),
       cResetS: { display: "flex", alignItems: "center", justifyContent: "center",
@@ -4310,21 +4316,26 @@ class Component extends DCLogic {
           cSexIdx: s.cSex === "f" ? "1" : "0",
           cSexSlide: e => set("cSex", +e.target.value >= 1 ? "f" : "m"),
           cSexTrack: { "--p": s.cSex === "f" ? "100%" : "0%" },
-          // Calorie burn: the activity bands priced in this body's own
-          // arithmetic. The band's name and sentence hold the centre of the
-          // screen in a fixed-height panel; the price sits at the bottom in
-          // the body screen's own cells — DAILY and WEEKLY, comma'd, no
-          // suffix — over the same tray the other screens slide in.
-          cActIdx: String(s.cAct == null ? 1 : s.cAct),
-          cActSlide: e => this.setState({ cAct: Math.max(0,
-            Math.min(CALC_ACT.length - 1, +e.target.value)) }),
-          cActTrack: { "--p": (100 * (s.cAct == null ? 1 : s.cAct)
-            / (CALC_ACT.length - 1)).toFixed(1) + "%" },
+          // Calorie burn: a burn in 100-kcal steps between the outermost
+          // activity bands, priced in this body's own arithmetic. The nearest
+          // band's name and sentence hold the centre of the screen in a
+          // fixed-height panel; the number sits at the bottom in the body
+          // screen's own cells — DAILY and WEEKLY, comma'd, no suffix — over
+          // the same tray the other screens slide in. The weekly cell drives
+          // the same daily figure at 7× scale, so the two never disagree.
+          cActMin: String(s.cActSel === "wk" ? m.bLo * 7 : m.bLo),
+          cActMax: String(s.cActSel === "wk" ? m.bHi * 7 : m.bHi),
+          cActStep: String(s.cActSel === "wk" ? 700 : 100),
+          cActIdx: String(s.cActSel === "wk" ? m.tdee0 * 7 : m.tdee0),
+          cActSlide: e => this.setState({ cBurn: s.cActSel === "wk"
+            ? +e.target.value / 7 : +e.target.value }),
+          cActTrack: { "--p": (100 * (m.tdee0 - m.bLo)
+            / Math.max(1, m.bHi - m.bLo)).toFixed(1) + "%" },
           cActLabel: m.act.label,
           cActNote: m.act.note,
           cActCells: (() => {
             const commas = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            const day = Math.round(m.rmr0 * m.pal);
+            const day = m.tdee0;
             const sel = s.cActSel === "wk" ? "wk" : "day";
             const TRAY = "#0d1a20";
             return [

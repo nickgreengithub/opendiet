@@ -133,10 +133,13 @@ two screens, a double-counting trap between them, and a training answer given be
 app knew the body it belonged to. It is now **one question, asked after the body**: eight
 bands of a week on the FAO's PAL range, 1.25 to 2.40, from "very minimal activity"
 (housebound — bed rest with meals measures about 1.2, so no living week goes lower) to
-"extreme" (hard labour plus training). Each band carries a name, a sentence of what that
-life looks like, and — because the body is already known — a price in this body's own
-weekly calories: RMR × PAL × 7. The slider reads in kcal a week with the descriptor
-under it, so the adjective and the number keep each other honest.
+"extreme" (hard labour plus training). Each band carries a name and a sentence of what
+that life looks like, and — because the body is already known — the slider now moves in
+**calories directly, 100 kcal a step**, bounded by the outermost bands priced in this
+body's own arithmetic (RMR × 1.25 at the floor, RMR × 2.40 at the ceiling, each rounded
+to 100). Daily and weekly readings are the same figure at 1× and 7×, both multiples of
+100. The band whose PAL sits nearest the chosen burn supplies the descriptor, so the
+adjective follows the number and the two keep each other honest.
 
 | Band | PAL |
 |---|---|
