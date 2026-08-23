@@ -441,7 +441,7 @@ option{background:#070b12;color:#d7e6ef}
     <sc-if value="{{ cResOn }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cVTabRow }}"><sc-for list="{{ cPhTabs }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="color:#3fdcf2">{{ t.label }}</button></sc-for></span>
       <sc-if value="{{ cPhPlanOn }}" hint-placeholder-val="{{ true }}">
-      <span style="{{ cPhList }}"><sc-for list="{{ cPhBlocks }}" as="t" hint-placeholder-count="3"><span style="{{ cPhBlock }}"><span style="{{ cPhBlockH }}">{{ t.head }}</span><span style="{{ cPhBlockL }}">{{ t.l1 }}</span><span style="{{ t.l2s }}">{{ t.l2 }}</span></span></sc-for></span>
+      <span style="{{ cPhList }}"><sc-for list="{{ cPhBlocks }}" as="t" hint-placeholder-count="3"><span style="{{ cPhBlock }}"><span style="{{ cPhBlockHRow }}"><span style="{{ cPhBlockNum }}">{{ t.num }}</span><span style="{{ cPhBlockH }}">{{ t.head }}</span></span><span style="{{ t.rateS }}">{{ t.rate }}</span><span style="{{ cPhBlockL }}">{{ t.l1 }}</span><span style="{{ t.l2s }}">{{ t.l2 }}</span></span></sc-for></span>
       </sc-if>
       <sc-if value="{{ cPhInfoOn }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cPhInfoBox }}"><sc-for list="{{ cPhInfoLines }}" as="t" hint-placeholder-count="4"><span style="{{ cPhInfoLine }}">{{ t.txt }}</span></sc-for></span>
@@ -4616,23 +4616,29 @@ class Component extends DCLogic {
             flexDirection: "column", gap: "1.45rem" },
           cPhBlock: { display: "flex", flexDirection: "column",
             gap: ".35rem" },
-          cPhBlockH: { fontFamily: "var(--font-2)", fontSize: ".92rem",
-            letterSpacing: ".08em", color: "#3fdcf2",
-            fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
+          cPhBlockHRow: { display: "flex", alignItems: "baseline",
+            gap: ".6rem" },
+          cPhBlockNum: { fontFamily: "var(--font-2)", fontSize: "1.2rem",
+            letterSpacing: ".08em", color: "#5f7688",
+            fontVariantNumeric: "tabular-nums" },
+          cPhBlockH: { fontFamily: "var(--font-2)", fontSize: "1.2rem",
+            letterSpacing: ".12em", color: "#3fdcf2",
+            whiteSpace: "nowrap" },
           cPhBlockL: { fontFamily: "var(--font-1)", fontWeight: 300,
             fontSize: "1rem", lineHeight: 1.45, color: "#c3d3dd",
             fontVariantNumeric: "tabular-nums" },
           cPhBlocks: (() => {
             const cm = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            const line = { fontFamily: "var(--font-1)", fontWeight: 300,
+              fontSize: "1rem", lineHeight: 1.45, color: "#c3d3dd",
+              fontVariantNumeric: "tabular-nums" };
             return phases.map((pp, i) => {
               const last = i === phases.length - 1;
-              let head = pp.label;
-              if (pp.key === "cut")
-                head = "CUT \u00b7 LOSE "
-                  + Math.abs(pp.dwWk).toFixed(1) + " KG A WEEK";
-              else if (pp.key === "gain")
-                head = "LEAN GAIN \u00b7 GAIN "
-                  + pp.dwWk.toFixed(1) + " KG A WEEK";
+              const head = pp.key === "cut" ? "CUT PHASE" : pp.label;
+              const rate = pp.key === "cut"
+                ? "Lose " + Math.abs(pp.dwWk).toFixed(1) + " kg a week"
+                : pp.key === "gain"
+                  ? "Gain " + pp.dwWk.toFixed(1) + " kg a week" : "";
               const l1 = pp.wks
                 ? "Eat " + cm(pp.kcal) + " kcal a day for " + pp.wks
                   + " weeks"
@@ -4643,10 +4649,11 @@ class Component extends DCLogic {
                   + (last ? " \u2014 your goal" : "");
               else if (pp.key === "mid") l2 = pp.purpose;
               else l2 = "You are at your goal";
-              return { head, l1, l2, l2s: { display: l2 ? "block" : "none",
-                fontFamily: "var(--font-1)", fontWeight: 300,
-                fontSize: "1rem", lineHeight: 1.45, color: "#c3d3dd",
-                fontVariantNumeric: "tabular-nums" } };
+              return { num: "0" + (i + 1), head, rate, l1, l2,
+                rateS: Object.assign({ display: rate ? "block" : "none" },
+                  line),
+                l2s: Object.assign({ display: l2 ? "block" : "none" },
+                  line) };
             });
           })(),
           // The footer: the weight trajectory full width, the kilograms
