@@ -566,21 +566,37 @@ series; it starts on the plan's last day, the line under it saying the day relat
 today ("IN 238 DAYS" / "TODAY"), and dragging anywhere on the charts moves it, the two
 cells answering with the values on that date.
 
-The plan's stated assumptions, all visible in the phase notes:
+The phases are **solved, not sketched**. Two coupled facts the arithmetic respects: a cut
+loses lean mass even with training — modelled as half the untrained Forbes share (Forbes
+2000; Hall 2007), so roughly 10–25% of the loss is lean, rising as the body leans out and
+with age — and a surplus gains fat, about a quarter of a modest trained gain (Garthe
+2013). The cut size X and gain size G are solved together as two equations so the end
+state lands on the goal's fat *and* lean exactly:
 
-- **Weight training 3–4 times a week runs through every phase.** It is what lets a cut be
-  read as fat loss rather than weight loss, and a surplus as building rather than gaining.
-- **A cut runs at about 550 kcal under maintenance** — roughly half a kilogram of fat a
-  week, the moderate rate at which training holds on to muscle. The daily target is priced
-  on the phase's *midpoint* body (the average over the period), not day one, and never
-  below the 1,200/1,500 floor.
-- **A recovery block at maintenance sits between a cut and a build** whenever the goal
-  asks for both — 2–4 weeks, scaled to the cut's length — so metabolism and training
-  quality recover before the surplus starts.
-- **A build runs at about 275 kcal over maintenance** — around 0.35 kg a week, most of it
-  lean at that pace with the training in place.
-- A goal that needs neither (already there) collapses to a single MAINTAIN tab holding
-  the maintenance number.
+```
+fat:   fm0 − (1−sL)·X + (1−sG)·G = fmG
+lean:  ffm0 −   sL·X  +   sG·G   = ffmG
+```
+
+which is why a plain fat-loss goal still usually reads CUT → MAINTAIN → LEAN GAIN — the
+gain block wins back the lean the cut cost. When the body is already lean (under ~15%
+men / ~23% women) the order flips to LEAN GAIN → MAINTAIN → CUT, because a surplus
+partitions better to lean at low body fat (Forbes).
+
+Rates and assumptions (each cited on the INFO tab):
+
+- **Training 3–4× a week and protein near 1.6 g/kg/day** throughout (Morton 2018).
+- **Cuts at 0.6% of body weight a week** (Garthe 2011; Helms 2014); the daily deficit is
+  derived from the tissue mix actually lost (RHO energy densities), priced on the phase's
+  midpoint body, never below the 1,200/1,500 floor.
+- **Lean gain at 0.25 kg/wk for men, 0.125 for women** (Wernbom 2007), declining ~0.8% a
+  year past 30 (anabolic resistance); surplus derived from the gained tissue's energy.
+- **A 2–4 week MAINTAIN block between phases** (Trexler 2014; Peos 2019), scaled to the
+  first phase's length.
+- A goal needing nothing collapses to a single MAINTAIN tab.
+
+The last tab is always **INFO** — the assumptions above, with their sources and this
+person's own numbers (their lean-loss share, their gain rate), plus the ±10% caveat.
 
 ### The curves (retired)
 

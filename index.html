@@ -443,9 +443,14 @@ option{background:#070b12;color:#d7e6ef}
       </span>
       <span style="{{ cVTabRow }}"><sc-for list="{{ cPhTabs }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="color:#3fdcf2">{{ t.label }}</button></sc-for></span>
       <span style="{{ cQSpace }}"></span>
+      <sc-if value="{{ cPhNumOn }}" hint-placeholder-val="{{ true }}">
       <span style="{{ cPhWksS }}">{{ cPhWks }}</span>
       <span style="{{ cQValRow }}"><span style="{{ cQValS }}">{{ cPhKcal }}</span><span style="{{ cQValUnit }}">KCAL A DAY</span></span>
       <span style="{{ cPhNoteS }}">{{ cPhNote }}</span>
+      </sc-if>
+      <sc-if value="{{ cPhInfoOn }}" hint-placeholder-val="{{ false }}">
+      <span style="{{ cPhInfoBox }}"><sc-for list="{{ cPhInfoLines }}" as="t" hint-placeholder-count="7"><span style="{{ cPhInfoLine }}">{{ t.txt }}</span></sc-for></span>
+      </sc-if>
       <span style="{{ cQSpace2 }}"></span>
       <span style="{{ cPhFoot }}">
         <span style="{{ cPhRow }}">
@@ -4148,81 +4153,116 @@ class Component extends DCLogic {
             ? { bf: gBf, kg: gWt } : null,
           act: !done && step === 4 ? m.actP : null,
           focus: goalView ? "b" : "a" };
-        // ── the plan: up to three phases from this body to the goal ──────────
-        // Assumptions, stated plainly: weight training 3–4 times a week runs
-        // through every phase. A cut runs at about 550 kcal under maintenance —
-        // roughly half a kilogram of fat a week, the moderate rate at which
-        // training holds on to muscle. If the goal also asks for lean mass, a
-        // recovery block at maintenance sits between the cut and the build.
-        // A build runs at about 275 kcal over — around 0.35 kg a week, most of
-        // it lean at that pace. Maintenance for each phase is priced on the
-        // body that phase actually works on (its midpoint), so the daily
-        // target is the average over the period, not day one's number.
+        // ── the plan: solved, not sketched ───────────────────────────────────
+        // Two coupled facts the arithmetic must respect. A cut loses lean
+        // mass even with the training: about half the untrained Forbes share
+        // (Forbes 2000; Hall 2007), so roughly 10-25% of what goes is lean,
+        // more as the body leans out and with age. And a surplus gains fat:
+        // about a quarter of a modest, trained gain (Garthe 2013). So the
+        // cut and the build are solved TOGETHER — two equations, ending on
+        // the goal's fat and lean exactly — which is why a plain fat-loss
+        // goal still usually ends cut, maintain, lean gain: the gain block
+        // wins back the lean the cut cost. When the body is already lean
+        // (under ~15% men, ~23% women), the order flips — a surplus
+        // partitions better to lean at low body fat (Forbes), so build
+        // first, hold, then trim. Rates carry the literature: cuts at 0.6%
+        // of body weight a week (Garthe 2011; Helms 2014); lean gain at
+        // 0.25 kg/wk for men, 0.125 for women (Wernbom 2007), declining
+        // with age (anabolic resistance); a 2-4 week maintenance block
+        // between phases (Trexler 2014; Peos 2019). Training 3-4x a week
+        // and adequate protein (Morton 2018) are assumed throughout.
         const r50 = v => Math.round(v / 50) * 50;
         const maintAt = (W, FFM) => m.rmrOf(W, FFM) * m.pal;
         const plan = (() => {
-          if (!done) return { list: [], nodes: [] };
-          const fmG = gWt * gBf / 100;
-          const out = [];
-          // The trajectory the footer draws: one node a week, piecewise
-          // linear through the phases — weight and fat mass, body fat
-          // derived from the pair wherever it is read.
-          const nodes = [{ w: m.wt, fm: m.fm0 }];
+          if (!done) return { list: [], nodes: [], sL: 0.15, gLeanWk: 0.25 };
+          const fmG = gWt * gBf / 100, ffmG = gWt - fmG;
+          const dFat = fmG - m.fm0, dLean = ffmG - m.ffm0;
+          const sG = 0.75;
+          const ageGain = Math.max(0.5, 1 - 0.008 * Math.max(0, m.age - 30));
+          const ageLoss = 1 + 0.005 * Math.max(0, m.age - 30);
+          const gLeanWk = (m.sex === "f" ? 0.125 : 0.25) * ageGain;
+          // Solve cut X and gain G so the end state is the goal:
+          //   fat:  fm0 - (1-sL)X + (1-sG)G = fmG
+          //   lean: ffm0 -    sL X +    sG G = ffmG
+          // sL depends on the fat mass the cut runs through, so iterate.
+          let sL = 0.15, X = 0, G = 0, FMmid = m.fm0;
+          for (let it = 0; it < 3; it++) {
+            sL = Math.min(0.35, Math.max(0.06,
+              0.5 * 10.4 / (10.4 + Math.max(2, FMmid)) * ageLoss));
+            const denom = (1 - sL) - sL * (1 - sG) / sG;
+            X = (dLean * (1 - sG) / sG - dFat) / denom;
+            G = (dLean + sL * Math.max(0, X)) / sG;
+            if (X < 0.25) { X = 0; G = Math.max(dLean / sG, gWt - m.wt); }
+            if (G < 0.25) { G = 0; X = Math.max(0, -dFat / (1 - sL)); }
+            FMmid = m.fm0 - (1 - sL) * X / 2;
+          }
+          X = Math.max(0, X); G = Math.max(0, G);
+          const gainFirst = X > 0.25 && G > 0.25
+            && 100 * m.fm0 / m.wt < (m.sex === "f" ? 23 : 15);
+          const out = [], nodes = [{ w: m.wt, fm: m.fm0 }];
           const seg = (wk, dw, dfm) => {
             const a = nodes[nodes.length - 1];
             for (let i = 1; i <= wk; i++)
               nodes.push({ w: a.w + dw * i / wk, fm: a.fm + dfm * i / wk });
           };
-          let W = m.wt;
-          const FFM = m.ffm0;
-          let cutKg = Math.max(0, m.fm0 - fmG);
-          const gain0 = gWt - (m.wt - cutKg);
-          // A goal weight below even the post-cut body means the cut carries
-          // on into lean mass; the training premise argues against it, but
-          // the arithmetic should still land on the number asked for.
-          if (cutKg <= 0.25 && gain0 < -0.25) cutKg = m.wt - gWt;
-          if (cutKg > 0.25) {
-            const wk = Math.max(2, Math.round(cutKg / 0.5));
+          let W = m.wt, FFM = m.ffm0;
+          const cutPh = () => {
+            const wk = Math.max(2, Math.round(X / (0.006 * W)));
+            const def = (X / wk) * (sL * RHO_LEAN + (1 - sL) * RHO_FAT) / 7;
             out.push({ key: "cut", label: "CUT", wks: wk,
-              kcal: Math.max(m.floor, r50(maintAt(W - cutKg / 2, FFM) - 550)),
-              note: "About 550 below maintenance — steady fat loss, with "
-                + "the 3–4 sessions a week doing the work of holding your "
-                + "muscle while it goes." });
-            seg(wk, -cutKg, -cutKg);
-            W -= cutKg;
-          }
-          const gainKg = Math.max(0, gWt - W);
-          if (out.length && gainKg > 0.25) {
-            const wk = Math.max(2, Math.min(4, Math.round(out[0].wks / 4)));
-            out.push({ key: "rec", label: "RECOVERY", wks: wk,
-              kcal: r50(maintAt(W, FFM)),
-              note: "Back at maintenance. A short block here lets metabolism "
-                + "and training quality recover from the cut before you "
-                + "build on top of it." });
-            seg(wk, 0, 0);
-          }
-          if (gainKg > 0.25) {
-            const wk = Math.max(2, Math.round(gainKg / 0.35));
+              kcal: Math.max(m.floor,
+                r50(maintAt(W - X / 2, FFM - sL * X / 2) - def)),
+              note: "About " + r50(def) + " below maintenance \u2014 0.6% of "
+                + "body weight a week, the rate that spares muscle. Even so, "
+                + "about " + Math.round(100 * sL) + "% of the loss will be "
+                + "lean \u2014 the plan accounts for it." });
+            seg(wk, -X, -(1 - sL) * X);
+            W -= X; FFM -= sL * X;
+          };
+          const gainPh = () => {
+            const wk = Math.max(2, Math.round(G * sG / gLeanWk));
+            const sur = (G / wk) * (sG * RHO_LEAN + (1 - sG) * RHO_FAT) / 7;
             out.push({ key: "gain", label: "LEAN GAIN", wks: wk,
-              kcal: r50(maintAt(W + gainKg / 2, FFM + 0.75 * gainKg / 2) + 275),
-              note: "About 275 over maintenance — enough to build on "
-                + "3–4 sessions a week, and small enough that little of "
-                + "the gain is fat." });
-            seg(wk, gainKg, 0.25 * gainKg);
-          }
+              kcal: r50(maintAt(W + G / 2, FFM + sG * G / 2) + sur),
+              note: "About " + r50(sur) + " over maintenance \u2014 near "
+                + gLeanWk.toFixed(2) + " kg of lean a week for your sex and "
+                + "age, on the 3\u20134 sessions; about a quarter of the "
+                + "total gain is fat, and the plan accounts for it." });
+            seg(wk, G, (1 - sG) * G);
+            W += G; FFM += sG * G;
+          };
+          const midPh = () => {
+            const wk = Math.max(2, Math.min(4, Math.round(out[0].wks / 4)));
+            out.push({ key: "mid", label: "MAINTAIN", wks: wk,
+              kcal: r50(maintAt(W, FFM)),
+              note: "Maintenance between the phases \u2014 " + wk + " weeks "
+                + "for metabolism and training quality to recover before "
+                + "the next block." });
+            seg(wk, 0, 0);
+          };
+          if (X > 0.25 && G > 0.25) {
+            if (gainFirst) { gainPh(); midPh(); cutPh(); }
+            else { cutPh(); midPh(); gainPh(); }
+          } else if (X > 0.25) cutPh();
+          else if (G > 0.25) gainPh();
           if (!out.length) {
             out.push({ key: "hold", label: "MAINTAIN", wks: 0,
               kcal: r50(maintAt(m.wt, FFM)),
-              note: "You are already at your goal — this is the number "
-                + "that holds it, with the 3–4 sessions a week keeping "
+              note: "You are already at your goal \u2014 this is the number "
+                + "that holds it, with the 3\u20134 sessions a week keeping "
                 + "the lean mass you have." });
             seg(8, 0, 0);
           }
-          return { list: out, nodes };
+          return { list: out, nodes, sL, gLeanWk };
         })();
         const phases = plan.list, phNodes = plan.nodes;
-        const phTab = Math.max(0, Math.min(phases.length - 1, s.cResTab || 0));
-        const ph = phases[phTab] || null;
+        // The tabs are the phases plus INFO, always last — the assumptions
+        // and their sources, one place, always in reach.
+        const phTabN = phases.length + (phases.length ? 1 : 0);
+        const phTab = Math.max(0, Math.min(Math.max(0, phTabN - 1),
+          s.cResTab || 0));
+        const phInfo = phases.length > 0 && phTab === phases.length;
+        const ph = phInfo ? null : (phases[phTab] || null);
         const phTotal = phases.reduce((a, p) => a + p.wks, 0);
         // The scrubber: a day along the whole plan, defaulting to its last
         // day, read against the weekly nodes by linear interpolation.
@@ -4296,7 +4336,7 @@ class Component extends DCLogic {
           cQ: STEPS[step],
           // The way forward is the right notch on every screen; the last one
           // simply notches into the result.
-          cRNotchOn: done ? phTab < phases.length - 1 : true,
+          cRNotchOn: done ? phTab < phTabN - 1 : true,
           // CURRENT and YOUR GOAL, as underlined tabs over the figure. The
           // first visit to the goal births it from the current numbers; after
           // that the two bodies stand side by side and the tab picks which
@@ -4537,7 +4577,7 @@ class Component extends DCLogic {
           // and only from YOUR GOAL does it leave the screen.
           cNext: () => {
             if (done) {
-              if (phTab < phases.length - 1)
+              if (phTab < phTabN - 1)
                 this.setState({ cResTab: phTab + 1 });
               return;
             }
@@ -4567,16 +4607,52 @@ class Component extends DCLogic {
             fontSize: ".98rem", lineHeight: 1.4, color: "#b3c5d0",
             textWrap: "pretty" },
           // ── the plan screen: a tab per phase, the timeline as the footer ─────────
-          cPhTabs: phases.map((p, i) => ({ label: p.label,
-            onClick: () => this.setState({ cResTab: i }),
-            s: (on => ({ padding: "0 .15rem .4rem", border: 0,
-              borderRadius: 0, background: "transparent", cursor: "pointer",
-              fontFamily: "var(--font-2)", fontSize: ".95rem",
-              letterSpacing: ".2em", textIndent: ".2em",
-              color: on ? "#3fdcf2" : "#7b91a3",
-              borderBottom: on ? "2px solid #22d3ee" : "2px solid transparent",
-              transition: "color 160ms ease, border-color 160ms ease"
-            }))(i === phTab) })),
+          cPhTabs: phases.map(p => p.label).concat(["INFO"])
+            .map((label, i) => ({ label,
+              onClick: () => this.setState({ cResTab: i }),
+              s: (on => ({ padding: "0 .15rem .4rem", border: 0,
+                borderRadius: 0, background: "transparent", cursor: "pointer",
+                fontFamily: "var(--font-2)",
+                fontSize: phases.length >= 3 ? ".82rem" : ".95rem",
+                letterSpacing: ".14em", textIndent: ".14em",
+                color: on ? "#3fdcf2" : "#7b91a3",
+                borderBottom: on ? "2px solid #22d3ee" : "2px solid transparent",
+                transition: "color 160ms ease, border-color 160ms ease"
+              }))(i === phTab) })),
+          cPhNumOn: !!ph,
+          cPhInfoOn: phInfo,
+          cPhInfoBox: { flex: "none", alignSelf: "center", width: "100%",
+            maxWidth: "19.5rem", display: "flex", flexDirection: "column",
+            gap: ".45rem", padding: ".4rem 0 .6rem" },
+          cPhInfoLine: { fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: ".88rem", lineHeight: 1.4, color: "#b3c5d0",
+            textWrap: "pretty" },
+          cPhInfoLines: [
+            { txt: "Assumes weight training 3–4× a week and protein "
+              + "near 1.6 g/kg a day throughout (Morton 2018)." },
+            { txt: "Cuts run at 0.6% of body weight a week — the rate "
+              + "shown to spare lean mass in trained dieters (Garthe 2011; "
+              + "Helms 2014)." },
+            { txt: "Even trained, about " + Math.round(100 * plan.sL)
+              + "% of a cut's loss is lean at your body fat and age — "
+              + "half the untrained share (Forbes 2000; Hall 2007), rising "
+              + "with age. The plan sizes the phases so the lean comes back." },
+            { txt: "Lean gain at " + plan.gLeanWk.toFixed(2) + " kg a week "
+              + "for your sex and age (Wernbom 2007), slowing with age; a "
+              + "modest surplus splits about 75% lean (Garthe 2013)." },
+            { txt: "A 2–4 week maintenance block sits between phases so "
+              + "metabolism and training quality recover (Trexler 2014; "
+              + "Peos 2019)." },
+            { txt: "Order: cut first unless already lean (under ~15% men, "
+              + "~23% women) — a surplus partitions better to lean at "
+              + "low body fat (Forbes), so a lean body builds first and "
+              + "trims after." },
+            { txt: "Resting metabolism from " + (m.bfPicked
+              ? "Katch–McArdle" : "Mifflin–St Jeor")
+              + "; activity from your calorie burn. Every figure carries "
+              + "roughly ±10% for an individual — arithmetic, not "
+              + "medical advice." }
+          ],
           cPhWks: ph ? (ph.wks ? "PHASE OF " + ph.wks + " WEEKS" : "ONGOING") : "",
           cPhWksS: { flex: "none", display: "block", textAlign: "center",
             fontFamily: "var(--font-2)", fontSize: ".95rem",
