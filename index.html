@@ -448,8 +448,24 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ cPhNoteS }}">{{ cPhNote }}</span>
       <span style="{{ cQSpace2 }}"></span>
       <span style="{{ cPhFoot }}">
-        <span style="{{ cPhBar }}"><sc-for list="{{ cPhSegs }}" as="t" hint-placeholder-count="3"><span style="{{ t.s }}"></span></sc-for></span>
-        <span style="{{ cPhSum }}">{{ cPhSummary }}</span>
+        <span style="{{ cPhRow }}">
+          <span style="{{ cPhCellCol }}">
+            <span style="{{ cPhCell }}"><span style="{{ cPhCellLab }}">WEIGHT</span><span style="{{ cPhCellVal }}">{{ cPhW }}<span style="{{ cPhCellUnit }}"> KG</span></span></span>
+            <span style="{{ cPhCell }}"><span style="{{ cPhCellLab }}">BODY FAT</span><span style="{{ cPhCellVal }}">{{ cPhBf }}<span style="{{ cPhCellUnit }}"> %</span></span></span>
+          </span>
+          <span style="{{ cPhChart }}">
+            <svg viewBox="0 0 100 66" preserveAspectRatio="none" style="{{ cPhSvg }}">
+              <path d="{{ cPhBoundPath }}" fill="none" stroke="rgba(34,211,238,.22)" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+              <path d="{{ cPhWPath }}" fill="none" stroke="#d7e6ef" stroke-width="1.2" vector-effect="non-scaling-stroke"></path>
+              <path d="{{ cPhBfPath }}" fill="none" stroke="#f08c7a" stroke-width="1.2" vector-effect="non-scaling-stroke"></path>
+            </svg>
+            <span style="{{ cPhScrubS }}"></span>
+            <span style="{{ cPhMkW }}"></span>
+            <span style="{{ cPhMkB }}"></span>
+            <input type="range" min="0" max="{{ cPhSlMax }}" step="1" value="{{ cPhSlVal }}" onChange="{{ cPhSlSet }}" style="{{ cPhSlS }}">
+          </span>
+        </span>
+        <span style="{{ cPhDayS }}">{{ cPhDay }}</span>
       </span>
     </sc-if>
   </div>
@@ -4079,7 +4095,7 @@ class Component extends DCLogic {
       cResetOn: app === "calc",
       cResetAll: () => this.setState({ cStep: 0, cSex: null, cAge: 30, cHt: null,
         cWt: null, cBf: null, cBurn: null, cBodySel: "wt", cHtSel: "cm", cActSel: "day",
-        cView: "cur", cGWt: null, cGBf: null, cResTab: 0 }),
+        cView: "cur", cGWt: null, cGBf: null, cResTab: 0, cResDay: null }),
       cResetS: { display: "flex", alignItems: "center", justifyContent: "center",
         width: "1.9rem", height: "2.1rem", marginLeft: "-.15rem", padding: 0,
         border: 0, borderRadius: 0, background: "transparent", cursor: "pointer",
@@ -4144,10 +4160,19 @@ class Component extends DCLogic {
         // target is the average over the period, not day one's number.
         const r50 = v => Math.round(v / 50) * 50;
         const maintAt = (W, FFM) => m.rmrOf(W, FFM) * m.pal;
-        const phases = (() => {
-          if (!done) return [];
+        const plan = (() => {
+          if (!done) return { list: [], nodes: [] };
           const fmG = gWt * gBf / 100;
           const out = [];
+          // The trajectory the footer draws: one node a week, piecewise
+          // linear through the phases — weight and fat mass, body fat
+          // derived from the pair wherever it is read.
+          const nodes = [{ w: m.wt, fm: m.fm0 }];
+          const seg = (wk, dw, dfm) => {
+            const a = nodes[nodes.length - 1];
+            for (let i = 1; i <= wk; i++)
+              nodes.push({ w: a.w + dw * i / wk, fm: a.fm + dfm * i / wk });
+          };
           let W = m.wt;
           const FFM = m.ffm0;
           let cutKg = Math.max(0, m.fm0 - fmG);
@@ -4163,35 +4188,72 @@ class Component extends DCLogic {
               note: "About 550 below maintenance — steady fat loss, with "
                 + "the 3–4 sessions a week doing the work of holding your "
                 + "muscle while it goes." });
+            seg(wk, -cutKg, -cutKg);
             W -= cutKg;
           }
           const gainKg = Math.max(0, gWt - W);
           if (out.length && gainKg > 0.25) {
-            out.push({ key: "rec", label: "RECOVERY",
-              wks: Math.max(2, Math.min(4, Math.round(out[0].wks / 4))),
+            const wk = Math.max(2, Math.min(4, Math.round(out[0].wks / 4)));
+            out.push({ key: "rec", label: "RECOVERY", wks: wk,
               kcal: r50(maintAt(W, FFM)),
               note: "Back at maintenance. A short block here lets metabolism "
                 + "and training quality recover from the cut before you "
                 + "build on top of it." });
+            seg(wk, 0, 0);
           }
           if (gainKg > 0.25) {
-            out.push({ key: "gain", label: "LEAN GAIN",
-              wks: Math.max(2, Math.round(gainKg / 0.35)),
+            const wk = Math.max(2, Math.round(gainKg / 0.35));
+            out.push({ key: "gain", label: "LEAN GAIN", wks: wk,
               kcal: r50(maintAt(W + gainKg / 2, FFM + 0.75 * gainKg / 2) + 275),
               note: "About 275 over maintenance — enough to build on "
                 + "3–4 sessions a week, and small enough that little of "
                 + "the gain is fat." });
+            seg(wk, gainKg, 0.25 * gainKg);
           }
-          if (!out.length) out.push({ key: "hold", label: "MAINTAIN", wks: 0,
-            kcal: r50(maintAt(m.wt, FFM)),
-            note: "You are already at your goal — this is the number "
-              + "that holds it, with the 3–4 sessions a week keeping "
-              + "the lean mass you have." });
-          return out;
+          if (!out.length) {
+            out.push({ key: "hold", label: "MAINTAIN", wks: 0,
+              kcal: r50(maintAt(m.wt, FFM)),
+              note: "You are already at your goal — this is the number "
+                + "that holds it, with the 3–4 sessions a week keeping "
+                + "the lean mass you have." });
+            seg(8, 0, 0);
+          }
+          return { list: out, nodes };
         })();
+        const phases = plan.list, phNodes = plan.nodes;
         const phTab = Math.max(0, Math.min(phases.length - 1, s.cResTab || 0));
         const ph = phases[phTab] || null;
         const phTotal = phases.reduce((a, p) => a + p.wks, 0);
+        // The scrubber: a day along the whole plan, defaulting to its last
+        // day, read against the weekly nodes by linear interpolation.
+        const phDays = Math.max(1, (phNodes.length - 1) * 7);
+        const phD = Math.max(0, Math.min(phDays,
+          s.cResDay == null ? phDays : s.cResDay));
+        const phAt = d => {
+          if (phNodes.length < 2) return phNodes[0] || { w: 0, fm: 0 };
+          const t = d / 7;
+          const i = Math.max(0, Math.min(phNodes.length - 2, Math.floor(t)));
+          const f = Math.max(0, Math.min(1, t - i));
+          const a = phNodes[i], b = phNodes[i + 1];
+          return { w: a.w + (b.w - a.w) * f, fm: a.fm + (b.fm - a.fm) * f };
+        };
+        const phCur = phAt(phD);
+        // One band each for the two series, y scaled to its own range and
+        // held apart vertically — the weight in the top band, body fat in
+        // the bottom — so one x axis serves both.
+        const phBand = (vals, y0, y1) => {
+          let lo2 = Math.min.apply(null, vals), hi2 = Math.max.apply(null, vals);
+          if (hi2 - lo2 < 0.6) { hi2 += 0.3; lo2 -= 0.3; }
+          const y = v => y1 - (v - lo2) / (hi2 - lo2) * (y1 - y0);
+          return { y, path: vals.map((v, i) => (i ? "L" : "M")
+            + (100 * i / Math.max(1, vals.length - 1)).toFixed(2)
+            + " " + y(v).toFixed(2)).join(" ") };
+        };
+        const phWVals = phNodes.map(n => n.w);
+        const phBfVals = phNodes.map(n => 100 * n.fm / n.w);
+        const phWB = done ? phBand(phWVals, 4, 28) : null;
+        const phFB = done ? phBand(phBfVals, 40, 64) : null;
+        const phX = 100 * phD / phDays;
         const num = (v, col) => ({ fontFamily: "var(--font-1)", fontWeight: 300,
           fontSize: s.narrow ? "1.5rem" : "1.7rem", fontVariantNumeric: "tabular-nums",
           color: col || "#eaf5fb" });
@@ -4486,7 +4548,7 @@ class Component extends DCLogic {
               return;
             }
             if (step === 4) {
-              this.setState({ cStep: 5, cResTab: 0 });
+              this.setState({ cStep: 5, cResTab: 0, cResDay: null });
               return;
             }
             go(step + 1);
@@ -4523,28 +4585,79 @@ class Component extends DCLogic {
             ? String(ph.kcal).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "",
           cPhNote: ph ? ph.note : "",
           cPhNoteS: { flex: "none", alignSelf: "center", width: "100%",
-            maxWidth: "21.5rem", height: "5.4rem", display: "flex",
+            maxWidth: "18.5rem", height: "5.4rem", display: "flex",
             alignItems: "flex-start", justifyContent: "center",
             paddingTop: ".5rem", boxSizing: "border-box", textAlign: "center",
             fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".98rem",
             lineHeight: 1.4, color: "#b3c5d0", textWrap: "pretty" },
+          // The footer: WEIGHT and BODY FAT stacked as cells, each with its
+          // progression drawn to the right on one shared time axis, no x
+          // labels \u2014 the phases are the faint verticals. A scrub line runs
+          // through both charts with a marker where it crosses each series;
+          // it starts on the plan's last day, and dragging anywhere on the
+          // charts moves it, the cells and the day line answering.
           cPhFoot: { flex: "none", display: "flex", flexDirection: "column",
-            gap: ".65rem", width: "100%", maxWidth: "24rem",
+            gap: ".55rem", width: "100%", maxWidth: "24rem",
             alignSelf: "center", padding: "0 0 .5rem", boxSizing: "border-box" },
-          cPhBar: { display: "flex", gap: "3px", width: "100%" },
-          cPhSegs: phases.map((p, i) => ({ s: { display: "block",
-            flexGrow: String(Math.max(1, p.wks)), flexBasis: 0, height: "5px",
-            background: i === phTab ? "#22d3ee" : "rgba(34,211,238,.28)",
-            boxShadow: i === phTab ? "0 0 8px rgba(34,211,238,.5)" : "none",
-            transition: "background 160ms ease, box-shadow 160ms ease" } })),
-          cPhSum: { display: "block", textAlign: "center",
-            fontFamily: "var(--font-2)", fontSize: ".84rem",
-            letterSpacing: ".08em", color: "#a9bcc8",
+          cPhRow: { display: "flex", gap: ".6rem", width: "100%",
+            alignItems: "stretch" },
+          cPhCellCol: { flex: "none", display: "flex", flexDirection: "column",
+            gap: ".5rem", width: "7.4rem" },
+          cPhCell: { display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center", gap: ".35rem",
+            height: "4.2rem", boxSizing: "border-box",
+            border: "1px solid rgba(34,211,238,.22)",
+            background: "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))" },
+          cPhCellLab: { fontFamily: "var(--font-2)", fontSize: ".8rem",
+            letterSpacing: ".06em", color: "#a9bcc8", whiteSpace: "nowrap" },
+          cPhCellVal: { fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1.4rem", lineHeight: 1, fontVariantNumeric: "tabular-nums",
+            color: "#eaf5fb" },
+          cPhCellUnit: { fontFamily: "var(--font-2)", fontSize: ".8rem",
+            letterSpacing: ".06em", color: "#8fa5b4" },
+          cPhW: phCur.w ? phCur.w.toFixed(1) : "",
+          cPhBf: phCur.w ? (100 * phCur.fm / phCur.w).toFixed(1) : "",
+          cPhChart: { position: "relative", flex: "1 1 auto", minWidth: 0,
+            height: "8.9rem" },
+          cPhSvg: { position: "absolute", inset: 0, width: "100%",
+            height: "100%", display: "block" },
+          cPhWPath: phWB ? phWB.path : "",
+          cPhBfPath: phFB ? phFB.path : "",
+          cPhBoundPath: (() => {
+            let acc = 0;
+            return phases.slice(0, -1).map(p => {
+              acc += p.wks;
+              const x = (100 * acc / Math.max(1, phNodes.length - 1)).toFixed(2);
+              return "M" + x + " 0 L" + x + " 66";
+            }).join(" ");
+          })(),
+          cPhScrubS: { position: "absolute", top: 0, bottom: 0,
+            left: phX + "%", width: "2px", marginLeft: "-1px",
+            background: "#22d3ee", boxShadow: "0 0 8px rgba(34,211,238,.6)",
+            pointerEvents: "none" },
+          cPhMkW: { position: "absolute", left: phX + "%",
+            top: phWB ? (100 * phWB.y(phCur.w) / 66) + "%" : "0%",
+            width: ".55rem", height: ".55rem", borderRadius: "50%",
+            transform: "translate(-50%,-50%)", background: "#d7e6ef",
+            boxShadow: "0 0 8px rgba(215,230,239,.8)", pointerEvents: "none" },
+          cPhMkB: { position: "absolute", left: phX + "%",
+            top: phFB && phCur.w
+              ? (100 * phFB.y(100 * phCur.fm / phCur.w) / 66) + "%" : "0%",
+            width: ".55rem", height: ".55rem", borderRadius: "50%",
+            transform: "translate(-50%,-50%)", background: "#f08c7a",
+            boxShadow: "0 0 8px rgba(240,140,122,.8)", pointerEvents: "none" },
+          cPhSlMax: String(phDays),
+          cPhSlVal: String(phD),
+          cPhSlSet: e => this.setState({ cResDay: +e.target.value }),
+          cPhSlS: { position: "absolute", inset: 0, width: "100%",
+            height: "100%", margin: 0, opacity: 0, cursor: "ew-resize",
+            touchAction: "none" },
+          cPhDayS: { display: "block", textAlign: "center",
+            fontFamily: "var(--font-2)", fontSize: ".9rem",
+            letterSpacing: ".14em", color: "#3fdcf2",
             fontVariantNumeric: "tabular-nums" },
-          cPhSummary: phases.length === 1 && !phases[0].wks
-            ? "AT YOUR GOAL \u2014 HOLD IT"
-            : phases.map(p => p.label + " " + p.wks + " WK").join(" \u00b7 ")
-              + " \u2014 " + phTotal + " WEEKS TO GOAL",
+          cPhDay: phD === 0 ? "TODAY"
+            : "IN " + phD + (phD === 1 ? " DAY" : " DAYS"),
           cBodyGlyph: GLYPH_BODY,
           // ── new field controls ───────────────────────────────────────────────────
           cFieldBlock: { flex: "none", display: "block", paddingTop: ".55rem" },

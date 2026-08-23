@@ -559,9 +559,12 @@ one underlined tab each in the body screen's tab language, walked by the same ed
 notches (right notch to the next phase, back notch through the phases and then back out).
 Each tab shows one number — the calories to target per day in that phase — with the
 phase's length above it and a sentence of what the phase is doing below it. The footer
-is the timeline: a segmented bar, each segment's width proportional to its weeks with the
-active phase lit, and under it the summary line ("CUT 17 WK · RECOVERY 4 WK · LEAN GAIN
-13 WK — 34 WEEKS TO GOAL").
+is the trajectory: WEIGHT and BODY FAT stacked as two cells, each with its progression
+drawn to the right on one shared time axis (no x labels; the phase boundaries are faint
+verticals). A scrub line runs through both charts with a marker where it crosses each
+series; it starts on the plan's last day, the line under it saying the day relative to
+today ("IN 238 DAYS" / "TODAY"), and dragging anywhere on the charts moves it, the two
+cells answering with the values on that date.
 
 The plan's stated assumptions, all visible in the phase notes:
 
