@@ -4829,6 +4829,9 @@ class Component extends DCLogic {
             const gainG = Math.round(plan.gLeanWk * 100) * 10;
             const midWk = mid ? mid.wks + (mid.wks === 1
               ? " week" : " weeks") : "2\u20134 weeks";
+            const cutDef = Math.round((cut ? Math.abs(cut.dwWk)
+              : 0.006 * m.wt) * (plan.sL * RHO_LEAN
+              + (1 - plan.sL) * RHO_FAT) / 7 / 50) * 50;
             const B = (a, n1, b, n2, c) => ({ a, n1, b: b || "",
               n2: n2 || "", c: c || "" });
             return [
@@ -4837,8 +4840,10 @@ class Component extends DCLogic {
               B("Cuts lose ", cutG + " g per week",
                 " \u2014 the pace that spares muscle."),
               B("", Math.round(100 * plan.sL) + "%",
-                " of what a cut loses is lean \u2014 the gain phase is "
-                + "sized to win it back."),
+                " of the weight lost in a cut \u2014 despite weight "
+                + "training and a conservative ", cutDef + " kcal",
+                " daily deficit \u2014 is lean mass. Hence the "
+                + "follow-up lean gain phase."),
               B("", midWk, " at maintenance between phases \u2014 a "
                 + "deficit drags metabolic rate and training output "
                 + "down, and holding steady restores both before the "
