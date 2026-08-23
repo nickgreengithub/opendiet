@@ -385,6 +385,9 @@ option{background:#070b12;color:#d7e6ef}
       <sc-if value="{{ cIsBody }}" hint-placeholder-val="{{ true }}">
       <span style="{{ cVTabRow }}"><button onClick="{{ cViewCur }}" style="{{ cVTabCur }}" style-hover="color:#3fdcf2">CURRENT</button><button onClick="{{ cViewGoal }}" style="{{ cVTabGoal }}" style-hover="color:#3fdcf2">YOUR GOAL</button></span>
       </sc-if>
+      <sc-if value="{{ cIsHt }}" hint-placeholder-val="{{ false }}">
+      <span style="{{ cVTabGhost }}"><button style="{{ cVTabCur }}">CURRENT</button></span>
+      </sc-if>
       <sc-if value="{{ cIsAct }}" hint-placeholder-val="{{ false }}">
         <span style="{{ cActPanel }}">
           <span style="{{ cActLabS }}">{{ cActLabel }}</span>
@@ -4347,6 +4350,11 @@ class Component extends DCLogic {
             cGBf: s.cGBf == null ? gDef.bf : s.cGBf }),
           cVTabRow: { flex: "none", display: "flex", justifyContent: "center",
             gap: "2.2rem", padding: ".15rem 0 .1rem" },
+          // The height screen wears an invisible copy of the body screen's
+          // tab row, so the figure's canvas is the same height on both and
+          // the body does not change size walking between them.
+          cVTabGhost: { flex: "none", display: "flex", justifyContent: "center",
+            gap: "2.2rem", padding: ".15rem 0 .1rem", visibility: "hidden" },
           cVTabCur: (on => ({ padding: "0 .15rem .4rem", border: 0,
             borderRadius: 0, background: "transparent", cursor: "pointer",
             fontFamily: "var(--font-2)", fontSize: ".95rem",

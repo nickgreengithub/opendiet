@@ -96,7 +96,7 @@ export function mount(canvas) {
   // range fits without the tallest clipping its crown. Feet a little above the
   // floor of the frame, so the figure stands on something rather than in the
   // exact middle of nothing.
-  const FRAME = 2.2, FLOOR = -1.07;
+  const FRAME = 2.2, FLOOR = -1.0;
   const camera = new THREE.PerspectiveCamera(26, 1, 0.1, 20);
   camera.position.set(0, 0, (FRAME / 2) / Math.tan(26 * Math.PI / 360));
   camera.lookAt(0, 0, 0);
@@ -169,7 +169,7 @@ export function mount(canvas) {
   // In pair mode the camera pulls back until both figures fit the width; on
   // its own the frame stays fixed, which is what lets height changes show.
   const retarget = () => {
-    const kPair = Math.max(1, 1.8 / (FRAME * (camera.aspect || 1)));
+    const kPair = Math.max(1, 1.5 / (FRAME * (camera.aspect || 1)));
     tgt = {
       ax: pairOn ? -XOFF : 0,
       bx: XOFF,
