@@ -450,10 +450,15 @@ option{background:#070b12;color:#d7e6ef}
       <sc-if value="{{ cPhPlanOn }}" hint-placeholder-val="{{ true }}">
       <span style="{{ cPhFoot }}">
         <span style="{{ cPhChart }}">
-          <svg viewBox="0 0 100 40" preserveAspectRatio="none" style="{{ cPhSvg }}">
+          <svg viewBox="0 0 100 44" preserveAspectRatio="none" style="{{ cPhSvg }}">
+            <path d="{{ cPhLnArea }}" fill="rgba(34,211,238,.20)" stroke="none"></path>
+            <path d="{{ cPhFmArea }}" fill="rgba(240,140,122,.22)" stroke="none"></path>
             <path d="{{ cPhBoundPath }}" fill="none" stroke="rgba(34,211,238,.22)" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+            <path d="{{ cPhLnLine }}" fill="none" stroke="#22d3ee" stroke-width="1" vector-effect="non-scaling-stroke"></path>
             <path d="{{ cPhWPath }}" fill="none" stroke="#d7e6ef" stroke-width="1.2" vector-effect="non-scaling-stroke"></path>
           </svg>
+          <span style="{{ cPhLabLn }}">LEAN</span>
+          <span style="{{ cPhLabFm }}">FAT</span>
           <span style="{{ cPhScrubS }}"></span>
           <span style="{{ cPhMkW }}"></span>
           <span style="{{ cPhValS }}">{{ cPhVal }}</span>
@@ -4260,19 +4265,17 @@ class Component extends DCLogic {
           return { w: a.w + (b.w - a.w) * f, fm: a.fm + (b.fm - a.fm) * f };
         };
         const phCur = phAt(phD);
-        // One band each for the two series, y scaled to its own range and
-        // held apart vertically — the weight in the top band, body fat in
-        // the bottom — so one x axis serves both.
-        const phBand = (vals, y0, y1) => {
-          let lo2 = Math.min.apply(null, vals), hi2 = Math.max.apply(null, vals);
-          if (hi2 - lo2 < 0.6) { hi2 += 0.3; lo2 -= 0.3; }
-          const y = v => y1 - (v - lo2) / (hi2 - lo2) * (y1 - y0);
-          return { y, path: vals.map((v, i) => (i ? "L" : "M")
-            + (100 * i / Math.max(1, vals.length - 1)).toFixed(2)
-            + " " + y(v).toFixed(2)).join(" ") };
-        };
         const phWVals = phNodes.map(n => n.w);
-        const phWB = done ? phBand(phWVals, 6, 33) : null;
+        const phLnVals = phNodes.map(n => n.w - n.fm);
+        // The stacked scale: zero at the floor so the bands' thicknesses are
+        // honest kilograms — lean below, fat above, their sum the weight.
+        const phHiW = phWVals.length
+          ? Math.max.apply(null, phWVals) * 1.05 : 1;
+        const phYOf = v => 42 - (v / phHiW) * 38;
+        const phPts = vals => vals.map((v, i) =>
+          [100 * i / Math.max(1, vals.length - 1), phYOf(v)]);
+        const phLineOf = vals => phPts(vals).map(([x, y], i) =>
+          (i ? "L" : "M") + x.toFixed(2) + " " + y.toFixed(2)).join(" ");
         const phX = 100 * phD / phDays;
         const num = (v, col) => ({ fontFamily: "var(--font-1)", fontWeight: 300,
           fontSize: s.narrow ? "1.5rem" : "1.7rem", fontVariantNumeric: "tabular-nums",
@@ -4660,18 +4663,39 @@ class Component extends DCLogic {
           // riding just above the line at the scrub, the day and its date
           // under it, and the other measures on their own row.
           cPhFoot: { flex: "none", display: "flex", flexDirection: "column",
-            gap: ".55rem", width: "100%", maxWidth: "24rem",
-            alignSelf: "center", padding: "0 0 .4rem", boxSizing: "border-box" },
-          cPhChart: { position: "relative", width: "100%", height: "7.2rem" },
+            gap: ".85rem", width: "100%", maxWidth: "24rem",
+            alignSelf: "center", padding: "1rem 0 .5rem",
+            boxSizing: "border-box" },
+          cPhChart: { position: "relative", width: "100%", height: "8.6rem" },
           cPhSvg: { position: "absolute", inset: 0, width: "100%",
             height: "100%", display: "block" },
-          cPhWPath: phWB ? phWB.path : "",
+          cPhWPath: phWVals.length ? phLineOf(phWVals) : "",
+          cPhLnLine: phLnVals.length ? phLineOf(phLnVals) : "",
+          cPhLnArea: phLnVals.length
+            ? phLineOf(phLnVals) + " L100 42 L0 42 Z" : "",
+          cPhFmArea: phWVals.length
+            ? phLineOf(phWVals) + phPts(phLnVals).slice().reverse()
+              .map(([x, y]) => " L" + x.toFixed(2) + " " + y.toFixed(2))
+              .join("") + " Z" : "",
+          cPhLabLn: { position: "absolute", left: "2.5%",
+            top: phLnVals.length
+              ? (100 * (phYOf(phLnVals[0]) + 42) / 2 / 44) + "%" : "0%",
+            transform: "translateY(-50%)", fontFamily: "var(--font-2)",
+            fontSize: ".9rem", letterSpacing: ".14em", color: "#57c9dd",
+            opacity: .85, pointerEvents: "none" },
+          cPhLabFm: { position: "absolute", left: "2.5%",
+            top: phWVals.length
+              ? (100 * (phYOf(phWVals[0]) + phYOf(phLnVals[0])) / 2 / 44)
+                + "%" : "0%",
+            transform: "translateY(-50%)", fontFamily: "var(--font-2)",
+            fontSize: ".9rem", letterSpacing: ".14em", color: "#eb9a89",
+            opacity: .9, pointerEvents: "none" },
           cPhBoundPath: (() => {
             let acc = 0;
             return phases.slice(0, -1).map(pp => {
               acc += pp.wks;
               const x = (100 * acc / Math.max(1, phNodes.length - 1)).toFixed(2);
-              return "M" + x + " 0 L" + x + " 40";
+              return "M" + x + " 0 L" + x + " 44";
             }).join(" ");
           })(),
           cPhScrubS: { position: "absolute", top: 0, bottom: 0,
@@ -4679,14 +4703,14 @@ class Component extends DCLogic {
             background: "#22d3ee", boxShadow: "0 0 8px rgba(34,211,238,.6)",
             pointerEvents: "none" },
           cPhMkW: { position: "absolute", left: phX + "%",
-            top: phWB ? (100 * phWB.y(phCur.w) / 40) + "%" : "0%",
+            top: phWVals.length ? (100 * phYOf(phCur.w) / 44) + "%" : "0%",
             width: ".6rem", height: ".6rem", borderRadius: "50%",
             transform: "translate(-50%,-50%)", background: "#d7e6ef",
             boxShadow: "0 0 8px rgba(215,230,239,.8)", pointerEvents: "none" },
           cPhVal: phCur.w ? phCur.w.toFixed(1) + " KG" : "",
           cPhValS: { position: "absolute",
             left: Math.max(10, Math.min(88, phX)) + "%",
-            top: phWB ? (100 * phWB.y(phCur.w) / 40) + "%" : "0%",
+            top: phWVals.length ? (100 * phYOf(phCur.w) / 44) + "%" : "0%",
             transform: "translate(-50%,-150%)",
             fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1rem",
             fontVariantNumeric: "tabular-nums", color: "#eaf5fb",
