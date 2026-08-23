@@ -4661,14 +4661,14 @@ class Component extends DCLogic {
               let r1 = "", rN = "", r2 = "";
               if (pp.key === "cut") {
                 r1 = "Lose "; rN = Math.abs(pp.dwWk).toFixed(1);
-                r2 = " kg a week";
+                r2 = " kg per week";
               } else if (pp.key === "gain") {
-                r1 = "Gain "; rN = pp.dwWk.toFixed(1); r2 = " kg a week";
+                r1 = "Gain "; rN = pp.dwWk.toFixed(1); r2 = " kg per week";
               }
               const eat = pp.wks
                 ? { e1: "Eat ", eN1: cm(pp.kcal),
-                  e2: " kcal a day for ", eN2: String(pp.wks), e3: " weeks" }
-                : { e1: "Eat ", eN1: cm(pp.kcal), e2: " kcal a day",
+                  e2: " kcal per day for ", eN2: String(pp.wks), e3: " weeks" }
+                : { e1: "Eat ", eN1: cm(pp.kcal), e2: " kcal per day",
                   eN2: "", e3: "" };
               let l2a = "", l2N = "", l2b = "";
               if (pp.key === "cut" || pp.key === "gain") {
@@ -4680,11 +4680,11 @@ class Component extends DCLogic {
                 r1, rN, r2, l2a, l2N, l2b,
                 onClick: () => this.setState({ cResDay: starts[i] * 7 }),
                 blockS: { display: "flex", flexDirection: "column",
-                  gap: ".35rem", opacity: on ? 1 : 0.42,
+                  gap: ".35rem",
                   borderLeft: "2px solid "
-                    + (on ? "#22d3ee" : "rgba(34,211,238,.35)"),
+                    + (on ? "#22d3ee" : "#3a444d"),
                   paddingLeft: ".9rem", cursor: "pointer",
-                  transition: "opacity 180ms ease, border-color 180ms ease" },
+                  transition: "border-color 180ms ease" },
                 rateS: Object.assign({ display: r1 ? "block" : "none" },
                   line),
                 l2s: Object.assign({ display: l2a ? "block" : "none" },
@@ -4830,14 +4830,14 @@ class Component extends DCLogic {
             const B = (a, n1, b, n2, c) => ({ a, n1, b: b || "",
               n2: n2 || "", c: c || "" });
             return [
-              B("You lift ", "3\u20135 times a week",
+              B("You lift ", "3\u20135 times per week",
                 " and eat enough protein, all the way through."),
-              B("Cuts lose ", cutG + " g a week",
+              B("Cuts lose ", cutG + " g per week",
                 " \u2014 the pace that spares muscle."),
               B("", Math.round(100 * plan.sL) + "%",
                 " of what a cut loses is lean \u2014 the gain phase is "
                 + "sized to win it back."),
-              B("Lean builds at ", gainG + " g a week",
+              B("Lean builds at ", gainG + " g per week",
                 " for your sex and age; ", "25%",
                 " of any surplus becomes fat."),
               B("", midWk, " at maintenance between phases \u2014 a "
