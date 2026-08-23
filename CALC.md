@@ -1,8 +1,8 @@
 # Calorie calc — plan
 
-**Status: built and live.** The seven-step run, the model, both sliders and the curves
-panel are working, and the rotating figure is a real body — baked from MakeHuman's CC0
-mesh data, morphing continuously across the fat range (§5).
+**Status: built and live.** The five-step run, the model, and the phased plan screen are
+working, and the rotating figure is a real body — baked from MakeHuman's CC0 mesh data,
+morphing continuously across the fat range (§5).
 
 The third app. FOOD SEARCH answers "what is in this?"; CALORIE GAME answers "which is
 bigger?"; CALC answers "how much, and what happens if I hold it?"
@@ -550,61 +550,51 @@ for reading, not typing, and a field that invites a typed figure is a second con
 the first one's job. No lead paragraphs and no notes under the tiles either; the figure and
 one label carry it.
 
-### The result screen
+### The result screen: the plan
 
 This is the app. Everything above it is data entry.
 
-```
-┌──────────────────────────────┐
-│  MAINTENANCE  2,480 kcal     │   the number the app exists to produce
-│                              │
-│         [ rotating body ]    │   drag to spin
-│                              │
-│   24.1%  ──────────▶ 19.4%   │   body fat, now → at the scrubbed date
-│   82.0 kg ─────────▶ 74.6 kg │   weight, secondary
-│                              │
-│  ●───────────────────────    │   TIME     ◀ 0 ── 3 ── 6 ── 12 months
-│  ────────●───────────────    │   INTAKE   ◀ 1,500 ─────── 3,200 kcal
-│                              │
-│  [ i ]              [ ⌥ ]    │   caveat            the curves
-└──────────────────────────────┘
-```
+The screen is a **phased plan from the current body to the goal**, up to three phases,
+one underlined tab each in the body screen's tab language, walked by the same edge
+notches (right notch to the next phase, back notch through the phases and then back out).
+Each tab shows one number — the calories to target per day in that phase — with the
+phase's length above it and a sentence of what the phase is doing below it. The footer
+is the timeline: a segmented bar, each segment's width proportional to its weeks with the
+active phase lit, and under it the summary line ("CUT 17 WK · RECOVERY 4 WK · LEAN GAIN
+13 WK — 34 WEEKS TO GOAL").
 
-Two sliders, and the inversion is the whole idea: **the input is calories and the output is
-a body**, rather than the input being a goal and the output a calorie number. Nobody has to
-name a target. Move the intake slider and the figure, the percentage and the date all
-answer. Move the time slider and the year plays.
+The plan's stated assumptions, all visible in the phase notes:
 
-Three things that fall out of this for free, all of which conventional calculators struggle
-with:
+- **Weight training 3–4 times a week runs through every phase.** It is what lets a cut be
+  read as fat loss rather than weight loss, and a surplus as building rather than gaining.
+- **A cut runs at about 550 kcal under maintenance** — roughly half a kilogram of fat a
+  week, the moderate rate at which training holds on to muscle. The daily target is priced
+  on the phase's *midpoint* body (the average over the period), not day one, and never
+  below the 1,200/1,500 floor.
+- **A recovery block at maintenance sits between a cut and a build** whenever the goal
+  asks for both — 2–4 weeks, scaled to the cut's length — so metabolism and training
+  quality recover before the surplus starts.
+- **A build runs at about 275 kcal over maintenance** — around 0.35 kg a week, most of it
+  lean at that pace with the training in place.
+- A goal that needs neither (already there) collapses to a single MAINTAIN tab holding
+  the maintenance number.
 
-- **The flattening is felt rather than explained.** Drag time to 12 months and the second
-  six months plainly does less than the first. That is §3's whole point, delivered without a
-  paragraph.
-- **No goal pressure.** There is no field in which to type an aspiration, so the app never
-  has to have an opinion about one.
-- **The floor is a physical stop.** The slider will not go below 1,200/1,500 and the marked
-  zone past 1%/week is a stripe on the track, not a modal.
+### The curves (retired)
 
-### The curves, behind a mark
-
-The `⌥` opens what §4 actually computed, for anyone who wants it. Same device as the game's
-caveat: out of the way, one tap, no cost to the person who does not care.
-
-- Weight, fat mass and lean mass on one time axis, in the donut's own colours.
-- **Maintenance falling over the same axis** — the line nobody shows and everybody needs,
-  because it is why month twelve is not month one.
-- The Forbes partition as a live figure: "at your body fat, about **34%** of each kilogram
-  lost is not fat" — recomputed as the trajectory runs, since it changes as fat mass falls.
-- The equations and citations, named. The people who open this panel are exactly the people
-  who will want to check the arithmetic, and the site has never been shy about showing its
-  working.
+The first result screen was the inversion — intake and time as sliders, the body as the
+output — with a curves panel behind a mark showing §4's trajectories. It taught the
+flattening well but asked the user to find their own plan by scrubbing. The phased plan
+above replaced it: the app now states the plan, and §4's simulation machinery remains in
+the model for the day the trajectories earn a place on the plan screen (a natural fit
+under each phase tab).
 
 ---
 
 ## 7. Deliberately not doing
 
-- No goal weight, no BMI target, no "ideal" anything.
+- A goal exists now (the body screen's YOUR GOAL tab), but no "ideal" is imposed — the
+  default is a suggestion the sliders overwrite, and the plan is arithmetic on whatever
+  goal is set.
 - No micronutrient or health scoring — the site does not rate food and will not start.
 - No account, no history, no weigh-in log. It computes; it does not track. (`localStorage`
   for the last inputs only, as the plate already does.)

@@ -374,13 +374,13 @@ option{background:#070b12;color:#d7e6ef}
   </sc-if>
   <sc-if value="{{ appCalc }}" hint-placeholder-val="{{ false }}">
   <div style="{{ cWrap }}">
+      <sc-if value="{{ cBackOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ cBack }}" style="{{ cNotchL }}" style-hover="background:rgba(34,211,238,.18);border-color:rgba(34,211,238,.85)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M15 5l-7 7 7 7"></path></svg></button></sc-if>
+      <sc-if value="{{ cRNotchOn }}" hint-placeholder-val="{{ true }}"><button onClick="{{ cNext }}" style="{{ cNotchR }}" style-hover="background:rgba(34,211,238,.18);border-color:rgba(34,211,238,.85)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button></sc-if>
     <sc-if value="{{ cStepOn }}" hint-placeholder-val="{{ true }}">
       <span style="{{ cBarTrack }}"><span style="{{ cBarFill }}"></span></span>
       <span style="{{ cHead }}">
         <span style="{{ cTitleS }}">{{ cTitle }}</span>
       </span>
-      <sc-if value="{{ cBackOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ cBack }}" style="{{ cNotchL }}" style-hover="background:rgba(34,211,238,.18);border-color:rgba(34,211,238,.85)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M15 5l-7 7 7 7"></path></svg></button></sc-if>
-      <sc-if value="{{ cRNotchOn }}" hint-placeholder-val="{{ true }}"><button onClick="{{ cNext }}" style="{{ cNotchR }}" style-hover="background:rgba(34,211,238,.18);border-color:rgba(34,211,238,.85)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button></sc-if>
       <sc-if value="{{ cFigOn }}" hint-placeholder-val="{{ false }}">
       <sc-if value="{{ cIsBody }}" hint-placeholder-val="{{ true }}">
       <span style="{{ cVTabRow }}"><button onClick="{{ cViewCur }}" style="{{ cVTabCur }}" style-hover="color:#3fdcf2">CURRENT</button><button onClick="{{ cViewGoal }}" style="{{ cVTabGoal }}" style-hover="color:#3fdcf2">YOUR GOAL</button></span>
@@ -438,54 +438,19 @@ option{background:#070b12;color:#d7e6ef}
       </sc-if>
     </sc-if>
     <sc-if value="{{ cResOn }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ cMaintRow }}"><span style="{{ cMaintLab }}">MAINTENANCE</span><span style="{{ cMaintS }}">{{ cMaint }}</span><span style="{{ cMaintUnit }}">KCAL A DAY</span></span>
-      <span style="{{ cBodyWrap }}">
-        <sc-if value="{{ cBody3D }}" hint-placeholder-val="{{ true }}"><canvas data-body style="{{ cCanvasS }}"></canvas></sc-if>
-        <sc-if value="{{ cBodySvg }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 64 136" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="{{ cBodyS }}"><circle cx="32" cy="14" r="10"></circle><path d="{{ cBodyGlyph }}"></path></svg></sc-if>
+      <span style="{{ cHead }}">
+        <span style="{{ cTitleS }}">YOUR PLAN</span>
       </span>
-      <span style="{{ cReadRow }}">
-        <span><span style="{{ cReadLab }}">BODY FAT NOW</span><span style="{{ cNowS }}">{{ cBfNow }}</span></span>
-        <span style="{{ cArrowS }}">&rarr;</span>
-        <span><span style="{{ cReadLab }}">{{ cWhen }}</span><span style="{{ cBfThenS }}">{{ cBfThen }}</span></span>
+      <span style="{{ cVTabRow }}"><sc-for list="{{ cPhTabs }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="color:#3fdcf2">{{ t.label }}</button></sc-for></span>
+      <span style="{{ cQSpace }}"></span>
+      <span style="{{ cPhWksS }}">{{ cPhWks }}</span>
+      <span style="{{ cQValRow }}"><span style="{{ cQValS }}">{{ cPhKcal }}</span><span style="{{ cQValUnit }}">KCAL A DAY</span></span>
+      <span style="{{ cPhNoteS }}">{{ cPhNote }}</span>
+      <span style="{{ cQSpace2 }}"></span>
+      <span style="{{ cPhFoot }}">
+        <span style="{{ cPhBar }}"><sc-for list="{{ cPhSegs }}" as="t" hint-placeholder-count="3"><span style="{{ t.s }}"></span></sc-for></span>
+        <span style="{{ cPhSum }}">{{ cPhSummary }}</span>
       </span>
-      <span style="{{ cWtRow }}">
-        <span style="{{ cSmallDim }}">{{ cWtNow }}</span><span style="{{ cArrowS }}"></span><span style="{{ cSmall }}">{{ cWtThen }} <span style="{{ cUnitS }}">{{ cDelta }}</span></span>
-      </span>
-      <span style="{{ cSlideBlock }}">
-        <span style="{{ cSlideHead }}"><span>EAT</span><span style="{{ cSlideVal }}">{{ cKcalVal }} kcal a day</span></span>
-        <input type="range" min="{{ cKcalMin }}" max="{{ cKcalMax }}" step="10" value="{{ cKcalVal }}" onChange="{{ cKcalSet }}" style="{{ cKcalTrack }}">
-      </span>
-      <span style="{{ cSlideBlock }}">
-        <span style="{{ cSlideHead }}"><span>FOR</span><span style="{{ cSlideVal }}">{{ cWhen }}</span></span>
-        <input type="range" min="0" max="52" step="1" value="{{ cWksVal }}" onChange="{{ cWksSet }}" style="{{ cWksTrack }}">
-      </span>
-      <sc-if value="{{ cFast }}" hint-placeholder-val="{{ false }}"><span style="{{ cFastS }}">{{ cFastNote }}</span></sc-if>
-      <span style="{{ cFootRow }}">
-        <button onClick="{{ cCurvesToggle }}" style="{{ cFootBtn }}" style-hover="color:#22d3ee">THE CURVES</button>
-        <button onClick="{{ cTipToggle2 }}" style="{{ cFootBtn }}" style-hover="color:#22d3ee">WHY</button>
-      </span>
-      <sc-if value="{{ cTipOn2 }}" hint-placeholder-val="{{ false }}"><span style="{{ cNoteS }}">Every equation here carries an error of roughly ten per cent on any one person, and the body fat figure is an estimate unless you measured it. This is arithmetic on public data, not nutritional advice.</span></sc-if>
-      <sc-if value="{{ cCurvesOn }}" hint-placeholder-val="{{ false }}">
-        <span onClick="{{ cCurvesToggle }}" style="{{ cScrim }}">
-          <span onClick="{{ stopProp }}" style="{{ cPanel }}">
-            <span style="{{ cPanelTag }}">A YEAR AT {{ cKcalVal }} KCAL</span>
-            <svg viewBox="0 0 100 50" preserveAspectRatio="none" style="{{ cChartS }}" height="130">
-              <path d="{{ cKgPath }}" fill="none" stroke="#d7e6ef" stroke-width=".7" vector-effect="non-scaling-stroke"></path>
-              <path d="{{ cFmPath }}" fill="none" stroke="#f08c7a" stroke-width=".7" vector-effect="non-scaling-stroke"></path>
-              <path d="{{ cFfmPath }}" fill="none" stroke="#22d3ee" stroke-width=".7" vector-effect="non-scaling-stroke"></path>
-            </svg>
-            <span style="{{ cKeyRow }}"><span style="{{ cKeyW }}">WEIGHT</span><span style="{{ cKeyF }}">FAT MASS</span><span style="{{ cKeyL }}">LEAN MASS</span></span>
-            <span style="{{ cPanelTag }}">WHAT YOU SPEND, FALLING TO MEET IT</span>
-            <svg viewBox="0 0 100 36" preserveAspectRatio="none" style="{{ cChartS }}" height="96">
-              <path d="{{ cTdPath }}" fill="none" stroke="#7ee0a8" stroke-width=".7" vector-effect="non-scaling-stroke"></path>
-              <path d="{{ cInPath }}" fill="none" stroke="#3fdcf2" stroke-width=".7" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"></path>
-            </svg>
-            <span style="{{ cKeyRow }}"><span style="{{ cKeyM }}">MAINTENANCE</span><span style="{{ cKeyL }}">WHAT YOU EAT</span></span>
-            <span style="{{ cPanelTxt }}">At your body fat, about <span style="{{ cPanelHi }}">{{ cForbes }}</span> of each kilogram lost is not fat &mdash; Forbes, and it rises as fat mass falls. Resting metabolism from <span style="{{ cPanelHi }}">{{ cRmrName }}</span>; the day priced on the FAO bands and training in METs; the trajectory a simplification of Hall&rsquo;s two-compartment model, with adaptive thermogenesis ramped in over eight weeks.</span>
-            <span style="{{ cPanelTxt }}">Lean mass <span style="{{ cPanelHi }}">{{ cLeanNow }}</span> now, <span style="{{ cPanelHi }}">{{ cLeanThen }}</span> then. Fat mass <span style="{{ cPanelHi }}">{{ cFatNow }}</span> now, <span style="{{ cPanelHi }}">{{ cFatThen }}</span> then.</span>
-          </span>
-        </span>
-      </sc-if>
     </sc-if>
   </div>
   </sc-if>
@@ -1900,7 +1865,7 @@ class Component extends DCLogic {
       return out;
     };
     return { sex, age, ht, wt, bmi, bfEst, bfPicked, bf0, fm0, ffm0,
-      pal, act, rmr0, tdee0, bLo, bHi, maint, floor, ess, sim,
+      pal, act, rmr0, tdee0, bLo, bHi, maint, floor, ess, sim, rmrOf,
       actP: (tdee0 - bLo) / Math.max(1, bHi - bLo) };
   }
   gNext() {
@@ -4114,8 +4079,7 @@ class Component extends DCLogic {
       cResetOn: app === "calc",
       cResetAll: () => this.setState({ cStep: 0, cSex: null, cAge: 30, cHt: null,
         cWt: null, cBf: null, cBurn: null, cBodySel: "wt", cHtSel: "cm", cActSel: "day",
-        cView: "cur", cGWt: null, cGBf: null,
-        cKcal: null, cWks: 26, cCurves: false, cTip: false }),
+        cView: "cur", cGWt: null, cGBf: null, cResTab: 0 }),
       cResetS: { display: "flex", alignItems: "center", justifyContent: "center",
         width: "1.9rem", height: "2.1rem", marginLeft: "-.15rem", padding: 0,
         border: 0, borderRadius: 0, background: "transparent", cursor: "pointer",
@@ -4141,45 +4105,7 @@ class Component extends DCLogic {
         const bfLo = CALC_BF_MIN[m.sex], bfHi = 55;
         const bfVal = Math.max(bfLo, Math.min(bfHi,
           s.cBf == null ? Math.round(m.bfEst) : s.cBf));
-        const lo = m.floor, hi = Math.round(m.maint * 1.35 / 10) * 10;
-        const kcal = Math.max(lo, Math.min(hi, s.cKcal == null ? m.maint : s.cKcal));
-        const wks = s.cWks == null ? 26 : s.cWks;
-        const series = done ? m.sim(kcal) : null;
-        const at = series ? series[Math.round(wks)] : null;
-        const now = series ? series[0] : null;
-        const dW = at ? at.w - now.w : 0;
-        // The rate the slider is actually running at, read off the first month rather than
-        // averaged to wherever the time scrubber happens to be parked. A year-long average
-        // of a fast start reads as moderate, which is exactly the wrong way round.
-        const rate = series ? Math.abs(series[0].w - series[4].w) / 4 / m.wt * 100 : 0;
         const g1 = v => (Math.abs(v) < 10 ? v.toFixed(1) : String(Math.round(v)));
-        const whenLab = wks === 0 ? "TODAY"
-          : wks === 52 ? "IN A YEAR"
-          : wks % 4 === 0 ? "IN " + (wks / 4) + " MONTHS" : "IN " + wks + " WEEKS";
-        // Two charts on one time axis: the kilograms above, and below them the line
-        // nobody else draws — maintenance falling to meet the intake, which is the
-        // whole reason month twelve is not month one.
-        // Drawn into an inset band rather than the full box, so a line that sits at the
-        // bottom of its own domain — which the intake line always does — is not a stroke
-        // half outside the viewBox.
-        const pathOf = (vals, lo2, hi2, h) => vals.map((v, i) => {
-          const x = (i / (vals.length - 1)) * 100;
-          const y = (h - 2) - ((v - lo2) / Math.max(1e-6, hi2 - lo2)) * (h - 4);
-          return (i ? "L" : "M") + x.toFixed(2) + " " + y.toFixed(2);
-        }).join(" ");
-        let kgP = "", fmP = "", ffmP = "", tdP = "", inP = "", kgHi = 0, kgLo = 0, kcHi = 0, kcLo = 0;
-        if (series) {
-          const ws = series.map(p => p.w), fs = series.map(p => p.fm), ls = series.map(p => p.ffm);
-          const all = ws.concat(fs).concat(ls);
-          kgHi = Math.max.apply(null, all) * 1.04; kgLo = Math.min(0, Math.min.apply(null, all));
-          kgP = pathOf(ws, kgLo, kgHi, 46); fmP = pathOf(fs, kgLo, kgHi, 46);
-          ffmP = pathOf(ls, kgLo, kgHi, 46);
-          const ts = series.map(p => p.tdee);
-          kcHi = Math.max(Math.max.apply(null, ts), kcal) * 1.03;
-          kcLo = Math.min(Math.min.apply(null, ts), kcal) * 0.97;
-          tdP = pathOf(ts, kcLo, kcHi, 34);
-          inP = pathOf(ts.map(() => kcal), kcLo, kcHi, 34);
-        }
         // What the figure should be showing. Recorded rather than pushed, because the
         // canvas does not exist yet at render time — componentDidUpdate reads it.
         // Weight rides along so the figure can carry lean mass as its own axis:
@@ -4201,12 +4127,71 @@ class Component extends DCLogic {
             Math.round((m.sex === "f" ? 22 : 24) * Math.pow(m.ht / 100, 2)))),
           bf: m.sex === "f" ? 22 : 14
         };
-        this._bodyWant = { sex: m.sex, bf: done && at ? at.bf : bfVal, ht: m.ht,
-          kg: done && at ? at.w : m.wt,
+        this._bodyWant = { sex: m.sex, bf: bfVal, ht: m.ht, kg: m.wt,
           goal: !done && step === 3 && s.cGWt != null
             ? { bf: gBf, kg: gWt } : null,
           act: !done && step === 4 ? m.actP : null,
           focus: goalView ? "b" : "a" };
+        // ── the plan: up to three phases from this body to the goal ──────────
+        // Assumptions, stated plainly: weight training 3–4 times a week runs
+        // through every phase. A cut runs at about 550 kcal under maintenance —
+        // roughly half a kilogram of fat a week, the moderate rate at which
+        // training holds on to muscle. If the goal also asks for lean mass, a
+        // recovery block at maintenance sits between the cut and the build.
+        // A build runs at about 275 kcal over — around 0.35 kg a week, most of
+        // it lean at that pace. Maintenance for each phase is priced on the
+        // body that phase actually works on (its midpoint), so the daily
+        // target is the average over the period, not day one's number.
+        const r50 = v => Math.round(v / 50) * 50;
+        const maintAt = (W, FFM) => m.rmrOf(W, FFM) * m.pal;
+        const phases = (() => {
+          if (!done) return [];
+          const fmG = gWt * gBf / 100;
+          const out = [];
+          let W = m.wt;
+          const FFM = m.ffm0;
+          let cutKg = Math.max(0, m.fm0 - fmG);
+          const gain0 = gWt - (m.wt - cutKg);
+          // A goal weight below even the post-cut body means the cut carries
+          // on into lean mass; the training premise argues against it, but
+          // the arithmetic should still land on the number asked for.
+          if (cutKg <= 0.25 && gain0 < -0.25) cutKg = m.wt - gWt;
+          if (cutKg > 0.25) {
+            const wk = Math.max(2, Math.round(cutKg / 0.5));
+            out.push({ key: "cut", label: "CUT", wks: wk,
+              kcal: Math.max(m.floor, r50(maintAt(W - cutKg / 2, FFM) - 550)),
+              note: "About 550 below maintenance — steady fat loss, with "
+                + "the 3–4 sessions a week doing the work of holding your "
+                + "muscle while it goes." });
+            W -= cutKg;
+          }
+          const gainKg = Math.max(0, gWt - W);
+          if (out.length && gainKg > 0.25) {
+            out.push({ key: "rec", label: "RECOVERY",
+              wks: Math.max(2, Math.min(4, Math.round(out[0].wks / 4))),
+              kcal: r50(maintAt(W, FFM)),
+              note: "Back at maintenance. A short block here lets metabolism "
+                + "and training quality recover from the cut before you "
+                + "build on top of it." });
+          }
+          if (gainKg > 0.25) {
+            out.push({ key: "gain", label: "LEAN GAIN",
+              wks: Math.max(2, Math.round(gainKg / 0.35)),
+              kcal: r50(maintAt(W + gainKg / 2, FFM + 0.75 * gainKg / 2) + 275),
+              note: "About 275 over maintenance — enough to build on "
+                + "3–4 sessions a week, and small enough that little of "
+                + "the gain is fat." });
+          }
+          if (!out.length) out.push({ key: "hold", label: "MAINTAIN", wks: 0,
+            kcal: r50(maintAt(m.wt, FFM)),
+            note: "You are already at your goal — this is the number "
+              + "that holds it, with the 3–4 sessions a week keeping "
+              + "the lean mass you have." });
+          return out;
+        })();
+        const phTab = Math.max(0, Math.min(phases.length - 1, s.cResTab || 0));
+        const ph = phases[phTab] || null;
+        const phTotal = phases.reduce((a, p) => a + p.wks, 0);
         const num = (v, col) => ({ fontFamily: "var(--font-1)", fontWeight: 300,
           fontSize: s.narrow ? "1.5rem" : "1.7rem", fontVariantNumeric: "tabular-nums",
           color: col || "#eaf5fb" });
@@ -4223,10 +4208,16 @@ class Component extends DCLogic {
             width: (100 * (step + 1) / STEPS.length).toFixed(1) + "%",
             background: "#22d3ee", boxShadow: "0 0 10px rgba(34,211,238,.55)",
             transition: "width 320ms cubic-bezier(.22,1,.36,1)" },
-          cBackOn: step > 0,
+          cBackOn: done || step > 0,
           // The mirror of the right notch: from YOUR GOAL the back notch
           // returns to CURRENT first, and only from CURRENT leaves the step.
+          // On the plan it walks back through the phase tabs the same way.
           cBack: () => {
+            if (done) {
+              if (phTab > 0) this.setState({ cResTab: phTab - 1 });
+              else go(4);
+              return;
+            }
             if (step === 3 && s.cView === "goal") {
               this.setState({ cView: "cur" });
               return;
@@ -4243,7 +4234,7 @@ class Component extends DCLogic {
           cQ: STEPS[step],
           // The way forward is the right notch on every screen; the last one
           // simply notches into the result.
-          cRNotchOn: true,
+          cRNotchOn: done ? phTab < phases.length - 1 : true,
           // CURRENT and YOUR GOAL, as underlined tabs over the figure. The
           // first visit to the goal births it from the current numbers; after
           // that the two bodies stand side by side and the tab picks which
@@ -4483,10 +4474,19 @@ class Component extends DCLogic {
           // CURRENT it walks to YOUR GOAL (birthing the goal if untouched),
           // and only from YOUR GOAL does it leave the screen.
           cNext: () => {
+            if (done) {
+              if (phTab < phases.length - 1)
+                this.setState({ cResTab: phTab + 1 });
+              return;
+            }
             if (step === 3 && s.cView !== "goal") {
               this.setState({ cView: "goal",
                 cGWt: s.cGWt == null ? gDef.wt : s.cGWt,
                 cGBf: s.cGBf == null ? gDef.bf : s.cGBf });
+              return;
+            }
+            if (step === 4) {
+              this.setState({ cStep: 5, cResTab: 0 });
               return;
             }
             go(step + 1);
@@ -4504,40 +4504,48 @@ class Component extends DCLogic {
           cActNoteS: { fontFamily: "var(--font-1)", fontWeight: 300,
             fontSize: ".98rem", lineHeight: 1.4, color: "#b3c5d0",
             textWrap: "pretty" },
-          // ── result ───────────────────────────────────────────────────────────────
-          cMaint: String(m.maint),
-          cKcalVal: String(kcal), cKcalMin: String(lo), cKcalMax: String(hi),
-          cKcalSet: e => this.setState({ cKcal: +e.target.value }),
-          cKcalTrack: { "--p": (100 * (kcal - lo) / Math.max(1, hi - lo)).toFixed(1) + "%" },
-          cWksVal: String(wks), cWksSet: e => this.setState({ cWks: +e.target.value }),
-          cWksTrack: { "--p": (100 * wks / 52).toFixed(1) + "%" },
-          cWhen: whenLab,
-          cBfNow: at ? g1(now.bf) + "%" : "", cBfThen: at ? g1(at.bf) + "%" : "",
-          cWtNow: at ? g1(now.w) + " kg" : "", cWtThen: at ? g1(at.w) + " kg" : "",
-          cLeanNow: at ? g1(now.ffm) + " kg" : "", cLeanThen: at ? g1(at.ffm) + " kg" : "",
-          cFatNow: at ? g1(now.fm) + " kg" : "", cFatThen: at ? g1(at.fm) + " kg" : "",
-          // A tenth of a percent either way is not a direction, and colouring it as one
-          // paints "no change" bright coral.
-          cBfThenS: num(0, !at || Math.abs(at.bf - now.bf) < 0.1 ? "#eaf5fb"
-            : at.bf < now.bf ? "#7ee0a8" : "#f08c7a"),
-          cNowS: num(0, "#7b91a3"), cThenS: num(0),
-          cDelta: !at || Math.abs(dW) < 0.1 ? ""
-            : (dW > 0 ? "+" : "\u2212") + g1(Math.abs(dW)) + " kg",
-          // Past about 1%/week the track is marked. Nothing is blocked — the lean line on
-          // the chart is a better argument than a warning nobody reads.
-          cFast: rate > 1.0,
-          cFastNote: "That is " + rate.toFixed(1) + "% of body weight a week. Past about 1% the share of the loss that is lean rises sharply.",
+          // ── the plan screen: a tab per phase, the timeline as the footer ─────────
+          cPhTabs: phases.map((p, i) => ({ label: p.label,
+            onClick: () => this.setState({ cResTab: i }),
+            s: (on => ({ padding: "0 .15rem .4rem", border: 0,
+              borderRadius: 0, background: "transparent", cursor: "pointer",
+              fontFamily: "var(--font-2)", fontSize: ".95rem",
+              letterSpacing: ".2em", textIndent: ".2em",
+              color: on ? "#3fdcf2" : "#7b91a3",
+              borderBottom: on ? "2px solid #22d3ee" : "2px solid transparent",
+              transition: "color 160ms ease, border-color 160ms ease"
+            }))(i === phTab) })),
+          cPhWks: ph ? (ph.wks ? "PHASE OF " + ph.wks + " WEEKS" : "ONGOING") : "",
+          cPhWksS: { flex: "none", display: "block", textAlign: "center",
+            fontFamily: "var(--font-2)", fontSize: ".95rem",
+            letterSpacing: ".18em", color: "#3fdcf2", paddingBottom: "1rem" },
+          cPhKcal: ph
+            ? String(ph.kcal).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "",
+          cPhNote: ph ? ph.note : "",
+          cPhNoteS: { flex: "none", alignSelf: "center", width: "100%",
+            maxWidth: "21.5rem", height: "5.4rem", display: "flex",
+            alignItems: "flex-start", justifyContent: "center",
+            paddingTop: ".5rem", boxSizing: "border-box", textAlign: "center",
+            fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".98rem",
+            lineHeight: 1.4, color: "#b3c5d0", textWrap: "pretty" },
+          cPhFoot: { flex: "none", display: "flex", flexDirection: "column",
+            gap: ".65rem", width: "100%", maxWidth: "24rem",
+            alignSelf: "center", padding: "0 0 .5rem", boxSizing: "border-box" },
+          cPhBar: { display: "flex", gap: "3px", width: "100%" },
+          cPhSegs: phases.map((p, i) => ({ s: { display: "block",
+            flexGrow: String(Math.max(1, p.wks)), flexBasis: 0, height: "5px",
+            background: i === phTab ? "#22d3ee" : "rgba(34,211,238,.28)",
+            boxShadow: i === phTab ? "0 0 8px rgba(34,211,238,.5)" : "none",
+            transition: "background 160ms ease, box-shadow 160ms ease" } })),
+          cPhSum: { display: "block", textAlign: "center",
+            fontFamily: "var(--font-2)", fontSize: ".84rem",
+            letterSpacing: ".08em", color: "#a9bcc8",
+            fontVariantNumeric: "tabular-nums" },
+          cPhSummary: phases.length === 1 && !phases[0].wks
+            ? "AT YOUR GOAL \u2014 HOLD IT"
+            : phases.map(p => p.label + " " + p.wks + " WK").join(" \u00b7 ")
+              + " \u2014 " + phTotal + " WEEKS TO GOAL",
           cBodyGlyph: GLYPH_BODY,
-          cCurvesOn: !!s.cCurves,
-          cCurvesToggle: () => this.setState(st => ({ cCurves: !st.cCurves })),
-          cTipOn2: !!s.cTip,
-          cTipToggle2: () => this.setState(st => ({ cTip: !st.cTip })),
-          cKgPath: kgP, cFmPath: fmP, cFfmPath: ffmP, cTdPath: tdP, cInPath: inP,
-          cKgHi: g1(kgHi) + " kg", cKcHi: String(Math.round(kcHi)),
-          cKcLo: String(Math.round(kcLo)),
-          cForbes: at ? Math.round(100 * 10.4 / (10.4 + now.fm)) + "%" : "",
-          cRmrName: m.bfPicked ? "KATCH\u2013McARDLE" : "MIFFLIN\u2013ST JEOR",
-          cRestart: () => this.setState({ cStep: 0, cKcal: null, cWks: 26, cCurves: false, cTip: false }),
           // ── new field controls ───────────────────────────────────────────────────
           cFieldBlock: { flex: "none", display: "block", paddingTop: ".55rem" },
           cFieldHead: { display: "flex", alignItems: "center",
@@ -4695,72 +4703,6 @@ class Component extends DCLogic {
           cSubLab: { flex: "none", display: "block", paddingTop: ".4rem",
             fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".16em",
             color: "#9fb3c0" },
-          // ── result chrome ────────────────────────────────────────────────────────
-          cMaintRow: { flex: "none", display: "flex", alignItems: "baseline",
-            gap: ".5rem", padding: ".3rem 0 .2rem" },
-          cMaintLab: { fontFamily: "var(--font-2)", fontSize: ".84rem",
-            letterSpacing: ".18em", color: "#9fb3c0" },
-          cMaintS: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.6rem",
-            fontVariantNumeric: "tabular-nums", color: "#3fdcf2" },
-          cMaintUnit: { fontFamily: "var(--font-2)", fontSize: ".84rem",
-            letterSpacing: ".14em", color: "#9fb3c0" },
-          cBodyWrap: { flex: "1 1 auto", minHeight: 0, display: "flex",
-            alignItems: "center", justifyContent: "center", padding: ".4rem 0" },
-          cBodyS: { display: "block", height: "100%", maxHeight: s.narrow ? "20rem" : "22rem",
-            width: "auto", color: "#3b5364" },
-          cReadRow: { flex: "none", display: "grid",
-            gridTemplateColumns: "minmax(0,1fr) auto minmax(0,1fr)",
-            alignItems: "center", columnGap: ".6rem", padding: ".3rem 0 .1rem" },
-          cReadLab: { display: "block", fontFamily: "var(--font-2)", fontSize: "1.05rem",
-            letterSpacing: ".16em", color: "#9fb3c0" },
-          cArrowS: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.1rem",
-            color: "#6b8394" },
-          cWtRow: { flex: "none", display: "grid",
-            gridTemplateColumns: "minmax(0,1fr) auto minmax(0,1fr)",
-            alignItems: "baseline", columnGap: ".6rem", padding: "0 0 .5rem" },
-          cSmall: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.05rem",
-            fontVariantNumeric: "tabular-nums", color: "#a9bcc8" },
-          cSmallDim: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.05rem",
-            fontVariantNumeric: "tabular-nums", color: "#a1b5c2" },
-          cSlideBlock: { flex: "none", display: "block", paddingTop: ".2rem" },
-          cSlideHead: { display: "flex", alignItems: "baseline",
-            justifyContent: "space-between", fontFamily: "var(--font-2)",
-            fontSize: ".82rem", letterSpacing: ".16em", color: "#9fb3c0" },
-          cSlideVal: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.02rem",
-            letterSpacing: 0, fontVariantNumeric: "tabular-nums", color: "#d7e6ef" },
-          cFastS: { display: "block", paddingTop: ".2rem", fontFamily: "var(--font-1)",
-            fontWeight: 300, fontSize: ".97rem", lineHeight: 1.4, color: "#f08c7a",
-            textWrap: "pretty" },
-          cFootRow: { flex: "none", display: "flex", alignItems: "stretch", gap: ".5rem",
-            paddingTop: ".5rem" },
-          cFootBtn: { flex: 1, display: "flex", alignItems: "center",
-            justifyContent: "center", height: "2.5rem", boxSizing: "border-box",
-            padding: 0, borderRadius: 0, cursor: "pointer",
-            border: "1px solid rgba(34,211,238,.28)", background: "transparent",
-            color: "#b3c5d0", fontFamily: "var(--font-2)", fontSize: ".88rem",
-            letterSpacing: ".12em", whiteSpace: "nowrap" },
-          cNoteS: { flex: "none", display: "block", marginTop: ".5rem",
-            padding: ".7rem .8rem", border: "1px solid rgba(34,211,238,.28)",
-            background: "rgba(34,211,238,.05)", fontFamily: "var(--font-1)",
-            fontWeight: 300, fontSize: "1rem", lineHeight: 1.45, color: "#c3d3dd" },
-          // ── the curves, behind a mark ────────────────────────────────────────────
-          cScrim: { position: "absolute", inset: 0, zIndex: 40, display: "flex",
-            alignItems: "center", justifyContent: "center", padding: ".6rem",
-            background: "rgba(5,8,13,.86)", cursor: "pointer" },
-          cPanel: { display: "flex", flexDirection: "column", gap: ".5rem", width: "100%",
-            maxHeight: "100%", overflowY: "auto", padding: ".9rem .8rem 1rem",
-            boxSizing: "border-box", background: "#070b12", cursor: "default",
-            border: "1px solid rgba(34,211,238,.45)" },
-          cPanelTag: { fontFamily: "var(--font-2)", fontSize: ".82rem",
-            letterSpacing: ".18em", color: "#3fdcf2" },
-          cChartS: { display: "block", width: "100%", height: "auto" },
-          cKeyRow: { display: "flex", flexWrap: "wrap", gap: ".2rem 1rem",
-            fontFamily: "var(--font-2)", fontSize: "1.05rem", letterSpacing: ".1em" },
-          cKeyW: { color: "#d7e6ef" }, cKeyF: { color: "#f08c7a" },
-          cKeyL: { color: "#22d3ee" }, cKeyM: { color: "#7ee0a8" },
-          cPanelTxt: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.05rem",
-            lineHeight: 1.5, color: "#a9bcc8", textWrap: "pretty" },
-          cPanelHi: { color: "#eaf5fb", fontVariantNumeric: "tabular-nums" }
         };
       })()),
       appGame: app === "game",
