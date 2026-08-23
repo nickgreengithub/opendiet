@@ -4324,8 +4324,10 @@ class Component extends DCLogic {
           cViewGoal: () => this.setState({ cView: "goal",
             cGWt: s.cGWt == null ? gDef.wt : s.cGWt,
             cGBf: s.cGBf == null ? gDef.bf : s.cGBf }),
+          // The tab rows breathe below the app bar — they took the retired
+          // header's air along with its job.
           cVTabRow: { flex: "none", display: "flex", justifyContent: "center",
-            gap: "2.2rem", padding: ".15rem 0 .1rem" },
+            gap: "2.2rem", padding: "1.15rem 0 .1rem" },
           // The single-tab screens (HEIGHT, CALORIE BURN) wear the same tab
           // row as the body screen — one lit tab, not a control — which also
           // keeps the figure's canvas the same height on every screen.
