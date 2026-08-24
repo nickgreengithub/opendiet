@@ -242,7 +242,8 @@ option{background:#070b12;color:#d7e6ef}
   <span style="{{ frameRailL }}"></span>
   <span style="{{ frameRailR }}"></span>
   <span style="{{ frameRuleTop }}"></span>
-  <span style="{{ frameFoot }}">OPENDIET.ORG</span>
+  <span style="{{ frameFoot }}"></span>
+  <span style="{{ frameFootTxt }}">&copy; 2026 OPENDIET.ORG</span>
   <sc-if value="{{ tabsOn }}" hint-placeholder-val="{{ false }}">
   <div style="{{ tabBar }}">
     <sc-for list="{{ appTabs }}" as="t" hint-placeholder-count="4">
@@ -5721,16 +5722,21 @@ class Component extends DCLogic {
         position: "fixed", left: 0, right: 0, top: "5rem", height: 0,
         borderTop: "1px solid rgba(34,211,238,.22)", pointerEvents: "none"
       },
-      // And the footer band: the same rule at the bottom of the glass, the
-      // sliver beneath it carrying the site's name in the corner.
+      // And the footer band: the same rule at the bottom of the glass. The
+      // band runs edge to edge; its text sits inside the frame's column,
+      // right-aligned behind the nav's own gutter.
       frameFoot: {
-        display: s.narrow || app === "home" ? "none" : "flex",
+        display: s.narrow || app === "home" ? "none" : "block",
         position: "fixed", left: 0, right: 0, bottom: 0, height: "2.4rem",
-        borderTop: "1px solid rgba(34,211,238,.22)",
-        alignItems: "center", justifyContent: "flex-end",
-        padding: "0 1.4rem", boxSizing: "border-box",
+        borderTop: "1px solid rgba(34,211,238,.22)", pointerEvents: "none"
+      },
+      frameFootTxt: {
+        display: s.narrow || app === "home" ? "none" : "flex",
+        position: "absolute", right: "2.4rem", bottom: "-2.4rem",
+        height: "2.4rem", alignItems: "center",
         fontFamily: "var(--font-2)", fontSize: ".78rem",
-        letterSpacing: ".16em", color: "#5f7688", pointerEvents: "none"
+        letterSpacing: ".16em", color: "#5f7688", whiteSpace: "nowrap",
+        pointerEvents: "none"
       },
       dExpToggle: () => this.setState({ dxp: !s.dxp }),
       dExpBox: {
