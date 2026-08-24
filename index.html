@@ -392,6 +392,9 @@ option{background:#070b12;color:#d7e6ef}
       <sc-if value="{{ cIsWalk }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cVTabRow }}"><button style="{{ cVTabOne }}">WALKING</button></span>
       </sc-if>
+      <sc-if value="{{ cIsCard }}" hint-placeholder-val="{{ false }}">
+      <span style="{{ cVTabRow }}"><button style="{{ cVTabOne }}">CARDIO</button></span>
+      </sc-if>
       <sc-if value="{{ cIsAct }}" hint-placeholder-val="{{ false }}">
         <span style="{{ cVTabRow }}"><button style="{{ cVTabOne }}">CALORIE BURN</button></span>
         <span style="{{ cActPanel }}">
@@ -421,6 +424,12 @@ option{background:#070b12;color:#d7e6ef}
         <span style="{{ cSliderBox }}"><input type="range" min="{{ cWalkMin }}" max="{{ cWalkMax }}" step="{{ cWalkStep }}" value="{{ cWalkVal }}" onChange="{{ cWalkSlide }}" style="{{ cWalkTrack }}"></span>
       </span>
       </sc-if>
+      <sc-if value="{{ cIsCard }}" hint-placeholder-val="{{ false }}">
+      <span style="{{ cBodyPanel }}">
+        <span style="{{ cHtGrid }}"><sc-for list="{{ cCardCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.75);border-left-color:rgba(34,211,238,.75);border-right-color:rgba(34,211,238,.75)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
+        <span style="{{ cSliderBox }}"><input type="range" min="{{ cCardMin }}" max="{{ cCardMax }}" step="{{ cCardStep }}" value="{{ cCardVal }}" onChange="{{ cCardSlide }}" style="{{ cCardTrack }}"></span>
+      </span>
+      </sc-if>
       <sc-if value="{{ cIsAct }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cBodyPanel }}">
         <span style="{{ cHtGrid }}"><sc-for list="{{ cActCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.75);border-left-color:rgba(34,211,238,.75);border-right-color:rgba(34,211,238,.75)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}</span></button></sc-for></span>
@@ -428,12 +437,12 @@ option{background:#070b12;color:#d7e6ef}
       </span>
       </sc-if>
       </sc-if>
-      <sc-if value="{{ cIsTrn }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ cVTabRow }}"><button style="{{ cVTabOne }}">TRAINING</button></span>
+      <sc-if value="{{ cIsRes }}" hint-placeholder-val="{{ false }}">
+      <span style="{{ cVTabRow }}"><button style="{{ cVTabOne }}">RESISTANCE</button></span>
       <span style="{{ cTrnArt }}"><svg viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="{{ cTrnArtS }}"><path d="M4 88 H92" stroke-width="1.6" opacity=".3"></path><g opacity=".55"><path d="M26 44 L60 72 L56.8 75.9 L22.8 47.9 Z" stroke-width="1.8" fill="rgba(34,211,238,.10)"></path><path d="M62 72 H74" stroke-width="4"></path><path d="M32 56 V88" stroke-width="2.2"></path><path d="M68 74 V88" stroke-width="2.2"></path></g><g opacity=".4"><path d="M32 43 L40 32 L43 20"></path><path d="M62 70 L76 79 L72 88"></path><path d="M72 88 H82"></path></g><circle cx="23" cy="35" r="6.5"></circle><path d="M30 41 L62 68"></path><path d="M62 68 L80 76 L76 88"></path><path d="M76 88 H86"></path><path d="M30 41 L37 30 L40 18"></path><path d="M6 17 H74" stroke-width="3"></path><path d="M12 7 V27"></path><path d="M17 10 V24"></path><path d="M68 7 V27"></path><path d="M63 10 V24"></path></svg></span>
       <span style="{{ cBodyPanel }}">
-        <span style="{{ cTrnGrid }}"><sc-for list="{{ cTrnCells }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.75);border-left-color:rgba(34,211,238,.75);border-right-color:rgba(34,211,238,.75)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
-        <span style="{{ cSliderBox }}"><input type="range" min="{{ cTrnMin }}" max="{{ cTrnMax }}" step="{{ cTrnStep }}" value="{{ cTrnVal }}" onChange="{{ cTrnSlide }}" style="{{ cTrnTrack }}"></span>
+        <span style="{{ cResGrid }}"><span style="{{ cResCellS }}"><span style="{{ cResLabS }}">SESSIONS</span><span style="{{ cResValS }}">{{ cResVal2 }}<span style="{{ cResUnitS }}"> / WK</span></span></span></span>
+        <span style="{{ cSliderBox }}"><input type="range" min="{{ cResMin }}" max="{{ cResMax }}" step="{{ cResStep }}" value="{{ cResVal }}" onChange="{{ cResSlide }}" style="{{ cResTrack }}"></span>
       </span>
       </sc-if>
       <sc-if value="{{ cQOn }}" hint-placeholder-val="{{ true }}">
@@ -4177,15 +4186,15 @@ class Component extends DCLogic {
         color: "#5f7688", transition: "color 160ms ease" },
       ...(app !== "calc" ? {} : (() => {
         const m = this.calcModel(s);
-        const step = Math.min(s.cStep || 0, 7), done = step >= 7;
+        const step = Math.min(s.cStep || 0, 8), done = step >= 8;
         const set = (k, v) => this.setState({ [k]: v });
-        const go = n => this.setState({ cStep: Math.max(0, Math.min(7, n)) });
+        const go = n => this.setState({ cStep: Math.max(0, Math.min(8, n)) });
         // One question a screen, and one way of moving: the notches. Height and
         // body carry the figure — height right before the body screen, same
         // layout, one cell — and the week's calories come last, priced against
         // the body just described.
         const STEPS = ["SEX", "AGE", "HEIGHT", "BODY", "WALKING",
-          "TRAINING", "CALORIE BURN"];
+          "RESISTANCE", "CARDIO", "CALORIE BURN"];
         const RG = CALC_RANGE[m.sex];
         const FIELDS = [
           { k: "cAge", lab: "AGE", unit: "YEARS", lo: 18, hi: 90, dflt: 30 },
@@ -4224,7 +4233,8 @@ class Component extends DCLogic {
             ? { bf: gBf, kg: gWt } : null,
           act: done ? null
             : step === 4 ? 0.5
-              : step === 6 ? m.actP : null,
+              : step === 6 ? 0.92
+                : step === 7 ? m.actP : null,
           focus: goalView ? "b" : "a" };
         // ── the plan: solved, not sketched ───────────────────────────────────
         // Two coupled facts the arithmetic must respect. A cut loses lean
@@ -4467,7 +4477,7 @@ class Component extends DCLogic {
               else if (phActive > 0)
                 this.setState({ cResDay: phStarts[phActive - 1] * 7,
                   cResScrub: false });
-              else go(4);
+              else go(STEPS.length - 1);
               return;
             }
             if (step === 3 && s.cView === "goal") {
@@ -4479,10 +4489,11 @@ class Component extends DCLogic {
           cQuit: () => this.setState({ app: "home" }),
           cIsSex: step === 0, cIsNumQ: step === 1,
           cIsHt: step === 2, cIsBody: step === 3, cIsWalk: step === 4,
-          cIsTrn: step === 5, cIsAct: step === 6,
+          cIsRes: step === 5, cIsCard: step === 6, cIsAct: step === 7,
           // The figure carries height, body and the calorie-burn animation;
           // the first two questions are centred slides.
-          cFigOn: step === 2 || step === 3 || step === 4 || step === 6,
+          cFigOn: step === 2 || step === 3 || step === 4 || step === 6
+            || step === 7,
           cQOn: step === 0 || step === 1,
           cQ: STEPS[step],
           // The way forward is the right notch on every screen; the last one
@@ -4646,22 +4657,45 @@ class Component extends DCLogic {
                 / Math.max(1, d.hi - d.lo)).toFixed(1) + "%" }
             };
           })(),
-          // Training: the lifting the plan is built on — floored, because the
-          // lean arithmetic assumes it — and the cardio the step count cannot
-          // see, in hours or in the calories those hours cost this body.
+          // The lifting the plan is built on, alone on its screen and floored
+          // at three: the lean arithmetic assumes it, so a plan without it is
+          // not on the menu. One cell, because there is one number — and it is
+          // always the lit one, since nothing else is competing for the slider.
+          cResGrid: { position: "relative", zIndex: 1, marginBottom: "-1px",
+            display: "grid", gridTemplateColumns: "minmax(0,1fr)" },
+          cResCellS: { position: "relative", display: "flex",
+            flexDirection: "column", alignItems: "center",
+            justifyContent: "center", gap: ".4rem", minWidth: 0,
+            height: "4.4rem", padding: ".3rem .2rem",
+            boxSizing: "border-box", borderRadius: 0, cursor: "default",
+            borderStyle: "solid", borderWidth: "1px",
+            borderColor: "rgba(34,211,238,.75) rgba(34,211,238,.75) #0d1a20",
+            background: "#0d1a20", backgroundClip: "padding-box" },
+          cResLabS: { fontFamily: "var(--font-2)", fontSize: ".84rem",
+            letterSpacing: ".06em", whiteSpace: "nowrap", color: "#3fdcf2" },
+          cResValS: { fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: "1.45rem", lineHeight: 1,
+            fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
+          cResUnitS: { fontFamily: "var(--font-2)", fontSize: ".8rem",
+            letterSpacing: ".08em", color: "#9fb3c0" },
+          cResVal2: String(m.trnW),
+          cResMin: "3", cResMax: "7", cResStep: "1",
+          cResVal: String(m.trnW),
+          cResSlide: e => this.setState({ cLift: Math.round(+e.target.value),
+            cBurn: null }),
+          cResTrack: { "--p": (100 * (m.trnW - 3) / 4).toFixed(1) + "%" },
+          // Cardio, in hours or in the calories those hours cost this body —
+          // one value wearing two faces, since a step count cannot see a bike
+          // or a pool.
           ...(() => {
             const cm = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            const sel = ["l", "h", "k"].indexOf(s.cTrnSel) < 0 ? "l" : s.cTrnSel;
+            const sel = s.cCardSel === "k" ? "k" : "h";
             const TRAY = "#0d1a20";
-            const kWk = m.kCard;                       // kcal an hour costs
+            const kWk = m.kCard;
             const setH = v => this.setState({
               cCardH: Math.max(0, Math.min(14, Math.round(v * 2) / 2)),
               cBurn: null });
             const M = {
-              l: { label: "RESISTANCE", val: String(m.trnW), unit: " / WK",
-                lo: 3, hi: 7, stp: 1, cur: m.trnW,
-                set: v => this.setState({ cLift: Math.round(v),
-                  cBurn: null }) },
               h: { label: "CARDIO HRS", val: (m.cardH % 1 ? m.cardH.toFixed(1)
                 : String(m.cardH)), unit: " / WK",
                 lo: 0, hi: 14, stp: 0.5, cur: m.cardH, set: setH },
@@ -4673,11 +4707,11 @@ class Component extends DCLogic {
             };
             const d = M[sel];
             return {
-              cTrnCells: ["l", "h", "k"].map(k => {
+              cCardCells: ["h", "k"].map(k => {
                 const c = M[k], on = k === sel;
                 return {
                   label: c.label, val: c.val, unit: c.unit,
-                  onClick: () => this.setState({ cTrnSel: k }),
+                  onClick: () => this.setState({ cCardSel: k }),
                   s: { position: "relative", display: "flex",
                     flexDirection: "column", alignItems: "center",
                     justifyContent: "center", gap: ".4rem", minWidth: 0,
@@ -4701,14 +4735,10 @@ class Component extends DCLogic {
                     letterSpacing: ".08em", color: "#9fb3c0" }
                 };
               }),
-              cTrnGrid: { position: "relative", zIndex: 1,
-                marginBottom: "-1px", display: "grid",
-                gridTemplateColumns: "repeat(3, minmax(0,1fr))",
-                gap: ".5rem" },
-              cTrnMin: String(d.lo), cTrnMax: String(d.hi),
-              cTrnStep: String(d.stp), cTrnVal: String(d.cur),
-              cTrnSlide: e => d.set(+e.target.value),
-              cTrnTrack: { "--p": (100 * (d.cur - d.lo)
+              cCardMin: String(d.lo), cCardMax: String(d.hi),
+              cCardStep: String(d.stp), cCardVal: String(d.cur),
+              cCardSlide: e => d.set(+e.target.value),
+              cCardTrack: { "--p": (100 * (d.cur - d.lo)
                 / Math.max(1, d.hi - d.lo)).toFixed(1) + "%" }
             };
           })(),
@@ -4890,8 +4920,8 @@ class Component extends DCLogic {
                 cGBf: s.cGBf == null ? gDef.bf : s.cGBf });
               return;
             }
-            if (step === 6) {
-              this.setState({ cStep: 7, cResTab: 0, cResDay: null,
+            if (step === 7) {
+              this.setState({ cStep: 8, cResTab: 0, cResDay: null,
                 cResScrub: false });
               return;
             }
