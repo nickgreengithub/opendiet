@@ -446,12 +446,7 @@ option{background:#070b12;color:#d7e6ef}
       <sc-if value="{{ cPhPlanOn }}" hint-placeholder-val="{{ true }}">
       <span style="{{ cPhTabRow }}"><sc-for list="{{ cPhTabs }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="color:#3fdcf2">{{ t.label }}</button></sc-for></span>
       <span style="{{ cPhPanel }}">
-        <span style="{{ cPhIcoS }}">
-          <sc-if value="{{ cPhIcoCut }}" hint-placeholder-val="{{ true }}"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="display:block"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline></svg></sc-if>
-          <sc-if value="{{ cPhIcoMid }}" hint-placeholder-val="{{ false }}"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="display:block"><line x1="9" y1="5" x2="9" y2="19"></line><line x1="15" y1="5" x2="15" y2="19"></line></svg></sc-if>
-          <sc-if value="{{ cPhIcoGain }}" hint-placeholder-val="{{ false }}"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="display:block"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg></sc-if>
-          <sc-if value="{{ cPhIcoHold }}" hint-placeholder-val="{{ false }}"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="display:block"><polyline points="20 6 9 17 4 12"></polyline></svg></sc-if>
-        </span>
+        <span style="{{ cPhHeadS }}">{{ cPhHead }}</span>
         <span style="{{ cPhLineC }}">{{ cPhAe1 }}<span style="{{ cPhNum }}">{{ cPhAeN1 }}</span>{{ cPhAe2 }}<span style="{{ cPhNum }}">{{ cPhAeN2 }}</span>{{ cPhAe3 }}</span>
         <span style="{{ cPhArS }}">{{ cPhAr1 }}<span style="{{ cPhNum }}">{{ cPhArN }}</span>{{ cPhAr2 }}<span style="{{ cPhNum }}">{{ cPhArN2 }}</span>{{ cPhAr3 }}</span>
         <span style="{{ cPhAl2S }}">{{ cPhAl2a }}<span style="{{ cPhNum }}">{{ cPhAl2N }}</span>{{ cPhAl2b }}</span>
@@ -4327,10 +4322,18 @@ class Component extends DCLogic {
         // The active phase's sentences, composed once for the centred panel.
         const phA = (() => {
           const cm = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-          const pp = phases[Math.min(phActive, phases.length - 1)];
-          if (!pp) return { key: "hold" };
+          const ai = Math.min(phActive, phases.length - 1);
+          const pp = phases[ai];
+          if (!pp) return { key: "hold", head: "" };
           const move = pp.key === "cut" || pp.key === "gain";
-          const o = { key: pp.key,
+          // The headline: what the phase does and by how much.
+          const startW = ai === 0 ? m.wt : phases[ai - 1].endW;
+          const head = pp.key === "cut"
+            ? "CUT " + Math.abs(startW - pp.endW).toFixed(1) + " KG"
+            : pp.key === "gain"
+              ? "GAIN " + Math.abs(pp.endW - startW).toFixed(1) + " KG"
+              : pp.key === "mid" ? "RECOVER" : "MAINTAIN";
+          const o = { key: pp.key, head,
             e1: "Eat ", eN1: cm(pp.kcal), e2: " kcal per day", eN2: "", e3: "",
             r1: "", rN: "", r2: "", rN2: "", r3: "",
             l2a: "", l2N: "", l2b: "" };
@@ -4709,8 +4712,7 @@ class Component extends DCLogic {
           // the scrub to that phase's first day, and dragging the scrub
           // lights the tab of whatever phase it stands in.
           cPhTabs: phases.map((pp, i) => ({
-            label: pp.key === "cut" ? (phSolo ? "WEIGHT CUT" : "CUT")
-              : pp.label,
+            label: "0" + (i + 1),
             onClick: () => this.setState({ cResTab: 0,
               cResDay: phStarts[i] * 7 }),
             s: (on => ({ padding: "0 .15rem .4rem", border: 0,
@@ -4726,20 +4728,19 @@ class Component extends DCLogic {
             padding: "1.15rem 0 .1rem" },
           cPhPlanOn: !phInfo,
           cPhInfoOn: phInfo,
-          // One phase at a time, centred: its icon, then its sentences a
-          // size up. The tabs above are the index; the panel is the page.
+          // One phase at a time, centred: its headline naming the move and
+          // its kilograms, then its sentences a size up. The numbered tabs
+          // above are the index; the panel is the page.
           cPhPanel: { flex: "none", alignSelf: "center", width: "100%",
             maxWidth: "22rem", marginTop: "1.9rem", display: "flex",
             flexDirection: "column", alignItems: "center",
             textAlign: "center", gap: ".55rem", padding: "0 .5rem",
             boxSizing: "border-box" },
-          cPhIcoS: { display: "flex", color: "#3fdcf2",
-            marginBottom: ".35rem",
-            filter: "drop-shadow(0 0 9px rgba(34,211,238,.4))" },
-          cPhIcoCut: phA.key === "cut",
-          cPhIcoMid: phA.key === "mid",
-          cPhIcoGain: phA.key === "gain",
-          cPhIcoHold: phA.key === "hold",
+          cPhHead: phA.head,
+          cPhHeadS: { fontFamily: "var(--font-2)", fontSize: "1.6rem",
+            letterSpacing: ".14em", color: "#3fdcf2", whiteSpace: "nowrap",
+            marginBottom: ".3rem",
+            textShadow: "0 0 16px rgba(34,211,238,.35)" },
           cPhLineC: { fontFamily: "var(--font-1)", fontWeight: 300,
             fontSize: "1.18rem", lineHeight: 1.5, color: "#8fa5b4",
             textWrap: "pretty" },
@@ -4765,7 +4766,7 @@ class Component extends DCLogic {
             alignSelf: "center", padding: "1rem 0 .5rem",
             boxSizing: "border-box" },
           cPhChart: { position: "relative", width: "100%",
-            maxWidth: "19.5rem", alignSelf: "center", height: "8.6rem" },
+            maxWidth: "19.5rem", alignSelf: "center", height: "11.2rem" },
           // The scrub's phase stays lit; the chart's other phase spans are
           // veiled so the bar reads as standing in a chapter of the plan.
           cPhDim: phases.map((pp, i) => ({ i, s: {
@@ -4855,7 +4856,7 @@ class Component extends DCLogic {
               : "IN " + phD + (phD === 1 ? " DAY" : " DAYS"))
               + " \u00b7 " + date;
           })(),
-          cPhMeasRow: { display: "flex", justifyContent: "space-between",
+          cPhMeasRow: { display: "flex", justifyContent: "center",
             padding: "0 .2rem" },
           cPhMeasItem: { display: "flex", alignItems: "baseline",
             gap: ".45rem" },
@@ -4867,12 +4868,9 @@ class Component extends DCLogic {
           cPhMeas: (() => {
             if (!phCur.w) return [];
             const bfv = 100 * phCur.fm / phCur.w;
-            const lean = phCur.w - phCur.fm;
-            const bmi = phCur.w / Math.pow(m.ht / 100, 2);
             return [
-              { lab: "BODY FAT", val: bfv.toFixed(1) + " %" },
-              { lab: "LEAN", val: lean.toFixed(1) + " KG" },
-              { lab: "BMI", val: bmi.toFixed(1) }
+              { lab: "BODY FAT", val: phCur.fm.toFixed(1) + " KG ("
+                + bfv.toFixed(1) + " %)" }
             ];
           })(),
           // What the forecast rests on, as plain bullets — no citations,
