@@ -389,6 +389,9 @@ option{background:#070b12;color:#d7e6ef}
       <sc-if value="{{ cIsHt }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cVTabRow }}"><button style="{{ cVTabOne }}">HEIGHT</button></span>
       </sc-if>
+      <sc-if value="{{ cIsWalk }}" hint-placeholder-val="{{ false }}">
+      <span style="{{ cVTabRow }}"><button style="{{ cVTabOne }}">WALKING</button></span>
+      </sc-if>
       <sc-if value="{{ cIsAct }}" hint-placeholder-val="{{ false }}">
         <span style="{{ cVTabRow }}"><button style="{{ cVTabOne }}">CALORIE BURN</button></span>
         <span style="{{ cActPanel }}">
@@ -412,6 +415,12 @@ option{background:#070b12;color:#d7e6ef}
         <span style="{{ cSliderBox }}"><input type="range" min="{{ cSelMin }}" max="{{ cSelMax }}" step="{{ cSelStep }}" value="{{ cSelVal }}" onChange="{{ cSelSlide }}" style="{{ cSelTrack }}"></span>
       </span>
       </sc-if>
+      <sc-if value="{{ cIsWalk }}" hint-placeholder-val="{{ false }}">
+      <span style="{{ cBodyPanel }}">
+        <span style="{{ cHtGrid }}"><sc-for list="{{ cWalkCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.75);border-left-color:rgba(34,211,238,.75);border-right-color:rgba(34,211,238,.75)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}</span></button></sc-for></span>
+        <span style="{{ cSliderBox }}"><input type="range" min="{{ cWalkMin }}" max="{{ cWalkMax }}" step="{{ cWalkStep }}" value="{{ cWalkVal }}" onChange="{{ cWalkSlide }}" style="{{ cWalkTrack }}"></span>
+      </span>
+      </sc-if>
       <sc-if value="{{ cIsAct }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cBodyPanel }}">
         <span style="{{ cHtGrid }}"><sc-for list="{{ cActCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.75);border-left-color:rgba(34,211,238,.75);border-right-color:rgba(34,211,238,.75)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}</span></button></sc-for></span>
@@ -423,7 +432,7 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ cVTabRow }}"><button style="{{ cVTabOne }}">TRAINING</button></span>
       <span style="{{ cTrnArt }}"><svg viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="{{ cTrnArtS }}"><path d="M4 88 H92" stroke-width="1.6" opacity=".3"></path><g opacity=".55"><path d="M26 44 L60 72 L56.8 75.9 L22.8 47.9 Z" stroke-width="1.8" fill="rgba(34,211,238,.10)"></path><path d="M62 72 H74" stroke-width="4"></path><path d="M32 56 V88" stroke-width="2.2"></path><path d="M68 74 V88" stroke-width="2.2"></path></g><g opacity=".4"><path d="M32 43 L40 32 L43 20"></path><path d="M62 70 L76 79 L72 88"></path><path d="M72 88 H82"></path></g><circle cx="23" cy="35" r="6.5"></circle><path d="M30 41 L62 68"></path><path d="M62 68 L80 76 L76 88"></path><path d="M76 88 H86"></path><path d="M30 41 L37 30 L40 18"></path><path d="M6 17 H74" stroke-width="3"></path><path d="M12 7 V27"></path><path d="M17 10 V24"></path><path d="M68 7 V27"></path><path d="M63 10 V24"></path></svg></span>
       <span style="{{ cBodyPanel }}">
-        <span style="{{ cHtGrid }}"><sc-for list="{{ cTrnCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.75);border-left-color:rgba(34,211,238,.75);border-right-color:rgba(34,211,238,.75)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}</span></button></sc-for></span>
+        <span style="{{ cTrnGrid }}"><sc-for list="{{ cTrnCells }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.75);border-left-color:rgba(34,211,238,.75);border-right-color:rgba(34,211,238,.75)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
         <span style="{{ cSliderBox }}"><input type="range" min="{{ cTrnMin }}" max="{{ cTrnMax }}" step="{{ cTrnStep }}" value="{{ cTrnVal }}" onChange="{{ cTrnSlide }}" style="{{ cTrnTrack }}"></span>
       </span>
       </sc-if>
@@ -1888,9 +1897,17 @@ class Component extends DCLogic {
     // The training answers price the default burn: a mostly-still day, plus
     // what the steps cost at roughly 0.045 kcal each, plus the week's lifting
     // spread over seven days. Touching the burn slider takes it from here.
-    const trnW = s.cTrnW == null ? 3 : s.cTrnW;
-    const trnS = s.cTrnS == null ? 7000 : s.cTrnS;
-    const burnEst = rmr0 * 1.15 + trnS * 0.045 + trnW * 300 / 7;
+    // Walking, lifting and cardio, each priced against this body rather than
+    // a flat number: a step costs about 0.00053 kcal per kilogram, an hour of
+    // lifting runs at 4 METs and an hour of cardio at 7 - a MET being one
+    // kcal per kilogram per hour. Lifting has a floor: the plan's lean
+    // arithmetic assumes it, so a plan without it is not on the menu.
+    const walkS = s.cWalkS == null ? 7000 : s.cWalkS;
+    const trnW = Math.max(3, s.cLift == null ? 4 : s.cLift);
+    const cardH = s.cCardH == null ? 2 : s.cCardH;
+    const kStep = 0.00053 * wt, kLift = 4 * wt, kCard = 7 * wt;
+    const burnEst = rmr0 * 1.15 + walkS * kStep
+      + trnW * kLift / 7 + cardH * kCard / 7;
     const burn0 = s.cBurn == null
       ? Math.round(burnEst / 100) * 100 : s.cBurn;
     const tdee0 = Math.max(bLo, Math.min(bHi, Math.round(burn0 / 100) * 100));
@@ -1932,7 +1949,7 @@ class Component extends DCLogic {
     };
     return { sex, age, ht, wt, bmi, bfEst, bfPicked, bf0, fm0, ffm0,
       pal, act, rmr0, tdee0, bLo, bHi, maint, floor, ess, sim, rmrOf,
-      trnW, trnS,
+      walkS, trnW, cardH, kCard,
       actP: (tdee0 - bLo) / Math.max(1, bHi - bLo) };
   }
   gNext() {
@@ -4150,7 +4167,8 @@ class Component extends DCLogic {
       cResetOn: app === "calc",
       cResetAll: () => this.setState({ cStep: 0, cSex: null, cAge: 30, cHt: null,
         cWt: null, cBf: null, cBurn: null, cBodySel: "wt", cHtSel: "cm", cActSel: "day",
-        cTrnW: null, cTrnS: null, cTrnSel: "w",
+        cWalkS: null, cWalkSel: "s", cLift: null, cCardH: null,
+        cTrnSel: "l",
         cView: "cur", cGWt: null, cGBf: null, cResTab: 0, cResDay: null,
         cResScrub: false }),
       cResetS: { display: "flex", alignItems: "center", justifyContent: "center",
@@ -4159,15 +4177,15 @@ class Component extends DCLogic {
         color: "#5f7688", transition: "color 160ms ease" },
       ...(app !== "calc" ? {} : (() => {
         const m = this.calcModel(s);
-        const step = Math.min(s.cStep || 0, 6), done = step >= 6;
+        const step = Math.min(s.cStep || 0, 7), done = step >= 7;
         const set = (k, v) => this.setState({ [k]: v });
-        const go = n => this.setState({ cStep: Math.max(0, Math.min(6, n)) });
+        const go = n => this.setState({ cStep: Math.max(0, Math.min(7, n)) });
         // One question a screen, and one way of moving: the notches. Height and
         // body carry the figure — height right before the body screen, same
         // layout, one cell — and the week's calories come last, priced against
         // the body just described.
-        const STEPS = ["SEX", "AGE", "HEIGHT", "BODY", "TRAINING",
-          "CALORIE BURN"];
+        const STEPS = ["SEX", "AGE", "HEIGHT", "BODY", "WALKING",
+          "TRAINING", "CALORIE BURN"];
         const RG = CALC_RANGE[m.sex];
         const FIELDS = [
           { k: "cAge", lab: "AGE", unit: "YEARS", lo: 18, hi: 90, dflt: 30 },
@@ -4204,7 +4222,9 @@ class Component extends DCLogic {
         this._bodyWant = { sex: m.sex, bf: bfVal, ht: m.ht, kg: m.wt,
           goal: !done && step === 3 && s.cGWt != null
             ? { bf: gBf, kg: gWt } : null,
-          act: !done && step === 5 ? m.actP : null,
+          act: done ? null
+            : step === 4 ? 0.5
+              : step === 6 ? m.actP : null,
           focus: goalView ? "b" : "a" };
         // ── the plan: solved, not sketched ───────────────────────────────────
         // Two coupled facts the arithmetic must respect. A cut loses lean
@@ -4458,11 +4478,11 @@ class Component extends DCLogic {
           },
           cQuit: () => this.setState({ app: "home" }),
           cIsSex: step === 0, cIsNumQ: step === 1,
-          cIsHt: step === 2, cIsBody: step === 3, cIsTrn: step === 4,
-          cIsAct: step === 5,
+          cIsHt: step === 2, cIsBody: step === 3, cIsWalk: step === 4,
+          cIsTrn: step === 5, cIsAct: step === 6,
           // The figure carries height, body and the calorie-burn animation;
           // the first two questions are centred slides.
-          cFigOn: step === 2 || step === 3 || step === 5,
+          cFigOn: step === 2 || step === 3 || step === 4 || step === 6,
           cQOn: step === 0 || step === 1,
           cQ: STEPS[step],
           // The way forward is the right notch on every screen; the last one
@@ -4571,27 +4591,89 @@ class Component extends DCLogic {
                   / (Math.floor(f.hi / 2.54) - Math.ceil(f.lo / 2.54))).toFixed(1) + "%" }
             };
           })(),
-          // Training, between the goal and the burn: what the week actually
-          // holds. Two cells over one tray in the height screen's language —
-          // the lifting sessions and the daily steps — and the pair prices
-          // the burn the next screen opens on.
+          // Walking, asked in the two units a person actually knows it by:
+          // the step count their phone shows them, and the minutes it stands
+          // for at a hundred steps a minute. One value, two faces — move
+          // either and the other follows.
           ...(() => {
             const cm = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            const sel = s.cTrnSel === "s" ? "s" : "w";
+            const sel = s.cWalkSel === "m" ? "m" : "s";
             const TRAY = "#0d1a20";
+            const setS = v => this.setState({
+              cWalkS: Math.max(0, Math.min(25000, Math.round(v / 500) * 500)),
+              cBurn: null });
             const M = {
-              w: { label: "WEIGHTS PER WEEK", val: String(m.trnW), unit: "",
-                lo: 0, hi: 14, stp: 1, cur: m.trnW,
-                set: v => this.setState({ cTrnW: Math.round(v),
-                  cBurn: null }) },
-              s: { label: "STEPS PER DAY", val: cm(m.trnS), unit: "",
-                lo: 0, hi: 25000, stp: 500, cur: m.trnS,
-                set: v => this.setState({ cTrnS: Math.round(v / 500) * 500,
-                  cBurn: null }) }
+              s: { label: "STEPS PER DAY", val: cm(m.walkS), unit: "",
+                lo: 0, hi: 25000, stp: 500, cur: m.walkS, set: setS },
+              m: { label: "WALK MINS / DAY", val: String(Math.round(m.walkS / 100)),
+                unit: "", lo: 0, hi: 250, stp: 5,
+                cur: Math.round(m.walkS / 100), set: v => setS(v * 100) }
             };
             const d = M[sel];
             return {
-              cTrnCells: ["w", "s"].map(k => {
+              cWalkCells: ["s", "m"].map(k => {
+                const c = M[k], on = k === sel;
+                return {
+                  label: c.label, val: c.val, unit: c.unit,
+                  onClick: () => this.setState({ cWalkSel: k }),
+                  s: { position: "relative", display: "flex",
+                    flexDirection: "column", alignItems: "center",
+                    justifyContent: "center", gap: ".4rem", minWidth: 0,
+                    height: "4.4rem", padding: ".3rem .2rem",
+                    boxSizing: "border-box", borderRadius: 0, cursor: "pointer",
+                    borderStyle: "solid", borderWidth: "1px",
+                    borderColor: on
+                      ? "rgba(34,211,238,.75) rgba(34,211,238,.75) " + TRAY
+                      : "#1e293b #1e293b transparent",
+                    background: on ? TRAY
+                      : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
+                    backgroundClip: "padding-box",
+                    transition: "border-color 160ms ease, background 160ms ease" },
+                  labS: { fontFamily: "var(--font-2)", fontSize: ".84rem",
+                    letterSpacing: ".06em", whiteSpace: "nowrap",
+                    color: on ? "#3fdcf2" : "#a9bcc8" },
+                  valS: { fontFamily: "var(--font-1)", fontWeight: 300,
+                    fontSize: "1.45rem", lineHeight: 1,
+                    fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
+                  unitS: { fontFamily: "var(--font-2)", fontSize: ".8rem",
+                    letterSpacing: ".08em", color: "#9fb3c0" }
+                };
+              }),
+              cWalkMin: String(d.lo), cWalkMax: String(d.hi),
+              cWalkStep: String(d.stp), cWalkVal: String(d.cur),
+              cWalkSlide: e => d.set(+e.target.value),
+              cWalkTrack: { "--p": (100 * (d.cur - d.lo)
+                / Math.max(1, d.hi - d.lo)).toFixed(1) + "%" }
+            };
+          })(),
+          // Training: the lifting the plan is built on — floored, because the
+          // lean arithmetic assumes it — and the cardio the step count cannot
+          // see, in hours or in the calories those hours cost this body.
+          ...(() => {
+            const cm = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            const sel = ["l", "h", "k"].indexOf(s.cTrnSel) < 0 ? "l" : s.cTrnSel;
+            const TRAY = "#0d1a20";
+            const kWk = m.kCard;                       // kcal an hour costs
+            const setH = v => this.setState({
+              cCardH: Math.max(0, Math.min(14, Math.round(v * 2) / 2)),
+              cBurn: null });
+            const M = {
+              l: { label: "RESISTANCE", val: String(m.trnW), unit: " / WK",
+                lo: 3, hi: 7, stp: 1, cur: m.trnW,
+                set: v => this.setState({ cLift: Math.round(v),
+                  cBurn: null }) },
+              h: { label: "CARDIO HRS", val: (m.cardH % 1 ? m.cardH.toFixed(1)
+                : String(m.cardH)), unit: " / WK",
+                lo: 0, hi: 14, stp: 0.5, cur: m.cardH, set: setH },
+              k: { label: "CARDIO KCAL",
+                val: cm(Math.round(m.cardH * kWk / 50) * 50), unit: " / WK",
+                lo: 0, hi: Math.round(14 * kWk / 50) * 50, stp: 50,
+                cur: Math.round(m.cardH * kWk / 50) * 50,
+                set: v => setH(v / kWk) }
+            };
+            const d = M[sel];
+            return {
+              cTrnCells: ["l", "h", "k"].map(k => {
                 const c = M[k], on = k === sel;
                 return {
                   label: c.label, val: c.val, unit: c.unit,
@@ -4619,6 +4701,10 @@ class Component extends DCLogic {
                     letterSpacing: ".08em", color: "#9fb3c0" }
                 };
               }),
+              cTrnGrid: { position: "relative", zIndex: 1,
+                marginBottom: "-1px", display: "grid",
+                gridTemplateColumns: "repeat(3, minmax(0,1fr))",
+                gap: ".5rem" },
               cTrnMin: String(d.lo), cTrnMax: String(d.hi),
               cTrnStep: String(d.stp), cTrnVal: String(d.cur),
               cTrnSlide: e => d.set(+e.target.value),
@@ -4626,8 +4712,8 @@ class Component extends DCLogic {
                 / Math.max(1, d.hi - d.lo)).toFixed(1) + "%" }
             };
           })(),
-          // The bench, drawn rather than modelled: the figure's meshes know
-          // how to walk and run, not how to press.
+          // Drawn rather than modelled: the figure's meshes know how to walk
+          // and run, not how to press.
           cTrnArt: { flex: "1 1 auto", minHeight: s.narrow ? "20rem" : "22rem",
             display: "flex", alignItems: "center", justifyContent: "center",
             padding: ".2rem 0" },
@@ -4804,8 +4890,8 @@ class Component extends DCLogic {
                 cGBf: s.cGBf == null ? gDef.bf : s.cGBf });
               return;
             }
-            if (step === 5) {
-              this.setState({ cStep: 6, cResTab: 0, cResDay: null,
+            if (step === 6) {
+              this.setState({ cStep: 7, cResTab: 0, cResDay: null,
                 cResScrub: false });
               return;
             }
@@ -5042,12 +5128,8 @@ class Component extends DCLogic {
             const B = (a, n1, b, n2, c) => ({ a, n1, b: b || "",
               n2: n2 || "", c: c || "" });
             return [
-              m.trnW > 0
-                ? B("You lift ", m.trnW + (m.trnW === 1 ? " time" : " times")
-                  + " per week", " and eat enough protein, all the way "
-                  + "through.")
-                : B("These figures assume you ", "lift",
-                  " \u2014 without it a cut costs more lean mass."),
+              B("You lift ", m.trnW + " times per week",
+                " and eat enough protein, all the way through."),
               B("Cuts lose ", cutG + " g per week",
                 " \u2014 the pace that spares muscle."),
               B("", Math.round(100 * plan.sL) + "%",
