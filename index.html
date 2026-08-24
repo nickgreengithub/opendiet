@@ -3980,11 +3980,15 @@ class Component extends DCLogic {
           transition: "border-color 160ms ease, background 160ms ease"
         }
       })),
+      // On desktop the nav is a band: the negative margin reaches back over
+      // the shell's padding so the items centre in the full space between
+      // the top of the glass and the frame's rule, inset from the rails.
       tabBar: {
         flex: "none", display: "flex", alignItems: "center",
-        gap: s.narrow ? "1.1rem" : "1.7rem", height: s.narrow ? "2.45rem" : "2.6rem",
+        gap: s.narrow ? "1.1rem" : "2.4rem", height: s.narrow ? "2.45rem" : "5rem",
+        marginTop: s.narrow ? "0" : "-2.4rem",
         marginBottom: s.narrow ? "0" : ".35rem",
-        padding: s.narrow ? "0 .6rem" : 0, boxSizing: "border-box",
+        padding: s.narrow ? "0 .6rem" : "0 2.4rem", boxSizing: "border-box",
         fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".94rem",
         letterSpacing: s.narrow ? ".1em" : ".14em"
       },
