@@ -402,19 +402,19 @@ option{background:#070b12;color:#d7e6ef}
       </span>
       <sc-if value="{{ cIsHt }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cBodyPanel }}">
-        <span style="{{ cHtGrid }}"><sc-for list="{{ cHtCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:#1e293b;border-left-color:#1e293b;border-right-color:#1e293b"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
+        <span style="{{ cHtGrid }}"><sc-for list="{{ cHtCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.75);border-left-color:rgba(34,211,238,.75);border-right-color:rgba(34,211,238,.75)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
         <span style="{{ cSliderBox }}"><input type="range" min="{{ cHtMin }}" max="{{ cHtMax }}" step="1" value="{{ cHtSlV }}" onChange="{{ cHtSlide }}" style="{{ cHtTrack }}"></span>
       </span>
       </sc-if>
       <sc-if value="{{ cIsBody }}" hint-placeholder-val="{{ true }}">
       <span style="{{ cBodyPanel }}">
-        <span style="{{ cMetGrid }}"><sc-for list="{{ cMetCells }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:#1e293b;border-left-color:#1e293b;border-right-color:#1e293b"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
+        <span style="{{ cMetGrid }}"><sc-for list="{{ cMetCells }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.75);border-left-color:rgba(34,211,238,.75);border-right-color:rgba(34,211,238,.75)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
         <span style="{{ cSliderBox }}"><input type="range" min="{{ cSelMin }}" max="{{ cSelMax }}" step="{{ cSelStep }}" value="{{ cSelVal }}" onChange="{{ cSelSlide }}" style="{{ cSelTrack }}"></span>
       </span>
       </sc-if>
       <sc-if value="{{ cIsAct }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cBodyPanel }}">
-        <span style="{{ cHtGrid }}"><sc-for list="{{ cActCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:#1e293b;border-left-color:#1e293b;border-right-color:#1e293b"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}</span></button></sc-for></span>
+        <span style="{{ cHtGrid }}"><sc-for list="{{ cActCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.75);border-left-color:rgba(34,211,238,.75);border-right-color:rgba(34,211,238,.75)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}</span></button></sc-for></span>
         <span style="{{ cSliderBox }}"><input type="range" min="{{ cActMin }}" max="{{ cActMax }}" step="{{ cActStep }}" value="{{ cActIdx }}" onChange="{{ cActSlide }}" style="{{ cActTrack }}"></span>
       </span>
       </sc-if>
@@ -423,7 +423,7 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ cVTabRow }}"><button style="{{ cVTabOne }}">TRAINING</button></span>
       <span style="{{ cTrnArt }}"><svg viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="{{ cTrnArtS }}"><path d="M4 88 H92" stroke-width="1.6" opacity=".3"></path><g opacity=".55"><path d="M26 44 L60 72 L56.8 75.9 L22.8 47.9 Z" stroke-width="1.8" fill="rgba(34,211,238,.10)"></path><path d="M62 72 H74" stroke-width="4"></path><path d="M32 56 V88" stroke-width="2.2"></path><path d="M68 74 V88" stroke-width="2.2"></path></g><g opacity=".4"><path d="M32 43 L40 32 L43 20"></path><path d="M62 70 L76 79 L72 88"></path><path d="M72 88 H82"></path></g><circle cx="23" cy="35" r="6.5"></circle><path d="M30 41 L62 68"></path><path d="M62 68 L80 76 L76 88"></path><path d="M76 88 H86"></path><path d="M30 41 L37 30 L40 18"></path><path d="M6 17 H74" stroke-width="3"></path><path d="M12 7 V27"></path><path d="M17 10 V24"></path><path d="M68 7 V27"></path><path d="M63 10 V24"></path></svg></span>
       <span style="{{ cBodyPanel }}">
-        <span style="{{ cHtGrid }}"><sc-for list="{{ cTrnCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:#1e293b;border-left-color:#1e293b;border-right-color:#1e293b"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}</span></button></sc-for></span>
+        <span style="{{ cHtGrid }}"><sc-for list="{{ cTrnCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.75);border-left-color:rgba(34,211,238,.75);border-right-color:rgba(34,211,238,.75)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}</span></button></sc-for></span>
         <span style="{{ cSliderBox }}"><input type="range" min="{{ cTrnMin }}" max="{{ cTrnMax }}" step="{{ cTrnStep }}" value="{{ cTrnVal }}" onChange="{{ cTrnSlide }}" style="{{ cTrnTrack }}"></span>
       </span>
       </sc-if>
@@ -4543,9 +4543,10 @@ class Component extends DCLogic {
                     borderStyle: "solid", borderWidth: "1px",
                     borderColor: on
                       ? "rgba(34,211,238,.75) rgba(34,211,238,.75) " + TRAY
-                      : "#1e293b",
+                      : "#1e293b #1e293b transparent",
                     background: on ? TRAY
                       : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
+                    backgroundClip: "padding-box",
                     transition: "border-color 160ms ease, background 160ms ease" },
                   labS: { fontFamily: "var(--font-2)", fontSize: ".84rem",
                     letterSpacing: ".06em", whiteSpace: "nowrap",
@@ -4603,9 +4604,10 @@ class Component extends DCLogic {
                     borderStyle: "solid", borderWidth: "1px",
                     borderColor: on
                       ? "rgba(34,211,238,.75) rgba(34,211,238,.75) " + TRAY
-                      : "#1e293b",
+                      : "#1e293b #1e293b transparent",
                     background: on ? TRAY
                       : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
+                    backgroundClip: "padding-box",
                     transition: "border-color 160ms ease, background 160ms ease" },
                   labS: { fontFamily: "var(--font-2)", fontSize: ".84rem",
                     letterSpacing: ".06em", whiteSpace: "nowrap",
@@ -4679,9 +4681,10 @@ class Component extends DCLogic {
                   borderStyle: "solid", borderWidth: "1px",
                   borderColor: on
                     ? "rgba(34,211,238,.75) rgba(34,211,238,.75) " + TRAY
-                    : "#1e293b",
+                    : "#1e293b #1e293b transparent",
                   background: on ? TRAY
                     : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
+                  backgroundClip: "padding-box",
                   transition: "border-color 160ms ease, background 160ms ease" },
                 labS: { fontFamily: "var(--font-2)", fontSize: ".84rem",
                   letterSpacing: ".06em", whiteSpace: "nowrap",
@@ -4755,9 +4758,10 @@ class Component extends DCLogic {
                     borderStyle: "solid", borderWidth: "1px",
                     borderColor: on
                       ? "rgba(34,211,238,.75) rgba(34,211,238,.75) " + TRAY
-                      : "#1e293b",
+                      : "#1e293b #1e293b transparent",
                     background: on ? TRAY
                       : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
+                    backgroundClip: "padding-box",
                     transition: "border-color 160ms ease, background 160ms ease" },
                   labS: { fontFamily: "var(--font-2)", fontSize: ".84rem",
                     letterSpacing: ".06em", whiteSpace: "nowrap",
