@@ -460,6 +460,7 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ cQSpace2 }}"></span>
       <sc-if value="{{ cPhPlanOn }}" hint-placeholder-val="{{ true }}">
       <span style="{{ cPhFoot }}">
+        <span style="{{ cPhRangeS }}">{{ cPhRange }}</span>
         <span style="{{ cPhChart }}">
           <svg viewBox="0 0 100 44" preserveAspectRatio="none" style="{{ cPhSvg }}">
             <path d="{{ cPhLnArea }}" fill="rgba(34,211,238,.20)" stroke="none"></path>
@@ -4133,7 +4134,8 @@ class Component extends DCLogic {
       cResetOn: app === "calc",
       cResetAll: () => this.setState({ cStep: 0, cSex: null, cAge: 30, cHt: null,
         cWt: null, cBf: null, cBurn: null, cBodySel: "wt", cHtSel: "cm", cActSel: "day",
-        cView: "cur", cGWt: null, cGBf: null, cResTab: 0, cResDay: null }),
+        cView: "cur", cGWt: null, cGBf: null, cResTab: 0, cResDay: null,
+        cResScrub: false }),
       cResetS: { display: "flex", alignItems: "center", justifyContent: "center",
         width: "1.9rem", height: "2.1rem", marginLeft: "-.15rem", padding: 0,
         border: 0, borderRadius: 0, background: "transparent", cursor: "pointer",
@@ -4293,6 +4295,9 @@ class Component extends DCLogic {
         const phDays = Math.max(1, (phNodes.length - 1) * 7);
         const phD = Math.max(0, Math.min(phDays,
           s.cResDay == null ? 0 : s.cResDay));
+        // Two ways to read the trajectory: a tab or a notch lights a whole
+        // phase, a drag hands the day its bar back.
+        const phScrub = !!s.cResScrub;
         const phAt = d => {
           if (phNodes.length < 2) return phNodes[0] || { w: 0, fm: 0 };
           const t = d / 7;
@@ -4344,7 +4349,11 @@ class Component extends DCLogic {
             ? dS.getDate() + " " + MO[dS.getMonth()] + " to "
               + dE.getDate() + " " + MO[dE.getMonth()] + " " + dE.getFullYear()
             : "";
-          const o = { key: pp.key, head, span,
+          const rng = Math.abs(pp.endW - startW) < 0.05
+            ? "HOLD " + pp.endW.toFixed(1) + " KG"
+            : startW.toFixed(1) + " KG to " + pp.endW.toFixed(1) + " KG";
+          const o = { key: pp.key, head, span, rng,
+            endDay: (phStarts[ai] + pp.wks) * 7,
             e1: "Eat ", eN1: cm(pp.kcal), e2: " kcal per day", eN2: "", e3: "",
             r1: "", rN: "", r2: "", rN2: "", r3: "",
             l2a: "", l2N: "", l2b: "", l2N2: "", l2c: "" };
@@ -4418,7 +4427,8 @@ class Component extends DCLogic {
             if (done) {
               if (phTab > 0) this.setState({ cResTab: 0 });
               else if (phActive > 0)
-                this.setState({ cResDay: phStarts[phActive - 1] * 7 });
+                this.setState({ cResDay: phStarts[phActive - 1] * 7,
+                  cResScrub: false });
               else go(4);
               return;
             }
@@ -4696,7 +4706,8 @@ class Component extends DCLogic {
             if (done) {
               if (phTab === 0) {
                 if (phActive < phases.length - 1)
-                  this.setState({ cResDay: phStarts[phActive + 1] * 7 });
+                  this.setState({ cResDay: phStarts[phActive + 1] * 7,
+                    cResScrub: false });
                 else this.setState({ cResTab: 1 });
               }
               return;
@@ -4708,7 +4719,8 @@ class Component extends DCLogic {
               return;
             }
             if (step === 4) {
-              this.setState({ cStep: 5, cResTab: 0, cResDay: null });
+              this.setState({ cStep: 5, cResTab: 0, cResDay: null,
+                cResScrub: false });
               return;
             }
             go(step + 1);
@@ -4735,7 +4747,7 @@ class Component extends DCLogic {
             label: "0" + (i + 1) + " " + (pp.key === "cut" ? "LOSE"
               : pp.key === "gain" ? "GAIN" : "FLAT"),
             onClick: () => this.setState({ cResTab: 0,
-              cResDay: phStarts[i] * 7 }),
+              cResDay: phStarts[i] * 7, cResScrub: false }),
             s: (on => ({ padding: "0 .15rem .4rem", border: 0,
               borderRadius: 0, background: "transparent", cursor: "pointer",
               fontFamily: "var(--font-2)", fontSize: ".95rem",
@@ -4837,18 +4849,21 @@ class Component extends DCLogic {
           // The scrub line hangs from the marker rather than crossing the
           // sky above the trace.
           cPhScrubS: { position: "absolute",
+            display: phScrub ? "block" : "none",
             top: phWVals.length ? (100 * phYOf(phCur.w) / 44) + "%" : "0%",
             bottom: 0,
             left: phX + "%", width: "2px", marginLeft: "-1px",
             background: "#22d3ee", boxShadow: "0 0 8px rgba(34,211,238,.6)",
             pointerEvents: "none" },
-          cPhMkW: { position: "absolute", left: phX + "%",
+          cPhMkW: { position: "absolute",
+            display: phScrub ? "block" : "none", left: phX + "%",
             top: phWVals.length ? (100 * phYOf(phCur.w) / 44) + "%" : "0%",
             width: ".6rem", height: ".6rem", borderRadius: "50%",
             transform: "translate(-50%,-50%)", background: "#d7e6ef",
             boxShadow: "0 0 8px rgba(215,230,239,.8)", pointerEvents: "none" },
           cPhVal: phCur.w ? phCur.w.toFixed(1) + " KG" : "",
           cPhValS: { position: "absolute",
+            display: phScrub ? "block" : "none",
             left: Math.max(10, Math.min(88, phX)) + "%",
             top: phWVals.length ? (100 * phYOf(phCur.w) / 44) + "%" : "0%",
             transform: "translate(-50%,-150%)",
@@ -4858,13 +4873,16 @@ class Component extends DCLogic {
             textShadow: "0 0 8px rgba(2,6,23,.9)" },
           cPhSlMax: String(phDays),
           cPhSlVal: String(phD),
-          cPhSlSet: e => this.setState({ cResDay: +e.target.value }),
+          // Dragging the chart hands the day back its bar.
+          cPhSlSet: e => this.setState({ cResDay: +e.target.value,
+            cResScrub: true }),
           cPhSlS: { position: "absolute", inset: 0, width: "100%",
             height: "100%", margin: 0, opacity: 0, cursor: "ew-resize",
             touchAction: "none" },
           // The day rides under the scrub, switching its anchor near the
           // edges so it never leaves the chart's column.
-          cPhDayRow: { position: "relative", flex: "none", display: "block",
+          cPhDayRow: { position: "relative", flex: "none",
+            display: phScrub ? "block" : "none",
             width: "100%", maxWidth: "19.5rem", alignSelf: "center",
             height: "1.35rem", marginTop: "-.45rem" },
           cPhDayS: { position: "absolute", top: 0, left: phX + "%",
@@ -4883,6 +4901,15 @@ class Component extends DCLogic {
               : "IN " + phD + (phD === 1 ? " DAY" : " DAYS"))
               + " \u00b7 " + date;
           })(),
+          // Lit phase, no bar: the trajectory says where the phase starts
+          // and where it lands, over the highlighted span itself.
+          cPhRange: phScrub ? "" : phA.rng,
+          cPhRangeS: { display: phScrub ? "none" : "block",
+            width: "100%", maxWidth: "19.5rem", alignSelf: "center",
+            textAlign: "center", marginBottom: ".15rem",
+            fontFamily: "var(--font-2)", fontSize: ".95rem",
+            letterSpacing: ".12em", color: "#3fdcf2", whiteSpace: "nowrap",
+            fontVariantNumeric: "tabular-nums" },
           cPhMeasRow: { display: "flex", justifyContent: "center",
             padding: "0 .2rem" },
           cPhMeasItem: { display: "flex", alignItems: "baseline",
@@ -4893,10 +4920,11 @@ class Component extends DCLogic {
             fontSize: "1.1rem", fontVariantNumeric: "tabular-nums",
             color: "#eaf5fb" },
           cPhMeas: (() => {
-            if (!phCur.w) return [];
-            const bfv = 100 * phCur.fm / phCur.w;
+            const at = phScrub ? phCur : phAt(phA.endDay || 0);
+            if (!at.w) return [];
+            const bfv = 100 * at.fm / at.w;
             return [
-              { lab: "BODY FAT", val: phCur.fm.toFixed(1) + " KG ("
+              { lab: "BODY FAT", val: at.fm.toFixed(1) + " KG ("
                 + bfv.toFixed(1) + " %)" }
             ];
           })(),
