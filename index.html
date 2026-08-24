@@ -4278,20 +4278,20 @@ class Component extends DCLogic {
             seg(wk, G, (1 - sG) * G);
             W += G; FFM += sG * G;
           };
-          const midPh = purpose => {
+          const midPh = () => {
             const wk = Math.max(2, Math.min(4, Math.round(out[0].wks / 4)));
             out.push({ key: "mid", label: "MAINTAIN", wks: wk, dwWk: 0,
-              endW: W, purpose, kcal: r50(maintAt(W, FFM)) });
+              endW: W, kcal: r50(maintAt(W, FFM)) });
             seg(wk, 0, 0);
           };
           if (X > 0.25 && G > 0.25) {
             if (gainFirst) {
               gainPh();
-              midPh("Advised recovery period");
+              midPh();
               cutPh();
             } else {
               cutPh();
-              midPh("Advised recovery period");
+              midPh();
               gainPh();
             }
           } else if (X > 0.25) cutPh();
@@ -4382,9 +4382,6 @@ class Component extends DCLogic {
             o.rN = Math.abs(pp.dwWk).toFixed(1);
             o.r2 = " kg per week for "; o.rN2 = String(pp.wks);
             o.r3 = " weeks";
-          } else if (pp.wks) {
-            o.e2 = " kcal per day for "; o.eN2 = String(pp.wks);
-            o.e3 = " weeks";
           }
           if (pp.key === "cut") {
             const def = Math.round(Math.abs(pp.dwWk)
@@ -4400,7 +4397,10 @@ class Component extends DCLogic {
             o.l2b = " surplus minimises fat gain (";
             o.l2N2 = Math.round(100 * (1 - plan.sG)) + "%";
             o.l2c = " of the weight gain)";
-          } else if (pp.key === "mid") o.l2a = pp.purpose;
+          } else if (pp.key === "mid") {
+            o.l2a = "A metabolic recovery period of ";
+            o.l2N = pp.wks + (pp.wks === 1 ? " week" : " weeks");
+          }
           else if (pp.key === "hold") o.l2a = "You are at your goal";
           return o;
         })();
