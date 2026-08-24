@@ -238,6 +238,9 @@ option{background:#070b12;color:#d7e6ef}
 </helmet>
 <div style="{{ shell }}">
 <div style="{{ dShell }}">
+  <span style="{{ frameGrid }}"></span>
+  <span style="{{ frameRailL }}"></span>
+  <span style="{{ frameRailR }}"></span>
   <sc-if value="{{ tabsOn }}" hint-placeholder-val="{{ false }}">
   <div style="{{ tabBar }}">
     <sc-for list="{{ appTabs }}" as="t" hint-placeholder-count="4">
@@ -441,7 +444,7 @@ option{background:#070b12;color:#d7e6ef}
     <sc-if value="{{ cResOn }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cVTabRow }}"><sc-for list="{{ cPhTabs }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="color:#3fdcf2">{{ t.label }}</button></sc-for></span>
       <sc-if value="{{ cPhPlanOn }}" hint-placeholder-val="{{ true }}">
-      <span style="{{ cPhList }}"><sc-for list="{{ cPhBlocks }}" as="t" hint-placeholder-count="3"><span onClick="{{ t.onClick }}" style="{{ t.blockS }}"><span style="{{ cPhBlockHRow }}"><span style="{{ cPhBlockNum }}">{{ t.num }}</span><span style="{{ cPhBlockH }}">{{ t.head }}</span></span><span style="{{ t.rateS }}">{{ t.r1 }}<span style="{{ cPhNum }}">{{ t.rN }}</span>{{ t.r2 }}<span style="{{ cPhNum }}">{{ t.rN2 }}</span>{{ t.r3 }}</span><span style="{{ cPhLine }}">{{ t.e1 }}<span style="{{ cPhNum }}">{{ t.eN1 }}</span>{{ t.e2 }}<span style="{{ cPhNum }}">{{ t.eN2 }}</span>{{ t.e3 }}</span><span style="{{ t.l2s }}">{{ t.l2a }}<span style="{{ cPhNum }}">{{ t.l2N }}</span>{{ t.l2b }}</span></span></sc-for></span>
+      <span style="{{ cPhList }}"><sc-for list="{{ cPhBlocks }}" as="t" hint-placeholder-count="3"><span onClick="{{ t.onClick }}" style="{{ t.blockS }}"><span style="{{ cPhBlockHRow }}"><span style="{{ t.numS }}">{{ t.num }}</span><span style="{{ cPhBlockH }}">{{ t.head }}</span></span><span style="{{ cPhLine }}">{{ t.e1 }}<span style="{{ cPhNum }}">{{ t.eN1 }}</span>{{ t.e2 }}<span style="{{ cPhNum }}">{{ t.eN2 }}</span>{{ t.e3 }}</span><span style="{{ t.rateS }}">{{ t.r1 }}<span style="{{ cPhNum }}">{{ t.rN }}</span>{{ t.r2 }}<span style="{{ cPhNum }}">{{ t.rN2 }}</span>{{ t.r3 }}</span><span style="{{ t.l2s }}">{{ t.l2a }}<span style="{{ cPhNum }}">{{ t.l2N }}</span>{{ t.l2b }}</span></span></sc-for></span>
       </sc-if>
       <sc-if value="{{ cPhInfoOn }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cPhInfoBox }}"><sc-for list="{{ cPhInfoLines }}" as="t" hint-placeholder-count="6"><span style="{{ cPhInfoRow }}"><span style="{{ cPhInfoDot }}"></span><span style="{{ cPhInfoTxt }}">{{ t.a }}<span style="{{ cPhInfoHi }}">{{ t.n1 }}</span>{{ t.b }}<span style="{{ cPhInfoHi }}">{{ t.n2 }}</span>{{ t.c }}</span></span></sc-for></span>
@@ -465,8 +468,7 @@ option{background:#070b12;color:#d7e6ef}
           <span style="{{ cPhValS }}">{{ cPhVal }}</span>
           <input type="range" min="0" max="{{ cPhSlMax }}" step="1" value="{{ cPhSlVal }}" onChange="{{ cPhSlSet }}" style="{{ cPhSlS }}">
         </span>
-        <span style="{{ cPhAxisRow }}"><span>TODAY</span><span>{{ cPhAxisEnd }}</span></span>
-        <span style="{{ cPhDayS }}">{{ cPhDay }}</span>
+        <span style="{{ cPhDayRow }}"><span style="{{ cPhDayS }}">{{ cPhDay }}</span></span>
         <span style="{{ cPhMeasRow }}"><sc-for list="{{ cPhMeas }}" as="t" hint-placeholder-count="3"><span style="{{ cPhMeasItem }}"><span style="{{ cPhMeasLab }}">{{ t.lab }}</span><span style="{{ cPhMeasVal }}">{{ t.val }}</span></span></sc-for></span>
       </span>
       </sc-if>
@@ -3824,7 +3826,7 @@ class Component extends DCLogic {
       })),
       shell: s.narrow
         ? { position: "fixed", top: 0, left: 0, right: 0, height: s.vvh ? s.vvh + "px" : VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: s.tablet ? "1.1rem " + TAB_PAD_REM + "rem .4rem" : ".2rem 0 0", boxSizing: "border-box", transition: "height 240ms cubic-bezier(.22,1,.36,1)" }
-        : { height: VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: "2.4rem 1.25rem", boxSizing: "border-box" },
+        : { height: VH, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", padding: "2.4rem 2.3rem", boxSizing: "border-box" },
       mName: {
         display: "block", minWidth: 0, fontWeight: 300, fontSize: "1.02rem", color: "#d7e6ef",
         // Given the whole row, show the whole name rather than trailing it off.
@@ -3982,7 +3984,9 @@ class Component extends DCLogic {
         marginBottom: s.narrow ? "0" : ".35rem",
         padding: s.narrow ? "0 .6rem" : 0, boxSizing: "border-box",
         fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".94rem",
-        letterSpacing: s.narrow ? ".1em" : ".14em"
+        letterSpacing: s.narrow ? ".1em" : ".14em",
+        // The nav band's rule, full-bleed so it crosses the frame's rails.
+        borderBottom: s.narrow ? "none" : "1px solid rgba(34,211,238,.22)"
       },
       tabVer: { marginLeft: ".35rem", fontSize: ".62rem", letterSpacing: ".16em", color: "#5b7183" },
       mBackRow: {
@@ -4358,7 +4362,9 @@ class Component extends DCLogic {
           cQ: STEPS[step],
           // The way forward is the right notch on every screen; the last one
           // simply notches into the result.
-          cRNotchOn: done ? phTab < 1 : true,
+          // The plan is the end of the road: ASSUMPTIONS is optional
+          // reading reached by its tab, not a step the notch walks to.
+          cRNotchOn: !done,
           // CURRENT and YOUR GOAL, as underlined tabs over the figure. The
           // first visit to the goal births it from the current numbers; after
           // that the two bodies stand side by side and the tab picks which
@@ -4656,12 +4662,10 @@ class Component extends DCLogic {
           // where the phase lands you on the second.
           cPhList: { flex: "none", alignSelf: "center", width: "100%",
             maxWidth: "19.5rem", marginTop: "1.6rem", display: "flex",
-            flexDirection: "column", gap: "1.7rem" },
+            flexDirection: "column", gap: "1.7rem",
+            transform: "translateX(.8rem)" },
           cPhBlockHRow: { display: "flex", alignItems: "baseline",
             gap: ".6rem" },
-          cPhBlockNum: { fontFamily: "var(--font-2)", fontSize: "1.2rem",
-            letterSpacing: ".08em", color: "#5f7688",
-            fontVariantNumeric: "tabular-nums" },
           cPhBlockH: { fontFamily: "var(--font-2)", fontSize: "1.2rem",
             letterSpacing: ".12em", color: "#3fdcf2",
             whiteSpace: "nowrap" },
@@ -4675,10 +4679,18 @@ class Component extends DCLogic {
             let accWk = 0;
             const starts = phases.map(pp => {
               const s = accWk; accWk += pp.wks; return s; });
+            // A one-phase plan drops the numbering and the word PHASE —
+            // there is no sequence to count.
+            const solo = phases.length === 1;
+            const numS = { fontFamily: "var(--font-2)", fontSize: "1.2rem",
+              letterSpacing: ".08em", color: "#5f7688",
+              fontVariantNumeric: "tabular-nums",
+              display: solo ? "none" : "block" };
             return phases.map((pp, i) => {
               const on = i === phActive;
               const move = pp.key === "cut" || pp.key === "gain";
-              const head = pp.key === "cut" ? "CUT PHASE" : pp.label;
+              const head = pp.key === "cut"
+                ? (solo ? "WEIGHT CUT" : "CUT PHASE") : pp.label;
               let r1 = "", rN = "", r2 = "", rN2 = "", r3 = "";
               if (move) {
                 r1 = pp.key === "cut" ? "Lose " : "Gain ";
@@ -4697,9 +4709,15 @@ class Component extends DCLogic {
                   : { e1: "Eat ", eN1: cm(pp.kcal), e2: " kcal per day",
                     eN2: "", e3: "" };
               let l2a = "", l2N = "", l2b = "";
-              if (pp.key === "mid") l2a = pp.purpose;
+              if (pp.key === "cut") {
+                const def = Math.round(Math.abs(pp.dwWk)
+                  * (plan.sL * RHO_LEAN + (1 - plan.sL) * RHO_FAT)
+                  / 7 / 50) * 50;
+                l2a = "A "; l2N = cm(def) + " kcal";
+                l2b = " deficit minimises muscle loss";
+              } else if (pp.key === "mid") l2a = pp.purpose;
               else if (pp.key === "hold") l2a = "You are at your goal";
-              return Object.assign({ num: "0" + (i + 1), head,
+              return Object.assign({ num: "0" + (i + 1), head, numS,
                 r1, rN, r2, rN2, r3, l2a, l2N, l2b,
                 onClick: () => this.setState({ cResDay: starts[i] * 7 }),
                 blockS: { display: "flex", flexDirection: "column",
@@ -4732,13 +4750,6 @@ class Component extends DCLogic {
             background: "rgba(5,8,13,.62)", pointerEvents: "none",
             opacity: i === phActive ? 0 : 1,
             transition: "opacity 180ms ease" } })),
-          cPhAxisRow: { display: "flex", justifyContent: "space-between",
-            width: "100%", alignSelf: "center",
-            marginTop: "-.55rem", marginBottom: ".35rem",
-            fontFamily: "var(--font-2)", fontSize: ".9rem",
-            letterSpacing: ".1em", color: "#7b91a3",
-            fontVariantNumeric: "tabular-nums" },
-          cPhAxisEnd: phTotal ? "+" + phTotal + " WKS" : "ONGOING",
           cPhSvg: { position: "absolute", inset: 0, width: "100%",
             height: "100%", display: "block" },
           cPhWPath: phWVals.length ? phLineOf(phWVals) : "",
@@ -4770,7 +4781,11 @@ class Component extends DCLogic {
               return "M" + x + " 0 L" + x + " 44";
             }).join(" ");
           })(),
-          cPhScrubS: { position: "absolute", top: 0, bottom: 0,
+          // The scrub line hangs from the marker rather than crossing the
+          // sky above the trace.
+          cPhScrubS: { position: "absolute",
+            top: phWVals.length ? (100 * phYOf(phCur.w) / 44) + "%" : "0%",
+            bottom: 0,
             left: phX + "%", width: "2px", marginLeft: "-1px",
             background: "#22d3ee", boxShadow: "0 0 8px rgba(34,211,238,.6)",
             pointerEvents: "none" },
@@ -4794,9 +4809,16 @@ class Component extends DCLogic {
           cPhSlS: { position: "absolute", inset: 0, width: "100%",
             height: "100%", margin: 0, opacity: 0, cursor: "ew-resize",
             touchAction: "none" },
-          cPhDayS: { display: "block", textAlign: "center",
+          // The day rides under the scrub, switching its anchor near the
+          // edges so it never leaves the chart's column.
+          cPhDayRow: { position: "relative", flex: "none", display: "block",
+            width: "100%", maxWidth: "19.5rem", alignSelf: "center",
+            height: "1.35rem", marginTop: "-.45rem" },
+          cPhDayS: { position: "absolute", top: 0, left: phX + "%",
+            transform: phX <= 18 ? "none"
+              : phX >= 82 ? "translateX(-100%)" : "translateX(-50%)",
             fontFamily: "var(--font-2)", fontSize: ".95rem",
-            letterSpacing: ".12em", color: "#3fdcf2",
+            letterSpacing: ".12em", color: "#3fdcf2", whiteSpace: "nowrap",
             fontVariantNumeric: "tabular-nums" },
           cPhDay: (() => {
             const d = new Date(Date.now() + phD * 864e5);
@@ -4953,22 +4975,34 @@ class Component extends DCLogic {
             gap: 0, width: "100%", maxWidth: "24rem", alignSelf: "center" },
           // The way on and the way back are notches on the glass — mid-screen
           // tabs clinging to the edges, so neither costs the figure a row.
-          cNotchL: { position: "absolute", left: s.narrow ? "-.5rem" : "-1px",
+          // On the phone the notches cling to the glass edges. On desktop
+          // they dock onto the frame's rails from outside — border dropped
+          // on the side that meets the rail, a 1px lap so no gap shows, and
+          // the only radius in the system on the outer corners.
+          cNotchL: Object.assign({ position: "absolute",
             top: "42%", transform: "translateY(-50%)", zIndex: 5,
             display: "flex", alignItems: "center", justifyContent: "center",
             width: "2.1rem", height: "4.8rem", padding: 0, boxSizing: "border-box",
-            border: "1px solid rgba(34,211,238,.5)", borderLeft: "none",
-            borderRadius: 0, background: "rgba(34,211,238,.08)", color: "#3fdcf2",
+            border: "1px solid rgba(34,211,238,.5)",
+            background: "rgba(34,211,238,.08)", color: "#3fdcf2",
             boxShadow: "0 0 18px rgba(34,211,238,.12)", cursor: "pointer",
             transition: "background 160ms ease, border-color 160ms ease" },
-          cNotchR: { position: "absolute", right: s.narrow ? "0" : "-1px",
+            s.narrow
+              ? { left: "-.5rem", borderLeft: "none", borderRadius: 0 }
+              : { left: "calc(-2.1rem + 1px)", borderRight: "none",
+                borderRadius: "3px 0 0 3px" }),
+          cNotchR: Object.assign({ position: "absolute",
             top: "42%", transform: "translateY(-50%)", zIndex: 5,
             display: "flex", alignItems: "center", justifyContent: "center",
             width: "2.1rem", height: "4.8rem", padding: 0, boxSizing: "border-box",
-            border: "1px solid rgba(34,211,238,.5)", borderRight: "none",
-            borderRadius: 0, background: "rgba(34,211,238,.08)", color: "#3fdcf2",
+            border: "1px solid rgba(34,211,238,.5)",
+            background: "rgba(34,211,238,.08)", color: "#3fdcf2",
             boxShadow: "0 0 18px rgba(34,211,238,.12)", cursor: "pointer",
             transition: "background 160ms ease, border-color 160ms ease" },
+            s.narrow
+              ? { right: "0", borderRight: "none", borderRadius: 0 }
+              : { right: "calc(-2.1rem + 1px)", borderLeft: "none",
+                borderRadius: "0 3px 3px 0" }),
           cValRow: { flex: "none", display: "flex", alignItems: "baseline",
             justifyContent: "center", gap: ".45rem", paddingBottom: ".1rem" },
           cValS: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "2.9rem",
@@ -4990,7 +5024,10 @@ class Component extends DCLogic {
             fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "2.6rem",
             lineHeight: 1.1, fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
           // ── chrome ───────────────────────────────────────────────────────────────
-          cWrap: { position: "relative", flex: 1, minHeight: 0, display: "flex",
+          // On desktop the wrap stays static so the notches, its children,
+          // anchor to the framed dShell and reach its rails.
+          cWrap: { position: s.narrow ? "relative" : "static",
+            flex: 1, minHeight: 0, display: "flex",
             flexDirection: "column", width: "100%",
             maxWidth: s.narrow ? "none" : "34rem", margin: "0 auto",
             padding: s.narrow ? ".2rem .5rem .8rem" : ".4rem 0 1rem", boxSizing: "border-box" },
@@ -5637,10 +5674,36 @@ class Component extends DCLogic {
       // on a bigger screen, which is exactly what it should not read as; the gutters do
       // the same job of holding the column off the glass without the picture frame.
       dShell: {
+        position: "relative",
         width: "100%", maxWidth: s.narrow ? TOUCH_W : dxp ? "1280px" : "1120px",
         display: "flex", flexDirection: "column", flex: 1, minHeight: 0,
         boxSizing: "border-box",
         transition: "max-width 560ms cubic-bezier(.22,1,.36,1)"
+      },
+      // The desktop frame: two vertical hairlines the full height of the
+      // band below the nav, the nav's own rule crossing them, and a faint
+      // 96px grid behind it all — content sits inside a measured drawing
+      // rather than floating on a page. The phone keeps its clean glass.
+      frameGrid: {
+        display: s.narrow || app === "home" ? "none" : "block",
+        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+        backgroundImage:
+          "linear-gradient(rgba(34,211,238,.05) 1px, transparent 1px)," +
+          "linear-gradient(90deg, rgba(34,211,238,.05) 1px, transparent 1px)",
+        backgroundSize: "96px 96px",
+        maskImage: "radial-gradient(ellipse 120% 75% at 50% 0%, #000 38%, transparent 80%)",
+        WebkitMaskImage: "radial-gradient(ellipse 120% 75% at 50% 0%, #000 38%, transparent 80%)",
+        opacity: .5
+      },
+      frameRailL: {
+        display: s.narrow || app === "home" ? "none" : "block",
+        position: "absolute", left: 0, top: "2.6rem", bottom: 0, width: 0,
+        borderLeft: "1px solid rgba(34,211,238,.22)", pointerEvents: "none"
+      },
+      frameRailR: {
+        display: s.narrow || app === "home" ? "none" : "block",
+        position: "absolute", right: 0, top: "2.6rem", bottom: 0, width: 0,
+        borderRight: "1px solid rgba(34,211,238,.22)", pointerEvents: "none"
       },
       dExpToggle: () => this.setState({ dxp: !s.dxp }),
       dExpBox: {
