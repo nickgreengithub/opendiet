@@ -4620,8 +4620,12 @@ class Component extends DCLogic {
               cMetGrid: { position: "relative", zIndex: 1, marginBottom: "-1px",
                 display: "grid",
                 gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: ".5rem" },
+              // The tray wears the selected cell's own highlight, so tab and
+              // tray read as one lit piece — the only break in its outline is
+              // the erased seam under the selected tab.
               cSliderBox: { display: "block", padding: ".3rem .9rem .45rem",
-                background: TRAY, border: "1px solid #1e293b" },
+                background: TRAY,
+                border: "1px solid rgba(34,211,238,.75)" },
               cMetCells: Object.keys(M).map(k => {
                 const mm = M[k], on = k === sel;
                 return {
