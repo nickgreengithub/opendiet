@@ -34,7 +34,7 @@
 <link rel="stylesheet" href="ds/styles.css">
 <script src="ds/_ds_bundle.js"></script>
 <style>
-html,body{margin:0;background:radial-gradient(900px 500px at 50% -20%, rgba(34,211,238,.07), transparent 60%), #05080d;color:#d7e6ef;font-family:var(--font-1),sans-serif}
+html,body{margin:0;background:radial-gradient(900px 500px at 50% -20%, rgba(34,211,238,.07), transparent 60%), #020617;color:#d7e6ef;font-family:var(--font-1),sans-serif}
 /* A tablet runs the phone's design, because below 1000px the table cannot name a food.
    But a phone's design at a phone's size on a tablet is a phone emulator, so the root
    grows and the whole layout grows with it: every size in this file is in rem, so one
@@ -404,19 +404,19 @@ option{background:#070b12;color:#d7e6ef}
       </span>
       <sc-if value="{{ cIsHt }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cBodyPanel }}">
-        <span style="{{ cHtGrid }}"><sc-for list="{{ cHtCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.55);border-left-color:rgba(34,211,238,.55);border-right-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
+        <span style="{{ cHtGrid }}"><sc-for list="{{ cHtCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:#1e293b;border-left-color:#1e293b;border-right-color:#1e293b"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
         <span style="{{ cSliderBox }}"><input type="range" min="{{ cHtMin }}" max="{{ cHtMax }}" step="1" value="{{ cHtSlV }}" onChange="{{ cHtSlide }}" style="{{ cHtTrack }}"></span>
       </span>
       </sc-if>
       <sc-if value="{{ cIsBody }}" hint-placeholder-val="{{ true }}">
       <span style="{{ cBodyPanel }}">
-        <span style="{{ cMetGrid }}"><sc-for list="{{ cMetCells }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.55);border-left-color:rgba(34,211,238,.55);border-right-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
+        <span style="{{ cMetGrid }}"><sc-for list="{{ cMetCells }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:#1e293b;border-left-color:#1e293b;border-right-color:#1e293b"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
         <span style="{{ cSliderBox }}"><input type="range" min="{{ cSelMin }}" max="{{ cSelMax }}" step="{{ cSelStep }}" value="{{ cSelVal }}" onChange="{{ cSelSlide }}" style="{{ cSelTrack }}"></span>
       </span>
       </sc-if>
       <sc-if value="{{ cIsAct }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cBodyPanel }}">
-        <span style="{{ cHtGrid }}"><sc-for list="{{ cActCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.55);border-left-color:rgba(34,211,238,.55);border-right-color:rgba(34,211,238,.55)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}</span></button></sc-for></span>
+        <span style="{{ cHtGrid }}"><sc-for list="{{ cActCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:#1e293b;border-left-color:#1e293b;border-right-color:#1e293b"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}</span></button></sc-for></span>
         <span style="{{ cSliderBox }}"><input type="range" min="{{ cActMin }}" max="{{ cActMax }}" step="{{ cActStep }}" value="{{ cActIdx }}" onChange="{{ cActSlide }}" style="{{ cActTrack }}"></span>
       </span>
       </sc-if>
@@ -525,7 +525,7 @@ option{background:#070b12;color:#d7e6ef}
       <span onMouseEnter="{{ tipOn.mo }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span style="{{ subPre }}">FAT</span><span>MONO</span><sc-if value="{{ tip.mo }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">MONOUNSATURATED</span><span style="{{ headTipText }}">{{ tipText.mo }}</span></span></span></sc-if></span>
       <span onMouseEnter="{{ tipOn.po }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span style="{{ subPre }}">FAT</span><span>POLY</span><sc-if value="{{ tip.po }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">POLYUNSATURATED</span><span style="{{ headTipText }}">{{ tipText.po }}</span></span></span></sc-if></span>
       <span onMouseEnter="{{ tipOn.s3 }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.s3 }}" style="{{ head3 }}"><span>FATS</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s3 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-2%</span></sc-if><sc-if value="{{ tip.s3 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">FATS</span><span style="{{ headTipText }}">{{ tipText.s3 }}</span></span></span></sc-if></span>
-      <span onMouseEnter="{{ tipOn.kcal }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.kcal }}" style="{{ headTotal }}"><span>KCAL</span><sc-if value="{{ sorted.kcal }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.kcal }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid rgba(34,211,238,.55);box-shadow:0 0 28px rgba(34,211,238,.12)"><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(34,211,238,.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="display:block;padding:0 .7rem .7rem"><span style="font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#94a3b8;text-wrap:pretty">Digestion costs 25% of protein calories, 8% of carbohydrate, 2% of fat. Applied to the calorie figures throughout.</span></span><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid rgba(34,211,238,.55)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">KCAL</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.kcal }}</span></span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.kcal }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.kcal }}" style="{{ headTotal }}"><span>KCAL</span><sc-if value="{{ sorted.kcal }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.kcal }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:#070b12;border:1px solid #1e293b;box-shadow:0 0 28px rgba(34,211,238,.12)"><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(34,211,238,.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="display:block;padding:0 .7rem .7rem"><span style="font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#94a3b8;text-wrap:pretty">Digestion costs 25% of protein calories, 8% of carbohydrate, 2% of fat. Applied to the calorie figures throughout.</span></span><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid #1e293b"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:#7b91a3">KCAL</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:#cbd5e1;text-wrap:pretty">{{ tipText.kcal }}</span></span></span></span></sc-if></span>
       <span onMouseEnter="{{ tipOn.score }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.extra }}" style="{{ headIsland }}"><span>{{ extraLabel }}</span><sc-if value="{{ sorted.extra }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.score }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">FULLNESS SCORE</span><span style="{{ headTipText }}">{{ tipText.score }}</span></span></span></sc-if></span>
       <span style="{{ dActHead }}"><span data-dexp onClick="{{ dExpToggle }}" style="{{ dExpBox }}"><span style="{{ dExpChev }}"><span style="{{ dExpTri }}"></span></span></span></span>
     </div>
@@ -857,10 +857,10 @@ option{background:#070b12;color:#d7e6ef}
   <div style="max-width:460px">
     <a onClick="{{ goResults }}" style="font-family:var(--font-2);font-size:.78rem;letter-spacing:.16em;cursor:pointer">← RESULTS</a>
     <div style="font-family:var(--font-1);font-weight:300;font-size:1.6rem;color:#d7e6ef;margin:.85rem 0 1.25rem">Settings</div>
-    <div style="border-top:1px solid rgba(34,211,238,.28)">
-      <div style="display:flex;justify-content:space-between;padding:.55rem 0;border-bottom:1px solid rgba(34,211,238,.14)"><span style="font-family:var(--font-2);font-size:.78rem;letter-spacing:.12em;color:#7b91a3">BASIS</span><span style="font-size:.9rem;font-weight:300;color:#d7e6ef">per 100 g</span></div>
-      <div style="display:flex;justify-content:space-between;padding:.55rem 0;border-bottom:1px solid rgba(34,211,238,.14)"><span style="font-family:var(--font-2);font-size:.78rem;letter-spacing:.12em;color:#7b91a3">SOURCE</span><span style="font-size:.9rem;font-weight:300;color:#d7e6ef">USDA FDC</span></div>
-      <div style="display:flex;justify-content:space-between;padding:.55rem 0;border-bottom:1px solid rgba(34,211,238,.14)"><span style="font-family:var(--font-2);font-size:.78rem;letter-spacing:.12em;color:#7b91a3">SIGNED IN</span><span style="font-size:.9rem;font-weight:300;color:#d7e6ef">{{ accountLabel }}</span></div>
+    <div style="border-top:1px solid #1e293b">
+      <div style="display:flex;justify-content:space-between;padding:.55rem 0;border-bottom:1px solid #1e293b"><span style="font-family:var(--font-2);font-size:.78rem;letter-spacing:.12em;color:#7b91a3">BASIS</span><span style="font-size:.9rem;font-weight:300;color:#d7e6ef">per 100 g</span></div>
+      <div style="display:flex;justify-content:space-between;padding:.55rem 0;border-bottom:1px solid #1e293b"><span style="font-family:var(--font-2);font-size:.78rem;letter-spacing:.12em;color:#7b91a3">SOURCE</span><span style="font-size:.9rem;font-weight:300;color:#d7e6ef">USDA FDC</span></div>
+      <div style="display:flex;justify-content:space-between;padding:.55rem 0;border-bottom:1px solid #1e293b"><span style="font-family:var(--font-2);font-size:.78rem;letter-spacing:.12em;color:#7b91a3">SIGNED IN</span><span style="font-size:.9rem;font-weight:300;color:#d7e6ef">{{ accountLabel }}</span></div>
     </div>
     <div style="display:flex;justify-content:flex-end;margin-top:.85rem"><a onClick="{{ goAuth }}" style="font-family:var(--font-2);font-size:.78rem;letter-spacing:.16em;cursor:pointer">{{ authAction }}</a></div>
   </div>
@@ -875,9 +875,9 @@ option{background:#070b12;color:#d7e6ef}
       <x-import component-from-global-scope="PasteToFileDesignSystem_0eb22b.Button" block="{{ true }}" onClick="{{ onSignIn }}" hint-size="100%,2.75rem">Sign in</x-import>
     </div>
     <div style="display:flex;align-items:center;gap:.7rem;margin:1.25rem 0">
-      <span style="flex:1;border-top:1px solid rgba(34,211,238,.12)"></span>
+      <span style="flex:1;border-top:1px solid #1e293b"></span>
       <span style="font-family:var(--font-2);font-size:.75rem;letter-spacing:.12em;color:#7b91a3">OR</span>
-      <span style="flex:1;border-top:1px solid rgba(34,211,238,.12)"></span>
+      <span style="flex:1;border-top:1px solid #1e293b"></span>
     </div>
     <div style="text-align:center"><a onClick="{{ onSignIn }}" style="font-family:var(--font-2);font-size:.78rem;letter-spacing:.16em;cursor:pointer">EMAIL ME A MAGIC LINK</a></div>
     <div style="text-align:center;margin-top:1.5rem"><a onClick="{{ onSignIn }}" style="font-family:var(--font-2);font-size:.78rem;letter-spacing:.16em;color:#7b91a3;cursor:pointer">CREATE ACCOUNT</a></div>
@@ -1557,7 +1557,7 @@ class Component extends DCLogic {
         // cell was 0 wide and every data row's was ninety-odd — which is exactly the
         // misalignment between the first food's column head and its figures. `display:
         // contents` on each row lets its three cells join the one grid above them.
-        const RULE = "1px solid rgba(34,211,238,.10)";
+        const RULE = "1px solid #1e293b";
         const cellBase = rule => ({ display: "flex", alignItems: "center", height: "2rem",
           borderTop: rule ? RULE : 0 });
         const numCell = rule => Object.assign(cellBase(rule),
@@ -1585,7 +1585,7 @@ class Component extends DCLogic {
           s: { textAlign: "right", fontFamily: "var(--font-1)", fontWeight: 300,
             fontSize: "1.05rem", fontVariantNumeric: "tabular-nums",
             color: v > other ? "#eaf5fb" : "#7b91a3" } });
-        const TOTRULE = "1px solid rgba(34,211,238,.28)";
+        const TOTRULE = "1px solid #1e293b";
         const totCell = (h, rule) => ({ display: "flex", alignItems: "center",
           height: h, borderTop: rule ? TOTRULE : 0 });
         const totNum = (h, rule) => Object.assign(totCell(h, rule),
@@ -1668,7 +1668,7 @@ class Component extends DCLogic {
           columnGap: ".45rem", alignItems: "center",
           minHeight: isOpen ? 0 : "2rem", height: isOpen ? 0 : "auto",
           overflow: "hidden", opacity: isOpen ? 0 : 1, cursor: "pointer",
-          borderBottom: last && !isOpen ? "1px solid rgba(34,211,238,.14)" : 0,
+          borderBottom: last && !isOpen ? "1px solid #1e293b" : 0,
           transition: "opacity 180ms ease" },
         open: isOpen
       });
@@ -1729,14 +1729,14 @@ class Component extends DCLogic {
       gTipBtn: { flex: "none", display: "flex", alignItems: "center",
         justifyContent: "center", width: "2.5rem", height: "2.5rem", boxSizing: "border-box",
         padding: 0, borderRadius: 0, cursor: "pointer",
-        border: "1px solid " + (this.state.gTip ? "rgba(34,211,238,.55)" : "rgba(34,211,238,.28)"),
+        border: "1px solid " + (this.state.gTip ? "rgba(34,211,238,.55)" : "#1e293b"),
         background: this.state.gTip ? "rgba(34,211,238,.12)" : "transparent",
         color: this.state.gTip ? "#3fdcf2" : "#5f7688" },
       gNoteS: { flex: "none", display: "block", marginTop: ".5rem",
         width: "100%", maxWidth: "none",
         marginLeft: nar ? 0 : "auto", marginRight: nar ? 0 : "auto",
         boxSizing: "border-box",
-        padding: ".7rem .8rem", border: "1px solid rgba(34,211,238,.28)",
+        padding: ".7rem .8rem", border: "1px solid #1e293b",
         background: "rgba(34,211,238,.05)", fontFamily: "var(--font-1)", fontWeight: 300,
         fontSize: ".95rem", lineHeight: 1.45, color: "#c3d3dd" },
       gResTiles: tiles,
@@ -1772,13 +1772,13 @@ class Component extends DCLogic {
     const g1 = v => { const n = v || 0;
       return n === 0 ? "0" : n < 10 ? n.toFixed(1) : String(Math.round(n)); };
     const COLS = "minmax(9rem,1.5fr) minmax(6.5rem,.9fr) repeat(10, minmax(3.1rem,1fr)) 4.2rem";
-    const RULE = "1px solid rgba(34,211,238,.12)";
+    const RULE = "1px solid #1e293b";
     const num = (lit, kcal) => ({
       display: "flex", alignItems: "center", justifyContent: "flex-end",
       minWidth: 0, height: "2rem", paddingRight: ".45rem", borderTop: RULE,
       fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap",
       background: kcal ? "rgba(34,211,238,.07)" : "transparent",
-      borderLeft: kcal ? "1px solid rgba(34,211,238,.4)" : "0",
+      borderLeft: kcal ? "1px solid #1e293b" : "0",
       fontSize: kcal ? "1rem" : ".88rem",
       color: kcal ? (lit ? "#eaf5fb" : "#9fb3c0") : (lit ? "#d7e6ef" : "#7b91a3")
     });
@@ -1824,7 +1824,7 @@ class Component extends DCLogic {
       paddingBottom: ".3rem", whiteSpace: "nowrap", overflow: "hidden",
       fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".1em",
       background: kcal ? "rgba(34,211,238,.07)" : "transparent",
-      borderLeft: kcal ? "1px solid rgba(34,211,238,.4)" : "0",
+      borderLeft: kcal ? "1px solid #1e293b" : "0",
       color: kcal ? "#3fdcf2" : "#7b91a3"
     });
     return {
@@ -1832,8 +1832,8 @@ class Component extends DCLogic {
       // The head rides inside the scroller rather than above it, so its columns are
       // measured against the same width the rows are and cannot drift by a scrollbar.
       gDHead: { display: "grid", gridTemplateColumns: COLS, alignItems: "stretch",
-        position: "sticky", top: 0, zIndex: 2, background: "#050810",
-        borderBottom: "1px solid rgba(34,211,238,.55)", marginBottom: ".5rem" },
+        position: "sticky", top: 0, zIndex: 2, background: "#020617",
+        borderBottom: "1px solid #1e293b", marginBottom: ".5rem" },
       gDHeadName: Object.assign(headCell(false), { justifyContent: "flex-start" }),
       gDHeadPort: headCell(false),
       gDHeadCell: headCell(false),
@@ -2211,8 +2211,8 @@ class Component extends DCLogic {
     const HUE = ["#22d3ee", "#7ee0a8", "#f08c7a"];
     // Units live in the cells as a dim suffix, not in the headers.
     const LABELS = ["PROT", "CARB", "FAT"];
-    const EDGE = "1px solid rgba(34,211,238,.55)";
-    const INNER = "1px solid rgba(34,211,238,.14)";
+    const EDGE = "1px solid #1e293b";
+    const INNER = "1px solid #1e293b";
     const EDGE_C = "rgba(34,211,238,.55)", INNER_C = "rgba(34,211,238,.14)";
     const numCell = (hue, muted, edge) => ({
       position: "relative", overflow: "hidden", minWidth: 0,
@@ -2313,7 +2313,7 @@ class Component extends DCLogic {
           position: "relative",
           display: "grid", gridTemplateColumns: mCols, columnGap: ".4rem",
           alignItems: "center", minHeight: "2.5rem", cursor: "pointer", transition: "background 140ms ease",
-          borderBottom: "1px solid rgba(34,211,238,.14)",
+          borderBottom: "1px solid #1e293b",
           borderLeft: "2px solid transparent", background: "transparent"
         },
         _raw: fo, _score: sc, _extraSort: extra.k === "score" ? sc : extra.get(fo)
@@ -2516,13 +2516,13 @@ class Component extends DCLogic {
         sAmt: Object.assign({}, amtNumBase, { color: mode === "s" ? "#eaf5fb" : "#b3c7d4" }),
         gCell: Object.assign({}, amtCellBase, {
           flex: 1,
-          borderBottom: "1px solid " + (mode === "g" ? "#22d3ee" : "rgba(34,211,238,.22)"),
+          borderBottom: "1px solid " + (mode === "g" ? "#22d3ee" : "#1e293b"),
           color: mode === "g" ? "#eaf5fb" : "#7b91a3",
           textShadow: mode === "g" ? "0 0 12px rgba(34,211,238,.35)" : "none"
         }),
         sCell: Object.assign({}, amtCellBase, {
           flex: servLabel.length > 4 ? 1.3 : 1,
-          borderBottom: "1px solid " + (mode === "s" ? "#22d3ee" : "rgba(34,211,238,.22)"),
+          borderBottom: "1px solid " + (mode === "s" ? "#22d3ee" : "#1e293b"),
           color: mode === "s" ? "#eaf5fb" : "#7b91a3",
           textShadow: mode === "s" ? "0 0 12px rgba(34,211,238,.35)" : "none"
         }),
@@ -3078,7 +3078,7 @@ class Component extends DCLogic {
         selOn: open ? "on" : "off",
         mRow: Object.assign({}, r.mRow, {
           gridTemplateColumns: mCols,
-          borderBottom: open ? 0 : "1px solid rgba(34,211,238,.14)",
+          borderBottom: open ? 0 : "1px solid #1e293b",
           background: open ? PICKED_BG : "transparent"
         }),
         // Open, the corner keeps the same cell and turns to the amount on screen: the value
@@ -3129,7 +3129,7 @@ class Component extends DCLogic {
           height: open ? vz.expH : "0px",
           opacity: open ? 1 : 0,
           background: open ? PICKED_BG : "transparent",
-          borderBottom: open ? "1px solid rgba(34,211,238,.14)" : 0,
+          borderBottom: open ? "1px solid #1e293b" : 0,
           transition: "height 520ms cubic-bezier(.22,1,.36,1), opacity 320ms ease, background 320ms ease"
         }
       });
@@ -3140,7 +3140,7 @@ class Component extends DCLogic {
       flex: "none", height: "1.6rem", padding: "0 .5rem", borderRadius: 0, cursor: "pointer",
       background: "transparent", fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".12em",
       transition: "border-color 140ms ease, color 140ms ease",
-      border: "1px solid " + (active ? "#22d3ee" : "rgba(34,211,238,.28)"),
+      border: "1px solid " + (active ? "#22d3ee" : "#1e293b"),
       color: active ? "#22d3ee" : "#7b91a3"
     });
     const selStyle = {
@@ -3159,7 +3159,7 @@ class Component extends DCLogic {
         display: "grid", gridTemplateColumns: "minmax(0,1fr) 4.6rem", columnGap: ".55rem", alignItems: "center",
         height: s.narrow ? "2.4rem" : "1.95rem", padding: s.narrow ? "0 .85rem" : "0 .7rem",
         border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left",
-        borderBottom: "1px solid rgba(34,211,238,.28)",
+        borderBottom: "1px solid #1e293b",
         fontFamily: "var(--font-2)", fontSize: s.narrow ? ".95rem" : ".75rem", letterSpacing: ".12em", whiteSpace: "nowrap",
         transition: "background 140ms ease, color 140ms ease",
         background: lib === d.k ? "rgba(34,211,238,.10)" : "transparent",
@@ -3168,7 +3168,7 @@ class Component extends DCLogic {
     }));
     const tefStyle = {
       display: "flex", alignItems: "center", gap: ".55rem", width: "100%", boxSizing: "border-box",
-      padding: ".55rem .7rem .35rem", border: 0, borderTop: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
+      padding: ".55rem .7rem .35rem", border: 0, borderTop: "1px solid #1e293b", borderRadius: 0,
       background: "transparent", cursor: "pointer", textAlign: "left",
       fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".1em",
       transition: "color 140ms ease", color: tef ? "#22d3ee" : "#c3d6e2"
@@ -3176,7 +3176,7 @@ class Component extends DCLogic {
     const tefBox = {
       flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
       width: "1rem", height: "1rem", fontSize: ".7rem", lineHeight: 1,
-      border: "1px solid " + (tef ? "#22d3ee" : "rgba(34,211,238,.28)"), color: "#22d3ee"
+      border: "1px solid " + (tef ? "#22d3ee" : "#1e293b"), color: "#22d3ee"
     };
     const unitOpts = units.map((u, ui) => ({
       label: u.label, grams: u.grams,
@@ -3189,8 +3189,8 @@ class Component extends DCLogic {
         display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem",
         width: "100%", boxSizing: "border-box", height: s.narrow ? "2.4rem" : "1.95rem", padding: "0 .7rem",
         border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left",
-        borderBottom: "1px solid rgba(34,211,238,.28)",
-        borderRight: ui === 0 ? "1px solid rgba(34,211,238,.28)" : "0",
+        borderBottom: "1px solid #1e293b",
+        borderRight: ui === 0 ? "1px solid #1e293b" : "0",
         fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", whiteSpace: "nowrap",
         transition: "background 140ms ease, color 140ms ease",
         background: unit.k === u.k ? "rgba(34,211,238,.10)" : "transparent",
@@ -3205,7 +3205,7 @@ class Component extends DCLogic {
       countStyle: { fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", fontVariantNumeric: "tabular-nums", textAlign: "right", color: c === s.cat ? "#22d3ee" : "#7b91a3" },
       onClick: () => this.setState({ cat: c, catOpen: false }),
       style: {
-        display: "grid", gridTemplateColumns: "minmax(0,1fr) 3.2rem", columnGap: ".55rem", alignItems: "center", height: "1.95rem", padding: "0 .7rem", border: 0, borderBottom: cats.indexOf(c) === cats.length - 1 ? 0 : "1px solid rgba(34,211,238,.28)", borderRadius: 0,
+        display: "grid", gridTemplateColumns: "minmax(0,1fr) 3.2rem", columnGap: ".55rem", alignItems: "center", height: "1.95rem", padding: "0 .7rem", border: 0, borderBottom: cats.indexOf(c) === cats.length - 1 ? 0 : "1px solid #1e293b", borderRadius: 0,
         background: c === s.cat ? "rgba(34,211,238,.10)" : "transparent", cursor: "pointer",
         fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", textAlign: "left",
         transition: "background 140ms ease, color 140ms ease",
@@ -3229,7 +3229,7 @@ class Component extends DCLogic {
     const tipStyle = {
       position: "absolute", top: "100%", right: 0, zIndex: 40, width: "20rem",
       display: "flex", flexDirection: "column", gap: ".35rem", padding: ".7rem .85rem",
-      background: "#070b12", border: "1px solid rgba(34,211,238,.55)", boxShadow: "0 0 28px rgba(34,211,238,.12)",
+      background: "#070b12", border: "1px solid #1e293b", boxShadow: "0 0 28px rgba(34,211,238,.12)",
       textAlign: "left", textTransform: "none", letterSpacing: 0, cursor: "default"
     };
     const tipStyleLeft = Object.assign({}, tipStyle, { right: "auto", left: 0 });
@@ -3270,7 +3270,7 @@ class Component extends DCLogic {
       display: "grid", cursor: "pointer",
       columnGap: ".4rem", alignItems: "center", minHeight: "2.5rem",
       borderLeft: "2px solid transparent",
-      borderBottom: "1px solid rgba(34,211,238,.14)", transition: "background 140ms ease"
+      borderBottom: "1px solid #1e293b", transition: "background 140ms ease"
     };
     // Only one plate row is open at a time.
     const sOpenName = s.narrow ? s.sOpen : null;
@@ -3451,7 +3451,7 @@ class Component extends DCLogic {
             ? "background 140ms ease"
             : "background 140ms ease, transform 240ms cubic-bezier(.22,1,.36,1)",
           gridTemplateColumns: sOpenName === fo.name ? "minmax(0,1fr) 4.2rem" : SUM_COLS,
-          borderBottom: sOpenName === fo.name ? 0 : "1px solid rgba(34,211,238,.14)",
+          borderBottom: sOpenName === fo.name ? 0 : "1px solid #1e293b",
           // Sliding, the row takes the panel's own ground so it reads as a solid
           // strip moving off the coral rather than a transparency over it.
           background: swAt ? "#0d1522" : "transparent"
@@ -3460,7 +3460,7 @@ class Component extends DCLogic {
           overflow: "hidden",
           height: sOpenName === fo.name ? vzp.expH : "0px",
           opacity: sOpenName === fo.name ? 1 : 0,
-          borderBottom: sOpenName === fo.name ? "1px solid rgba(34,211,238,.14)" : 0,
+          borderBottom: sOpenName === fo.name ? "1px solid #1e293b" : 0,
           background: "transparent",
           transition: "height 520ms cubic-bezier(.22,1,.36,1), opacity 320ms ease"
         },
@@ -3674,8 +3674,8 @@ class Component extends DCLogic {
         display: "grid", gridTemplateColumns: dLanding ? "minmax(0,1fr)" : dCols,
         columnGap: 0, alignItems: "stretch",
         height: dLanding ? "3.4rem" : "1.95rem",
-        borderTop: "1px solid " + (dLanding ? "transparent" : "rgba(34,211,238,.55)"),
-        borderBottom: "1px solid " + (dLanding ? "transparent" : "rgba(34,211,238,.55)"),
+        borderTop: "1px solid " + (dLanding ? "transparent" : "#1e293b"),
+        borderBottom: "1px solid " + (dLanding ? "transparent" : "#1e293b"),
         transform: dLanding ? "translateY(" + dDrop + "px)" : "none",
         fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em",
         color: "#7b91a3", textTransform: "uppercase",
@@ -3718,11 +3718,11 @@ class Component extends DCLogic {
       // where they stop rather than at the shell's edge.
       dSumRule: {
         flex: "none", marginRight: "10px",
-        borderTop: "1px solid " + (dLanding ? "transparent" : "rgba(34,211,238,.55)")
+        borderTop: "1px solid " + (dLanding ? "transparent" : "#1e293b")
       },
       dFootRule: {
         marginRight: "10px",
-        borderTop: "1px solid " + (dLanding ? "transparent" : "rgba(34,211,238,.55)"),
+        borderTop: "1px solid " + (dLanding ? "transparent" : "#1e293b"),
         transition: "border-color 460ms ease"
       },
       searchHint: !s.narrow && !dLanding && !s.searchHinted && !q ? "on" : "off",
@@ -3733,7 +3733,7 @@ class Component extends DCLogic {
       mTipP: () => this.setState({ mTip: s.mTip === "s1" ? "" : "s1", libOpen: false, unitOpen: false, mColOpen: false }),
       mTipC: () => this.setState({ mTip: s.mTip === "s2" ? "" : "s2", libOpen: false, unitOpen: false, mColOpen: false }),
       mTipF: () => this.setState({ mTip: s.mTip === "s3" ? "" : "s3", libOpen: false, unitOpen: false, mColOpen: false }),
-      mTipPop: { position: "absolute", top: "100%", right: 0, zIndex: 40, width: "16rem", display: "flex", flexDirection: "column", gap: ".35rem", padding: ".7rem .85rem", background: "#070b12", border: "1px solid rgba(34,211,238,.55)", boxShadow: "0 0 28px rgba(34,211,238,.12)", textAlign: "left", textTransform: "none", letterSpacing: 0, whiteSpace: "normal", cursor: "default" },
+      mTipPop: { position: "absolute", top: "100%", right: 0, zIndex: 40, width: "16rem", display: "flex", flexDirection: "column", gap: ".35rem", padding: ".7rem .85rem", background: "#070b12", border: "1px solid #1e293b", boxShadow: "0 0 28px rgba(34,211,238,.12)", textAlign: "left", textTransform: "none", letterSpacing: 0, whiteSpace: "normal", cursor: "default" },
       mExtra: () => this.setState({ extraOpen: !s.extraOpen, libOpen: false, unitOpen: false, catOpen: false }),
       // Eight characters at most in the bar, so the selector never crowds the query.
       mColLabel: mCol.label === "FULLNESS SCORE" ? "FULLNESS"
@@ -3763,8 +3763,8 @@ class Component extends DCLogic {
         display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem",
         width: "100%", boxSizing: "border-box", height: "2.4rem", padding: "0 .7rem",
         border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left",
-        borderRight: "1px solid rgba(34,211,238,.28)",
-        borderBottom: "1px solid rgba(34,211,238,.28)",
+        borderRight: "1px solid #1e293b",
+        borderBottom: "1px solid #1e293b",
         fontFamily: "var(--font-2)", fontSize: ".88rem", letterSpacing: ".12em", whiteSpace: "nowrap",
         transition: "background 140ms ease, color 140ms ease",
         background: sortKey === "name" ? "rgba(34,211,238,.10)" : "transparent",
@@ -3774,7 +3774,7 @@ class Component extends DCLogic {
         display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem",
         width: "100%", boxSizing: "border-box", height: "2.4rem", padding: "0 .7rem",
         border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left",
-        borderBottom: "1px solid rgba(34,211,238,.28)",
+        borderBottom: "1px solid #1e293b",
         fontFamily: "var(--font-2)", fontSize: ".88rem", letterSpacing: ".12em", whiteSpace: "nowrap",
         transition: "background 140ms ease, color 140ms ease",
         background: sortKey === M_SORT_OF[mCol.k] ? "rgba(34,211,238,.10)" : "transparent",
@@ -3819,8 +3819,8 @@ class Component extends DCLogic {
         style: {
           display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem",
           height: "2.4rem", padding: "0 .7rem", border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left",
-          borderBottom: xi < MCOLS.length - (MCOLS.length % 2 === 0 ? 2 : 1) ? "1px solid rgba(34,211,238,.28)" : 0,
-          borderRight: xi % 2 === 0 ? "1px solid rgba(34,211,238,.28)" : 0,
+          borderBottom: xi < MCOLS.length - (MCOLS.length % 2 === 0 ? 2 : 1) ? "1px solid #1e293b" : 0,
+          borderRight: xi % 2 === 0 ? "1px solid #1e293b" : 0,
           fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em", whiteSpace: "nowrap",
           transition: "background 140ms ease, color 140ms ease",
           background: mCol.k === x.k ? "rgba(34,211,238,.10)" : "transparent",
@@ -3840,7 +3840,7 @@ class Component extends DCLogic {
       },
       mHead: { display: bare ? "none" : "flex", alignItems: "center", justifyContent: "flex-end", gap: ".15rem", height: "100%", cursor: "pointer", whiteSpace: "nowrap" },
       mPop: { position: "absolute", top: "100%", left: 0, right: 0, zIndex: 40, display: "flex", flexDirection: "column", paddingTop: ".3rem", textTransform: "none", letterSpacing: 0 },
-      mPopInner: { display: "flex", flexDirection: "column", background: "#070b12", border: "1px solid rgba(34,211,238,.55)", boxShadow: "0 0 28px rgba(34,211,238,.12)" },
+      mPopInner: { display: "flex", flexDirection: "column", background: "#070b12", border: "1px solid #1e293b", boxShadow: "0 0 28px rgba(34,211,238,.12)" },
       mPopLabel: { padding: ".55rem .7rem 0", fontFamily: "var(--font-2)", fontSize: ".86rem", letterSpacing: ".12em", color: "#7b91a3" },
       mPopNote: { padding: ".35rem .7rem .7rem", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.02rem", lineHeight: 1.55, color: "#94a3b8", textWrap: "pretty", whiteSpace: "normal" },
       mNum: { display: bare ? "none" : "block", textAlign: "right", fontWeight: 300, fontSize: "1rem", color: "#d7e6ef", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
@@ -3886,8 +3886,8 @@ class Component extends DCLogic {
         display: "flex", flexDirection: "column" },
       // The last column is for doing rather than reading, so it is fenced off by a heavier
       // rule than the ones between the figures.
-      dActHead: { borderLeft: "1px solid rgba(34,211,238,.55)", display: "flex", alignItems: "stretch", justifyContent: "center" },
-      dActCell: { display: "flex", alignItems: "center", justifyContent: "center", borderLeft: "1px solid rgba(34,211,238,.55)" },
+      dActHead: { borderLeft: "1px solid #1e293b", display: "flex", alignItems: "stretch", justifyContent: "center" },
+      dActCell: { display: "flex", alignItems: "center", justifyContent: "center", borderLeft: "1px solid #1e293b" },
       dAddBtn: {
         display: "flex", alignItems: "center", justifyContent: "center",
         width: "100%", height: "100%", padding: 0, border: 0, borderRadius: 0,
@@ -3914,7 +3914,7 @@ class Component extends DCLogic {
       mAddBtn: {
         flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
         gap: ".4rem", height: "2.2rem", padding: "0 .8rem", boxSizing: "border-box",
-        border: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
+        border: "1px solid #1e293b", borderRadius: 0,
         background: "rgba(34,211,238,.12)", cursor: "pointer", color: "#22d3ee",
         fontFamily: "var(--font-2)", fontSize: ".8rem", letterSpacing: ".14em",
         transition: "background 140ms ease, border-color 140ms ease"
@@ -4045,7 +4045,7 @@ class Component extends DCLogic {
         fontSize: ".9rem", letterSpacing: ".16em", color: "#a9bcc8" },
       gAgainS: { flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
         flex: "1 1 auto", boxSizing: "border-box", height: "2.5rem", marginTop: 0,
-        border: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
+        border: "1px solid #1e293b", borderRadius: 0,
         background: "rgba(34,211,238,.08)", cursor: "pointer", fontFamily: "var(--font-2)",
         fontSize: ".95rem", letterSpacing: ".16em", color: "#3fdcf2" },
       gResScore: { display: "flex", alignItems: "baseline", gap: ".5rem", padding: "0 .2rem",
@@ -4444,7 +4444,7 @@ class Component extends DCLogic {
                     borderStyle: "solid", borderWidth: "1px",
                     borderColor: on
                       ? "rgba(34,211,238,.75) rgba(34,211,238,.75) " + TRAY
-                      : "rgba(34,211,238,.22)",
+                      : "#1e293b",
                     background: on ? TRAY
                       : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
                     transition: "border-color 160ms ease, background 160ms ease" },
@@ -4517,7 +4517,7 @@ class Component extends DCLogic {
                   borderStyle: "solid", borderWidth: "1px",
                   borderColor: on
                     ? "rgba(34,211,238,.75) rgba(34,211,238,.75) " + TRAY
-                    : "rgba(34,211,238,.22)",
+                    : "#1e293b",
                   background: on ? TRAY
                     : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
                   transition: "border-color 160ms ease, background 160ms ease" },
@@ -4574,7 +4574,7 @@ class Component extends DCLogic {
                 display: "grid",
                 gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: ".5rem" },
               cSliderBox: { display: "block", padding: ".3rem .9rem .45rem",
-                background: TRAY, border: "1px solid rgba(34,211,238,.6)" },
+                background: TRAY, border: "1px solid #1e293b" },
               cMetCells: Object.keys(M).map(k => {
                 const mm = M[k], on = k === sel;
                 return {
@@ -4589,7 +4589,7 @@ class Component extends DCLogic {
                     borderStyle: "solid", borderWidth: "1px",
                     borderColor: on
                       ? "rgba(34,211,238,.75) rgba(34,211,238,.75) " + TRAY
-                      : "rgba(34,211,238,.22)",
+                      : "#1e293b",
                     background: on ? TRAY
                       : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
                     transition: "border-color 160ms ease, background 160ms ease" },
@@ -4752,7 +4752,7 @@ class Component extends DCLogic {
             position: "absolute", top: 0, bottom: 0,
             left: phCums[i] + "%",
             width: Math.max(0, phCums[i + 1] - phCums[i]) + "%",
-            background: "rgba(5,8,13,.62)", pointerEvents: "none",
+            background: "rgba(2,6,23,.62)", pointerEvents: "none",
             opacity: i === phActive ? 0 : 1,
             transition: "opacity 180ms ease" } })),
           cPhSvg: { position: "absolute", inset: 0, width: "100%",
@@ -4807,7 +4807,7 @@ class Component extends DCLogic {
             fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1rem",
             fontVariantNumeric: "tabular-nums", color: "#eaf5fb",
             whiteSpace: "nowrap", pointerEvents: "none",
-            textShadow: "0 0 8px rgba(5,8,13,.9)" },
+            textShadow: "0 0 8px rgba(2,6,23,.9)" },
           cPhSlMax: String(phDays),
           cPhSlVal: String(phD),
           cPhSlSet: e => this.setState({ cResDay: +e.target.value }),
@@ -4915,14 +4915,14 @@ class Component extends DCLogic {
           cFieldBox: { flex: "none", display: "flex", alignItems: "baseline",
             gap: ".3rem", width: "6.8rem", justifyContent: "flex-end" },
           cFieldInput: { width: "3.6rem", padding: ".1rem .25rem", textAlign: "right",
-            border: 0, borderBottom: "1px solid rgba(34,211,238,.45)", borderRadius: 0,
+            border: 0, borderBottom: "1px solid #1e293b", borderRadius: 0,
             background: "transparent", color: "#f2f8fc", fontFamily: "var(--font-1)",
             fontWeight: 300, fontSize: "1.5rem", fontVariantNumeric: "tabular-nums" },
           // The read-only twin of the input — same width, same rule under it — so a
           // percentage and an age sit in exactly the same place on the screen.
           cFieldRead: { display: "block", width: "3.6rem", padding: ".1rem .25rem",
             textAlign: "right",
-            borderBottom: "1px solid rgba(34,211,238,.45)", color: "#f2f8fc",
+            borderBottom: "1px solid #1e293b", color: "#f2f8fc",
             fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.5rem",
             fontVariantNumeric: "tabular-nums" },
           // The figure gets the screen. Every step holds it at the same size, so it
@@ -4969,7 +4969,7 @@ class Component extends DCLogic {
             alignItems: "center", justifyContent: "center", gap: ".55rem",
             width: "100%", maxWidth: "21.5rem", height: "3.3rem", marginTop: "2.2rem",
             padding: "0 1.5rem", boxSizing: "border-box", borderRadius: 0,
-            cursor: "pointer", border: "1px solid rgba(34,211,238,.5)",
+            cursor: "pointer", border: "1px solid #1e293b",
             background: "rgba(34,211,238,.08)", color: "#3fdcf2",
             boxShadow: "0 0 22px rgba(34,211,238,.10)",
             fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".24em",
@@ -4988,7 +4988,7 @@ class Component extends DCLogic {
             top: "42%", transform: "translateY(-50%)", zIndex: 5,
             display: "flex", alignItems: "center", justifyContent: "center",
             width: "2.1rem", height: "4.8rem", padding: 0, boxSizing: "border-box",
-            border: "1px solid rgba(34,211,238,.5)",
+            border: "1px solid #1e293b",
             background: "rgba(34,211,238,.08)", color: "#3fdcf2",
             boxShadow: "0 0 18px rgba(34,211,238,.12)", cursor: "pointer",
             transition: "background 160ms ease, border-color 160ms ease" },
@@ -5000,7 +5000,7 @@ class Component extends DCLogic {
             top: "42%", transform: "translateY(-50%)", zIndex: 5,
             display: "flex", alignItems: "center", justifyContent: "center",
             width: "2.1rem", height: "4.8rem", padding: 0, boxSizing: "border-box",
-            border: "1px solid rgba(34,211,238,.5)",
+            border: "1px solid #1e293b",
             background: "rgba(34,211,238,.08)", color: "#3fdcf2",
             boxShadow: "0 0 18px rgba(34,211,238,.12)", cursor: "pointer",
             transition: "background 160ms ease, border-color 160ms ease" },
@@ -5019,7 +5019,7 @@ class Component extends DCLogic {
           cGoS: { flex: "none", display: "flex", alignItems: "center",
             justifyContent: "center", width: "3rem", height: "3rem", padding: 0,
             boxSizing: "border-box", borderRadius: 0, cursor: "pointer",
-            border: "1px solid rgba(34,211,238,.5)", background: "rgba(34,211,238,.08)",
+            border: "1px solid #1e293b", background: "rgba(34,211,238,.08)",
             color: "#3fdcf2", transition: "background 160ms ease, border-color 160ms ease" },
           cFigS: { display: "block", height: "100%", maxHeight: s.narrow ? "11rem" : "13rem",
             width: "auto", color: "#3b5364" },
@@ -5055,7 +5055,7 @@ class Component extends DCLogic {
             justifyContent: "center", gap: "1.4rem", padding: "1.6rem 0 1.2rem" },
           cStepBtn: { display: "flex", alignItems: "center", justifyContent: "center",
             width: "3rem", height: "3rem", padding: 0, borderRadius: 0, cursor: "pointer",
-            border: "1px solid rgba(34,211,238,.35)", background: "rgba(34,211,238,.06)",
+            border: "1px solid #1e293b", background: "rgba(34,211,238,.06)",
             color: "#3fdcf2", fontFamily: "var(--font-1)", fontWeight: 300,
             fontSize: "1.6rem", lineHeight: 1 },
           cNumS: { display: "flex", alignItems: "baseline", gap: ".35rem",
@@ -5067,7 +5067,7 @@ class Component extends DCLogic {
           cNextS: { flex: "none", display: "flex", alignItems: "center",
             justifyContent: "center", width: "100%", height: "3rem", marginTop: "auto",
             boxSizing: "border-box", borderRadius: 0, cursor: "pointer",
-            border: "1px solid rgba(34,211,238,.55)", background: "rgba(34,211,238,.10)",
+            border: "1px solid #1e293b", background: "rgba(34,211,238,.10)",
             color: "#3fdcf2", fontFamily: "var(--font-2)", fontSize: ".9rem",
             letterSpacing: ".2em" },
           cBfGrid: { flex: "none", display: "grid",
@@ -5125,7 +5125,7 @@ class Component extends DCLogic {
             filter: shown ? "saturate(.25)" : "none",
             transition: shown ? "filter 380ms ease" : "none" },
           scrim: { position: "absolute", inset: 0, pointerEvents: "none",
-            background: "#050810", opacity: shown ? 0.68 : 0,
+            background: "#020617", opacity: shown ? 0.68 : 0,
             transition: shown ? "opacity 320ms ease" : "none" },
           dial: { position: "absolute", left: "50%", top: "50%",
             width: s.narrow ? "8.6rem" : "14rem", height: s.narrow ? "8.6rem" : "14rem",
@@ -5245,19 +5245,19 @@ class Component extends DCLogic {
           gDemoCardA: { position: "relative", flex: s.narrow ? "none" : "1 1 0",
             minWidth: 0, display: "flex",
             flexDirection: "column", overflow: "hidden",
-            border: "1px solid rgba(34,211,238,.16)", background: "#0a1016" },
+            border: "1px solid #1e293b", background: "#0a1016" },
           gDemoCardB: { position: "relative", flex: s.narrow ? "none" : "1 1 0",
             minWidth: 0, display: "flex",
             flexDirection: "column", overflow: "hidden",
-            border: "1px solid rgba(34,211,238,.16)", background: "#0a1016" },
+            border: "1px solid #1e293b", background: "#0a1016" },
           gDemoBarA: { display: "grid", gridTemplateColumns: "auto minmax(0,1fr)",
             columnGap: ".35rem", alignItems: "baseline", alignContent: "center",
             height: "1.65rem", padding: "0 .4rem", boxSizing: "border-box",
-            borderTop: "1px solid rgba(34,211,238,.16)", background: "#0d151d" },
+            borderTop: "1px solid #1e293b", background: "#0d151d" },
           gDemoBarB: { display: "grid", gridTemplateColumns: "auto minmax(0,1fr)",
             columnGap: ".35rem", alignItems: "baseline", alignContent: "center",
             height: "1.65rem", padding: "0 .4rem", boxSizing: "border-box",
-            borderTop: "1px solid rgba(34,211,238,.16)", background: "#0d151d" },
+            borderTop: "1px solid #1e293b", background: "#0d151d" },
           gDemoName: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
             whiteSpace: "nowrap", fontFamily: "var(--font-2)", fontSize: ".7rem",
             letterSpacing: ".04em", color: "#f2f8fc" },
@@ -5282,7 +5282,7 @@ class Component extends DCLogic {
             display: "flex",
             alignItems: "center", justifyContent: "center", marginTop: "1.2rem",
             padding: "0 2.2rem", height: "3rem", boxSizing: "border-box",
-            border: "1px solid rgba(34,211,238,.55)", borderRadius: 0,
+            border: "1px solid #1e293b", borderRadius: 0,
             background: "rgba(34,211,238,.08)", cursor: "pointer",
             fontFamily: "var(--font-2)", fontSize: ".98rem", letterSpacing: ".18em",
             color: "#3fdcf2",
@@ -5337,7 +5337,7 @@ class Component extends DCLogic {
           gMsgDismiss: () => this.gDismissMsg(),
           gMsgScrim: { position: "absolute", inset: 0, zIndex: 60, display: "flex",
             alignItems: "center", justifyContent: "center", padding: "0 1rem",
-            background: "rgba(5,8,13,.72)", cursor: "pointer",
+            background: "rgba(2,6,23,.72)", cursor: "pointer",
             animation: "od-msg-in 220ms ease both" },
           gMsgCard: { width: "100%", maxWidth: "20rem", boxSizing: "border-box",
             padding: "1.1rem 1.1rem 1.2rem", background: "#070d15",
@@ -5380,7 +5380,7 @@ class Component extends DCLogic {
         height: landing ? "3.6rem" : "2.9rem",
         padding: landing ? "0 1.9rem" : "0 .55rem 0 .6rem",
         fontFamily: "var(--font-2)", zIndex: 30,
-        borderBottom: "1px solid " + (landing ? "transparent" : "rgba(34,211,238,.55)"),
+        borderBottom: "1px solid " + (landing ? "transparent" : "#1e293b"),
         transform: landing ? "translateY(" + landingDrop + "px)" : "none",
         // It travels at one speed and settles into the compact bar at a slower one, so the
         // shape keeps resolving after the move has landed.
@@ -5411,7 +5411,7 @@ class Component extends DCLogic {
       mSumPanel: {
         flex: "none", maxHeight: "72%",
         display: "flex", flexDirection: "column", background: "#0d1522",
-        borderTop: "1px solid rgba(34,211,238,.55)",
+        borderTop: "1px solid #1e293b",
         paddingBottom: sumTucked ? "calc(.3rem + env(safe-area-inset-bottom, 0px))" : 0,
         overflow: "hidden"
       },
@@ -5539,7 +5539,7 @@ class Component extends DCLogic {
       closePops: () => this.setState({ libOpen: false, unitOpen: false, mColOpen: false, extraOpen: false, catOpen: false, mTip: "" }),
       popScrim: {
         position: "fixed", inset: 0, zIndex: 15,
-        background: "rgba(5,8,13,.45)",
+        background: "rgba(2,6,23,.45)",
         backdropFilter: "blur(7px)", WebkitBackdropFilter: "blur(7px)",
         pointerEvents: "auto"
       },
@@ -5558,7 +5558,7 @@ class Component extends DCLogic {
       mPopHead: {
         padding: ".45rem .7rem", fontFamily: "var(--font-2)", fontSize: ".76rem",
         letterSpacing: ".14em", color: "#7b91a3",
-        borderBottom: "1px solid rgba(34,211,238,.55)"
+        borderBottom: "1px solid #1e293b"
       },
       mLibBtn: {
         display: landing ? "none" : "flex", alignItems: "center", justifyContent: "center",
@@ -5642,20 +5642,20 @@ class Component extends DCLogic {
       dRowStyle: {
         display: "grid", gridTemplateColumns: dCols, columnGap: 0,
         alignItems: "stretch", minHeight: "1.8rem",
-        borderBottom: "1px solid rgba(34,211,238,.14)", fontSize: ".9rem",
+        borderBottom: "1px solid #1e293b", fontSize: ".9rem",
         color: "#d7e6ef", cursor: "pointer",
         transition: "background 140ms ease, " + D_GRID_T
       },
       dBlankRow: {
         display: "grid", gridTemplateColumns: dCols, columnGap: 0,
         alignItems: "stretch", minHeight: "1.8rem",
-        borderBottom: "1px solid rgba(34,211,238,.14)",
+        borderBottom: "1px solid #1e293b",
         transition: D_GRID_T
       },
       dTotRow: {
         flex: "none", marginRight: "10px", display: "grid", gridTemplateColumns: dCols,
         columnGap: 0, alignItems: "stretch", minHeight: "1.8rem",
-        borderTop: "1px solid rgba(34,211,238,.55)", fontSize: ".9rem", color: "#d7e6ef",
+        borderTop: "1px solid #1e293b", fontSize: ".9rem", color: "#d7e6ef",
         transition: D_GRID_T
       },
       blankSub: { borderLeft: dxp ? INNER : "1px solid transparent", transition: "border-color 300ms ease" },
@@ -5664,7 +5664,7 @@ class Component extends DCLogic {
         overflow: "hidden", whiteSpace: "nowrap", fontFamily: "var(--font-2)",
         fontSize: ".75rem", letterSpacing: ".12em", color: "#7b91a3" },
       dSumLabText: { overflow: "hidden", textOverflow: "ellipsis" },
-      blankAct: { borderLeft: "1px solid rgba(34,211,238,.55)" },
+      blankAct: { borderLeft: "1px solid #1e293b" },
       // Copy sits where the plate rows keep their bin: the actions column, last row.
       dCopyBtn: {
         display: "flex", alignItems: "center", justifyContent: "center",
@@ -5693,8 +5693,8 @@ class Component extends DCLogic {
         display: s.narrow || app === "home" ? "none" : "block",
         position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
         backgroundImage:
-          "linear-gradient(rgba(34,211,238,.05) 1px, transparent 1px)," +
-          "linear-gradient(90deg, rgba(34,211,238,.05) 1px, transparent 1px)",
+          "linear-gradient(rgba(30,41,59,.55) 1px, transparent 1px)," +
+          "linear-gradient(90deg, rgba(30,41,59,.55) 1px, transparent 1px)",
         backgroundSize: "96px 96px",
         maskImage: "radial-gradient(ellipse 120% 75% at 50% 0%, #000 38%, transparent 80%)",
         WebkitMaskImage: "radial-gradient(ellipse 120% 75% at 50% 0%, #000 38%, transparent 80%)",
@@ -5708,19 +5708,19 @@ class Component extends DCLogic {
         display: s.narrow || app === "home" ? "none" : "block",
         position: "absolute", left: 0, top: "-2.4rem", bottom: "-2.4rem",
         width: 0,
-        borderLeft: "1px solid rgba(34,211,238,.22)", pointerEvents: "none"
+        borderLeft: "1px solid #1e293b", pointerEvents: "none"
       },
       frameRailR: {
         display: s.narrow || app === "home" ? "none" : "block",
         position: "absolute", right: 0, top: "-2.4rem", bottom: "-2.4rem",
         width: 0,
-        borderRight: "1px solid rgba(34,211,238,.22)", pointerEvents: "none"
+        borderRight: "1px solid #1e293b", pointerEvents: "none"
       },
       // The nav's rule, edge to edge of the viewport, crossing the rails.
       frameRuleTop: {
         display: s.narrow || app === "home" ? "none" : "block",
         position: "fixed", left: 0, right: 0, top: "5rem", height: 0,
-        borderTop: "1px solid rgba(34,211,238,.22)", pointerEvents: "none"
+        borderTop: "1px solid #1e293b", pointerEvents: "none"
       },
       // And the footer band: the same rule at the bottom of the glass. The
       // band runs edge to edge; its text sits inside the frame's column,
@@ -5728,7 +5728,7 @@ class Component extends DCLogic {
       frameFoot: {
         display: s.narrow || app === "home" ? "none" : "block",
         position: "fixed", left: 0, right: 0, bottom: 0, height: "2.4rem",
-        borderTop: "1px solid rgba(34,211,238,.22)", pointerEvents: "none"
+        borderTop: "1px solid #1e293b", pointerEvents: "none"
       },
       frameFootTxt: {
         display: s.narrow || app === "home" ? "none" : "flex",
@@ -5778,7 +5778,7 @@ class Component extends DCLogic {
         style: {
           display: "flex", flexDirection: "column", alignItems: "flex-start", gap: ".2rem",
           padding: ".5rem .7rem .6rem", border: 0, borderRadius: 0, cursor: "pointer", textAlign: "left", width: "100%",
-          borderBottom: x.k === "wa" ? 0 : "1px solid rgba(34,211,238,.28)",
+          borderBottom: x.k === "wa" ? 0 : "1px solid #1e293b",
           fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".75rem", letterSpacing: ".12em",
           transition: "background 140ms ease, color 140ms ease",
           background: extra.k === x.k ? "rgba(34,211,238,.10)" : "transparent",
@@ -5790,7 +5790,7 @@ class Component extends DCLogic {
         display: "flex", flexDirection: "column", minWidth: "20rem", paddingTop: ".35rem",
         textTransform: "none", letterSpacing: 0, cursor: "default" },
       headTipInner: { display: "block", padding: ".55rem .7rem .7rem", background: "#070b12",
-        border: "1px solid rgba(34,211,238,.55)", boxShadow: "0 0 28px rgba(34,211,238,.12)" },
+        border: "1px solid #1e293b", boxShadow: "0 0 28px rgba(34,211,238,.12)" },
       headTipName: { fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".12em", color: "#7b91a3" },
       headTipText: { display: "block", marginTop: ".3rem", fontFamily: "var(--font-1)",
         fontWeight: 300, fontSize: ".85rem", lineHeight: 1.55, color: "#cbd5e1",
