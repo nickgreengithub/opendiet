@@ -241,6 +241,8 @@ option{background:#070b12;color:#d7e6ef}
   <span style="{{ frameGrid }}"></span>
   <span style="{{ frameRailL }}"></span>
   <span style="{{ frameRailR }}"></span>
+  <span style="{{ frameRuleTop }}"></span>
+  <span style="{{ frameFoot }}">OPENDIET.ORG</span>
   <sc-if value="{{ tabsOn }}" hint-placeholder-val="{{ false }}">
   <div style="{{ tabBar }}">
     <sc-for list="{{ appTabs }}" as="t" hint-placeholder-count="4">
@@ -3984,9 +3986,7 @@ class Component extends DCLogic {
         marginBottom: s.narrow ? "0" : ".35rem",
         padding: s.narrow ? "0 .6rem" : 0, boxSizing: "border-box",
         fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".94rem",
-        letterSpacing: s.narrow ? ".1em" : ".14em",
-        // The nav band's rule, full-bleed so it crosses the frame's rails.
-        borderBottom: s.narrow ? "none" : "1px solid rgba(34,211,238,.22)"
+        letterSpacing: s.narrow ? ".1em" : ".14em"
       },
       tabVer: { marginLeft: ".35rem", fontSize: ".62rem", letterSpacing: ".16em", color: "#5b7183" },
       mBackRow: {
@@ -5695,15 +5695,38 @@ class Component extends DCLogic {
         WebkitMaskImage: "radial-gradient(ellipse 120% 75% at 50% 0%, #000 38%, transparent 80%)",
         opacity: .5
       },
+      // The rails run the full height of the glass and the two bars the full
+      // width — four lines crossing at the corners of the content band, a
+      // drawing frame over the whole app. The shell's own padding is what
+      // the negative offsets step back over.
       frameRailL: {
         display: s.narrow || app === "home" ? "none" : "block",
-        position: "absolute", left: 0, top: "2.6rem", bottom: 0, width: 0,
+        position: "absolute", left: 0, top: "-2.4rem", bottom: "-2.4rem",
+        width: 0,
         borderLeft: "1px solid rgba(34,211,238,.22)", pointerEvents: "none"
       },
       frameRailR: {
         display: s.narrow || app === "home" ? "none" : "block",
-        position: "absolute", right: 0, top: "2.6rem", bottom: 0, width: 0,
+        position: "absolute", right: 0, top: "-2.4rem", bottom: "-2.4rem",
+        width: 0,
         borderRight: "1px solid rgba(34,211,238,.22)", pointerEvents: "none"
+      },
+      // The nav's rule, edge to edge of the viewport, crossing the rails.
+      frameRuleTop: {
+        display: s.narrow || app === "home" ? "none" : "block",
+        position: "fixed", left: 0, right: 0, top: "5rem", height: 0,
+        borderTop: "1px solid rgba(34,211,238,.22)", pointerEvents: "none"
+      },
+      // And the footer band: the same rule at the bottom of the glass, the
+      // sliver beneath it carrying the site's name in the corner.
+      frameFoot: {
+        display: s.narrow || app === "home" ? "none" : "flex",
+        position: "fixed", left: 0, right: 0, bottom: 0, height: "2.4rem",
+        borderTop: "1px solid rgba(34,211,238,.22)",
+        alignItems: "center", justifyContent: "flex-end",
+        padding: "0 1.4rem", boxSizing: "border-box",
+        fontFamily: "var(--font-2)", fontSize: ".78rem",
+        letterSpacing: ".16em", color: "#5f7688", pointerEvents: "none"
       },
       dExpToggle: () => this.setState({ dxp: !s.dxp }),
       dExpBox: {
