@@ -446,10 +446,11 @@ option{background:#070b12;color:#d7e6ef}
       <sc-if value="{{ cPhPlanOn }}" hint-placeholder-val="{{ true }}">
       <span style="{{ cPhTabRow }}"><sc-for list="{{ cPhTabs }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="color:#3fdcf2">{{ t.label }}</button></sc-for></span>
       <span style="{{ cPhPanel }}">
+        <span style="{{ cPhSpanS }}">{{ cPhSpan }}</span>
         <span style="{{ cPhHeadS }}">{{ cPhHead }}</span>
         <span style="{{ cPhLineC }}">{{ cPhAe1 }}<span style="{{ cPhNum }}">{{ cPhAeN1 }}</span>{{ cPhAe2 }}<span style="{{ cPhNum }}">{{ cPhAeN2 }}</span>{{ cPhAe3 }}</span>
         <span style="{{ cPhArS }}">{{ cPhAr1 }}<span style="{{ cPhNum }}">{{ cPhArN }}</span>{{ cPhAr2 }}<span style="{{ cPhNum }}">{{ cPhArN2 }}</span>{{ cPhAr3 }}</span>
-        <span style="{{ cPhAl2S }}">{{ cPhAl2a }}<span style="{{ cPhNum }}">{{ cPhAl2N }}</span>{{ cPhAl2b }}</span>
+        <span style="{{ cPhAl2S }}">{{ cPhAl2a }}<span style="{{ cPhNum }}">{{ cPhAl2N }}</span>{{ cPhAl2b }}<span style="{{ cPhNum }}">{{ cPhAl2N2 }}</span>{{ cPhAl2c }}</span>
       </span>
       </sc-if>
       <sc-if value="{{ cPhInfoOn }}" hint-placeholder-val="{{ false }}">
@@ -4280,7 +4281,7 @@ class Component extends DCLogic {
               endW: m.wt, kcal: r50(maintAt(m.wt, FFM)) });
             seg(8, 0, 0);
           }
-          return { list: out, nodes, sL, gLeanWk };
+          return { list: out, nodes, sL, sG, gLeanWk };
         })();
         const phases = plan.list, phNodes = plan.nodes;
         // Two tabs: PLAN — the phase table over the weight trajectory —
@@ -4331,12 +4332,22 @@ class Component extends DCLogic {
           const head = pp.key === "cut"
             ? "CUT " + Math.abs(startW - pp.endW).toFixed(1) + " KG"
             : pp.key === "gain"
-              ? "GAIN " + Math.abs(pp.endW - startW).toFixed(1) + " KG"
+              ? "BULK " + Math.abs(pp.endW - startW).toFixed(1) + " KG"
               : pp.key === "mid" ? "RECOVER" : "MAINTAIN";
-          const o = { key: pp.key, head,
+          // The phase's own dates, counted from today.
+          const MO = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL",
+            "AUG", "SEP", "OCT", "NOV", "DEC"];
+          const dOn = d => new Date(Date.now() + d * 864e5);
+          const dS = dOn(phStarts[ai] * 7);
+          const dE = dOn((phStarts[ai] + pp.wks) * 7);
+          const span = pp.wks
+            ? dS.getDate() + " " + MO[dS.getMonth()] + " to "
+              + dE.getDate() + " " + MO[dE.getMonth()] + " " + dE.getFullYear()
+            : "";
+          const o = { key: pp.key, head, span,
             e1: "Eat ", eN1: cm(pp.kcal), e2: " kcal per day", eN2: "", e3: "",
             r1: "", rN: "", r2: "", rN2: "", r3: "",
-            l2a: "", l2N: "", l2b: "" };
+            l2a: "", l2N: "", l2b: "", l2N2: "", l2c: "" };
           if (move) {
             o.e2 = " kcal per day to reach ";
             o.eN2 = pp.endW.toFixed(1); o.e3 = " kg";
@@ -4352,7 +4363,16 @@ class Component extends DCLogic {
             const def = Math.round(Math.abs(pp.dwWk)
               * (plan.sL * RHO_LEAN + (1 - plan.sL) * RHO_FAT) / 7 / 50) * 50;
             o.l2a = "A "; o.l2N = cm(def) + " kcal";
-            o.l2b = " deficit minimises muscle loss";
+            o.l2b = " deficit minimises muscle loss (";
+            o.l2N2 = Math.round(100 * plan.sL) + "%";
+            o.l2c = " of the weight loss)";
+          } else if (pp.key === "gain") {
+            const sur = Math.round(Math.abs(pp.dwWk)
+              * (plan.sG * RHO_LEAN + (1 - plan.sG) * RHO_FAT) / 7 / 50) * 50;
+            o.l2a = "A "; o.l2N = cm(sur) + " kcal";
+            o.l2b = " surplus minimises fat gain (";
+            o.l2N2 = Math.round(100 * (1 - plan.sG)) + "%";
+            o.l2c = " of the weight gain)";
           } else if (pp.key === "mid") o.l2a = pp.purpose;
           else if (pp.key === "hold") o.l2a = "You are at your goal";
           return o;
@@ -4712,7 +4732,8 @@ class Component extends DCLogic {
           // the scrub to that phase's first day, and dragging the scrub
           // lights the tab of whatever phase it stands in.
           cPhTabs: phases.map((pp, i) => ({
-            label: "0" + (i + 1),
+            label: "0" + (i + 1) + " " + (pp.key === "cut" ? "LOSE"
+              : pp.key === "gain" ? "GAIN" : "FLAT"),
             onClick: () => this.setState({ cResTab: 0,
               cResDay: phStarts[i] * 7 }),
             s: (on => ({ padding: "0 .15rem .4rem", border: 0,
@@ -4757,6 +4778,12 @@ class Component extends DCLogic {
           cPhAr1: phA.r1, cPhArN: phA.rN, cPhAr2: phA.r2,
           cPhArN2: phA.rN2, cPhAr3: phA.r3,
           cPhAl2a: phA.l2a, cPhAl2N: phA.l2N, cPhAl2b: phA.l2b,
+          cPhAl2N2: phA.l2N2, cPhAl2c: phA.l2c,
+          cPhSpan: phA.span,
+          cPhSpanS: { display: phA.span ? "block" : "none",
+            fontFamily: "var(--font-2)", fontSize: ".92rem",
+            letterSpacing: ".12em", color: "#7b91a3",
+            fontVariantNumeric: "tabular-nums", marginBottom: ".15rem" },
           cPhNum: { color: "#f2f8fc", fontVariantNumeric: "tabular-nums" },
           // The footer: the weight trajectory full width, the kilograms
           // riding just above the line at the scrub, the day and its date
@@ -4841,8 +4868,8 @@ class Component extends DCLogic {
             width: "100%", maxWidth: "19.5rem", alignSelf: "center",
             height: "1.35rem", marginTop: "-.45rem" },
           cPhDayS: { position: "absolute", top: 0, left: phX + "%",
-            transform: phX <= 18 ? "none"
-              : phX >= 82 ? "translateX(-100%)" : "translateX(-50%)",
+            transform: phX <= 25 ? "none"
+              : phX >= 70 ? "translateX(-100%)" : "translateX(-50%)",
             fontFamily: "var(--font-2)", fontSize: ".95rem",
             letterSpacing: ".12em", color: "#3fdcf2", whiteSpace: "nowrap",
             fontVariantNumeric: "tabular-nums" },
