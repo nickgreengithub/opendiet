@@ -1078,7 +1078,27 @@ class Component extends DCLogic {
       if (u) patch.user = u;
       if (Object.keys(patch).length) this.setState(patch);
     } catch (e) {}
-    this._esc = e => { if (e.key === "Escape" && this.state.app === "about") this.setState({ app: "search" }); };
+    // The figure is heavy — three.js plus a five-megabyte mesh — and its
+    // first appearance used to pay that bill in full. Warm it from the front
+    // door instead: once the landing screen has had its idle moment, the
+    // module and the default mesh fetch quietly into cache, so CALC's first
+    // canvas finds them already in hand. Data-saver connections are left
+    // alone — speculative megabytes are unwelcome there.
+    const conn = navigator.connection;
+    if (!(conn && (conn.saveData || /(^|-)2g/.test(conn.effectiveType || "")))) {
+      const warmBody = () => {
+        if (this._bodyMod || this._bodyWarming) return;
+        this._bodyWarming = true;
+        import("./body.js").then(mod => {
+          this._bodyMod = mod;
+          if (mod.preload)
+            mod.preload(this._bodyWant ? this._bodyWant.sex : "m");
+        }).catch(() => { this._bodyWarming = false; });
+      };
+      if (window.requestIdleCallback)
+        requestIdleCallback(warmBody, { timeout: 6000 });
+      else setTimeout(warmBody, 2500);
+    }
     document.addEventListener("keydown", this._esc);
     // Desktop popovers close on mouseleave. Mobile has no hover, so they are toggled open
     // and need a tap elsewhere to dismiss them. Triggers and panels carry data-pop; anything
