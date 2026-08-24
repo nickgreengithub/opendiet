@@ -141,9 +141,11 @@ export function mount(canvas) {
   // pushes out of the chair, stands, walks, and finally runs — the pose
   // keyframes baked by tools/pose_rig.py, blended here.
   let actOn = false, actP = 0, actEase = 0, actLast = 0, gaitTh = 0;
+  let pressOn = false, pressPin = null, pressTh = 0, pressLast = 0;
   let props = null, chairG = null, lapG = null, recG = null, remG = null,
     chairMat = null, lapMat = null, screenMat = null, recMat = null,
-    remMat = null;
+    remMat = null, benchG = null, barG = null, benchMat = null,
+    barMat = null;
   // The slide-and-dim: pivot x positions, the camera's pull-back, and each
   // material's brightness, eased toward their targets every frame.
   const anim = { ax: 0, bx: 0, cam: 1, aB: 1, bB: 1 };
@@ -349,10 +351,47 @@ export function mount(canvas) {
     remG = new THREE.Group();
     part(remG, new THREE.BoxGeometry(0.045, 0.035, 0.17), remMat,
       -0.315, 0.925, 0.145, -0.95);
+    // The incline bench and its bar. The pad leans back at the angle the
+    // press keyframes sit into; the bar is a rod with a plate at each end,
+    // and the runtime slides it between two anchors on the press clock so
+    // it stays in the moving hands.
+    benchMat = new THREE.MeshStandardMaterial({
+      color: 0x202f39, roughness: 0.9, metalness: 0.05, transparent: true });
+    barMat = new THREE.MeshStandardMaterial({
+      color: 0x2c3f4a, roughness: 0.35, metalness: 0.55, transparent: true,
+      emissive: 0x123a46, emissiveIntensity: 0.7 });
+    // Measured against the baked keyframes: the pad lies along the
+    // reclined back line, the seat under the hips.
+    benchG = new THREE.Group();
+    part(benchG, new THREE.BoxGeometry(0.46, 1.0, 0.09), benchMat,
+      0, 0.92, -0.357, -0.53);
+    part(benchG, new THREE.BoxGeometry(0.44, 0.07, 0.38), benchMat,
+      0, 0.445, -0.10);
+    part(benchG, new THREE.BoxGeometry(0.09, 0.42, 0.09), benchMat,
+      0, 0.21, 0.0);
+    part(benchG, new THREE.BoxGeometry(0.09, 0.42, 0.09), benchMat,
+      0, 0.21, -0.34);
+    part(benchG, new THREE.BoxGeometry(0.40, 0.05, 0.70), benchMat,
+      0, 0.03, -0.17);
+    barG = new THREE.Group();
+    const rod = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.018, 0.018, 1.16, 14), barMat);
+    rod.rotation.z = Math.PI / 2;
+    barG.add(rod);
+    const plate = x => {
+      const pl = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.115, 0.115, 0.045, 22), barMat);
+      pl.rotation.z = Math.PI / 2;
+      pl.position.x = x;
+      barG.add(pl);
+    };
+    plate(0.5); plate(-0.5);
     props.add(chairG);
     props.add(lapG);
     props.add(recG);
     props.add(remG);
+    props.add(benchG);
+    props.add(barG);
     props.visible = false;
     mesh.add(props);
   };
@@ -370,6 +409,7 @@ export function mount(canvas) {
       rOp = w.recline,
       mOp = Math.max(0, Math.min(1, (w.recline - 0.5) / 0.5));
     props.visible = cOp > 0.01 || rOp > 0.01;
+    if (benchG) { benchG.visible = false; barG.visible = false; }
     chairG.visible = cOp > 0.01;
     lapG.visible = lOp > 0.01;
     recG.visible = rOp > 0.01;
@@ -385,9 +425,16 @@ export function mount(canvas) {
   // chair around lightly-active; on their feet; walking from .38; running
   // from .72. The walk and run each blend two mirrored stride keyframes on
   // the gait clock, so the figure moves rather than freezes mid-step.
+  // Measured off the baked keyframes: where the fists actually are at the
+  // bottom of the press and at lockout, plus a couple of centimetres for
+  // the palm. The grip width is the same at both, because a bar is rigid.
+  const BAR_DN = [1.275, -0.055], BAR_UP = [1.490, -0.080];
   const poseWeightsAt = (p, s) => {
+    // The press keys are listed so the walk and run write them back to
+    // zero: stepping from the bench to the treadmill must not leave a
+    // barbell pose stacked under the stride.
     const w = { recline: 0, sit: 0, rise: 0,
-      walkA: 0, walkB: 0, runA: 0, runB: 0 };
+      walkA: 0, walkB: 0, runA: 0, runB: 0, pressDn: 0, pressUp: 0 };
     if (p < 0.065) w.recline = 1;
     else if (p < 0.13) {
       const t = (p - 0.065) / 0.065;
@@ -451,6 +498,30 @@ export function mount(canvas) {
         mesh.morphTargetInfluences[poseIx[k]] = w[k];
       ensureProps();
       setPropOp(w);
+      dirty = true;
+    }
+    // The press clock: the figure swings between the two press keyframes
+    // and the bar rides between its anchors in the moving hands.
+    if (pressOn && mesh && poseIx) {
+      const now = performance.now() / 1000;
+      const dt = pressLast ? Math.min(0.05, now - pressLast) : 0;
+      pressLast = now;
+      if (pressPin == null && !still) pressTh += dt * 2 * Math.PI * 0.42;
+      const ph = pressPin != null ? pressPin
+        : still ? 1 : 0.5 - 0.5 * Math.cos(pressTh);
+      for (const k in poseIx) mesh.morphTargetInfluences[poseIx[k]] = 0;
+      if (poseIx.pressDn != null)
+        mesh.morphTargetInfluences[poseIx.pressDn] = 1 - ph;
+      if (poseIx.pressUp != null)
+        mesh.morphTargetInfluences[poseIx.pressUp] = ph;
+      ensureProps();
+      props.visible = true;
+      chairG.visible = lapG.visible = recG.visible = remG.visible = false;
+      benchG.visible = true; barG.visible = true;
+      benchMat.opacity = 1; barMat.opacity = 1;
+      barG.position.set(0,
+        BAR_DN[0] + (BAR_UP[0] - BAR_DN[0]) * ph,
+        BAR_DN[1] + (BAR_UP[1] - BAR_DN[1]) * ph);
       dirty = true;
     }
     if (!dirty) return;
@@ -554,6 +625,24 @@ export function mount(canvas) {
     onPick(fn) { pickCb = fn; },
     // The activity animation, driven by the calorie-burn slider: p in [0,1]
     // across the burn range, or null to stand the figure back up.
+    // The press animation: true to run the clock, a number to pin its
+    // phase (the tuning harness), null to put the bar down.
+    press(v) {
+      if (v == null || v === false) {
+        if (pressOn) {
+          pressOn = false; pressPin = null;
+          if (mesh && poseIx)
+            for (const k in poseIx) mesh.morphTargetInfluences[poseIx[k]] = 0;
+          if (props) props.visible = false;
+          dirty = true;
+        }
+        return;
+      }
+      if (!pressOn) { pressTh = 0; pressLast = 0; }
+      pressOn = true; actOn = false;
+      pressPin = typeof v === "number" ? Math.max(0, Math.min(1, v)) : null;
+      dirty = true;
+    },
     act(p) {
       if (p == null) {
         if (actOn) {
@@ -567,7 +656,7 @@ export function mount(canvas) {
       }
       const v = Math.max(0, Math.min(1, p));
       if (!actOn) { actLast = 0; actEase = v; gaitTh = 0; }
-      actOn = true;
+      actOn = true; pressOn = false;
       actP = v;
       dirty = true;
     },

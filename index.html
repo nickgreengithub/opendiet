@@ -395,6 +395,9 @@ option{background:#070b12;color:#d7e6ef}
       <sc-if value="{{ cIsCard }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cVTabRow }}"><button style="{{ cVTabOne }}">CARDIO</button></span>
       </sc-if>
+      <sc-if value="{{ cIsRes }}" hint-placeholder-val="{{ false }}">
+      <span style="{{ cVTabRow }}"><button style="{{ cVTabOne }}">RESISTANCE</button></span>
+      </sc-if>
       <sc-if value="{{ cIsAct }}" hint-placeholder-val="{{ false }}">
         <span style="{{ cVTabRow }}"><button style="{{ cVTabOne }}">CALORIE BURN</button></span>
         <span style="{{ cActPanel }}">
@@ -424,6 +427,12 @@ option{background:#070b12;color:#d7e6ef}
         <span style="{{ cSliderBox }}"><input type="range" min="{{ cWalkMin }}" max="{{ cWalkMax }}" step="{{ cWalkStep }}" value="{{ cWalkVal }}" onChange="{{ cWalkSlide }}" style="{{ cWalkTrack }}"></span>
       </span>
       </sc-if>
+      <sc-if value="{{ cIsRes }}" hint-placeholder-val="{{ false }}">
+      <span style="{{ cBodyPanel }}">
+        <span style="{{ cResGrid }}"><span style="{{ cResCellS }}"><span style="{{ cResLabS }}">SESSIONS</span><span style="{{ cResValS }}">{{ cResVal2 }}<span style="{{ cResUnitS }}"> / WK</span></span></span></span>
+        <span style="{{ cSliderBox }}"><input type="range" min="{{ cResMin }}" max="{{ cResMax }}" step="{{ cResStep }}" value="{{ cResVal }}" onChange="{{ cResSlide }}" style="{{ cResTrack }}"></span>
+      </span>
+      </sc-if>
       <sc-if value="{{ cIsCard }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cBodyPanel }}">
         <span style="{{ cHtGrid }}"><sc-for list="{{ cCardCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.75);border-left-color:rgba(34,211,238,.75);border-right-color:rgba(34,211,238,.75)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
@@ -436,14 +445,6 @@ option{background:#070b12;color:#d7e6ef}
         <span style="{{ cSliderBox }}"><input type="range" min="{{ cActMin }}" max="{{ cActMax }}" step="{{ cActStep }}" value="{{ cActIdx }}" onChange="{{ cActSlide }}" style="{{ cActTrack }}"></span>
       </span>
       </sc-if>
-      </sc-if>
-      <sc-if value="{{ cIsRes }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ cVTabRow }}"><button style="{{ cVTabOne }}">RESISTANCE</button></span>
-      <span style="{{ cTrnArt }}"><svg viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="{{ cTrnArtS }}"><path d="M4 88 H92" stroke-width="1.6" opacity=".3"></path><g opacity=".55"><path d="M26 44 L60 72 L56.8 75.9 L22.8 47.9 Z" stroke-width="1.8" fill="rgba(34,211,238,.10)"></path><path d="M62 72 H74" stroke-width="4"></path><path d="M32 56 V88" stroke-width="2.2"></path><path d="M68 74 V88" stroke-width="2.2"></path></g><g opacity=".4"><path d="M32 43 L40 32 L43 20"></path><path d="M62 70 L76 79 L72 88"></path><path d="M72 88 H82"></path></g><circle cx="23" cy="35" r="6.5"></circle><path d="M30 41 L62 68"></path><path d="M62 68 L80 76 L76 88"></path><path d="M76 88 H86"></path><path d="M30 41 L37 30 L40 18"></path><path d="M6 17 H74" stroke-width="3"></path><path d="M12 7 V27"></path><path d="M17 10 V24"></path><path d="M68 7 V27"></path><path d="M63 10 V24"></path></svg></span>
-      <span style="{{ cBodyPanel }}">
-        <span style="{{ cResGrid }}"><span style="{{ cResCellS }}"><span style="{{ cResLabS }}">SESSIONS</span><span style="{{ cResValS }}">{{ cResVal2 }}<span style="{{ cResUnitS }}"> / WK</span></span></span></span>
-        <span style="{{ cSliderBox }}"><input type="range" min="{{ cResMin }}" max="{{ cResMax }}" step="{{ cResStep }}" value="{{ cResVal }}" onChange="{{ cResSlide }}" style="{{ cResTrack }}"></span>
-      </span>
       </sc-if>
       <sc-if value="{{ cQOn }}" hint-placeholder-val="{{ true }}">
         <span style="{{ cQSpace }}"></span>
@@ -1287,8 +1288,10 @@ class Component extends DCLogic {
         api.setPair({ sex: w.sex, bf: w.bf, ht: w.ht, kg: w.kg },
           { sex: w.sex, bf: w.goal.bf, ht: w.ht, kg: w.goal.kg }, w.focus);
       else api.set(w.sex, w.bf, w.ht, w.kg);
-      // The calorie-burn screen animates the figure along its slider.
+      // The calorie-burn screen animates the figure along its slider,
+      // and the resistance screen puts it under the bar.
       if (api.act) api.act(w.act == null ? null : w.act);
+      if (api.press) api.press(w.press ? true : null);
       // Tapping a figure of the pair selects its tab.
       if (api.onPick) api.onPick(side =>
         this.setState({ cView: side === "b" ? "goal" : "cur" }));
@@ -4235,6 +4238,7 @@ class Component extends DCLogic {
             : step === 4 ? 0.5
               : step === 6 ? 0.92
                 : step === 7 ? m.actP : null,
+          press: !done && step === 5,
           focus: goalView ? "b" : "a" };
         // ── the plan: solved, not sketched ───────────────────────────────────
         // Two coupled facts the arithmetic must respect. A cut loses lean
@@ -4492,8 +4496,8 @@ class Component extends DCLogic {
           cIsRes: step === 5, cIsCard: step === 6, cIsAct: step === 7,
           // The figure carries height, body and the calorie-burn animation;
           // the first two questions are centred slides.
-          cFigOn: step === 2 || step === 3 || step === 4 || step === 6
-            || step === 7,
+          cFigOn: step === 2 || step === 3 || step === 4 || step === 5
+            || step === 6 || step === 7,
           cQOn: step === 0 || step === 1,
           cQ: STEPS[step],
           // The way forward is the right notch on every screen; the last one
@@ -4742,15 +4746,6 @@ class Component extends DCLogic {
                 / Math.max(1, d.hi - d.lo)).toFixed(1) + "%" }
             };
           })(),
-          // Drawn rather than modelled: the figure's meshes know how to walk
-          // and run, not how to press.
-          cTrnArt: { flex: "1 1 auto", minHeight: s.narrow ? "20rem" : "22rem",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            padding: ".2rem 0" },
-          cTrnArtS: { display: "block", width: "100%",
-            maxWidth: s.narrow ? "20rem" : "23rem", height: "auto",
-            color: "#8fd8e6",
-            filter: "drop-shadow(0 0 14px rgba(34,211,238,.22))" },
           // Sex, on the age layout: the same big value, the same slider — two
           // stops, male left, female right — so no screen asks for a new hand.
           cSexVal: s.cSex === "f" ? "FEMALE" : "MALE",

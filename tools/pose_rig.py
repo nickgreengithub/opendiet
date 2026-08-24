@@ -205,27 +205,104 @@ WALK_A = {
 }
 WALK_B = _mirror(WALK_A)
 
+# What made the first run comical: the arms swung hardly at all while the
+# elbows stayed locked at ninety, so the hands rode up at the chest like
+# paws — and the wrists were never posed, leaving the fingers splayed at
+# face height. The rebuilt stride swings the whole arm from the shoulder
+# with the elbow opening on the back-swing, curls the wrists loosely,
+# drives the rear hip further into extension, and dorsiflexes the leading
+# foot for the strike instead of letting it dangle.
 RUN_A = {
-    "root": [("y", -7)],
-    "spine05": [("x", 9)],
-    "spine03": [("x", 6)],
+    "root": [("y", -8)],
+    "spine05": [("x", 12)],
+    "spine03": [("x", 7)],
     "spine02": [("y", 9)],
-    "spine01": [("y", 8)],
-    "neck01": [("x", -5), ("y", -5)],
-    "head": [("x", -6), ("y", -5)],
-    "upperleg01.L": [("x", -48)],
-    "lowerleg01.L": [("x", 42)],
-    "foot.L": [("x", 4)],
-    "upperleg01.R": [("x", 16)],
-    "lowerleg01.R": [("x", 96)],
-    "foot.R": [("x", 22)],
-    "upperarm01.R": [("x", -38)],
-    "lowerarm01.R": [("x", -82)],
-    "upperarm01.L": [("x", 28)],
-    "lowerarm01.L": [("x", -74)],
+    "spine01": [("y", 7)],
+    "neck01": [("x", -7), ("y", -5)],
+    "head": [("x", -8), ("y", -4)],
+    "upperleg01.L": [("x", -52)],
+    "lowerleg01.L": [("x", 48)],
+    "foot.L": [("x", -12)],
+    "upperleg01.R": [("x", 26)],
+    "lowerleg01.R": [("x", 102)],
+    "foot.R": [("x", 30)],
+    "shoulder01.R": [("x", -8)],
+    "upperarm01.R": [("x", -48)],
+    "lowerarm01.R": [("x", -66)],
+    "wrist.R": [("x", -28)],
+    "shoulder01.L": [("x", 6)],
+    "upperarm01.L": [("x", 36)],
+    "lowerarm01.L": [("x", -48)],
+    "wrist.L": [("x", -28)],
 }
 RUN_B = _mirror(RUN_A)
 
+def _fist(spec, curl=55):
+    """Curl the fingers of both hands around a bar — every segment of the
+    four fingers takes a share of the curl, the thumb wraps less."""
+    for side in ("L", "R"):
+        for f in range(2, 6):
+            for seg in range(1, 4):
+                spec["finger%d-%d.%s" % (f, seg, side)] = [("x", -curl)]
+        spec["finger1-2.%s" % side] = [("x", -30)]
+        spec["finger1-3.%s" % side] = [("x", -35)]
+    return spec
+
+
+# The runner's hands close loosely — the curl is all x, so it survives the
+# mirror that made RUN_B before this helper existed.
+_fist(RUN_A, curl=48)
+_fist(RUN_B, curl=48)
+
+
+# The incline press, in two keyframes the runtime swings between. The
+# figure sits into an incline bench — torso laid back, feet planted wide —
+# and presses perpendicular to the pad: elbows flared at the chest at the
+# bottom, arms locked out over the upper chest at the top. The shoulder
+# girdle carries part of each arm's arc so the deltoid doesn't crease.
+PRESS_DN = {
+    "spine05": [("x", -34)],
+    "spine03": [("x", -10)],
+    "neck01": [("x", 5)],
+    "head": [("x", 7)],
+    "upperleg01.L": [("x", -74), ("z", 12)],
+    "upperleg01.R": [("x", -74), ("z", -12)],
+    "lowerleg01.L": [("x", 80)],
+    "lowerleg01.R": [("x", 80)],
+    "foot.L": [("x", -6)],
+    "foot.R": [("x", -6)],
+    "shoulder01.L": [("x", -14)],
+    "shoulder01.R": [("x", -14)],
+    "upperarm01.L": [("x", -56), ("z", -26)],
+    "upperarm01.R": [("x", -56), ("z", 26)],
+    "lowerarm01.L": [("x", -64), ("z", 18)],
+    "lowerarm01.R": [("x", -64), ("z", -18)],
+    "wrist.L": [("x", -12)],
+    "wrist.R": [("x", -12)],
+}
+_fist(PRESS_DN)
+PRESS_UP = {
+    "spine05": [("x", -34)],
+    "spine03": [("x", -10)],
+    "neck01": [("x", 5)],
+    "head": [("x", 7)],
+    "upperleg01.L": [("x", -74), ("z", 12)],
+    "upperleg01.R": [("x", -74), ("z", -12)],
+    "lowerleg01.L": [("x", 80)],
+    "lowerleg01.R": [("x", 80)],
+    "foot.L": [("x", -6)],
+    "foot.R": [("x", -6)],
+    "shoulder01.L": [("x", -22)],
+    "shoulder01.R": [("x", -22)],
+    "upperarm01.L": [("x", -88)],
+    "upperarm01.R": [("x", -88)],
+    "lowerarm01.L": [("x", -5)],
+    "lowerarm01.R": [("x", -5)],
+    "wrist.L": [("x", -12)],
+    "wrist.R": [("x", -12)],
+}
+_fist(PRESS_UP)
+
 POSES = [("recline", RECLINE), ("sit", SIT), ("rise", RISE),
          ("walkA", WALK_A), ("walkB", WALK_B), ("runA", RUN_A),
-         ("runB", RUN_B)]
+         ("runB", RUN_B), ("pressDn", PRESS_DN), ("pressUp", PRESS_UP)]
