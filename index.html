@@ -4728,11 +4728,24 @@ class Component extends DCLogic {
           onSlide: e => c.set(+e.target.value),
           trackS: { "--p": (100 * (c.cur - c.lo)
             / Math.max(1e-6, c.hi - c.lo)).toFixed(1) + "%",
-            flex: "1 1 auto", minWidth: 0, margin: 0 }
+            // Short of the row's own width: a track that runs the full
+            // measure reads as a rule rather than a control.
+            width: "86%", minWidth: 0, margin: 0 }
         });
         // The screens that carry the figure, named once: the layout, the
         // tables and the column width all key off it.
         const cFigOn = step >= 2 && step <= 6;
+        const cVTab = (on, lit) => ({
+          flex: D ? "1 1 0" : "none", minWidth: 0, textAlign: "left",
+          padding: D ? "0 1.6rem .55rem 0" : "0 .15rem .4rem",
+          border: 0, borderRadius: 0, background: "transparent",
+          cursor: lit === "one" ? "default" : "pointer",
+          fontFamily: "var(--font-2)", fontSize: D ? "1.15rem" : ".95rem",
+          letterSpacing: ".2em", textIndent: ".2em",
+          color: on ? "#3fdcf2" : "#7b91a3",
+          borderBottom: "2px solid "
+            + (on ? "#22d3ee" : D ? "#1e293b" : "transparent"),
+          transition: "color 160ms ease, border-color 160ms ease" });
         // What the notches can do right now, so the keyboard can be exactly
         // as capable as they are and no more.
         cNav.backOn = done || step > 0;
@@ -4784,30 +4797,15 @@ class Component extends DCLogic {
           // room back.
           cVTabRow: { flex: "none", display: "flex",
             justifyContent: D ? "flex-start" : "center",
-            gap: D ? "2.4rem" : "2.2rem",
+            gap: D ? 0 : "2.2rem",
             padding: D ? ".2rem 0 .1rem" : "1.15rem 0 .1rem" },
           // The single-tab screens (HEIGHT, the activity three) wear the same tab
           // row as the body screen — one lit tab, not a control — which also
           // keeps the figure's canvas the same height on every screen.
-          cVTabOne: { padding: "0 .15rem .4rem", border: 0, borderRadius: 0,
-            background: "transparent", cursor: "default",
-            fontFamily: "var(--font-2)", fontSize: D ? "1.15rem" : ".95rem",
-            letterSpacing: ".2em", textIndent: ".2em", color: "#3fdcf2",
-            borderBottom: "2px solid #22d3ee" },
-          cVTabCur: (on => ({ padding: "0 .15rem .4rem", border: 0,
-            borderRadius: 0, background: "transparent", cursor: "pointer",
-            fontFamily: "var(--font-2)", fontSize: D ? "1.15rem" : ".95rem",
-            letterSpacing: ".2em", textIndent: ".2em",
-            color: on ? "#3fdcf2" : "#7b91a3",
-            borderBottom: on ? "2px solid #22d3ee" : "2px solid transparent",
-            transition: "color 160ms ease, border-color 160ms ease" }))(s.cView !== "goal"),
-          cVTabGoal: (on => ({ padding: "0 .15rem .4rem", border: 0,
-            borderRadius: 0, background: "transparent", cursor: "pointer",
-            fontFamily: "var(--font-2)", fontSize: D ? "1.15rem" : ".95rem",
-            letterSpacing: ".2em", textIndent: ".2em",
-            color: on ? "#3fdcf2" : "#7b91a3",
-            borderBottom: on ? "2px solid #22d3ee" : "2px solid transparent",
-            transition: "color 160ms ease, border-color 160ms ease" }))(s.cView === "goal"),
+          // A tab is a column header on a desktop — see cVTab above.
+          cVTabOne: cVTab(true, "one"),
+          cVTabCur: cVTab(s.cView !== "goal"),
+          cVTabGoal: cVTab(s.cView === "goal"),
           // One field per screen, so this is the field this screen is for.
           cField: (() => {
             const f = FIELDS[0];
