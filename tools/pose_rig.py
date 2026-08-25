@@ -205,35 +205,35 @@ WALK_A = {
 }
 WALK_B = _mirror(WALK_A)
 
-# What made the first run comical: the arms swung hardly at all while the
-# elbows stayed locked at ninety, so the hands rode up at the chest like
-# paws — and the wrists were never posed, leaving the fingers splayed at
-# face height. The rebuilt stride swings the whole arm from the shoulder
-# with the elbow opening on the back-swing, curls the wrists loosely,
-# drives the rear hip further into extension, and dorsiflexes the leading
-# foot for the strike instead of letting it dangle.
+# A jog, not a sprint. The arm swings from the shoulder with the elbow
+# opening on the back-swing and the wrists curled loosely, but the stride
+# is half what a sprint asks for, the torso stands tall rather than
+# pitching over the lead foot, and the trailing heel only just leaves the
+# ground — the cardio the plan actually prescribes. The runtime's gait
+# clock is slowed to match; a sprint cadence under a jog stride is what
+# made the first version funny.
 RUN_A = {
-    "root": [("y", -8)],
-    "spine05": [("x", 12)],
-    "spine03": [("x", 7)],
-    "spine02": [("y", 9)],
-    "spine01": [("y", 7)],
-    "neck01": [("x", -7), ("y", -5)],
-    "head": [("x", -8), ("y", -4)],
-    "upperleg01.L": [("x", -52)],
-    "lowerleg01.L": [("x", 48)],
-    "foot.L": [("x", -12)],
-    "upperleg01.R": [("x", 26)],
-    "lowerleg01.R": [("x", 102)],
-    "foot.R": [("x", 30)],
-    "shoulder01.R": [("x", -8)],
-    "upperarm01.R": [("x", -48)],
-    "lowerarm01.R": [("x", -66)],
-    "wrist.R": [("x", -28)],
-    "shoulder01.L": [("x", 6)],
-    "upperarm01.L": [("x", 36)],
-    "lowerarm01.L": [("x", -48)],
-    "wrist.L": [("x", -28)],
+    "root": [("y", -6)],
+    "spine05": [("x", 6)],
+    "spine03": [("x", 4)],
+    "spine02": [("y", 7)],
+    "spine01": [("y", 5)],
+    "neck01": [("x", -4), ("y", -4)],
+    "head": [("x", -4), ("y", -3)],
+    "upperleg01.L": [("x", -32)],
+    "lowerleg01.L": [("x", 30)],
+    "foot.L": [("x", -8)],
+    "upperleg01.R": [("x", 14)],
+    "lowerleg01.R": [("x", 62)],
+    "foot.R": [("x", 20)],
+    "shoulder01.R": [("x", -5)],
+    "upperarm01.R": [("x", -30)],
+    "lowerarm01.R": [("x", -58)],
+    "wrist.R": [("x", -22)],
+    "shoulder01.L": [("x", 4)],
+    "upperarm01.L": [("x", 22)],
+    "lowerarm01.L": [("x", -44)],
+    "wrist.L": [("x", -22)],
 }
 RUN_B = _mirror(RUN_A)
 
@@ -256,10 +256,13 @@ _fist(RUN_B, curl=48)
 
 
 # The incline press, in two keyframes the runtime swings between. The
-# figure sits into an incline bench — torso laid back, feet planted wide —
-# and presses perpendicular to the pad: elbows flared at the chest at the
-# bottom, arms locked out over the upper chest at the top. The shoulder
-# girdle carries part of each arm's arc so the deltoid doesn't crease.
+# figure sits into an incline bench — torso laid back, feet planted wide.
+# Both frames were solved rather than eyeballed: the forearms twist into a
+# pronated grip (lowerarm02 is the pronation bone, so the knuckles face the
+# way the bar is pushed), and the joint angles come from an inverse
+# kinematic fit that pins the fists to a shared bar line while the elbows
+# ride wide of the ribs and behind the chest at the bottom — the stretch
+# that makes it a chest lift rather than a shoulder one.
 PRESS_DN = {
     "spine05": [("x", -34)],
     "spine03": [("x", -10)],
@@ -271,14 +274,16 @@ PRESS_DN = {
     "lowerleg01.R": [("x", 80)],
     "foot.L": [("x", -6)],
     "foot.R": [("x", -6)],
-    "shoulder01.L": [("x", -14)],
-    "shoulder01.R": [("x", -14)],
-    "upperarm01.L": [("x", -56), ("z", -26)],
-    "upperarm01.R": [("x", -56), ("z", 26)],
-    "lowerarm01.L": [("x", -64), ("z", 18)],
-    "lowerarm01.R": [("x", -64), ("z", -18)],
-    "wrist.L": [("x", -12)],
-    "wrist.R": [("x", -12)],
+    "shoulder01.L": [("x", 10), ("z", 12)],
+    "shoulder01.R": [("x", 10), ("z", -12)],
+    "upperarm01.L": [("x", -32), ("y", -7), ("z", 26)],
+    "upperarm01.R": [("x", -32), ("y", 7), ("z", -26)],
+    "lowerarm01.L": [("x", -81), ("y", 9), ("z", 18)],
+    "lowerarm01.R": [("x", -81), ("y", -9), ("z", -18)],
+    "lowerarm02.L": [("y", -45)],
+    "lowerarm02.R": [("y", 45)],
+    "wrist.L": [("x", -9), ("z", 18)],
+    "wrist.R": [("x", -9), ("z", -18)],
 }
 _fist(PRESS_DN)
 PRESS_UP = {
@@ -292,16 +297,19 @@ PRESS_UP = {
     "lowerleg01.R": [("x", 80)],
     "foot.L": [("x", -6)],
     "foot.R": [("x", -6)],
-    "shoulder01.L": [("x", -22)],
-    "shoulder01.R": [("x", -22)],
-    "upperarm01.L": [("x", -88)],
-    "upperarm01.R": [("x", -88)],
-    "lowerarm01.L": [("x", -5)],
-    "lowerarm01.R": [("x", -5)],
-    "wrist.L": [("x", -12)],
-    "wrist.R": [("x", -12)],
+    "shoulder01.L": [("x", -13), ("z", 12)],
+    "shoulder01.R": [("x", -13), ("z", -12)],
+    "upperarm01.L": [("x", -94), ("y", -16), ("z", 10)],
+    "upperarm01.R": [("x", -94), ("y", 16), ("z", -10)],
+    "lowerarm01.L": [("x", 5), ("y", 12), ("z", 10)],
+    "lowerarm01.R": [("x", 5), ("y", -12), ("z", -10)],
+    "lowerarm02.L": [("y", -45)],
+    "lowerarm02.R": [("y", 45)],
+    "wrist.L": [("x", -20), ("z", -12)],
+    "wrist.R": [("x", -20), ("z", 12)],
 }
 _fist(PRESS_UP)
+
 
 POSES = [("recline", RECLINE), ("sit", SIT), ("rise", RISE),
          ("walkA", WALK_A), ("walkB", WALK_B), ("runA", RUN_A),

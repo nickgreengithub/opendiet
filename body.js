@@ -428,7 +428,7 @@ export function mount(canvas) {
   // Measured off the baked keyframes: where the fists actually are at the
   // bottom of the press and at lockout, plus a couple of centimetres for
   // the palm. The grip width is the same at both, because a bar is rigid.
-  const BAR_DN = [1.275, -0.055], BAR_UP = [1.490, -0.080];
+  const BAR_DN = [1.205, -0.100], BAR_UP = [1.475, -0.058];
   const poseWeightsAt = (p, s) => {
     // The press keys are listed so the walk and run write them back to
     // zero: stepping from the bench to the treadmill must not leave a
@@ -491,7 +491,7 @@ export function mount(canvas) {
       if (Math.abs(actP - actEase) < 0.002) actEase = actP;
       const p = actEase;
       const ru = Math.max(0, Math.min(1, (p - 0.72) / 0.12));
-      if (!still && p > 0.38) gaitTh += dt * 2 * Math.PI * (1.5 + 1.3 * ru);
+      if (!still && p > 0.38) gaitTh += dt * 2 * Math.PI * (0.9 + 0.45 * ru);
       const s = still ? 1 : 0.5 + 0.5 * Math.sin(gaitTh);
       const w = poseWeightsAt(p, s);
       for (const k in w) if (poseIx[k] != null)
