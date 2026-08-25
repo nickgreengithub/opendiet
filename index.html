@@ -3955,12 +3955,14 @@ class Component extends DCLogic {
         textShadow: unit.k === "OZ" ? "0 0 12px rgba(34,211,238,.45)" : "none"
       },
       // ABOUT holds the corner whether or not the measure pair is on screen.
+      // It carries no type of its own: it is one of the nav's tabs and takes
+      // the bar's size and tracking, which is the only way the two cannot
+      // drift apart again.
       tabAbout: {
         display: "flex", alignItems: "center", height: "1.9rem",
         color: app === "about" ? "#22d3ee" : "#5f7688",
         textShadow: app === "about" ? "0 0 12px rgba(34,211,238,.45)" : "none",
         marginLeft: !s.narrow && app === "search" && !dLanding ? "1.4rem" : "auto",
-        fontSize: s.narrow ? ".88rem" : ".86rem", letterSpacing: s.narrow ? ".1em" : ".14em",
         cursor: "pointer", whiteSpace: "nowrap", transition: "color 160ms ease"
       },
       mColOpts: MCOLS.map((x, xi) => ({
