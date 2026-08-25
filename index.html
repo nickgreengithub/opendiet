@@ -525,7 +525,7 @@ option{background:#070b12;color:#d7e6ef}
   </sc-if>
   <sc-if value="{{ isResults }}" hint-placeholder-val="{{ true }}">
   <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
-  <div style="display:flex;flex-direction:column;flex:1;min-height:0">
+  <div style="{{ dFrameCol }}">
     <div style="flex:none;z-index:5;padding-right:10px">
 
     <div style="{{ dHeadRow }}">
@@ -998,6 +998,10 @@ const pipsFor = food => {
 // root carries the column out with the type instead of leaving it phone-sized.
 const TOUCH_W_PX = 640;
 const TOUCH_W = "40rem";
+// The frame's inner gutter, one value for every band inside it — nav,
+// table, about panel, footer stamp — so nothing sits closer to a rail
+// than anything else.
+const FRAME_GUT = "clamp(1.25rem, 4vw, 2.8rem)";
 // The air a tablet holds either side of the column. A phone has none: its rows run to
 // the glass because there is no room to spare. A tablet has room to spare, and text
 // against the bezel is the tell that an app was drawn for something smaller.
@@ -3663,6 +3667,17 @@ class Component extends DCLogic {
           transition: "background-position 500ms cubic-bezier(.22,1,.36,1)"
         };
       })(),
+      // Every band inside the frame keeps the frame's own gutter, the nav's
+      // included, so the table's first letter and the nav's first letter
+      // stand on the same line and neither touches the rail.
+      dFrameCol: {
+        display: "flex", flexDirection: "column", flex: 1, minHeight: 0,
+        // The right side gives 10px back: the rows reserve that much inside
+        // themselves for a scrollbar, and without the discount the table
+        // would sit 10px further off the right rail than the left.
+        padding: "0 calc(" + FRAME_GUT + " - 10px) 0 " + FRAME_GUT,
+        boxSizing: "border-box"
+      },
       dHeadRow: {
         display: "grid", gridTemplateColumns: dLanding ? "minmax(0,1fr)" : dCols,
         columnGap: 0, alignItems: "stretch",
@@ -3981,7 +3996,7 @@ class Component extends DCLogic {
         gap: s.narrow ? "1.1rem" : "2.4rem",
         height: s.narrow ? "2.45rem" : "64px",
         marginBottom: s.narrow ? "0" : "1px",
-        padding: s.narrow ? "0 .6rem" : "0 clamp(1.25rem, 4vw, 2.8rem)",
+        padding: s.narrow ? "0 .6rem" : "0 " + FRAME_GUT,
         boxSizing: "border-box",
         fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".94rem",
         letterSpacing: s.narrow ? ".1em" : ".14em"
@@ -4026,7 +4041,8 @@ class Component extends DCLogic {
         position: "relative",
         flex: 1, minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column",
         width: "100%", maxWidth: s.narrow ? "none" : "1100px", margin: "0 auto",
-        padding: s.narrow ? "0 .7rem .7rem" : "0 0 .8rem", boxSizing: "border-box"
+        padding: s.narrow ? "0 .7rem .7rem" : "0 " + FRAME_GUT + " .8rem",
+        boxSizing: "border-box"
       },
       gHead: {
         flex: "none", display: "flex", alignItems: "baseline", justifyContent: "space-between",
@@ -4058,14 +4074,19 @@ class Component extends DCLogic {
       gLinesWrap: { display: "block", padding: "1.3rem .2rem .4rem" },
       gCredit: { display: "block", padding: "1.4rem .2rem 0", fontFamily: "var(--font-1)",
         fontWeight: 300, fontSize: ".8rem", lineHeight: 1.5, color: "#54677a", textWrap: "pretty" },
+      // The about and coming-soon panels take the frame's gutter like every
+      // other band, so their first letter stands under the nav's.
       aboutWrap: {
         flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column",
         alignItems: "flex-start", justifyContent: "flex-start", gap: ".6rem",
-        padding: s.narrow ? "1.6rem .8rem 2rem" : "3rem 0", boxSizing: "border-box"
+        padding: s.narrow ? "1.6rem .8rem 2rem" : "3rem " + FRAME_GUT,
+        boxSizing: "border-box"
       },
       soonWrap: {
         flex: 1, minHeight: 0, display: "flex", flexDirection: "column", alignItems: "flex-start",
-        justifyContent: "center", gap: ".6rem", padding: s.narrow ? "0 .8rem" : "0 0 3rem", boxSizing: "border-box"
+        justifyContent: "center", gap: ".6rem",
+        padding: s.narrow ? "0 .8rem" : "0 " + FRAME_GUT + " 3rem",
+        boxSizing: "border-box"
       },
       soonTag: Object.assign({ fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".18em", color: "#5b7183" }, soonIn(60)),
       soonName: Object.assign({ fontFamily: "var(--font-2)", fontSize: s.narrow ? "1.3rem" : "1.7rem", letterSpacing: ".18em", color: "#22d3ee" }, soonIn(140)),
@@ -5926,7 +5947,7 @@ class Component extends DCLogic {
       },
       frameFootTxt: {
         display: s.narrow || app === "home" ? "none" : "flex",
-        position: "absolute", right: "clamp(1.25rem, 4vw, 2.8rem)",
+        position: "absolute", right: FRAME_GUT,
         bottom: 0, height: "64px", alignItems: "center",
         fontFamily: "var(--font-2)", fontSize: ".78rem",
         letterSpacing: ".16em", color: "#5f7688", whiteSpace: "nowrap",
