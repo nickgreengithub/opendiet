@@ -59,7 +59,7 @@ result, for the same reason.
 
 | Layer | Question | Model | Shown as |
 |---|---|---|---|
-| Maintenance | What does this body spend in a day? | RMR equation × lifestyle PAL, plus training priced in METs | one number |
+| Maintenance | What does this body spend in a day? | RMR equation, movement priced in METs, and the food's own thermic cost | one number |
 | Fat curve | Hold an intake — where does weight go, and when? | Dynamic energy balance, not 3,500 kcal/lb | the rotating body, and body fat % |
 | Lean curve | How much of that change is fat and how much is not? | Forbes partitioning, modified by protein and training | the chart behind the mark |
 
@@ -125,64 +125,54 @@ about 5% in modern populations, and is kept only as a comparison line if the app
 one. Schofield (1985) is the FAO/WHO/UNU basis and the Oxford revision (Henry 2005) is its
 successor — both are defensible and worth holding as alternates behind the same interface.
 
-### Activity, as one question, asked last
+### Activity: three answers, and no burn question at all
 
 Activity began here as two questions — the day spent anyway and the training chosen on
-top, priced separately in FAO bands and METs. In use the split cost more than it earned:
-two screens, a double-counting trap between them, and a training answer given before the
-app knew the body it belonged to. It is now **one question, asked after the body**: eight
-bands of a week on the FAO's PAL range, 1.25 to 2.40, from "very minimal activity"
-(housebound — bed rest with meals measures about 1.2, so no living week goes lower) to
-"extreme" (hard labour plus training). Each band carries a name and a sentence of what
-that life looks like, and — because the body is already known — the slider now moves in
-**calories directly, 100 kcal a step**, bounded by the outermost bands priced in this
-body's own arithmetic (RMR × 1.25 at the floor, RMR × 2.40 at the ceiling, each rounded
-to 100). Daily and weekly readings are the same figure at 1× and 7×, both multiples of
-100. The band whose PAL sits nearest the chosen burn supplies the descriptor, so the
-adjective follows the number and the two keep each other honest.
+top, priced separately in FAO bands and METs. That became one question: a daily burn on a
+PAL-banded slider, asked after the body. Both are gone. A person cannot place themselves
+on a PAL scale, and a burn slider only launders a guess into a number with a decimal
+point. What people *can* answer is what they actually did:
 
-The figure acts the answer out. Seven pose keyframes are baked into the body meshes by
+| Screen | Asked as | Priced at |
+|---|---|---|
+| WALKING | steps a day, or walking minutes a day (one value, two faces) | 0.00053 kcal per step per kg |
+| RESISTANCE | sessions a week, floor of 3 | 4 METs × kg × hours |
+| CARDIO | hours a week, or the kcal those hours cost (one value, two faces) | 7 METs × kg × hours |
+
+A MET is one kcal per kilogram per hour, so all three scale with the body doing them
+rather than against a table. Resistance has a floor rather than a zero: the plan's lean
+arithmetic assumes the training, so a plan without it is not on the menu.
+
+The burn is then **derived, never asked**:
+
+```
+base  = RMR × 1.05 + steps×0.00053×kg + (4×sessions + 7×cardio_hrs)×kg/7
+burn  = (base + 0.6×protein_g) / 0.95
+```
+
+The 1.05 is a still day with the thermic effect of food taken *out* of the usual 1.15,
+because TEF is priced explicitly in the second line (below). The division by 0.95 is that
+same TEF closing on itself: it rides on intake, and at maintenance intake is the burn.
+
+The figure acts each answer out. Nine pose keyframes are baked into the body meshes by
 `tools/pose_rig.py` — forward kinematics over MakeHuman's default skeleton, skinned with
 its own weights: sunk in a recliner with a TV remote, seated at a laptop, pushing up out
-of the chair, two walk phases and two run phases, the gait pairs carrying pelvis–shoulder
-counter-rotation with the head unwinding it. The slider position eases through them, so
-the very bottom of the scale is a couch potato with the remote, sedentary is the desk
-chair and laptop, and the top is a runner mid-stride, with the walk and run cycled live
-on a gait clock (held still under prefers-reduced-motion).
+of the chair, two walk phases, two jog phases and the two ends of an incline press. The
+walking screen runs the gait clock, the cardio screen runs it faster, and the resistance
+screen runs a press clock with a bench and bar whose geometry is measured off the baked
+keyframes rather than eyeballed (held still under prefers-reduced-motion).
 
-| Band | PAL |
-|---|---|
-| Very minimal activity | 1.25 |
-| Sedentary | 1.40 |
-| Lightly active | 1.55 |
-| Moderately active | 1.70 |
-| Active | 1.85 |
-| Very active | 2.00 |
-| Athlete | 2.20 |
-| Extreme | 2.40 |
-
-FAO/WHO/UNU. *Human Energy Requirements.* Report of a Joint Expert Consultation, Rome,
-2001 (published 2004).
-
-**Worth stating plainly in the app:** the 1.2 "sedentary" multiplier that almost every
-online calculator uses is *below* the FAO floor of 1.40 for a sedentary lifestyle. It is a
-Harris–Benedict-era convention, not a measured category, and it is one reason calculators
-read low. The app keeps 1.40 as its sedentary band and reserves 1.25 for a genuinely
-housebound week.
-
-**One trap survives the merge:** exercise does not add linearly. Total energy
+**One trap survives the rebuild:** exercise does not add linearly. Total energy
 expenditure plateaus above moderate activity rather than rising with it — more active
 populations do not spend proportionally more. [Pontzer H, Durazo-Arvizu R, Dugas LR, et
 al. *Constrained total energy expenditure and metabolic adaptation to physical activity
 in adult humans.* Curr Biol. 2016;26(3):410–417.](https://pubmed.ncbi.nlm.nih.gov/26832439/)
-The single PAL scale absorbs some of this — its top is 2.40, not RMR plus every session at
-face value — but the upper bands should still be read as generous.
+Summing three MET terms does not model that compensation, so a very high set of answers
+should be read as generous.
 
-The 2023 DRI update reorganised this into four categories — inactive, low active, active,
-very active — set at approximate quartiles of the PAL distribution in doubly-labelled-water
-studies, and, importantly, **predicts total energy expenditure directly** from age, height,
-weight and category rather than going through a BMR equation and a multiplier. That is the
-better model and the more current citation:
+The 2023 DRI update **predicts total energy expenditure directly** from age, height,
+weight and an activity category rather than going through a BMR equation and a multiplier.
+That remains the better model and the more current citation:
 [National Academies of Sciences, Engineering, and Medicine. *Dietary Reference Intakes for
 Energy.* Washington, DC: The National Academies Press,
 2023.](https://www.nationalacademies.org/publications/26818)
@@ -192,13 +182,44 @@ Energy.* Washington, DC: The National Academies Press,
 > secondary source returns when you search for them. Do not take them from a calculator
 > site.
 
+### The protein floor
+
+Not a question either, because there is only one answer worth giving. Resistance training
+stops paying above about **1.6 g per kilogram a day** — the meta-regression puts the
+breakpoint there, and the older 2.2 g/kg (1 g/lb) convention was insurance, not need.
+[Morton RW, Murphy KT, McKellar SR, et al. *A systematic review, meta-analysis and
+meta-regression of the effect of protein supplementation on resistance training-induced
+gains in muscle mass and strength in healthy adults.* Br J Sports Med.
+2018;52(6):376–384.](https://pubmed.ncbi.nlm.nih.gov/28698222/) A deficit asks for the
+same again rather than less, since protein is what keeps the loss out of muscle (Helms
+2014), so one floor serves both phases:
+
+```
+protein_g = min(1.6 × kg, 2.2 × lean_kg)     # 1.5 × kg for women
+```
+
+The lean-mass cap is what stops a heavy body being told to eat for tissue it is not
+carrying. The floor is stated on the ASSUMPTIONS step in grams, because a plan that
+assumes it silently is a plan that fails silently.
+
 ### Thermic effect of food
 
-About 10% of intake at a mixed diet, but it is macro-dependent — roughly 20–30% of protein
-calories, 5–10% of carbohydrate, 0–3% of fat. The site already knows the macro split of a
-plate, so if CALC ever reads a plate from FOOD SEARCH this is the one place the two could
-honestly meet. Until then, 10% folded into the PAL is fine and is what the PAL bands
-already assume.
+About 10% of intake on a mixed diet, but it is macro-dependent — roughly 20–30% of protein
+calories, 5–10% of carbohydrate, 0–3% of fat. Because the protein floor above is a
+standing assumption, this is no longer folded into a multiplier and guessed at; it is
+priced:
+
+```
+TEF = 0.20 × (4 × protein_g) + 0.05 × intake
+```
+
+Protein's share is carried at 20 points above the 5% everything else averages, which is
+the conservative end of the measured range. Two consequences fall out of it, and both are
+in the model rather than in prose: a cut's expenditure drops a little further than the
+lost tissue explains, because there is less food to digest; and a surplus costs slightly
+more than the tissue it lays down. The site already knows the macro split of a plate, so
+if CALC ever reads a plate from FOOD SEARCH the 0.05 term can be replaced with the real
+carbohydrate and fat split.
 
 ---
 
@@ -529,20 +550,22 @@ under a thumbnail is not.
 
 ```
 LAUNCHER
-  └─ CALORIE CALC          ⟲ beside the tab while it is open — back to question one
-       │                     from anywhere, without walking the chevron up seven screens
-       ─── a progress bar rather than "STEP 3 OF 7": same information, no arithmetic
-       │
-       1  SEX        two tiles, answered and gone
-       2  AGE        slider left, number box right. Minimum 18
-       3  HEIGHT     the same row, the same box, the same width
-       4  WEIGHT     "
-       5  BODY FAT   the same row, but the number is read-only: nobody knows theirs
-       │             to the percent. Opens on the Deurenberg estimate
-       6  YOUR DAY   three tiles
-       7  TRAINING   sessions, minutes, and how hard
-       └─ 8  RESULT
+  └─ CALORIE CALC          the edge notches are the only way through — no step counter
+       │                     and no progress bar: the screen you are on is the progress
+       1  SEX        a two-ended slider, answered and gone
+       2  AGE        the value large and centred, the slider under it. Minimum 18
+       3  HEIGHT     the figure arrives here and stays for the rest of the run
+       4  BODY       weight, BMI, body fat, lean — four cells, one slider, and a
+       │             second tab for the goal body beside the current one
+       5  WALKING    steps a day, or walking minutes a day
+       6  RESISTANCE sessions a week, floor of three
+       7  CARDIO     hours a week, or the calories those hours cost
+       └─ 8  RESULT   the plan, a tab per phase, then ASSUMPTIONS
 ```
+
+There is no calorie-burn screen. There was, and it was the weakest question in the run:
+the three answers above already price the day, and asking again only invited a worse
+number over the top of a better one.
 
 Every setting screen is the same three things: the value large and centred, the slider
 under it, and a chevron at the end of the slider's own row. No number boxes — the value is
@@ -588,7 +611,9 @@ partitions better to lean at low body fat (Forbes).
 
 Rates and assumptions (each cited on the INFO tab):
 
-- **Training 3–4× a week and protein near 1.6 g/kg/day** throughout (Morton 2018).
+- **Training 3–4× a week and a protein floor of 1.6 g/kg/day** (1.5 for women, capped at
+  2.2 g/kg of lean mass) throughout (Morton 2018) — assumed, not asked, and stated in
+  grams on the ASSUMPTIONS step.
 - **Cuts at 0.6% of body weight a week** (Garthe 2011; Helms 2014); the daily deficit is
   derived from the tissue mix actually lost (RHO energy densities), priced on the phase's
   midpoint body, never below the 1,200/1,500 floor.
@@ -644,15 +669,21 @@ what is left, and the placeholder is deliberately unlovely so it is not mistaken
 
 **Shipped, with a note against each:**
 
-- The model runs Mifflin—St Jeor, or Katch—McArdle the moment a body fat is picked; the FAO
-  lifestyle bands read at their exercise-free end; training at `(MET − 1) × kg × hours`;
-  Forbes partitioning against a maintenance recomputed daily; and adaptive thermogenesis as
-  10% of the deficit, scaled to its depth and ramped in over eight weeks.
-- **It was checked against Hall's published rule of thumb and lands on it.** A 100 kcal/day
-  deficit on an 80 kg body gives **2.7 kg at one year and 4.3 kg at three** — against Hall's
-  "about 1 kg per 100 kJ/day, half in a year, 95% in three", which is 2.2 kg and 4.5 kg.
-  The shape and the asymptote are both right. That check should be re-run whenever the
-  adaptation term is touched.
+- The model runs Mifflin—St Jeor, or Katch—McArdle the moment a body fat is picked; steps,
+  lifting and cardio priced in METs against the person's own weight; the thermic effect of
+  food priced off the protein floor; Forbes partitioning against a maintenance recomputed
+  per phase; and adaptive thermogenesis as up to 10%, scaled to the depth of the deficit,
+  ramped in over eight weeks and decaying over six once it stops — which is what the
+  MAINTAIN block between phases is for, and what the ASSUMPTIONS step now quotes as a
+  percentage.
+- **It is checked against Hall's published rule of thumb.** The day-by-day simulator that
+  the original check ran on retired with the phase solver, so the check is now made against
+  the shipped equations directly, as a sensitivity: they give **1 kg of eventual weight
+  change per 19.5 kcal/day** of sustained change, against Hall's "about 1 kg per 100 kJ/day"
+  — 23.9 kcal/day. Simulated forward on the same equations, a 100 kcal/day deficit on an
+  80 kg body gives **3.3 kg at one year and 4.7 kg at three**, against Hall's 2.2 kg and
+  4.5 kg: the asymptote lands, the approach is faster than his. That approach speed is the
+  open question, and the check should be re-run whenever the adaptation term is touched.
 - Metric only for now. Imperial is a real gap, not a decision.
 
 **Still blocking the model:**

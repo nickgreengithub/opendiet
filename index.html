@@ -398,13 +398,6 @@ option{background:#070b12;color:#d7e6ef}
       <sc-if value="{{ cIsRes }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cVTabRow }}"><button style="{{ cVTabOne }}">RESISTANCE</button></span>
       </sc-if>
-      <sc-if value="{{ cIsAct }}" hint-placeholder-val="{{ false }}">
-        <span style="{{ cVTabRow }}"><button style="{{ cVTabOne }}">CALORIE BURN</button></span>
-        <span style="{{ cActPanel }}">
-          <span style="{{ cActLabS }}">{{ cActLabel }}</span>
-          <span style="{{ cActNoteS }}">{{ cActNote }}</span>
-        </span>
-      </sc-if>
       <span style="{{ cFigWrap }}">
         <sc-if value="{{ cBody3D }}" hint-placeholder-val="{{ true }}"><canvas data-body style="{{ cCanvasS }}"></canvas></sc-if>
         <sc-if value="{{ cBodySvg }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 64 136" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="{{ cFigS }}"><circle cx="32" cy="14" r="10"></circle><path d="{{ cBodyGlyph }}"></path></svg></sc-if>
@@ -437,12 +430,6 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ cBodyPanel }}">
         <span style="{{ cHtGrid }}"><sc-for list="{{ cCardCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.75);border-left-color:rgba(34,211,238,.75);border-right-color:rgba(34,211,238,.75)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}<span style="{{ t.unitS }}">{{ t.unit }}</span></span></button></sc-for></span>
         <span style="{{ cSliderBox }}"><input type="range" min="{{ cCardMin }}" max="{{ cCardMax }}" step="{{ cCardStep }}" value="{{ cCardVal }}" onChange="{{ cCardSlide }}" style="{{ cCardTrack }}"></span>
-      </span>
-      </sc-if>
-      <sc-if value="{{ cIsAct }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ cBodyPanel }}">
-        <span style="{{ cHtGrid }}"><sc-for list="{{ cActCells }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="{{ t.s }}" style-hover="border-top-color:rgba(34,211,238,.75);border-left-color:rgba(34,211,238,.75);border-right-color:rgba(34,211,238,.75)"><span style="{{ t.labS }}">{{ t.label }}</span><span style="{{ t.valS }}">{{ t.val }}</span></button></sc-for></span>
-        <span style="{{ cSliderBox }}"><input type="range" min="{{ cActMin }}" max="{{ cActMax }}" step="{{ cActStep }}" value="{{ cActIdx }}" onChange="{{ cActSlide }}" style="{{ cActTrack }}"></span>
       </span>
       </sc-if>
       </sc-if>
@@ -1048,32 +1035,10 @@ const OWNED = /\b[A-Z][a-z]+'s\b/;
 const PICKED_BG = "#0b1a20";
 
 // ── Calorie calc ───────────────────────────────────────────────────────────────
-// The day a person spends anyway, priced on the FAO/WHO/UNU lifestyle bands and read at
-// the exercise-free end of each, because training is asked for separately and billing it
-// twice is the classic way a calculator reads high.
-// The one activity question: eight bands of a week, each a PAL from the FAO
-// range with a name and a sentence of what that life looks like. The screen
-// prices the band in this body's own calories (RMR x PAL x 7), so the figure
-// read off the slider is the week it describes. The floor is 1.25: bed rest
-// with meals is about 1.2, so no living week goes lower.
-const CALC_ACT = [
-  { pal: 1.25, label: "VERY MINIMAL ACTIVITY",
-    note: "Housebound days \u2014 sitting nearly all of it, a few hundred steps, no training." },
-  { pal: 1.40, label: "SEDENTARY",
-    note: "A desk day and little else \u2014 short walks to the car or the shops, no training." },
-  { pal: 1.55, label: "LIGHTLY ACTIVE",
-    note: "On your feet part of the day, or two or three easy sessions a week." },
-  { pal: 1.70, label: "MODERATELY ACTIVE",
-    note: "A standing or walking job, or training four or five days a week." },
-  { pal: 1.85, label: "ACTIVE",
-    note: "Physical work most days, or a walking job plus regular hard training." },
-  { pal: 2.00, label: "VERY ACTIVE",
-    note: "A physical job with training on top, or hard training nearly every day." },
-  { pal: 2.20, label: "ATHLETE",
-    note: "Heavy training most days \u2014 sport in season, serious weekly volume." },
-  { pal: 2.40, label: "EXTREME",
-    note: "Hard labour plus training, or two-a-days \u2014 few people live here for long." }
-];
+// The day a person spends is built rather than picked off a lifestyle band:
+// a resting rate, the movement they described, and the cost of digesting the
+// food itself. Nobody is asked to place themselves on a PAL scale, because
+// almost nobody places themselves correctly.
 // Eight bands each, which is as fine as anyone can pick themselves out of a line-up.
 const CALC_BF = { m: [8, 12, 16, 20, 25, 30, 35, 40], f: [16, 20, 24, 28, 32, 36, 40, 45] };
 // The slider stops here. It does not warn and then allow; there is simply no track.
@@ -1900,15 +1865,16 @@ class Component extends DCLogic {
     const rmrOf = (W, FFM) => bfPicked
       ? 370 + 21.6 * FFM
       : 10 * W + 6.25 * ht - 5 * age + (sex === "m" ? 5 : -161);
-    // One activity answer: a daily burn in 100-kcal steps, bounded by the same
-    // PAL bands the explainer describes. The band text is whichever band the
-    // chosen burn sits nearest, so the words follow the number, not the reverse.
     const rmr0 = rmrOf(wt, ffm0);
-    const bLo = Math.round(rmr0 * CALC_ACT[0].pal / 100) * 100;
-    const bHi = Math.round(rmr0 * CALC_ACT[CALC_ACT.length - 1].pal / 100) * 100;
-    // The training answers price the default burn: a mostly-still day, plus
-    // what the steps cost at roughly 0.045 kcal each, plus the week's lifting
-    // spread over seven days. Touching the burn slider takes it from here.
+    // The protein floor. Never asked, because there is only one answer worth
+    // giving: resistance training stops paying above about 1.6 g per kilogram
+    // a day (Morton 2018 — the old 2.2 was insurance, not need), a little
+    // under that for women, and a cut asks for the same again rather than
+    // less, since protein is what keeps the loss out of muscle. Capped
+    // against lean mass too, so a heavy body is not told to eat for tissue
+    // it is not carrying.
+    const protOf = (W, FFM) =>
+      Math.min((sex === "f" ? 1.5 : 1.6) * W, 2.2 * FFM);
     // Walking, lifting and cardio, each priced against this body rather than
     // a flat number: a step costs about 0.00053 kcal per kilogram, an hour of
     // lifting runs at 4 METs and an hour of cardio at 7 - a MET being one
@@ -1917,52 +1883,28 @@ class Component extends DCLogic {
     const walkS = s.cWalkS == null ? 7000 : s.cWalkS;
     const trnW = Math.max(3, s.cLift == null ? 4 : s.cLift);
     const cardH = s.cCardH == null ? 2 : s.cCardH;
-    const kStep = 0.00053 * wt, kLift = 4 * wt, kCard = 7 * wt;
-    const burnEst = rmr0 * 1.15 + walkS * kStep
-      + trnW * kLift / 7 + cardH * kCard / 7;
-    const burn0 = s.cBurn == null
-      ? Math.round(burnEst / 100) * 100 : s.cBurn;
-    const tdee0 = Math.max(bLo, Math.min(bHi, Math.round(burn0 / 100) * 100));
-    const pal = tdee0 / rmr0;
-    let act = CALC_ACT[0];
-    for (const a of CALC_ACT)
-      if (Math.abs(a.pal - pal) < Math.abs(act.pal - pal)) act = a;
-    const maint = Math.round(tdee0);
+    const kCard = 7 * wt;
+    // The day, before the food: a still body at 1.05 × RMR — the thermic
+    // effect of food taken back out of the usual 1.15, because it is priced
+    // properly below — plus what the movement costs.
+    const baseOf = (R, W) => R * 1.05 + walkS * (0.00053 * W)
+      + (trnW * 4 + cardH * 7) * W / 7;
+    const base0 = baseOf(rmr0, wt);
+    // And then the food's own cost. Digestion spends about a quarter of
+    // protein's calories against roughly a twentieth of everything else, so a
+    // standing protein floor is worth real kilocalories a day. It rides on
+    // intake, and at maintenance intake is the burn itself, so the line
+    // solves for itself: B = base + 0.20(4P) + 0.05(B - 4P).
+    const spendOf = (R, W, FFM, def, adapt) =>
+      (baseOf(R, W) * (1 - (adapt || 0))
+        + 0.6 * protOf(W, FFM) - 0.05 * (def || 0)) / 0.95;
+    const prot0 = protOf(wt, ffm0);
+    const palA = base0 / rmr0;
     const floor = CALC_FLOOR[sex];
     const ess = ESSENTIAL_BF[sex] / 100;
-    // A year, weekly. The deficit is applied against a maintenance that is recomputed
-    // every day from the body that is actually left, which is the whole difference
-    // between this and 3500-kcal arithmetic.
-    const sim = intake => {
-      let W = wt, FM = fm0, FFM = ffm0, d = 0;
-      const out = [{ w: W, fm: FM, ffm: FFM, bf: 100 * FM / W, tdee: tdee0 }];
-      const defFrac = Math.max(0, (tdee0 - intake) / tdee0);
-      for (let wk = 1; wk <= 52; wk++) {
-        let tdee = tdee0;
-        for (let i = 0; i < 7; i++) {
-          d++;
-          // Adaptive thermogenesis: expenditure falls further than the new body composition
-          // accounts for, more the deeper the deficit, ramping in over about eight weeks.
-          // A simplification of the term in Hall's model, and marked as one in CALC.md.
-          const adapt = 0.10 * Math.min(1, defFrac / 0.25) * (1 - Math.exp(-d / 56));
-          tdee = rmrOf(W, FFM) * pal * (1 - adapt);
-          // Forbes: the fat-free share of a weight change falls as fat mass rises. This is
-          // the line that makes a lean person's deficit a different proposition from a
-          // heavy person's at the same number of calories.
-          const p = 10.4 / (10.4 + FM);
-          const dW = (intake - tdee) / (p * RHO_LEAN + (1 - p) * RHO_FAT);
-          FFM += p * dW; FM += (1 - p) * dW;
-          W = FM + FFM;
-          if (FM < ess * W) { FM = ess * W; W = FM + FFM; }
-        }
-        out.push({ w: W, fm: FM, ffm: FFM, bf: 100 * FM / W, tdee: tdee });
-      }
-      return out;
-    };
     return { sex, age, ht, wt, bmi, bfEst, bfPicked, bf0, fm0, ffm0,
-      pal, act, rmr0, tdee0, bLo, bHi, maint, floor, ess, sim, rmrOf,
-      walkS, trnW, cardH, kCard,
-      actP: (tdee0 - bLo) / Math.max(1, bHi - bLo) };
+      palA, rmr0, floor, ess, rmrOf, spendOf, prot0,
+      walkS, trnW, cardH, kCard };
   }
   gNext() {
     this.gClearTimers();
@@ -4178,7 +4120,7 @@ class Component extends DCLogic {
       // belonging to that app rather than to the bar.
       cResetOn: app === "calc",
       cResetAll: () => this.setState({ cStep: 0, cSex: null, cAge: 30, cHt: null,
-        cWt: null, cBf: null, cBurn: null, cBodySel: "wt", cHtSel: "cm", cActSel: "day",
+        cWt: null, cBf: null, cBodySel: "wt", cHtSel: "cm",
         cWalkS: null, cWalkSel: "s", cLift: null, cCardH: null,
         cTrnSel: "l",
         cView: "cur", cGWt: null, cGBf: null, cResTab: 0, cResDay: null,
@@ -4189,15 +4131,16 @@ class Component extends DCLogic {
         color: "#5f7688", transition: "color 160ms ease" },
       ...(app !== "calc" ? {} : (() => {
         const m = this.calcModel(s);
-        const step = Math.min(s.cStep || 0, 8), done = step >= 8;
+        const step = Math.min(s.cStep || 0, 7), done = step >= 7;
         const set = (k, v) => this.setState({ [k]: v });
-        const go = n => this.setState({ cStep: Math.max(0, Math.min(8, n)) });
+        const go = n => this.setState({ cStep: Math.max(0, Math.min(7, n)) });
         // One question a screen, and one way of moving: the notches. Height and
         // body carry the figure — height right before the body screen, same
-        // layout, one cell — and the week's calories come last, priced against
-        // the body just described.
+        // layout, one cell — and the three activity screens close the run.
+        // There is no calorie-burn question: the burn is what these answers
+        // add up to, and asking again only invites a worse answer.
         const STEPS = ["SEX", "AGE", "HEIGHT", "BODY", "WALKING",
-          "RESISTANCE", "CARDIO", "CALORIE BURN"];
+          "RESISTANCE", "CARDIO"];
         const RG = CALC_RANGE[m.sex];
         const FIELDS = [
           { k: "cAge", lab: "AGE", unit: "YEARS", lo: 18, hi: 90, dflt: 30 },
@@ -4234,10 +4177,7 @@ class Component extends DCLogic {
         this._bodyWant = { sex: m.sex, bf: bfVal, ht: m.ht, kg: m.wt,
           goal: !done && step === 3 && s.cGWt != null
             ? { bf: gBf, kg: gWt } : null,
-          act: done ? null
-            : step === 4 ? 0.5
-              : step === 6 ? 0.92
-                : step === 7 ? m.actP : null,
+          act: done ? null : step === 4 ? 0.5 : step === 6 ? 0.92 : null,
           press: !done && step === 5,
           focus: goalView ? "b" : "a" };
         // ── the plan: solved, not sketched ───────────────────────────────────
@@ -4259,9 +4199,25 @@ class Component extends DCLogic {
         // between phases (Trexler 2014; Peos 2019). Training 3-4x a week
         // and adequate protein (Morton 2018) are assumed throughout.
         const r50 = v => Math.round(v / 50) * 50;
-        const maintAt = (W, FFM) => m.rmrOf(W, FFM) * m.pal;
+        // Metabolic adaptation. A sustained deficit pulls expenditure below
+        // what the body left over predicts - the literature puts the plateau
+        // near a tenth of it at a hard cut (Leibel 1995; Rosenbaum 2008) —
+        // and it ramps in over a couple of months and fades slower than it
+        // arrived. Which is the whole argument for the block between phases:
+        // that is where it gets paid back.
+        const AD_MAX = 0.10, AD_ON = 56, AD_OFF = 42;
+        const adRun = (a0, days, target, tau) =>
+          target + (a0 - target) * Math.exp(-days / tau);
+        // What the body spends at a given size, running a given daily deficit
+        // (negative for a surplus), carrying a given adaptation. The food's
+        // own thermic cost is inside it, so a phase's calories and the burn
+        // that prices them are solved together rather than in sequence.
+        const spendAt = (W, FFM, def, ad) =>
+          m.spendOf(m.rmrOf(W, FFM), W, FFM, def, ad);
+        const maintAt = (W, FFM, ad) => spendAt(W, FFM, 0, ad || 0);
         const plan = (() => {
-          if (!done) return { list: [], nodes: [], sL: 0.15, gLeanWk: 0.25 };
+          if (!done) return { list: [], nodes: [], sL: 0.15, gLeanWk: 0.25,
+            adaptCut: 0 };
           const fmG = gWt * gBf / 100, ffmG = gWt - fmG;
           const dFat = fmG - m.fm0, dLean = ffmG - m.ffm0;
           const sG = 0.75;
@@ -4287,6 +4243,7 @@ class Component extends DCLogic {
           const gainFirst = X > 0.25 && G > 0.25
             && 100 * m.fm0 / m.wt < (m.sex === "f" ? 23 : 15);
           const out = [], nodes = [{ w: m.wt, fm: m.fm0 }];
+          let adapt = 0, adaptCut = 0;
           const seg = (wk, dw, dfm) => {
             const a = nodes[nodes.length - 1];
             for (let i = 1; i <= wk; i++)
@@ -4296,27 +4253,43 @@ class Component extends DCLogic {
           const cutPh = () => {
             const wk = Math.max(2, Math.round(X / (0.006 * W)));
             const def = (X / wk) * (sL * RHO_LEAN + (1 - sL) * RHO_FAT) / 7;
+            const Wm = W - X / 2, FFMm = FFM - sL * X / 2;
+            // The plateau is set by how hard the cut is — nothing measurable
+            // under a twentieth of maintenance, the full ten percent at a
+            // quarter — and the phase is priced at the adaptation standing
+            // halfway through it.
+            const dFrac = def / Math.max(1, maintAt(Wm, FFMm, 0));
+            const aStar = AD_MAX
+              * Math.max(0, Math.min(1, (dFrac - 0.05) / 0.20));
+            const aMid = adRun(adapt, wk * 3.5, aStar, AD_ON);
             out.push({ key: "cut", label: "CUT", wks: wk, dwWk: -X / wk,
               endW: W - X,
               kcal: Math.max(m.floor,
-                r50(maintAt(W - X / 2, FFM - sL * X / 2) - def)) });
+                r50(spendAt(Wm, FFMm, def, aMid) - def)) });
             seg(wk, -X, -(1 - sL) * X);
             W -= X; FFM -= sL * X;
+            adapt = adRun(adapt, wk * 7, aStar, AD_ON);
+            adaptCut = Math.max(adaptCut, adapt);
           };
           const gainPh = () => {
             const wk = Math.max(2, Math.round(G * sG / gLeanWk));
             const sur = (G / wk) * (sG * RHO_LEAN + (1 - sG) * RHO_FAT) / 7;
+            const aMid = adRun(adapt, wk * 3.5, 0, AD_OFF);
             out.push({ key: "gain", label: "LEAN GAIN", wks: wk,
               dwWk: G / wk, endW: W + G,
-              kcal: r50(maintAt(W + G / 2, FFM + sG * G / 2) + sur) });
+              kcal: r50(spendAt(W + G / 2, FFM + sG * G / 2, -sur, aMid)
+                + sur) });
             seg(wk, G, (1 - sG) * G);
             W += G; FFM += sG * G;
+            adapt = adRun(adapt, wk * 7, 0, AD_OFF);
           };
           const midPh = () => {
             const wk = Math.max(2, Math.min(4, Math.round(out[0].wks / 4)));
+            const aMid = adRun(adapt, wk * 3.5, 0, AD_OFF);
             out.push({ key: "mid", label: "MAINTAIN", wks: wk, dwWk: 0,
-              endW: W, kcal: r50(maintAt(W, FFM)) });
+              endW: W, kcal: r50(maintAt(W, FFM, aMid)) });
             seg(wk, 0, 0);
+            adapt = adRun(adapt, wk * 7, 0, AD_OFF);
           };
           if (X > 0.25 && G > 0.25) {
             if (gainFirst) {
@@ -4332,10 +4305,10 @@ class Component extends DCLogic {
           else if (G > 0.25) gainPh();
           if (!out.length) {
             out.push({ key: "hold", label: "MAINTAIN", wks: 0, dwWk: 0,
-              endW: m.wt, kcal: r50(maintAt(m.wt, FFM)) });
+              endW: m.wt, kcal: r50(maintAt(m.wt, FFM, 0)) });
             seg(8, 0, 0);
           }
-          return { list: out, nodes, sL, sG, gLeanWk };
+          return { list: out, nodes, sL, sG, gLeanWk, adaptCut };
         })();
         const phases = plan.list, phNodes = plan.nodes;
         // Two tabs: PLAN — the phase table over the weight trajectory —
@@ -4493,11 +4466,11 @@ class Component extends DCLogic {
           cQuit: () => this.setState({ app: "home" }),
           cIsSex: step === 0, cIsNumQ: step === 1,
           cIsHt: step === 2, cIsBody: step === 3, cIsWalk: step === 4,
-          cIsRes: step === 5, cIsCard: step === 6, cIsAct: step === 7,
-          // The figure carries height, body and the calorie-burn animation;
+          cIsRes: step === 5, cIsCard: step === 6,
+          // The figure carries height, body and the three activity screens;
           // the first two questions are centred slides.
           cFigOn: step === 2 || step === 3 || step === 4 || step === 5
-            || step === 6 || step === 7,
+            || step === 6,
           cQOn: step === 0 || step === 1,
           cQ: STEPS[step],
           // The way forward is the right notch on every screen; the last one
@@ -4516,7 +4489,7 @@ class Component extends DCLogic {
           // header's air along with its job.
           cVTabRow: { flex: "none", display: "flex", justifyContent: "center",
             gap: "2.2rem", padding: "1.15rem 0 .1rem" },
-          // The single-tab screens (HEIGHT, CALORIE BURN) wear the same tab
+          // The single-tab screens (HEIGHT, the activity three) wear the same tab
           // row as the body screen — one lit tab, not a control — which also
           // keeps the figure's canvas the same height on every screen.
           cVTabOne: { padding: "0 .15rem .4rem", border: 0, borderRadius: 0,
@@ -4615,8 +4588,8 @@ class Component extends DCLogic {
             const sel = s.cWalkSel === "m" ? "m" : "s";
             const TRAY = "#0d1a20";
             const setS = v => this.setState({
-              cWalkS: Math.max(0, Math.min(25000, Math.round(v / 500) * 500)),
-              cBurn: null });
+              cWalkS: Math.max(0, Math.min(25000,
+                Math.round(v / 500) * 500)) });
             const M = {
               s: { label: "STEPS PER DAY", val: cm(m.walkS), unit: "",
                 lo: 0, hi: 25000, stp: 500, cur: m.walkS, set: setS },
@@ -4685,8 +4658,8 @@ class Component extends DCLogic {
           cResVal2: String(m.trnW),
           cResMin: "3", cResMax: "7", cResStep: "1",
           cResVal: String(m.trnW),
-          cResSlide: e => this.setState({ cLift: Math.round(+e.target.value),
-            cBurn: null }),
+          cResSlide: e => this.setState({
+            cLift: Math.round(+e.target.value) }),
           cResTrack: { "--p": (100 * (m.trnW - 3) / 4).toFixed(1) + "%" },
           // Cardio, in hours or in the calories those hours cost this body —
           // one value wearing two faces, since a step count cannot see a bike
@@ -4697,8 +4670,8 @@ class Component extends DCLogic {
             const TRAY = "#0d1a20";
             const kWk = m.kCard;
             const setH = v => this.setState({
-              cCardH: Math.max(0, Math.min(14, Math.round(v * 2) / 2)),
-              cBurn: null });
+              cCardH: Math.max(0, Math.min(14,
+                Math.round(v * 2) / 2)) });
             const M = {
               h: { label: "CARDIO HRS", val: (m.cardH % 1 ? m.cardH.toFixed(1)
                 : String(m.cardH)), unit: " / WK",
@@ -4754,58 +4727,6 @@ class Component extends DCLogic {
             cSex: +e.target.value >= 1 ? "f" : "m",
             cGWt: null, cGBf: null }),
           cSexTrack: { "--p": s.cSex === "f" ? "100%" : "0%" },
-          // Calorie burn: a burn in 100-kcal steps between the outermost
-          // activity bands, priced in this body's own arithmetic. The nearest
-          // band's name and sentence hold the centre of the screen in a
-          // fixed-height panel; the number sits at the bottom in the body
-          // screen's own cells — DAILY and WEEKLY, comma'd, no suffix — over
-          // the same tray the other screens slide in. The weekly cell drives
-          // the same daily figure at 7× scale, so the two never disagree.
-          cActMin: String(s.cActSel === "wk" ? m.bLo * 7 : m.bLo),
-          cActMax: String(s.cActSel === "wk" ? m.bHi * 7 : m.bHi),
-          cActStep: String(s.cActSel === "wk" ? 700 : 100),
-          cActIdx: String(s.cActSel === "wk" ? m.tdee0 * 7 : m.tdee0),
-          cActSlide: e => this.setState({ cBurn: s.cActSel === "wk"
-            ? +e.target.value / 7 : +e.target.value }),
-          cActTrack: { "--p": (100 * (m.tdee0 - m.bLo)
-            / Math.max(1, m.bHi - m.bLo)).toFixed(1) + "%" },
-          cActLabel: m.act.label,
-          cActNote: m.act.note,
-          cActCells: (() => {
-            const commas = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            const day = m.tdee0;
-            const sel = s.cActSel === "wk" ? "wk" : "day";
-            const TRAY = "#0d1a20";
-            return [
-              { k: "day", label: "DAILY", val: commas(day) },
-              { k: "wk", label: "WEEKLY", val: commas(day * 7) }
-            ].map(c => {
-              const on = c.k === sel;
-              return {
-                label: c.label, val: c.val,
-                onClick: () => this.setState({ cActSel: c.k }),
-                s: { position: "relative", display: "flex",
-                  flexDirection: "column", alignItems: "center",
-                  justifyContent: "center", gap: ".4rem", minWidth: 0,
-                  height: "4.4rem", padding: ".3rem .2rem",
-                  boxSizing: "border-box", borderRadius: 0, cursor: "pointer",
-                  borderStyle: "solid", borderWidth: "1px",
-                  borderColor: on
-                    ? "rgba(34,211,238,.75) rgba(34,211,238,.75) " + TRAY
-                    : "#1e293b #1e293b transparent",
-                  background: on ? TRAY
-                    : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
-                  backgroundClip: "padding-box",
-                  transition: "border-color 160ms ease, background 160ms ease" },
-                labS: { fontFamily: "var(--font-2)", fontSize: ".84rem",
-                  letterSpacing: ".06em", whiteSpace: "nowrap",
-                  color: on ? "#3fdcf2" : "#a9bcc8" },
-                valS: { fontFamily: "var(--font-1)", fontWeight: 300,
-                  fontSize: "1.45rem", lineHeight: 1,
-                  fontVariantNumeric: "tabular-nums", color: "#f2f8fc" }
-              };
-            });
-          })(),
           // The last screen: every metric a cell — weight, BMI, body fat, lean —
           // one always selected, and a single slider below driving whichever it
           // is. BMI and lean have no state of their own; they write back through
@@ -4915,27 +4836,14 @@ class Component extends DCLogic {
                 cGBf: s.cGBf == null ? gDef.bf : s.cGBf });
               return;
             }
-            if (step === 7) {
-              this.setState({ cStep: 8, cResTab: 0, cResDay: null,
+            if (step === STEPS.length - 1) {
+              this.setState({ cStep: STEPS.length, cResTab: 0, cResDay: null,
                 cResScrub: false });
               return;
             }
             go(step + 1);
           },
           cNextLab: step === STEPS.length - 1 ? "SEE THE NUMBER" : "NEXT",
-          // The band explainer: a fixed-height strip above the figure, so the
-          // slider changes words and digits and nothing else moves. Bare
-          // text, no box — the words stand on the page like the titles do.
-          cActPanel: { flex: "none", alignSelf: "center", width: "100%",
-            maxWidth: "21.5rem", height: "6.1rem",
-            display: "flex", flexDirection: "column", justifyContent: "center",
-            alignItems: "center", textAlign: "center", gap: ".4rem",
-            boxSizing: "border-box" },
-          cActLabS: { fontFamily: "var(--font-2)", fontSize: ".95rem",
-            letterSpacing: ".18em", color: "#3fdcf2" },
-          cActNoteS: { fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: ".98rem", lineHeight: 1.4, color: "#b3c5d0",
-            textWrap: "pretty" },
           // ── the plan screen: a tab per phase, the timeline as the footer ─────────
           // The tabs and the scrub are the same dial: tapping a tab walks
           // the scrub to that phase's first day, and dragging the scrub
@@ -5150,11 +5058,14 @@ class Component extends DCLogic {
             const cutDef = Math.round((cut ? Math.abs(cut.dwWk)
               : 0.006 * m.wt) * (plan.sL * RHO_LEAN
               + (1 - plan.sL) * RHO_FAT) / 7 / 50) * 50;
+            const protG = Math.round(m.prot0 / 5) * 5;
+            const adPct = Math.round(100 * plan.adaptCut);
             const B = (a, n1, b, n2, c) => ({ a, n1, b: b || "",
               n2: n2 || "", c: c || "" });
             return [
               B("You lift ", m.trnW + " times per week",
-                " and eat enough protein, all the way through."),
+                " and eat at least ", protG + " g of protein a day",
+                " — both are assumed, all the way through."),
               B("Cuts lose ", cutG + " g per week",
                 " \u2014 the pace that spares muscle."),
               B("", Math.round(100 * plan.sL) + "%",
@@ -5162,10 +5073,15 @@ class Component extends DCLogic {
                 + "training and a conservative ", cutDef + " kcal",
                 " daily deficit \u2014 is lean mass. Hence the "
                 + "follow-up lean gain phase."),
-              B("", midWk, " at maintenance between phases \u2014 a "
-                + "deficit drags metabolic rate and training output "
-                + "down, and holding steady restores both before the "
-                + "next phase."),
+              adPct >= 1
+                ? B("", midWk, " at maintenance between phases \u2014 by "
+                  + "the end of the cut your body spends about ",
+                  adPct + "% less", " than its size alone predicts, and "
+                  + "only eating at maintenance pays that back.")
+                : B("", midWk, " at maintenance between phases \u2014 a "
+                  + "deficit drags metabolic rate and training output "
+                  + "down, and holding steady restores both before the "
+                  + "next phase."),
               B("Lean builds at ", gainG + " g per week",
                 " for your sex and age; ", "25%",
                 " of any surplus becomes fat."),
