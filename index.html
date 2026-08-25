@@ -401,7 +401,7 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ cStage }}">
       <sc-if value="{{ cTblOn }}" hint-placeholder-val="{{ false }}">
       <span onClick="{{ cTblPick }}" style="{{ cTblLS }}">
-        <sc-for list="{{ cTblRows }}" as="r" hint-placeholder-count="4"><span style="{{ cTblRow }}"><span style="{{ cTblLab }}">{{ r.lab }}</span><span style="{{ cTblVal }}">{{ r.val }}<span style="{{ cTblUnit }}">{{ r.unit }}</span></span><input type="range" min="{{ r.min }}" max="{{ r.max }}" step="{{ r.step }}" value="{{ r.cur }}" onChange="{{ r.onSlide }}" style="{{ r.trackS }}"></span></sc-for>
+        <sc-for list="{{ cTblRows }}" as="r" hint-placeholder-count="4"><span style="{{ cTblRow }}"><span style="{{ cTblHead }}"><span style="{{ cTblLab }}">{{ r.lab }}</span><span style="{{ cTblVal }}">{{ r.val }}<span style="{{ cTblUnit }}">{{ r.unit }}</span></span></span><input type="range" min="{{ r.min }}" max="{{ r.max }}" step="{{ r.step }}" value="{{ r.cur }}" onChange="{{ r.onSlide }}" style="{{ r.trackS }}"></span></sc-for>
         <span style="{{ cTblEnd }}"></span>
       </span>
       </sc-if>
@@ -412,7 +412,7 @@ option{background:#070b12;color:#d7e6ef}
       <sc-if value="{{ cTblPadOn }}" hint-placeholder-val="{{ false }}"><span style="{{ cTblPad }}"></span></sc-if>
       <sc-if value="{{ cTbl2On }}" hint-placeholder-val="{{ false }}">
       <span onClick="{{ cTblPick2 }}" style="{{ cTblRS }}">
-        <sc-for list="{{ cTblRows2 }}" as="r" hint-placeholder-count="4"><span style="{{ cTblRow }}"><span style="{{ cTblLab }}">{{ r.lab }}</span><span style="{{ cTblVal }}">{{ r.val }}<span style="{{ cTblUnit }}">{{ r.unit }}</span></span><input type="range" min="{{ r.min }}" max="{{ r.max }}" step="{{ r.step }}" value="{{ r.cur }}" onChange="{{ r.onSlide }}" style="{{ r.trackS }}"></span></sc-for>
+        <sc-for list="{{ cTblRows2 }}" as="r" hint-placeholder-count="4"><span style="{{ cTblRow }}"><span style="{{ cTblHead }}"><span style="{{ cTblLab }}">{{ r.lab }}</span><span style="{{ cTblVal }}">{{ r.val }}<span style="{{ cTblUnit }}">{{ r.unit }}</span></span></span><input type="range" min="{{ r.min }}" max="{{ r.max }}" step="{{ r.step }}" value="{{ r.cur }}" onChange="{{ r.onSlide }}" style="{{ r.trackS }}"></span></sc-for>
         <span style="{{ cTblEnd }}"></span>
       </span>
       </sc-if>
@@ -4778,9 +4778,14 @@ class Component extends DCLogic {
             cGBf: s.cGBf == null ? gDef.bf : s.cGBf }),
           // The tab rows breathe below the app bar — they took the retired
           // header's air along with its job.
-          cVTabRow: { flex: "none", display: "flex", justifyContent: "center",
-            gap: D ? "3rem" : "2.2rem",
-            padding: D ? "1.5rem 0 .2rem" : "1.15rem 0 .1rem" },
+          // On a phone the tab row is a centred band over the figure. On a
+          // desktop that band is 60px of nothing across the whole frame, so
+          // the label goes to the top-left corner and the figure takes the
+          // room back.
+          cVTabRow: { flex: "none", display: "flex",
+            justifyContent: D ? "flex-start" : "center",
+            gap: D ? "2.4rem" : "2.2rem",
+            padding: D ? ".2rem 0 .1rem" : "1.15rem 0 .1rem" },
           // The single-tab screens (HEIGHT, the activity three) wear the same tab
           // row as the body screen — one lit tab, not a control — which also
           // keeps the figure's canvas the same height on every screen.
@@ -5513,17 +5518,17 @@ class Component extends DCLogic {
           // One table and a figure would hang the body off-centre; the empty
           // half of the pair keeps it in the middle of the frame.
           cTblPadOn: D && cFigOn && step !== 3,
-          cTblPad: { flex: "0 0 26rem" },
+          cTblPad: { flex: "0 0 19rem" },
           cTblRows: tbl.rows,
           cTblRows2: tbl.rows2,
           // Lit or held back: on the two-body screen the table follows its
           // tab, so the pair reads as one selection rather than two.
-          cTblLS: (on => ({ flex: "0 0 26rem", minWidth: 0,
+          cTblLS: (on => ({ flex: "0 0 19rem", minWidth: 0,
             display: "flex", flexDirection: "column",
             justifyContent: "center", cursor: "pointer",
             opacity: on ? 1 : .38,
             transition: "opacity 200ms ease" }))(step !== 3 || !goalView),
-          cTblRS: (on => ({ flex: "0 0 26rem", minWidth: 0,
+          cTblRS: (on => ({ flex: "0 0 19rem", minWidth: 0,
             display: "flex", flexDirection: "column",
             justifyContent: "center", cursor: "pointer",
             opacity: on ? 1 : .38,
@@ -5534,13 +5539,19 @@ class Component extends DCLogic {
             cGBf: s.cGBf == null ? gDef.bf : s.cGBf }),
           // A table, not a box: hairlines between the rows and nothing round
           // the outside, so it reads as figures set on the page.
-          cTblRow: { display: "flex", alignItems: "center", gap: ".9rem",
-            height: "3.4rem", borderTop: "1px solid #1e293b" },
-          cTblLab: { flex: "0 0 8.6rem", minWidth: 0,
-            fontFamily: "var(--font-2)", fontSize: ".92rem",
-            letterSpacing: ".1em", whiteSpace: "nowrap", color: "#9fb3c0" },
-          cTblVal: { flex: "0 0 6rem", minWidth: 0, textAlign: "right",
-            fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.5rem",
+          // A row is two lines, not three columns: the name and the figure
+          // share the first, the slider has the second to itself. It makes
+          // the table narrow enough to leave the middle of the frame to the
+          // body, and it stops a long label squeezing the slider to a stub.
+          cTblRow: { display: "flex", flexDirection: "column", gap: ".55rem",
+            padding: ".85rem 0 .95rem", borderTop: "1px solid #1e293b" },
+          cTblHead: { display: "flex", alignItems: "baseline",
+            justifyContent: "space-between", gap: ".8rem" },
+          cTblLab: { minWidth: 0, fontFamily: "var(--font-2)",
+            fontSize: ".92rem", letterSpacing: ".1em", whiteSpace: "nowrap",
+            color: "#9fb3c0" },
+          cTblVal: { minWidth: 0, textAlign: "right",
+            fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.6rem",
             lineHeight: 1, whiteSpace: "nowrap",
             fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
           cTblUnit: { marginLeft: ".2rem", fontFamily: "var(--font-2)",
