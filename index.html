@@ -379,8 +379,8 @@ option{background:#070b12;color:#d7e6ef}
   </sc-if>
   <sc-if value="{{ appCalc }}" hint-placeholder-val="{{ false }}">
   <div style="{{ cWrap }}">
-      <sc-if value="{{ cBackOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ cBack }}" style="{{ cNotchL }}" style-hover="background:rgba(34,211,238,.18);border-color:rgba(34,211,238,.85)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M15 5l-7 7 7 7"></path></svg></button></sc-if>
-      <sc-if value="{{ cRNotchOn }}" hint-placeholder-val="{{ true }}"><button onClick="{{ cNext }}" style="{{ cNotchR }}" style-hover="background:rgba(34,211,238,.18);border-color:rgba(34,211,238,.85)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 5l7 7-7 7"></path></svg></button></sc-if>
+      <sc-if value="{{ cBackOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ cBack }}" aria-label="Back" style="{{ cNotchL }}" style-hover="color:#22d3ee;background:rgba(148,168,188,.07)"><svg width="{{ cNotchSvg }}" height="{{ cNotchSvg }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{ cNotchSw }}" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="{{ cNotchPathL }}"></path></svg></button></sc-if>
+      <sc-if value="{{ cRNotchOn }}" hint-placeholder-val="{{ true }}"><button onClick="{{ cNext }}" aria-label="Next" style="{{ cNotchR }}" style-hover="color:#22d3ee;background:rgba(148,168,188,.07)"><svg width="{{ cNotchSvg }}" height="{{ cNotchSvg }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{ cNotchSw }}" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="{{ cNotchPathR }}"></path></svg></button></sc-if>
     <sc-if value="{{ cStepOn }}" hint-placeholder-val="{{ true }}">
       <sc-if value="{{ cFigOn }}" hint-placeholder-val="{{ false }}">
       <sc-if value="{{ cIsBody }}" hint-placeholder-val="{{ true }}">
@@ -1113,15 +1113,29 @@ class Component extends DCLogic {
     // field keeps its own arrows: while one has focus these do nothing.
     this._calcKeys = e => {
       if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+      if (e.repeat || e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
       const st = this.state;
       if (st.app !== "calc" || st.narrow || !this._cNav) return;
       const t = e.target || {};
       const tag = (t.tagName || "").toLowerCase();
       if (tag === "input" || tag === "textarea" || tag === "select"
         || t.isContentEditable) return;
+      if (this._cTurning) return;
+      const right = e.key === "ArrowRight";
+      // A key does nothing a click could not: if that notch is not on the
+      // screen, neither is the move.
+      if (!(right ? this._cNav.nextOn : this._cNav.backOn)) return;
       e.preventDefault();
-      (e.key === "ArrowRight" ? this._cNav.next : this._cNav.back)();
+      // The notch lights first and the turn follows, so the cause of the
+      // move is visible rather than inferred.
+      this._cTurning = true;
+      this.setState({ cFlash: right ? "r" : "l" });
+      this._cFlashT = setTimeout(() => {
+        this._cTurning = false;
+        this.setState({ cFlash: null });
+        const nav = this._cNav;
+        if (nav) (right ? nav.next : nav.back)();
+      }, 170);
     };
     document.addEventListener("keydown", this._calcKeys);
     // Desktop popovers close on mouseleave. Mobile has no hover, so they are toggled open
@@ -1306,6 +1320,7 @@ class Component extends DCLogic {
     if (this._body) { this._body.dispose(); this._body = null; }
     document.removeEventListener("keydown", this._esc);
     document.removeEventListener("keydown", this._calcKeys);
+    clearTimeout(this._cFlashT);
     window.removeEventListener("scroll", this._unscroll, true);
     document.removeEventListener("touchstart", this._press, true);
     document.removeEventListener("mousedown", this._press, true);
@@ -4625,6 +4640,64 @@ class Component extends DCLogic {
             go(step + 1);
           }
         };
+        // The desktop notch is a tab on the frame rather than a button in
+        // the app: 32 by 120, docked onto the rail with its meeting edge
+        // borderless and a 1px lap so no seam shows, rounded on the outer
+        // edge only, and dim at rest — the accent is spent on hover. The
+        // phone keeps its own flush pair, which has no rail to dock to.
+        // The desktop notch is a tab on the frame rather than a button in the
+        // app: 32 by 120, docked onto the rail with its meeting edge
+        // borderless and a 1px lap so no seam shows, rounded on the outer
+        // edge only, and dim at rest — the accent is spent on hover. The
+        // phone keeps its own flush pair, which has no rail to dock to.
+        //
+        // Every edge is written long. A `border` shorthand beside a
+        // `borderLeft: none` looks equivalent and is not: React rewrites the
+        // shorthand whenever its value changes and the untouched longhand is
+        // not reapplied, so the docked edge grows its line back mid-session.
+        const cNotch = (side, on) => {
+          const line = "1px solid "
+            + (on ? "rgba(34,211,238,.5)" : "#1e293b");
+          const dock = s.narrow ? (side === "l" ? "l" : "r")
+            : (side === "l" ? "r" : "l");
+          return Object.assign({
+            position: "absolute",
+            top: s.narrow ? "42%" : "50%", transform: "translateY(-50%)",
+            zIndex: 10,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            padding: 0, boxSizing: "border-box",
+            width: s.narrow ? "2.1rem" : "32px",
+            height: s.narrow ? "4.8rem" : "120px",
+            borderTop: line, borderBottom: line,
+            borderLeft: dock === "l" ? "none" : line,
+            borderRight: dock === "r" ? "none" : line,
+            borderRadius: s.narrow ? 0
+              : side === "l" ? "3px 0 0 3px" : "0 3px 3px 0",
+            background: s.narrow ? "rgba(34,211,238,.08)"
+              : on ? "rgba(34,211,238,.16)" : "rgba(148,168,188,.04)",
+            color: s.narrow || on ? "#3fdcf2" : "rgba(120,145,165,.5)",
+            outline: "none",
+            // The key-flash is the only glow: at rest the tab is a hairline
+            // box, which is what keeps it reading as part of the frame.
+            filter: on ? "drop-shadow(0 0 8px rgba(34,211,238,.55))" : "none",
+            cursor: "pointer",
+            transition: on
+              ? "color 80ms ease, background 80ms ease, border-color 80ms ease"
+              : "color 250ms ease, background 250ms ease,"
+                + " border-color 250ms ease"
+          }, s.narrow
+            ? (side === "l" ? { left: "-.5rem" } : { right: "0" })
+            // Out into the margin by the width of the tab, or by whatever
+            // margin there is if the glass is narrower than the frame — the
+            // band keeps its 1320 and the notch does the yielding.
+            : side === "l"
+              ? { left: "calc(1px - min(32px, (100vw - 100%) / 2))" }
+              : { right: "calc(1px - min(32px, (100vw - 100%) / 2))" });
+        };
+        // What the notches can do right now, so the keyboard can be exactly
+        // as capable as they are and no more.
+        cNav.backOn = done || step > 0;
+        cNav.nextOn = done ? phTab < 1 : true;
         this._cNav = cNav;
         return {
           cStepOn: !done, cResOn: done,
@@ -5363,33 +5436,14 @@ class Component extends DCLogic {
           // they dock onto the frame's rails from outside — border dropped
           // on the side that meets the rail, a 1px lap so no gap shows, and
           // the only radius in the system on the outer corners.
-          cNotchL: Object.assign({ position: "absolute",
-            top: "42%", transform: "translateY(-50%)", zIndex: 5,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            width: "2.1rem", height: "4.8rem", padding: 0, boxSizing: "border-box",
-            border: "1px solid #1e293b",
-            background: "rgba(34,211,238,.08)", color: "#3fdcf2",
-            boxShadow: "0 0 18px rgba(34,211,238,.12)", cursor: "pointer",
-            transition: "background 160ms ease, border-color 160ms ease" },
-            s.narrow
-              ? { left: "-.5rem", borderLeft: "none", borderRadius: 0 }
-              // Out into the margin by the width of the tab, or by whatever
-              // margin there is if the glass is narrower than the frame —
-              // the band keeps its 1320 and the notch does the yielding.
-              : { left: "calc(1px - min(2.1rem, (100vw - 100%) / 2))",
-                borderRight: "none", borderRadius: "3px 0 0 3px" }),
-          cNotchR: Object.assign({ position: "absolute",
-            top: "42%", transform: "translateY(-50%)", zIndex: 5,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            width: "2.1rem", height: "4.8rem", padding: 0, boxSizing: "border-box",
-            border: "1px solid #1e293b",
-            background: "rgba(34,211,238,.08)", color: "#3fdcf2",
-            boxShadow: "0 0 18px rgba(34,211,238,.12)", cursor: "pointer",
-            transition: "background 160ms ease, border-color 160ms ease" },
-            s.narrow
-              ? { right: "0", borderRight: "none", borderRadius: 0 }
-              : { right: "calc(1px - min(2.1rem, (100vw - 100%) / 2))",
-                borderLeft: "none", borderRadius: "0 3px 3px 0" }),
+          cNotchL: cNotch("l", s.cFlash === "l"),
+          cNotchR: cNotch("r", s.cFlash === "r"),
+          // Hairline chevron on a desktop, to the weight of the frame it
+          // hangs on; the phone's stays a thumb-sized mark.
+          cNotchSvg: D ? "24" : "22",
+          cNotchSw: D ? "1" : "1.9",
+          cNotchPathL: D ? "M15 6l-6 6 6 6" : "M15 5l-7 7 7 7",
+          cNotchPathR: D ? "M9 6l6 6-6 6" : "M9 5l7 7-7 7",
           cValRow: { flex: "none", display: "flex", alignItems: "baseline",
             justifyContent: "center", gap: ".45rem", paddingBottom: ".1rem" },
           cValS: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "2.9rem",
