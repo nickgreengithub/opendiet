@@ -155,6 +155,10 @@ export function mount(canvas) {
   // Pinch. The camera pulls in and out rather than the body scaling, so the
   // perspective stays honest at every zoom.
   const BASE_D = camera.position.z;
+  // How much of the canvas the figure fills. The phone's framing is 1; a
+  // desktop hands the figure a canvas half again as tall, and at 1 the extra
+  // is all sky, so it asks for a tighter one.
+  let fitK = 1;
   let zoom = 1, pinch0 = 0, zoom0 = 1, panY = 0;
   const ZOOM_MIN = 0.8, ZOOM_MAX = 2.4;
   // Zoomed in, the camera is looking at the middle of the body, which is the hips —
@@ -175,7 +179,7 @@ export function mount(canvas) {
     tgt = {
       ax: pairOn ? -XOFF : 0,
       bx: XOFF,
-      cam: pairOn ? kPair : 1,
+      cam: pairOn ? kPair : fitK,
       aB: pairOn && focus === "b" ? 0 : 1,
       bB: focus === "b" ? 1 : 0
     };
@@ -593,6 +597,13 @@ export function mount(canvas) {
   tick();
 
   const api = {
+    // The framing: 1 is the phone's, smaller pulls the camera in. Pair mode
+    // sets its own, since there it is the width of two figures that decides.
+    fit(k) {
+      const v = Math.max(0.6, Math.min(1.4, k || 1));
+      if (v === fitK) return;
+      fitK = v; retarget(); dirty = true;
+    },
     // Turn to an exact angle — used by the preview harness, harmless to keep.
     view(rad) { spin = rad; vel = 0; pivot.rotation.y = spin; dirty = true; },
     infl() { return mesh ? Array.from(mesh.morphTargetInfluences) : null; },

@@ -469,6 +469,7 @@ option{background:#070b12;color:#d7e6ef}
       </sc-if>
       <sc-if value="{{ cPhInfoOn }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cVTabRow }}"><button style="{{ cVTabOne }}">ASSUMPTIONS</button></span>
+      <span style="{{ cPhInfoTop }}"></span>
       <span style="{{ cPhInfoBox }}"><sc-for list="{{ cPhInfoLines }}" as="t" hint-placeholder-count="6"><span style="{{ cPhInfoRow }}"><span style="{{ cPhInfoDot }}"></span><span style="{{ cPhInfoTxt }}">{{ t.a }}<span style="{{ cPhInfoHi }}">{{ t.n1 }}</span>{{ t.b }}<span style="{{ cPhInfoHi }}">{{ t.n2 }}</span>{{ t.c }}</span></span></sc-for></span>
       </sc-if>
       <span style="{{ cQSpace2 }}"></span>
@@ -1107,6 +1108,22 @@ class Component extends DCLogic {
       else setTimeout(warmBody, 2500);
     }
     document.addEventListener("keydown", this._esc);
+    // Left and right walk the calc, exactly as the notches do — a desktop has
+    // a keyboard and a run of eight screens is what it is for. A slider or a
+    // field keeps its own arrows: while one has focus these do nothing.
+    this._calcKeys = e => {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+      const st = this.state;
+      if (st.app !== "calc" || st.narrow || !this._cNav) return;
+      const t = e.target || {};
+      const tag = (t.tagName || "").toLowerCase();
+      if (tag === "input" || tag === "textarea" || tag === "select"
+        || t.isContentEditable) return;
+      e.preventDefault();
+      (e.key === "ArrowRight" ? this._cNav.next : this._cNav.back)();
+    };
+    document.addEventListener("keydown", this._calcKeys);
     // Desktop popovers close on mouseleave. Mobile has no hover, so they are toggled open
     // and need a tap elsewhere to dismiss them. Triggers and panels carry data-pop; anything
     // else counts as outside. touchstart as well as click, because iOS does not reliably
@@ -1257,6 +1274,9 @@ class Component extends DCLogic {
         api.setPair({ sex: w.sex, bf: w.bf, ht: w.ht, kg: w.kg },
           { sex: w.sex, bf: w.goal.bf, ht: w.ht, kg: w.goal.kg }, w.focus);
       else api.set(w.sex, w.bf, w.ht, w.kg);
+      // A desktop canvas is half again as tall as a phone's, so the figure is
+      // framed tighter rather than left standing in a field of sky.
+      if (api.fit) api.fit(this.state.narrow ? 1 : 0.82);
       // The calorie-burn screen animates the figure along its slider,
       // and the resistance screen puts it under the bar.
       if (api.act) api.act(w.act == null ? null : w.act);
@@ -1285,6 +1305,7 @@ class Component extends DCLogic {
   componentWillUnmount() {
     if (this._body) { this._body.dispose(); this._body = null; }
     document.removeEventListener("keydown", this._esc);
+    document.removeEventListener("keydown", this._calcKeys);
     window.removeEventListener("scroll", this._unscroll, true);
     document.removeEventListener("touchstart", this._press, true);
     document.removeEventListener("mousedown", this._press, true);
@@ -4261,6 +4282,15 @@ class Component extends DCLogic {
         // add up to, and asking again only invites a worse answer.
         const STEPS = ["SEX", "AGE", "HEIGHT", "BODY", "WALKING",
           "RESISTANCE", "CARDIO"];
+        // Desktop is the same screens at the size the frame can carry, not a
+        // second design: one set of measurements, switched once. A phone is
+        // held a foot from the face and a monitor sits three, so everything
+        // here is a size up and the columns that hold it are wider.
+        const D = !s.narrow;
+        const CELL_H = D ? "5.4rem" : "4.4rem";
+        const CELL_P = D ? ".5rem .3rem" : ".3rem .2rem";
+        const CELL_V = D ? "1.85rem" : "1.45rem";
+        const CELL_L = D ? "1rem" : ".84rem";
         const RG = CALC_RANGE[m.sex];
         const FIELDS = [
           { k: "cAge", lab: "AGE", unit: "YEARS", lo: 18, hi: 90, dflt: 30 },
@@ -4552,6 +4582,50 @@ class Component extends DCLogic {
         const num = (v, col) => ({ fontFamily: "var(--font-1)", fontWeight: 300,
           fontSize: s.narrow ? "1.5rem" : "1.7rem", fontVariantNumeric: "tabular-nums",
           color: col || "#eaf5fb" });
+        // The two notch actions, named: the keyboard drives the calc through
+        // exactly the code the notches run, so left and right can never mean
+        // something the arrows on screen do not.
+        const cNav = {
+          back: () => {
+            if (done) {
+              if (phTab > 0) this.setState({ cResTab: 0 });
+              else if (phActive > 0)
+                this.setState({ cResDay: phStarts[phActive - 1] * 7,
+                  cResScrub: false });
+              else go(STEPS.length - 1);
+              return;
+            }
+            if (step === 3 && s.cView === "goal") {
+              this.setState({ cView: "cur" });
+              return;
+            }
+            go(step - 1);
+          },
+          next: () => {
+            if (done) {
+              if (phTab === 0) {
+                if (phActive < phases.length - 1)
+                  this.setState({ cResDay: phStarts[phActive + 1] * 7,
+                    cResScrub: false });
+                else this.setState({ cResTab: 1 });
+              }
+              return;
+            }
+            if (step === 3 && s.cView !== "goal") {
+              this.setState({ cView: "goal",
+                cGWt: s.cGWt == null ? gDef.wt : s.cGWt,
+                cGBf: s.cGBf == null ? gDef.bf : s.cGBf });
+              return;
+            }
+            if (step === STEPS.length - 1) {
+              this.setState({ cStep: STEPS.length, cResTab: 0, cResDay: null,
+                cResScrub: false });
+              return;
+            }
+            go(step + 1);
+          }
+        };
+        this._cNav = cNav;
         return {
           cStepOn: !done, cResOn: done,
           // On the centred slides the question is the big text mid-screen, so the
@@ -4568,21 +4642,7 @@ class Component extends DCLogic {
           // The mirror of the right notch: from YOUR GOAL the back notch
           // returns to CURRENT first, and only from CURRENT leaves the step.
           // On the plan it walks back through the phase tabs the same way.
-          cBack: () => {
-            if (done) {
-              if (phTab > 0) this.setState({ cResTab: 0 });
-              else if (phActive > 0)
-                this.setState({ cResDay: phStarts[phActive - 1] * 7,
-                  cResScrub: false });
-              else go(STEPS.length - 1);
-              return;
-            }
-            if (step === 3 && s.cView === "goal") {
-              this.setState({ cView: "cur" });
-              return;
-            }
-            go(step - 1);
-          },
+          cBack: cNav.back,
           cQuit: () => this.setState({ app: "home" }),
           cIsSex: step === 0, cIsNumQ: step === 1,
           cIsHt: step === 2, cIsBody: step === 3, cIsWalk: step === 4,
@@ -4608,25 +4668,26 @@ class Component extends DCLogic {
           // The tab rows breathe below the app bar — they took the retired
           // header's air along with its job.
           cVTabRow: { flex: "none", display: "flex", justifyContent: "center",
-            gap: "2.2rem", padding: "1.15rem 0 .1rem" },
+            gap: D ? "3rem" : "2.2rem",
+            padding: D ? "1.5rem 0 .2rem" : "1.15rem 0 .1rem" },
           // The single-tab screens (HEIGHT, the activity three) wear the same tab
           // row as the body screen — one lit tab, not a control — which also
           // keeps the figure's canvas the same height on every screen.
           cVTabOne: { padding: "0 .15rem .4rem", border: 0, borderRadius: 0,
             background: "transparent", cursor: "default",
-            fontFamily: "var(--font-2)", fontSize: ".95rem",
+            fontFamily: "var(--font-2)", fontSize: D ? "1.15rem" : ".95rem",
             letterSpacing: ".2em", textIndent: ".2em", color: "#3fdcf2",
             borderBottom: "2px solid #22d3ee" },
           cVTabCur: (on => ({ padding: "0 .15rem .4rem", border: 0,
             borderRadius: 0, background: "transparent", cursor: "pointer",
-            fontFamily: "var(--font-2)", fontSize: ".95rem",
+            fontFamily: "var(--font-2)", fontSize: D ? "1.15rem" : ".95rem",
             letterSpacing: ".2em", textIndent: ".2em",
             color: on ? "#3fdcf2" : "#7b91a3",
             borderBottom: on ? "2px solid #22d3ee" : "2px solid transparent",
             transition: "color 160ms ease, border-color 160ms ease" }))(s.cView !== "goal"),
           cVTabGoal: (on => ({ padding: "0 .15rem .4rem", border: 0,
             borderRadius: 0, background: "transparent", cursor: "pointer",
-            fontFamily: "var(--font-2)", fontSize: ".95rem",
+            fontFamily: "var(--font-2)", fontSize: D ? "1.15rem" : ".95rem",
             letterSpacing: ".2em", textIndent: ".2em",
             color: on ? "#3fdcf2" : "#7b91a3",
             borderBottom: on ? "2px solid #22d3ee" : "2px solid transparent",
@@ -4666,7 +4727,7 @@ class Component extends DCLogic {
                   s: { position: "relative", display: "flex",
                     flexDirection: "column", alignItems: "center",
                     justifyContent: "center", gap: ".4rem", minWidth: 0,
-                    height: "4.4rem", padding: ".3rem .2rem",
+                    height: CELL_H, padding: CELL_P,
                     boxSizing: "border-box", borderRadius: 0, cursor: "pointer",
                     borderStyle: "solid", borderWidth: "1px",
                     borderColor: on
@@ -4676,11 +4737,11 @@ class Component extends DCLogic {
                       : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
                     backgroundClip: "padding-box",
                     transition: "border-color 160ms ease, background 160ms ease" },
-                  labS: { fontFamily: "var(--font-2)", fontSize: ".84rem",
+                  labS: { fontFamily: "var(--font-2)", fontSize: CELL_L,
                     letterSpacing: ".06em", whiteSpace: "nowrap",
                     color: on ? "#3fdcf2" : "#a9bcc8" },
                   valS: { fontFamily: "var(--font-1)", fontWeight: 300,
-                    fontSize: "1.45rem", lineHeight: 1,
+                    fontSize: CELL_V, lineHeight: 1,
                     fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
                   unitS: { fontFamily: "var(--font-2)", fontSize: ".8rem",
                     letterSpacing: ".08em", color: "#9fb3c0" }
@@ -4727,7 +4788,7 @@ class Component extends DCLogic {
                   s: { position: "relative", display: "flex",
                     flexDirection: "column", alignItems: "center",
                     justifyContent: "center", gap: ".4rem", minWidth: 0,
-                    height: "4.4rem", padding: ".3rem .2rem",
+                    height: CELL_H, padding: CELL_P,
                     boxSizing: "border-box", borderRadius: 0, cursor: "pointer",
                     borderStyle: "solid", borderWidth: "1px",
                     borderColor: on
@@ -4737,11 +4798,11 @@ class Component extends DCLogic {
                       : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
                     backgroundClip: "padding-box",
                     transition: "border-color 160ms ease, background 160ms ease" },
-                  labS: { fontFamily: "var(--font-2)", fontSize: ".84rem",
+                  labS: { fontFamily: "var(--font-2)", fontSize: CELL_L,
                     letterSpacing: ".06em", whiteSpace: "nowrap",
                     color: on ? "#3fdcf2" : "#a9bcc8" },
                   valS: { fontFamily: "var(--font-1)", fontWeight: 300,
-                    fontSize: "1.45rem", lineHeight: 1,
+                    fontSize: CELL_V, lineHeight: 1,
                     fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
                   unitS: { fontFamily: "var(--font-2)", fontSize: ".8rem",
                     letterSpacing: ".08em", color: "#9fb3c0" }
@@ -4763,15 +4824,15 @@ class Component extends DCLogic {
           cResCellS: { position: "relative", display: "flex",
             flexDirection: "column", alignItems: "center",
             justifyContent: "center", gap: ".4rem", minWidth: 0,
-            height: "4.4rem", padding: ".3rem .2rem",
+            height: CELL_H, padding: CELL_P,
             boxSizing: "border-box", borderRadius: 0, cursor: "default",
             borderStyle: "solid", borderWidth: "1px",
             borderColor: "rgba(34,211,238,.75) rgba(34,211,238,.75) #0d1a20",
             background: "#0d1a20", backgroundClip: "padding-box" },
-          cResLabS: { fontFamily: "var(--font-2)", fontSize: ".84rem",
+          cResLabS: { fontFamily: "var(--font-2)", fontSize: CELL_L,
             letterSpacing: ".06em", whiteSpace: "nowrap", color: "#3fdcf2" },
           cResValS: { fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: "1.45rem", lineHeight: 1,
+            fontSize: CELL_V, lineHeight: 1,
             fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
           cResUnitS: { fontFamily: "var(--font-2)", fontSize: ".8rem",
             letterSpacing: ".08em", color: "#9fb3c0" },
@@ -4812,7 +4873,7 @@ class Component extends DCLogic {
                   s: { position: "relative", display: "flex",
                     flexDirection: "column", alignItems: "center",
                     justifyContent: "center", gap: ".4rem", minWidth: 0,
-                    height: "4.4rem", padding: ".3rem .2rem",
+                    height: CELL_H, padding: CELL_P,
                     boxSizing: "border-box", borderRadius: 0, cursor: "pointer",
                     borderStyle: "solid", borderWidth: "1px",
                     borderColor: on
@@ -4822,11 +4883,11 @@ class Component extends DCLogic {
                       : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
                     backgroundClip: "padding-box",
                     transition: "border-color 160ms ease, background 160ms ease" },
-                  labS: { fontFamily: "var(--font-2)", fontSize: ".84rem",
+                  labS: { fontFamily: "var(--font-2)", fontSize: CELL_L,
                     letterSpacing: ".06em", whiteSpace: "nowrap",
                     color: on ? "#3fdcf2" : "#a9bcc8" },
                   valS: { fontFamily: "var(--font-1)", fontWeight: 300,
-                    fontSize: "1.45rem", lineHeight: 1,
+                    fontSize: CELL_V, lineHeight: 1,
                     fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
                   unitS: { fontFamily: "var(--font-2)", fontSize: ".8rem",
                     letterSpacing: ".08em", color: "#9fb3c0" }
@@ -4893,7 +4954,8 @@ class Component extends DCLogic {
               // The tray wears the selected cell's own highlight, so tab and
               // tray read as one lit piece — the only break in its outline is
               // the erased seam under the selected tab.
-              cSliderBox: { display: "block", padding: ".3rem .9rem .45rem",
+              cSliderBox: { display: "block",
+                padding: D ? ".55rem 1.3rem .7rem" : ".3rem .9rem .45rem",
                 background: TRAY,
                 border: "1px solid rgba(34,211,238,.75)" },
               cMetCells: Object.keys(M).map(k => {
@@ -4905,7 +4967,7 @@ class Component extends DCLogic {
                   s: { position: "relative", display: "flex",
                     flexDirection: "column", alignItems: "center",
                     justifyContent: "center", gap: ".4rem", minWidth: 0,
-                    height: "4.4rem", padding: ".3rem .2rem",
+                    height: CELL_H, padding: CELL_P,
                     boxSizing: "border-box", borderRadius: 0, cursor: "pointer",
                     borderStyle: "solid", borderWidth: "1px",
                     borderColor: on
@@ -4915,11 +4977,11 @@ class Component extends DCLogic {
                       : "linear-gradient(180deg, rgba(34,211,238,.05), rgba(34,211,238,.015))",
                     backgroundClip: "padding-box",
                     transition: "border-color 160ms ease, background 160ms ease" },
-                  labS: { fontFamily: "var(--font-2)", fontSize: ".84rem",
+                  labS: { fontFamily: "var(--font-2)", fontSize: CELL_L,
                     letterSpacing: ".06em", whiteSpace: "nowrap",
                     color: on ? "#3fdcf2" : "#a9bcc8" },
                   valS: { fontFamily: "var(--font-1)", fontWeight: 300,
-                    fontSize: "1.45rem", lineHeight: 1,
+                    fontSize: CELL_V, lineHeight: 1,
                     fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
                   unitS: { fontFamily: "var(--font-2)", fontSize: ".8rem",
                     letterSpacing: ".08em", color: "#9fb3c0" }
@@ -4940,29 +5002,7 @@ class Component extends DCLogic {
           // On the body screen the right notch reads the tabs first: from
           // CURRENT it walks to YOUR GOAL (birthing the goal if untouched),
           // and only from YOUR GOAL does it leave the screen.
-          cNext: () => {
-            if (done) {
-              if (phTab === 0) {
-                if (phActive < phases.length - 1)
-                  this.setState({ cResDay: phStarts[phActive + 1] * 7,
-                    cResScrub: false });
-                else this.setState({ cResTab: 1 });
-              }
-              return;
-            }
-            if (step === 3 && s.cView !== "goal") {
-              this.setState({ cView: "goal",
-                cGWt: s.cGWt == null ? gDef.wt : s.cGWt,
-                cGBf: s.cGBf == null ? gDef.bf : s.cGBf });
-              return;
-            }
-            if (step === STEPS.length - 1) {
-              this.setState({ cStep: STEPS.length, cResTab: 0, cResDay: null,
-                cResScrub: false });
-              return;
-            }
-            go(step + 1);
-          },
+          cNext: cNav.next,
           cNextLab: step === STEPS.length - 1 ? "SEE THE NUMBER" : "NEXT",
           // ── the plan screen: a tab per phase, the timeline as the footer ─────────
           // The tabs and the scrub are the same dial: tapping a tab walks
@@ -4975,40 +5015,45 @@ class Component extends DCLogic {
               cResDay: phStarts[i] * 7, cResScrub: false }),
             s: (on => ({ padding: "0 .15rem .4rem", border: 0,
               borderRadius: 0, background: "transparent", cursor: "pointer",
-              fontFamily: "var(--font-2)", fontSize: ".95rem",
+              fontFamily: "var(--font-2)", fontSize: D ? "1.15rem" : ".95rem",
               letterSpacing: ".2em", textIndent: ".2em",
               color: on ? "#3fdcf2" : "#7b91a3",
               borderBottom: on ? "2px solid #22d3ee" : "2px solid transparent",
               transition: "color 160ms ease, border-color 160ms ease"
             }))(i === phActive) })),
           cPhTabRow: { flex: "none", display: "flex",
-            justifyContent: "center", gap: "1.5rem",
-            padding: "1.15rem 0 .1rem" },
+            justifyContent: "center", gap: D ? "2.6rem" : "1.5rem",
+            padding: D ? "1.5rem 0 .2rem" : "1.15rem 0 .1rem" },
           cPhPlanOn: !phInfo,
           cPhInfoOn: phInfo,
           // One phase at a time, centred: its headline naming the move and
           // its kilograms, then its sentences a size up. The numbered tabs
           // above are the index; the panel is the page.
           cPhPanel: { flex: "none", alignSelf: "center", width: "100%",
-            maxWidth: "22rem", marginTop: "1.9rem", display: "flex",
+            maxWidth: D ? "34rem" : "22rem",
+            marginTop: D ? "2.4rem" : "1.9rem", display: "flex",
             flexDirection: "column", alignItems: "center",
             textAlign: "center", gap: ".55rem", padding: "0 .5rem",
             boxSizing: "border-box" },
           cPhHead: phA.head,
-          cPhHeadS: { fontFamily: "var(--font-2)", fontSize: "1.6rem",
+          cPhHeadS: { fontFamily: "var(--font-2)",
+            fontSize: D ? "2.4rem" : "1.6rem",
             letterSpacing: ".14em", color: "#3fdcf2", whiteSpace: "nowrap",
             marginBottom: ".3rem",
             textShadow: "0 0 16px rgba(34,211,238,.35)" },
           cPhLineC: { fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: "1.18rem", lineHeight: 1.5, color: "#8fa5b4",
+            fontSize: D ? "1.45rem" : "1.18rem", lineHeight: 1.5,
+            color: "#8fa5b4",
             textWrap: "pretty" },
           cPhArS: { display: phA.r1 ? "block" : "none",
             fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: "1.18rem", lineHeight: 1.5, color: "#8fa5b4",
+            fontSize: D ? "1.45rem" : "1.18rem", lineHeight: 1.5,
+            color: "#8fa5b4",
             textWrap: "pretty" },
           cPhAl2S: { display: phA.l2a ? "block" : "none",
             fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: "1.18rem", lineHeight: 1.5, color: "#8fa5b4",
+            fontSize: D ? "1.45rem" : "1.18rem", lineHeight: 1.5,
+            color: "#8fa5b4",
             textWrap: "pretty" },
           cPhAe1: phA.e1, cPhAeN1: phA.eN1, cPhAe2: phA.e2,
           cPhAeN2: phA.eN2, cPhAe3: phA.e3,
@@ -5018,7 +5063,7 @@ class Component extends DCLogic {
           cPhAl2N2: phA.l2N2, cPhAl2c: phA.l2c,
           cPhSpan: phA.span,
           cPhSpanS: { display: phA.span ? "block" : "none",
-            fontFamily: "var(--font-2)", fontSize: ".92rem",
+            fontFamily: "var(--font-2)", fontSize: D ? "1.1rem" : ".92rem",
             letterSpacing: ".12em", color: "#7b91a3",
             fontVariantNumeric: "tabular-nums", marginBottom: ".15rem" },
           cPhNum: { color: "#f2f8fc", fontVariantNumeric: "tabular-nums" },
@@ -5026,11 +5071,12 @@ class Component extends DCLogic {
           // riding just above the line at the scrub, the day and its date
           // under it, and the other measures on their own row.
           cPhFoot: { flex: "none", display: "flex", flexDirection: "column",
-            gap: ".85rem", width: "100%", maxWidth: "24rem",
+            gap: ".85rem", width: "100%", maxWidth: D ? "36rem" : "24rem",
             alignSelf: "center", padding: "1rem 0 .5rem",
             boxSizing: "border-box" },
           cPhChart: { position: "relative", width: "100%",
-            maxWidth: "19.5rem", alignSelf: "center", height: "11.2rem" },
+            maxWidth: D ? "32rem" : "19.5rem", alignSelf: "center",
+            height: D ? "15rem" : "11.2rem" },
           // The scrub's phase stays lit; the chart's other phase spans are
           // veiled so the bar reads as standing in a chapter of the plan.
           cPhDim: phases.map((pp, i) => ({ i, s: {
@@ -5054,14 +5100,16 @@ class Component extends DCLogic {
             top: phLnVals.length
               ? (100 * (phYOf(phLnVals[0]) + 42) / 2 / 44) + "%" : "0%",
             transform: "translateY(-50%)", fontFamily: "var(--font-2)",
-            fontSize: ".9rem", letterSpacing: ".14em", color: "#57c9dd",
+            fontSize: D ? "1.05rem" : ".9rem", letterSpacing: ".14em",
+            color: "#57c9dd",
             opacity: .85, pointerEvents: "none" },
           cPhLabFm: { position: "absolute", left: "2.5%",
             top: phWVals.length
               ? (100 * (phYOf(phWVals[0]) + phYOf(phLnVals[0])) / 2 / 44)
                 + "%" : "0%",
             transform: "translateY(-50%)", fontFamily: "var(--font-2)",
-            fontSize: ".9rem", letterSpacing: ".14em", color: "#eb9a89",
+            fontSize: D ? "1.05rem" : ".9rem", letterSpacing: ".14em",
+            color: "#eb9a89",
             opacity: .9, pointerEvents: "none" },
           cPhBoundPath: (() => {
             let acc = 0;
@@ -5092,7 +5140,8 @@ class Component extends DCLogic {
             left: Math.max(10, Math.min(88, phX)) + "%",
             top: phWVals.length ? (100 * phYOf(phCur.w) / 44) + "%" : "0%",
             transform: "translate(-50%,-150%)",
-            fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1rem",
+            fontFamily: "var(--font-1)", fontWeight: 300,
+            fontSize: D ? "1.2rem" : "1rem",
             fontVariantNumeric: "tabular-nums", color: "#eaf5fb",
             whiteSpace: "nowrap", pointerEvents: "none",
             textShadow: "0 0 8px rgba(2,6,23,.9)" },
@@ -5108,12 +5157,13 @@ class Component extends DCLogic {
           // edges so it never leaves the chart's column.
           cPhDayRow: { position: "relative", flex: "none",
             display: phScrub ? "block" : "none",
-            width: "100%", maxWidth: "19.5rem", alignSelf: "center",
-            height: "1.35rem", marginTop: "-.45rem" },
+            width: "100%", maxWidth: D ? "32rem" : "19.5rem",
+            alignSelf: "center", height: D ? "1.6rem" : "1.35rem",
+            marginTop: "-.45rem" },
           cPhDayS: { position: "absolute", top: 0, left: phX + "%",
             transform: phX <= 25 ? "none"
               : phX >= 70 ? "translateX(-100%)" : "translateX(-50%)",
-            fontFamily: "var(--font-2)", fontSize: ".95rem",
+            fontFamily: "var(--font-2)", fontSize: D ? "1.1rem" : ".95rem",
             letterSpacing: ".12em", color: "#3fdcf2", whiteSpace: "nowrap",
             fontVariantNumeric: "tabular-nums" },
           cPhDay: (() => {
@@ -5130,19 +5180,22 @@ class Component extends DCLogic {
           // and where it lands, over the highlighted span itself.
           cPhRange: phScrub ? "" : phA.rng,
           cPhRangeS: { display: phScrub ? "none" : "block",
-            width: "100%", maxWidth: "19.5rem", alignSelf: "center",
+            width: "100%", maxWidth: D ? "32rem" : "19.5rem",
+            alignSelf: "center",
             textAlign: "center", marginBottom: ".15rem",
-            fontFamily: "var(--font-2)", fontSize: ".95rem",
+            fontFamily: "var(--font-2)", fontSize: D ? "1.15rem" : ".95rem",
             letterSpacing: ".12em", color: "#3fdcf2", whiteSpace: "nowrap",
             fontVariantNumeric: "tabular-nums" },
           cPhMeasRow: { display: "flex", justifyContent: "center",
             padding: "0 .2rem" },
           cPhMeasItem: { display: "flex", alignItems: "baseline",
             gap: ".45rem" },
-          cPhMeasLab: { fontFamily: "var(--font-2)", fontSize: ".9rem",
+          cPhMeasLab: { fontFamily: "var(--font-2)",
+            fontSize: D ? "1.05rem" : ".9rem",
             letterSpacing: ".08em", color: "#9fb3c0" },
           cPhMeasVal: { fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: "1.1rem", fontVariantNumeric: "tabular-nums",
+            fontSize: D ? "1.35rem" : "1.1rem",
+            fontVariantNumeric: "tabular-nums",
             color: "#eaf5fb" },
           cPhMeas: (() => {
             const at = phScrub ? phCur : phAt(phA.endDay || 0);
@@ -5155,16 +5208,30 @@ class Component extends DCLogic {
           })(),
           // What the forecast rests on, as plain bullets — no citations,
           // this person's own numbers, big enough to read.
-          cPhInfoBox: { flex: "none", alignSelf: "center", width: "100%",
-            maxWidth: "19.5rem", marginTop: "1.6rem", display: "flex",
-            flexDirection: "column", gap: "1.05rem" },
+          // Six bullets stack on a phone and stand in three columns on a
+          // desktop, where a single column would run a third of the way down
+          // a 770px band and leave the rest of it empty.
+          // On a desktop this spacer matches the one under the block, which
+          // centres the bullets in the band; three short columns pinned to
+          // the top would leave two thirds of the page empty.
+          cPhInfoTop: D ? { flex: "1.25 1 0" } : { display: "none" },
+          cPhInfoBox: Object.assign({ flex: "none", alignSelf: "center",
+            width: "100%", marginTop: D ? 0 : "1.6rem" },
+            D ? { maxWidth: "min(68rem, 100%)", display: "grid",
+              gridTemplateColumns: "repeat(3, minmax(0,1fr))",
+              gap: "1.7rem 2.6rem", textAlign: "left" }
+              : { maxWidth: "19.5rem", display: "flex",
+                flexDirection: "column", gap: "1.05rem" }),
           cPhInfoRow: { display: "flex", alignItems: "flex-start",
-            gap: ".7rem" },
-          cPhInfoDot: { flex: "none", width: ".45rem", height: ".45rem",
-            marginTop: ".5rem", borderRadius: "50%", background: "#22d3ee",
+            gap: D ? ".85rem" : ".7rem" },
+          cPhInfoDot: { flex: "none",
+            width: D ? ".5rem" : ".45rem", height: D ? ".5rem" : ".45rem",
+            marginTop: D ? ".62rem" : ".5rem",
+            borderRadius: "50%", background: "#22d3ee",
             boxShadow: "0 0 6px rgba(34,211,238,.6)" },
           cPhInfoTxt: { fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: "1.02rem", lineHeight: 1.5, color: "#8fa5b4",
+            fontSize: D ? "1.2rem" : "1.02rem", lineHeight: 1.5,
+            color: "#8fa5b4",
             textWrap: "pretty", fontVariantNumeric: "tabular-nums" },
           cPhInfoHi: { color: "#f2f8fc" },
           cPhInfoLines: (() => {
@@ -5233,7 +5300,7 @@ class Component extends DCLogic {
             fontVariantNumeric: "tabular-nums" },
           // The figure gets the screen. Every step holds it at the same size, so it
           // never jumps between questions — it is the one constant in the run.
-          cFigWrap: { flex: "1 1 auto", minHeight: s.narrow ? "20rem" : "22rem",
+          cFigWrap: { flex: "1 1 auto", minHeight: D ? "26rem" : "20rem",
             display: "flex", alignItems: "center", justifyContent: "center",
             padding: ".2rem 0" },
           // Slider and number on one row: the slider takes the width, the number is a
@@ -5249,26 +5316,31 @@ class Component extends DCLogic {
           cQSpace: { flex: "1 1 0" },
           cQSpace2: { flex: "1.25 1 0" },
           cQTitleS: { flex: "none", display: "block", textAlign: "center",
-            fontFamily: "var(--font-2)", fontSize: s.narrow ? "1.25rem" : "1.4rem",
+            fontFamily: "var(--font-2)", fontSize: D ? "1.75rem" : "1.25rem",
             letterSpacing: ".3em", textIndent: ".3em", color: "#d7e6ef" },
           // A short lit rule under the question — the one piece of ornament, and
           // it is the same cyan line the progress bar and the sliders are made of.
-          cQRule: { flex: "none", alignSelf: "center", width: "2.4rem", height: "2px",
-            margin: "1.1rem 0 2.1rem", background: "#22d3ee",
+          cQRule: { flex: "none", alignSelf: "center",
+            width: D ? "3rem" : "2.4rem", height: "2px",
+            margin: D ? "1.4rem 0 2.6rem" : "1.1rem 0 2.1rem",
+            background: "#22d3ee",
             boxShadow: "0 0 10px rgba(34,211,238,.55)" },
           cQValRow: { flex: "none", display: "flex", alignItems: "baseline",
             justifyContent: "center", gap: ".55rem", paddingBottom: "1.1rem" },
           cQValS: { fontFamily: "var(--font-1)", fontWeight: 300,
-            fontSize: s.narrow ? "3.7rem" : "4.2rem", lineHeight: 1,
+            fontSize: D ? "5.4rem" : "3.7rem", lineHeight: 1,
             fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
-          cQValUnit: { fontFamily: "var(--font-2)", fontSize: ".95rem",
+          cQValUnit: { fontFamily: "var(--font-2)",
+            fontSize: D ? "1.2rem" : ".95rem",
             letterSpacing: ".16em", color: "#9fb3c0" },
           cQSlideBox: { flex: "none", alignSelf: "center", width: "100%",
-            maxWidth: "21.5rem", display: "flex", flexDirection: "column" },
+            maxWidth: D ? "30rem" : "21.5rem",
+            display: "flex", flexDirection: "column" },
           // The ends of the scale, faintly, so the slider says where it can go
           // before a finger asks it.
           cQEnds: { display: "flex", justifyContent: "space-between",
-            paddingTop: ".15rem", fontFamily: "var(--font-2)", fontSize: ".84rem",
+            paddingTop: ".15rem", fontFamily: "var(--font-2)",
+            fontSize: D ? "1rem" : ".84rem",
             letterSpacing: ".08em", color: "#71879a",
             fontVariantNumeric: "tabular-nums" },
           cQNextS: { flex: "none", alignSelf: "center", display: "flex",
@@ -5283,7 +5355,8 @@ class Component extends DCLogic {
             transition: "background 160ms ease, border-color 160ms ease" },
           // ── the body screen: figure above, its metrics under it ─────────────────
           cBodyPanel: { flex: "none", display: "flex", flexDirection: "column",
-            gap: 0, width: "100%", maxWidth: "24rem", alignSelf: "center" },
+            gap: 0, width: "100%", maxWidth: D ? "34rem" : "24rem",
+            alignSelf: "center" },
           // The way on and the way back are notches on the glass — mid-screen
           // tabs clinging to the edges, so neither costs the figure a row.
           // On the phone the notches cling to the glass edges. On desktop
@@ -5343,7 +5416,11 @@ class Component extends DCLogic {
           cWrap: { position: s.narrow ? "relative" : "static",
             flex: 1, minHeight: 0, display: "flex",
             flexDirection: "column", width: "100%",
-            maxWidth: s.narrow ? "none" : "34rem", margin: "0 auto",
+            // The steps stand in a reading column; the assumptions are six
+            // bullets in three columns and want the frame.
+            maxWidth: s.narrow ? "none"
+              : done && phInfo ? "min(76rem, 100%)" : "46rem",
+            margin: "0 auto",
             padding: s.narrow ? ".2rem .5rem .8rem" : ".4rem 0 1rem", boxSizing: "border-box" },
           cHead: { flex: "none", display: "flex", alignItems: "center", gap: ".4rem",
             height: "2.6rem" },
