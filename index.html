@@ -338,7 +338,7 @@ option{background:#070b12;color:#d7e6ef}
       <span style="{{ gStatusS }}"><span>{{ gRoundLabel }}</span><span style="{{ gDotRow }}"><sc-for list="{{ gDots }}" as="d" hint-placeholder-count="6"><span style="{{ d.s }}">{{ d.mark }}</span></sc-for></span></span>
     </sc-if>
     <sc-if value="{{ gDone }}" hint-placeholder-val="{{ false }}">
-      <span style="{{ gHeadS }}"><span style="{{ gGradeS }}">{{ gGrade }}</span><span style="{{ gHeadCol }}"><span style="{{ gTallyS }}">{{ gAccLab }}</span><sc-if value="{{ gMissed }}" hint-placeholder-val="{{ true }}"><span style="{{ gMissS }}">Surprise: <span style="{{ gMissNS }}">{{ gMissN }}</span></span></sc-if><sc-if value="{{ gClean }}" hint-placeholder-val="{{ false }}"><span style="{{ gMissS }}">Nothing surprised you</span></sc-if></span></span>
+      <span style="{{ gHeadS }}"><span style="{{ gGradeS }}">{{ gGrade }}</span><span style="{{ gHeadCol }}"><span style="{{ gTallyS }}">{{ gAccLab }}</span><sc-if value="{{ gMissed }}" hint-placeholder-val="{{ true }}"><span style="{{ gMissS }}">Surprise: <span style="{{ gMissNS }}">{{ gMissN }}</span></span></sc-if><sc-if value="{{ gClean }}" hint-placeholder-val="{{ false }}"><span style="{{ gMissS }}">Nothing surprised you</span></sc-if></span><sc-if value="{{ gDeskTable }}" hint-placeholder-val="{{ false }}"><span style="{{ gDiscS }}">Calories drive body fat, but a healthy diet also means hitting macro and micronutrient targets. This is a game, not nutritional advice.</span></sc-if></span>
       <sc-if value="{{ gMobList }}" hint-placeholder-val="{{ true }}">
       <span style="{{ gListWrap }}">
       <sc-for list="{{ gResTiles }}" as="t" hint-placeholder-count="6">
@@ -362,18 +362,18 @@ option{background:#070b12;color:#d7e6ef}
       <sc-if value="{{ gDeskTable }}" hint-placeholder-val="{{ false }}">
       <span style="{{ gDBody }}">
         <span style="{{ gDHead }}">
-          <span style="{{ gDHeadName }}">FOOD</span><span style="{{ gDHeadPort }}">PORTION</span><span style="{{ gDHeadCell }}">WATER</span><span style="{{ gDHeadCell }}">PROT</span><span style="{{ gDHeadCell }}">SUGAR</span><span style="{{ gDHeadCell }}">FIBRE</span><span style="{{ gDHeadCell }}">STARCH</span><span style="{{ gDHeadCell }}">CARBS</span><span style="{{ gDHeadCell }}">SAT</span><span style="{{ gDHeadCell }}">MONO</span><span style="{{ gDHeadCell }}">POLY</span><span style="{{ gDHeadCell }}">FATS</span><span style="{{ gDHeadK }}">KCAL</span>
+          <span style="{{ gDHeadName }}">FOOD</span><span style="{{ gDHeadPort }}">PORTION</span><sc-for list="{{ gDHeads }}" as="h" hint-placeholder-count="10"><span style="{{ h.s }}">{{ h.lab }}</span></sc-for><span style="{{ gDHeadK }}">KCAL</span><button onClick="{{ gXpToggle }}" style="{{ gXpCell }}" style-hover="background:rgba(34,211,238,.08)"><span style="{{ gXpChev }}"><span style="{{ gXpTri }}"></span></span></button>
         </span>
         <sc-for list="{{ gDeskPairs }}" as="dp" hint-placeholder-count="6">
           <span style="{{ dp.s }}">
-            <span style="{{ dp.a.rowS }}"><span style="{{ dp.a.nameS }}"><span style="{{ dp.a.nameTxt }}">{{ dp.a.name }}</span></span><span style="{{ dp.a.portS }}">{{ dp.a.portion }}</span><span style="{{ dp.a.s0 }}">{{ dp.a.v0 }}</span><span style="{{ dp.a.s1 }}">{{ dp.a.v1 }}</span><span style="{{ dp.a.s2 }}">{{ dp.a.v2 }}</span><span style="{{ dp.a.s3 }}">{{ dp.a.v3 }}</span><span style="{{ dp.a.s4 }}">{{ dp.a.v4 }}</span><span style="{{ dp.a.s5 }}">{{ dp.a.v5 }}</span><span style="{{ dp.a.s6 }}">{{ dp.a.v6 }}</span><span style="{{ dp.a.s7 }}">{{ dp.a.v7 }}</span><span style="{{ dp.a.s8 }}">{{ dp.a.v8 }}</span><span style="{{ dp.a.s9 }}">{{ dp.a.v9 }}</span><span style="{{ dp.a.kS }}"><span style="{{ dp.a.markS }}">{{ dp.a.mark }}</span>{{ dp.a.k }}</span></span>
-            <span style="{{ dp.b.rowS }}"><span style="{{ dp.b.nameS }}"><span style="{{ dp.b.nameTxt }}">{{ dp.b.name }}</span></span><span style="{{ dp.b.portS }}">{{ dp.b.portion }}</span><span style="{{ dp.b.s0 }}">{{ dp.b.v0 }}</span><span style="{{ dp.b.s1 }}">{{ dp.b.v1 }}</span><span style="{{ dp.b.s2 }}">{{ dp.b.v2 }}</span><span style="{{ dp.b.s3 }}">{{ dp.b.v3 }}</span><span style="{{ dp.b.s4 }}">{{ dp.b.v4 }}</span><span style="{{ dp.b.s5 }}">{{ dp.b.v5 }}</span><span style="{{ dp.b.s6 }}">{{ dp.b.v6 }}</span><span style="{{ dp.b.s7 }}">{{ dp.b.v7 }}</span><span style="{{ dp.b.s8 }}">{{ dp.b.v8 }}</span><span style="{{ dp.b.s9 }}">{{ dp.b.v9 }}</span><span style="{{ dp.b.kS }}"><span style="{{ dp.b.markS }}">{{ dp.b.mark }}</span>{{ dp.b.k }}</span></span>
+            <span style="{{ dp.a.rowS }}"><span style="{{ dp.a.nameS }}"><span style="{{ dp.a.nameTxt }}">{{ dp.a.name }}</span></span><span style="{{ dp.a.portS }}">{{ dp.a.portion }}</span><span style="{{ dp.a.c0 }}"><span style="{{ dp.a.f0 }}"></span>{{ dp.a.v0 }}</span><span style="{{ dp.a.c1 }}"><span style="{{ dp.a.f1 }}"></span>{{ dp.a.v1 }}</span><span style="{{ dp.a.c2 }}"><span style="{{ dp.a.f2 }}"></span>{{ dp.a.v2 }}</span><span style="{{ dp.a.c3 }}"><span style="{{ dp.a.f3 }}"></span>{{ dp.a.v3 }}</span><span style="{{ dp.a.c4 }}"><span style="{{ dp.a.f4 }}"></span>{{ dp.a.v4 }}</span><span style="{{ dp.a.c5 }}"><span style="{{ dp.a.f5 }}"></span>{{ dp.a.v5 }}</span><span style="{{ dp.a.c6 }}"><span style="{{ dp.a.f6 }}"></span>{{ dp.a.v6 }}</span><span style="{{ dp.a.c7 }}"><span style="{{ dp.a.f7 }}"></span>{{ dp.a.v7 }}</span><span style="{{ dp.a.c8 }}"><span style="{{ dp.a.f8 }}"></span>{{ dp.a.v8 }}</span><span style="{{ dp.a.c9 }}"><span style="{{ dp.a.f9 }}"></span>{{ dp.a.v9 }}</span><span style="{{ dp.a.kS }}"><span style="{{ dp.a.kF }}"></span>{{ dp.a.k }}</span><span style="{{ dp.a.markS }}">{{ dp.a.mark }}</span></span>
+            <span style="{{ dp.b.rowS }}"><span style="{{ dp.b.nameS }}"><span style="{{ dp.b.nameTxt }}">{{ dp.b.name }}</span></span><span style="{{ dp.b.portS }}">{{ dp.b.portion }}</span><span style="{{ dp.b.c0 }}"><span style="{{ dp.b.f0 }}"></span>{{ dp.b.v0 }}</span><span style="{{ dp.b.c1 }}"><span style="{{ dp.b.f1 }}"></span>{{ dp.b.v1 }}</span><span style="{{ dp.b.c2 }}"><span style="{{ dp.b.f2 }}"></span>{{ dp.b.v2 }}</span><span style="{{ dp.b.c3 }}"><span style="{{ dp.b.f3 }}"></span>{{ dp.b.v3 }}</span><span style="{{ dp.b.c4 }}"><span style="{{ dp.b.f4 }}"></span>{{ dp.b.v4 }}</span><span style="{{ dp.b.c5 }}"><span style="{{ dp.b.f5 }}"></span>{{ dp.b.v5 }}</span><span style="{{ dp.b.c6 }}"><span style="{{ dp.b.f6 }}"></span>{{ dp.b.v6 }}</span><span style="{{ dp.b.c7 }}"><span style="{{ dp.b.f7 }}"></span>{{ dp.b.v7 }}</span><span style="{{ dp.b.c8 }}"><span style="{{ dp.b.f8 }}"></span>{{ dp.b.v8 }}</span><span style="{{ dp.b.c9 }}"><span style="{{ dp.b.f9 }}"></span>{{ dp.b.v9 }}</span><span style="{{ dp.b.kS }}"><span style="{{ dp.b.kF }}"></span>{{ dp.b.k }}</span><span style="{{ dp.b.markS }}">{{ dp.b.mark }}</span></span>
           </span>
         </sc-for>
       </span>
       </sc-if>
-      <span style="{{ gFootRow }}"><button onClick="{{ gAgain }}" style="{{ gAgainS }}">PLAY AGAIN</button><button onClick="{{ gTipToggle }}" style="{{ gTipBtn }}" style-hover="color:#22d3ee"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="display:block"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5.5"></path><path d="M12 7.6v.1"></path></svg></button></span>
-      <sc-if value="{{ gTipOn }}" hint-placeholder-val="{{ false }}"><span style="{{ gNoteS }}">Calories drive body fat, but a healthy diet also means hitting macro and micronutrient targets. This is a game, not nutritional advice.</span></sc-if>
+      <span style="{{ gFootRow }}"><button onClick="{{ gAgain }}" style="{{ gAgainS }}">PLAY AGAIN</button><sc-if value="{{ gMobList }}" hint-placeholder-val="{{ true }}"><button onClick="{{ gTipToggle }}" style="{{ gTipBtn }}" style-hover="color:#22d3ee"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="display:block"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5.5"></path><path d="M12 7.6v.1"></path></svg></button></sc-if></span>
+      <sc-if value="{{ gTipShown }}" hint-placeholder-val="{{ false }}"><span style="{{ gNoteS }}">Calories drive body fat, but a healthy diet also means hitting macro and micronutrient targets. This is a game, not nutritional advice.</span></sc-if>
     </sc-if>
   </div>
   </sc-if>
@@ -1723,6 +1723,14 @@ class Component extends DCLogic {
       // clearing nobody reads; after a grade it lands, because that is the moment
       // someone might take a score about calories for a verdict about food.
       gTipOn: !!this.state.gTip,
+      gTipShown: !!this.state.gTip && nar,
+      // On a desktop the caveat is not worth a button: there is width to the
+      // right of the grade doing nothing, so it stands there, always on, in the
+      // reading face at footnote weight.
+      gDiscS: { flex: "0 1 auto", marginLeft: "auto", paddingLeft: "2rem",
+        maxWidth: "27rem", textAlign: "right", textWrap: "pretty",
+        fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".88rem",
+        lineHeight: 1.4, color: "#7b91a3" },
       gTipToggle: () => this.setState(st => ({ gTip: !st.gTip })),
       // The mark sits beside PLAY AGAIN, the same height as it, so the foot is one row
       // and the caveat opens beneath the thing that summons it.
@@ -1756,93 +1764,177 @@ class Component extends DCLogic {
     };
   }
   // A desktop already has a table for reading food figures, so the results borrow its
-  // grammar rather than blowing up the phone's list: every macro and sub-macro in its own
-  // column, the calorie column lit because that is the one the game was about, and the
-  // tick or cross against the food that was actually chosen. No row opens — with all
-  // thirteen columns on screen there is nothing left to reveal.
+  // grammar rather than blowing up the phone's list: the macros in their own columns
+  // with a bar under every figure, the calorie column lit because that is the one the
+  // game was about, and the tick or cross against the food that was actually chosen.
+  // Closed it shows the four macros; the ringed triangle in the last header cell trades
+  // the CARBS and FATS totals for their six parts, exactly as the search table does.
   gDeskTable(picks, libIndex, cap) {
+    // The results table is the search table with the shopping taken out: same
+    // tracks, same hues, same bar under every figure, same ringed triangle in
+    // the last header cell that trades the CARBS and FATS totals for their six
+    // parts. What the search table spends on adding a food to a plate, this one
+    // spends on the tick or the cross against the plate you picked.
+    const xp = !!this.state.gxp;
+    // Wider tracks than the search table's: with five columns closed instead of
+    // eleven, the figures would otherwise float in a sea of name column. Open,
+    // nine numeric tracks plus the name and the portion just fill the frame.
+    const NW = xp ? "5.5rem" : "7.2rem";
+    const SW = xp ? NW : "0rem", TW = xp ? "0rem" : NW;
+    const COLS = "minmax(9rem,1.1fr) minmax(7.5rem,.62fr) " + NW + " " + NW
+      + " " + SW + " " + SW + " " + SW + " " + TW
+      + " " + SW + " " + SW + " " + SW + " " + TW
+      + " " + NW + " 2.8rem";
+    const GRID_T = "grid-template-columns 500ms cubic-bezier(.22,1,.36,1)";
+    const RULE = "1px solid #1e293b";
+    const INNER = "1px solid #131f2e";
+    const CYAN = "rgba(34,211,238,.30)", WATER = "rgba(123,135,224,.30)";
+    const GRN = "rgba(126,224,168,.26)", CRL = "rgba(240,140,122,.26)";
+    const GRN_S = "rgba(126,224,168,.20)", CRL_S = "rgba(240,140,122,.20)";
+    // Column, reader, bar hue, and whether the track folds away — subs fold
+    // when the table is closed, the two totals when it is open.
     const NUMS = [
-      ["WATER", f => f.wa, "#7b87e0"],
-      ["PROT", f => f.p, "#22d3ee"],
-      ["SUGAR", f => f.sg, "rgba(126,224,168,.85)"],
-      ["FIBRE", f => f.fb, "rgba(126,224,168,.5)"],
-      ["STARCH", f => Math.max(0, f.c - (f.sg || 0) - (f.fb || 0)), "rgba(126,224,168,.28)"],
-      ["CARBS", f => f.c, "#7ee0a8"],
-      ["SAT", f => f.sf, "rgba(240,140,122,.9)"],
-      ["MONO", f => f.mo, "rgba(240,140,122,.55)"],
-      ["POLY", f => f.po, "rgba(240,140,122,.3)"],
-      ["FATS", f => f.f, "#f08c7a"]
+      ["WATER", f => f.wa, WATER, 0],
+      ["PROT", f => f.p, CYAN, 0],
+      ["SUGAR", f => f.sg, GRN_S, 1],
+      ["FIBRE", f => f.fb, GRN_S, 1],
+      ["STARCH", f => Math.max(0, f.c - (f.sg || 0) - (f.fb || 0)), GRN_S, 1],
+      ["CARBS", f => f.c, GRN, 2],
+      ["SAT", f => f.sf, CRL_S, 1],
+      ["MONO", f => f.mo, CRL_S, 1],
+      ["POLY", f => f.po, CRL_S, 1],
+      ["FATS", f => f.f, CRL, 2]
     ];
     const g1 = v => { const n = v || 0;
       return n === 0 ? "0" : n < 10 ? n.toFixed(1) : String(Math.round(n)); };
-    const COLS = "minmax(9rem,1.5fr) minmax(6.5rem,.9fr) repeat(10, minmax(3.1rem,1fr)) 4.2rem";
-    const RULE = "1px solid #1e293b";
-    const num = (lit, kcal) => ({
+    // Every bar on the table is drawn against the same scale as the others in
+    // its family, so a long bar means a lot of the stuff rather than a lot of
+    // the column: water against the wettest plate here, the macros and their
+    // parts against the biggest gram figure, calories against the biggest plate.
+    const foods = [];
+    picks.forEach(p2 => { foods.push(p2.top); foods.push(p2.bot); });
+    const val = (food, read) => read(libIndex[food.usda] || {}) * (food.g / 100);
+    const maxOf = read => Math.max.apply(null,
+      foods.map(f => val(f, read)).concat([1]));
+    const waMax = maxOf(f => f.wa);
+    const gramMax = Math.max(maxOf(f => f.p), maxOf(f => f.c), maxOf(f => f.f));
+    const kcalMax = Math.max.apply(null, foods.map(f => f.kcal).concat([1]));
+    const ROW_H = "2.4rem";
+    const fold = sub => ({
+      borderLeft: (sub ? xp : !xp) ? INNER : "1px solid transparent",
+      paddingLeft: (sub ? xp : !xp) ? ".55rem" : "0",
+      paddingRight: (sub ? xp : !xp) ? ".5rem" : "0",
+      transition: "border-color 300ms ease,"
+        + " padding 500ms cubic-bezier(.22,1,.36,1)"
+    });
+    const cellOf = (lit, kind) => Object.assign({
+      position: "relative", overflow: "hidden", minWidth: 0,
       display: "flex", alignItems: "center", justifyContent: "flex-end",
-      minWidth: 0, height: "2rem", paddingRight: ".45rem", borderTop: RULE,
-      fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap",
-      background: kcal ? "rgba(34,211,238,.07)" : "transparent",
-      borderLeft: kcal ? "1px solid #1e293b" : "0",
-      fontSize: kcal ? "1rem" : ".88rem",
-      color: kcal ? (lit ? "#eaf5fb" : "#9fb3c0") : (lit ? "#d7e6ef" : "#7b91a3")
+      height: ROW_H, borderTop: RULE, whiteSpace: "nowrap",
+      fontVariantNumeric: "tabular-nums", fontWeight: 300, fontSize: ".95rem",
+      color: lit ? "#eaf5fb" : "#7b91a3"
+    }, kind ? fold(kind === 1) : {
+      borderLeft: INNER, paddingLeft: ".55rem", paddingRight: ".5rem"
+    });
+    const barOf = (v, max, hue, shown) => ({
+      position: "absolute", left: 0, top: 0, bottom: 0,
+      display: v > 0 && shown ? "block" : "none",
+      width: Math.max(0, Math.min(100, v / max * 100)) + "%",
+      background: hue, transition: "width 140ms ease"
     });
     const rowOf = (food, other, chosen, hit) => {
-      const fo = libIndex[food.usda] || {};
-      const fa = food.g / 100, fb2 = other.g / 100;
       const o = {
         name: cap(food.name), portion: food.portion || "",
         mark: chosen ? (hit ? "\u2713" : "\u2715") : "",
-        markS: { flex: "none", width: "1.05rem", textAlign: "left", fontSize: ".9rem",
-          lineHeight: 1, color: !chosen ? "transparent" : hit ? "#7ee0a8" : "#f08c7a" },
-        nameS: { display: "flex", alignItems: "center", gap: ".3rem", minWidth: 0,
-          height: "2rem", paddingRight: ".7rem", borderTop: RULE,
-          fontWeight: 300, fontSize: ".95rem", color: "#d7e6ef" },
+        markS: { display: "flex", alignItems: "center",
+          justifyContent: "center", height: ROW_H, borderTop: RULE,
+          borderLeft: RULE, fontSize: "1rem", lineHeight: 1,
+          color: !chosen ? "transparent" : hit ? "#7ee0a8" : "#f08c7a" },
+        nameS: { display: "flex", alignItems: "center", minWidth: 0,
+          height: ROW_H, paddingRight: ".7rem", borderTop: RULE,
+          fontWeight: 300, fontSize: "1.05rem", color: "#d7e6ef" },
         nameTxt: { minWidth: 0, whiteSpace: "nowrap", overflow: "hidden",
           textOverflow: "ellipsis" },
-        portS: { display: "flex", alignItems: "center", justifyContent: "flex-end",
-          minWidth: 0, height: "2rem", paddingRight: ".8rem", borderTop: RULE,
-          fontFamily: "var(--font-2)", fontSize: ".78rem", color: "#7b91a3",
+        portS: { display: "flex", alignItems: "center",
+          justifyContent: "flex-end", minWidth: 0, height: ROW_H,
+          paddingRight: ".8rem", borderTop: RULE,
+          fontFamily: "var(--font-2)", fontSize: ".88rem", color: "#7b91a3",
           whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
-        rowS: { display: "grid", gridTemplateColumns: COLS, alignItems: "stretch" },
+        rowS: { display: "grid", gridTemplateColumns: COLS,
+          alignItems: "stretch", transition: GRID_T },
         k: String(food.kcal),
-        kS: num(food.kcal >= other.kcal, true)
+        kS: Object.assign(cellOf(food.kcal >= other.kcal, 0), {
+          borderLeft: RULE, background: "rgba(34,211,238,.07)",
+          fontSize: "1.05rem" }),
+        kF: barOf(food.kcal, kcalMax, "rgba(34,211,238,.18)", true)
       };
       NUMS.forEach((d, ix) => {
-        const va = d[1](fo) * fa, vb = d[1](libIndex[other.usda] || {}) * fb2;
-        o["v" + ix] = g1(va);
-        o["s" + ix] = num(va > vb + 1e-9, false);
+        const va = val(food, d[1]), vb = val(other, d[1]);
+        const sub = d[3] === 1, tot = d[3] === 2;
+        const shown = sub ? xp : tot ? !xp : true;
+        o["v" + ix] = shown ? g1(va) : "";
+        o["c" + ix] = cellOf(va > vb + 1e-9, d[3]);
+        o["f" + ix] = barOf(va, ix === 0 ? waMax : gramMax, d[2], shown);
       });
       return o;
     };
-    // A pair is two rows closed by a rule with real air under it — the same device the
-    // phone's list uses, since white space separates a pair from its neighbour better
-    // than any amount of banding does.
-    const pairs = picks.map(p => ({
-      a: rowOf(p.top, p.bot, p.k === 0, p.hit),
-      b: rowOf(p.bot, p.top, p.k === 1, p.hit),
+    // A pair is two rows closed by a rule with real air under it — the same
+    // device the phone's list uses, since white space separates a pair from its
+    // neighbour better than any amount of banding does.
+    const pairs = picks.map(p2 => ({
+      a: rowOf(p2.top, p2.bot, p2.k === 0, p2.hit),
+      b: rowOf(p2.bot, p2.top, p2.k === 1, p2.hit),
       s: { display: "block", marginBottom: "1.15rem", borderBottom: RULE }
     }));
-    const headCell = kcal => ({
-      display: "flex", alignItems: "flex-end", justifyContent: "flex-end",
-      minWidth: 0, height: "2.1rem", paddingRight: kcal ? ".45rem" : ".45rem",
-      paddingBottom: ".3rem", whiteSpace: "nowrap", overflow: "hidden",
-      fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".1em",
+    const headCell = (kind, kcal) => Object.assign({
+      position: "relative", minWidth: 0, display: "flex",
+      alignItems: "center", justifyContent: "flex-end",
+      height: "2.3rem", whiteSpace: "nowrap", overflow: "hidden",
+      fontFamily: "var(--font-2)", fontSize: ".8rem", letterSpacing: ".12em",
       background: kcal ? "rgba(34,211,238,.07)" : "transparent",
-      borderLeft: kcal ? "1px solid #1e293b" : "0",
-      color: kcal ? "#3fdcf2" : "#7b91a3"
+      color: kcal ? "#3fdcf2" : "#c3d6e2"
+    }, kind ? fold(kind === 1) : {
+      borderLeft: kcal ? RULE : INNER, paddingLeft: ".55rem",
+      paddingRight: ".5rem"
     });
+    const heads = NUMS.map((d, ix) => ({ lab: xp && d[3] === 2 ? "" : d[0],
+      s: headCell(d[3], false) }));
     return {
       gDeskPairs: pairs,
-      // The head rides inside the scroller rather than above it, so its columns are
-      // measured against the same width the rows are and cannot drift by a scrollbar.
-      gDHead: { display: "grid", gridTemplateColumns: COLS, alignItems: "stretch",
-        position: "sticky", top: 0, zIndex: 2, background: "#020617",
-        borderBottom: "1px solid #1e293b", marginBottom: ".5rem" },
-      gDHeadName: Object.assign(headCell(false), { justifyContent: "flex-start" }),
-      gDHeadPort: headCell(false),
-      gDHeadCell: headCell(false),
-      gDHeadK: headCell(true),
-      gDBody: { flex: "1 1 auto", minHeight: 0, overflowY: "auto", display: "block" }
+      gDHeads: heads,
+      // The head rides inside the scroller rather than above it, so its columns
+      // are measured against the same width the rows are and cannot drift by a
+      // scrollbar.
+      gDHead: { display: "grid", gridTemplateColumns: COLS,
+        alignItems: "stretch", position: "sticky", top: 0, zIndex: 2,
+        background: "#020617", borderTop: RULE, borderBottom: RULE,
+        marginBottom: ".55rem", transition: GRID_T },
+      gDHeadName: Object.assign(headCell(0, false),
+        { justifyContent: "flex-start", borderLeft: 0, paddingLeft: 0 }),
+      gDHeadPort: headCell(0, false),
+      gDHeadK: headCell(0, true),
+      // The last header cell is the control, exactly as it is on the search
+      // table: ringed triangle pointing right to open the parts, left to close
+      // them again.
+      gXpCell: { display: "flex", alignItems: "center",
+        justifyContent: "center", borderLeft: RULE, cursor: "pointer",
+        background: "transparent", padding: 0, border: 0,
+        borderLeftWidth: "1px", borderLeftStyle: "solid",
+        borderLeftColor: "#1e293b" },
+      gXpToggle: () => this.setState(st => ({ gxp: !st.gxp })),
+      gXpChev: { flex: "none", width: "17px", height: "17px",
+        borderRadius: "50%", boxSizing: "border-box",
+        border: "1px solid #66808f", display: "flex", alignItems: "center",
+        justifyContent: "center", background: "none" },
+      gXpTri: xp
+        ? { width: 0, height: 0, borderTop: "4px solid transparent",
+          borderBottom: "4px solid transparent",
+          borderRight: "5.5px solid #c7d6e0", margin: "0 1.5px 0 0" }
+        : { width: 0, height: 0, borderTop: "4px solid transparent",
+          borderBottom: "4px solid transparent",
+          borderLeft: "5.5px solid #c7d6e0", margin: "0 0 0 1.5px" },
+      gDBody: { flex: "1 1 auto", minHeight: 0, overflowY: "auto",
+        display: "block" }
     };
   }
   // ── CALORIE CALC ────────────────────────────────────────────────────────────
@@ -3632,6 +3724,10 @@ class Component extends DCLogic {
     ]).join("\n");
     const signOut = () => { try { localStorage.removeItem("nutri-search-user"); } catch (e) {} this.setState({ user: null, view: "results" }); };
 
+    // The game's results table wants the whole frame; the game itself does not.
+    const gWide = app === "game" && !s.narrow && (s.gPicks || []).length > 0
+      && ((s.gI || 0) >= GAME_ROUNDS
+        || (s.gPicks || []).length >= GAME_ROUNDS);
     return {
       dLandFlag: dLanding ? "on" : "off",
       dClearBtn: {
@@ -4040,7 +4136,10 @@ class Component extends DCLogic {
       gWrap: {
         position: "relative",
         flex: 1, minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column",
-        width: "100%", maxWidth: s.narrow ? "none" : "1100px", margin: "0 auto",
+        // The game is two cards and wants the reading column; the results are
+        // the search table's twin and want the whole frame.
+        width: "100%",
+        maxWidth: s.narrow || gWide ? "none" : "1100px", margin: "0 auto",
         padding: s.narrow ? "0 .7rem .7rem" : "0 " + FRAME_GUT + " .8rem",
         boxSizing: "border-box"
       },
