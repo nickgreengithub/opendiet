@@ -49,8 +49,8 @@ GUT_GAS_L = 0.1
 # The runtime's own anchors, mirrored here rather than imported, because the
 # point of this tool is to measure what the browser actually draws. Keep in
 # step with body.js: FMI_LEVELS, the FFMI anchors and the two masks.
-FMI_LEVELS = {"m": [1.9, 3.7, 5.9, 9.0, 13.2, 18.6],
-              "f": [2.4, 3.8, 5.8, 8.2, 12.1, 17.3]}
+FMI_LEVELS = {"m": [1.7, 3.4, 6.2, 13.2, 27.3, 55.7],
+              "f": [2.4, 3.8, 6.7, 12.8, 25.4, 50.0]}
 FFMI_ANCHOR = {"m": {"lo": 15.5, "avg": 18.5, "hi": 22.5},
                "f": {"lo": 12.5, "avg": 15.0, "hi": 18.5}}
 
@@ -268,6 +268,11 @@ def limb_girth(V, tris, y, near_axis):
 # furrow at .45, mid-humerus at .71 with the arm hanging.
 BANDS = {
     "neck": (torso_girth, .845, .875, min, {}),
+    # The widest slice through the chest band. On a woman that is the bust,
+    # which is not what ANSUR's chest circumference measures — the two are
+    # not comparable, and the calibration weights the female chest down
+    # rather than pretending they are. Measuring elsewhere was worse: the
+    # band above catches the deltoids and reads 120 cm on everyone.
     "chest": (torso_girth, .700, .745, max, {}),
     "waist": (torso_girth, .575, .665, min, {}),
     "hip": (torso_girth, .470, .545, max, {}),

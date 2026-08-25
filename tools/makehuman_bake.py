@@ -193,6 +193,54 @@ THIN_KIT = [
 ]
 
 
+# The ramp the detail kit rides in on: nothing until the body is RAMP0 of the
+# way up the fat range, then ((t-RAMP0)/(1-RAMP0))^RAMP. Both are tunable
+# because where obesity starts showing in the abdomen rather than everywhere
+# is exactly the thing the calibration argues about.
+RAMP0 = {"m": 0.5, "f": 0.5}
+RAMP = {"m": 1.3, "f": 1.3}
+
+
+def load_params(path):
+    if not path:
+        return
+    """Override the fat constants from a JSON file, so the calibration can
+    search them without rewriting this module. Keys per sex: "w" (the six
+    weight-macro values), "kit" (per-target factor overrides or a "*" scale),
+    "ramp0" and "ramp"."""
+    with open(path) as fh:
+        cfg = json.load(fh)
+    for sex, c in cfg.items():
+        if sex.startswith("_"):
+            continue
+        # The percentages a level is named for set both the weight macro it
+        # gets and where it sits on the kit's ramp, so re-labelling them is
+        # how the six shapes are spread across the range people actually
+        # occupy. The runtime blends on measured fat-mass index, not on these,
+        # so they are a spacing decision rather than a claim.
+        if "levels" in c:
+            old_levels = LEVELS[sex]
+            LEVELS[sex] = c["levels"]
+            FAT_TO_W[sex] = {b: FAT_TO_W[sex][o]
+                             for b, o in zip(c["levels"], old_levels)}
+        if "w" in c:
+            FAT_TO_W[sex] = dict(zip(sorted(FAT_TO_W[sex]), c["w"]))
+        if "ramp0" in c:
+            RAMP0[sex] = c["ramp0"]
+        if "ramp" in c:
+            RAMP[sex] = c["ramp"]
+        for name, f in (c.get("kit") or {}).items():
+            if name == "*":
+                FAT_KIT[sex] = [(n, v * f) for n, v in FAT_KIT[sex]]
+            elif any(n == name for n, _ in FAT_KIT[sex]):
+                FAT_KIT[sex] = [(n, f if n == name else v)
+                                for n, v in FAT_KIT[sex]]
+            else:
+                # A target the shipped kit does not carry: the calibration is
+                # allowed to introduce one, not only to reweigh what is here.
+                FAT_KIT[sex] = FAT_KIT[sex] + [(name, f)]
+
+
 def compose(base, targets, sex, bf, levels, muscle="averagemuscle", wov=None):
     t = (bf - levels[0]) / (levels[-1] - levels[0])
     V = base.copy()
@@ -202,7 +250,8 @@ def compose(base, targets, sex, bf, levels, muscle="averagemuscle", wov=None):
         if f:
             targets.add(V, "macrodetails/universal-%s-young-%s-%s"
                         % (SEXNAME[sex], muscle, name), f)
-    e = max(0.0, (t - 0.5) / 0.5) ** 1.3
+    r0 = RAMP0[sex]
+    e = max(0.0, (t - r0) / (1 - r0)) ** RAMP[sex]
     if e > 0:
         for name, top in FAT_KIT[sex]:
             targets.add(V, name, top * e)
@@ -347,6 +396,14 @@ def build(sex, data_dir, base, faces, targets, joints, blend, out_dir,
 
 def main():
     data_dir = sys.argv[1]
+    # The fat constants ship as data, not as literals up here: they were
+    # fitted against ANSUR II by tools/calibrate_body.py, and the file it
+    # writes is the one the bake reads, so a rebake reproduces the figure
+    # that was measured rather than one that was typed in afterwards.
+    fitted = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          "..", "data", "body", "fat_params.json")
+    load_params(sys.argv[2] if len(sys.argv) > 2
+                else fitted if os.path.exists(fitted) else None)
     npz = os.path.join(data_dir, "targets.npz")
     if not os.path.exists(npz):
         npz = os.path.join(data_dir, "mhx/makehuman/data/targets.npz")

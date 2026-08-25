@@ -1,0 +1,85 @@
+{
+ "m": {
+  "w": [
+   0.18,
+   0.32,
+   0.46,
+   1.4388,
+   2.0056000000000003,
+   2.8340000000000005
+  ],
+  "kit": {
+   "stomach/stomach-pregnant-incr": 1.6,
+   "stomach/stomach-tone-decr": 0.55,
+   "torso/torso-scale-depth-incr": 1.33,
+   "hip/hip-scale-depth-incr": 0.625,
+   "buttocks/buttocks-volume-incr": 0.5,
+   "armslegs/l-upperarm-fat-incr": 0.405,
+   "armslegs/l-lowerarm-fat-incr": 0.27,
+   "armslegs/r-upperarm-fat-incr": 0.405,
+   "armslegs/r-lowerarm-fat-incr": 0.27,
+   "armslegs/l-upperleg-fat-incr": 0.531,
+   "armslegs/l-lowerleg-fat-incr": 0.354,
+   "armslegs/r-upperleg-fat-incr": 0.531,
+   "armslegs/r-lowerleg-fat-incr": 0.354,
+   "torso/torso-scale-horiz-incr": 0.99
+  },
+  "ramp0": 0.18,
+  "ramp": 0.43
+ },
+ "f": {
+  "w": [
+   0.22,
+   0.35,
+   0.5,
+   0.9939999999999999,
+   1.349,
+   1.8459999999999999
+  ],
+  "kit": {
+   "stomach/stomach-pregnant-incr": 1.6,
+   "stomach/stomach-tone-decr": 0.2,
+   "torso/torso-scale-depth-incr": 1.62,
+   "hip/hip-scale-horiz-incr": 0.2,
+   "hip/hip-scale-depth-incr": 0.175,
+   "buttocks/buttocks-volume-incr": 0.225,
+   "armslegs/l-upperarm-fat-incr": 0.54,
+   "armslegs/l-lowerarm-fat-incr": 0.315,
+   "armslegs/r-upperarm-fat-incr": 0.54,
+   "armslegs/r-lowerarm-fat-incr": 0.315,
+   "armslegs/l-upperleg-fat-incr": 0.54,
+   "armslegs/l-lowerleg-fat-incr": 0.315,
+   "armslegs/r-upperleg-fat-incr": 0.54,
+   "armslegs/r-lowerleg-fat-incr": 0.315,
+   "torso/torso-scale-horiz-incr": 0.91
+  },
+  "ramp0": 0.15,
+  "ramp": 0.66
+ },
+ "_knobs": {
+  "m": {
+   "belly": 1.6,
+   "tone": 0.55,
+   "torso": 1.33,
+   "hips": 2.5,
+   "arms": 0.9,
+   "legs": 1.18,
+   "twide": 0.99,
+   "ramp0": 0.18,
+   "ramp": 0.43,
+   "wmac": 2.18
+  },
+  "f": {
+   "belly": 1.6,
+   "tone": 0.2,
+   "torso": 1.62,
+   "hips": 0.5,
+   "arms": 0.9,
+   "legs": 0.9,
+   "twide": 0.91,
+   "ramp0": 0.15,
+   "ramp": 0.66,
+   "wmac": 1.42
+  }
+ }
+}

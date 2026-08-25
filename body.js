@@ -66,12 +66,16 @@ function weightsFor(levels, bf) {
 // What the fat axis actually answers to when the weight is known: fat MASS over
 // height squared, not the percentage. 104 kg and 70 kg at the same 30% carry
 // 31 kg and 21 kg of fat — one is bulky fat, the other skinny fat — and a
-// percentage-driven morph would dress them identically. Each baked level is
-// anchored at the fat-mass index of the reference body it was sculpted as
-// (e.g. the male 30% level as a 92 kg man: 27.6 kg fat / 1.75² ≈ 9.0).
+// percentage-driven morph would dress them identically.
+//
+// These are measurements, not estimates. tools/measure_body.py takes the
+// volume of each baked level, reads the mass a body of that fat fraction
+// would have to be to fill it (Siri), and reports the index. Re-run it after
+// any rebake: shape and anchor have to move together or the figure stops
+// being the size the arithmetic says.
 const FMI_LEVELS = {
-  m: [1.9, 3.7, 5.9, 9.0, 13.2, 18.6],
-  f: [2.4, 3.8, 5.8, 8.2, 12.1, 17.3]
+  m: [1.7, 3.4, 6.2, 13.2, 27.3, 55.7],
+  f: [2.4, 3.8, 6.7, 12.8, 25.4, 50.0]
 };
 
 export function mount(canvas) {
