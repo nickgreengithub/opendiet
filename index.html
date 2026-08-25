@@ -398,9 +398,24 @@ option{background:#070b12;color:#d7e6ef}
       <sc-if value="{{ cIsRes }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cVTabRow }}"><button style="{{ cVTabOne }}">RESISTANCE</button></span>
       </sc-if>
+      <span style="{{ cStage }}">
+      <sc-if value="{{ cTblOn }}" hint-placeholder-val="{{ false }}">
+      <span onClick="{{ cTblPick }}" style="{{ cTblLS }}">
+        <sc-for list="{{ cTblRows }}" as="r" hint-placeholder-count="4"><span style="{{ cTblRow }}"><span style="{{ cTblLab }}">{{ r.lab }}</span><span style="{{ cTblVal }}">{{ r.val }}<span style="{{ cTblUnit }}">{{ r.unit }}</span></span><input type="range" min="{{ r.min }}" max="{{ r.max }}" step="{{ r.step }}" value="{{ r.cur }}" onChange="{{ r.onSlide }}" style="{{ r.trackS }}"></span></sc-for>
+        <span style="{{ cTblEnd }}"></span>
+      </span>
+      </sc-if>
       <span style="{{ cFigWrap }}">
         <sc-if value="{{ cBody3D }}" hint-placeholder-val="{{ true }}"><canvas data-body style="{{ cCanvasS }}"></canvas></sc-if>
         <sc-if value="{{ cBodySvg }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 64 136" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="{{ cFigS }}"><circle cx="32" cy="14" r="10"></circle><path d="{{ cBodyGlyph }}"></path></svg></sc-if>
+      </span>
+      <sc-if value="{{ cTblPadOn }}" hint-placeholder-val="{{ false }}"><span style="{{ cTblPad }}"></span></sc-if>
+      <sc-if value="{{ cTbl2On }}" hint-placeholder-val="{{ false }}">
+      <span onClick="{{ cTblPick2 }}" style="{{ cTblRS }}">
+        <sc-for list="{{ cTblRows2 }}" as="r" hint-placeholder-count="4"><span style="{{ cTblRow }}"><span style="{{ cTblLab }}">{{ r.lab }}</span><span style="{{ cTblVal }}">{{ r.val }}<span style="{{ cTblUnit }}">{{ r.unit }}</span></span><input type="range" min="{{ r.min }}" max="{{ r.max }}" step="{{ r.step }}" value="{{ r.cur }}" onChange="{{ r.onSlide }}" style="{{ r.trackS }}"></span></sc-for>
+        <span style="{{ cTblEnd }}"></span>
+      </span>
+      </sc-if>
       </span>
       <sc-if value="{{ cIsHt }}" hint-placeholder-val="{{ false }}">
       <span style="{{ cBodyPanel }}">
@@ -4326,10 +4341,6 @@ class Component extends DCLogic {
         // Once a goal exists, the body screen carries both figures — the current
         // and the goal — with focus following the tab.
         const goalView = s.cView === "goal";
-        const gWt = s.cGWt == null ? m.wt
-          : Math.max(RG.wtLo, Math.min(RG.wtHi, Math.round(s.cGWt)));
-        const gBf = Math.max(bfLo, Math.min(bfHi,
-          s.cGBf == null ? bfVal : Math.round(s.cGBf)));
         // An untouched goal is born aspirational rather than a copy of the
         // current body: "very good" shape — BMI 24 at 14% for men, BMI 22 at
         // 22% for women — priced at this person's own height. Changing sex
@@ -4339,8 +4350,17 @@ class Component extends DCLogic {
             Math.round((m.sex === "f" ? 22 : 24) * Math.pow(m.ht / 100, 2)))),
           bf: m.sex === "f" ? 22 : 14
         };
+        // A desktop shows the goal table from the moment the screen opens, so
+        // an untouched goal reads as that default rather than as a second copy
+        // of the current body. A phone still births it on the tab.
+        const gWt = s.cGWt == null ? (s.narrow ? m.wt : gDef.wt)
+          : Math.max(RG.wtLo, Math.min(RG.wtHi, Math.round(s.cGWt)));
+        const gBf = Math.max(bfLo, Math.min(bfHi,
+          s.cGBf == null ? (s.narrow ? bfVal : gDef.bf) : Math.round(s.cGBf)));
         this._bodyWant = { sex: m.sex, bf: bfVal, ht: m.ht, kg: m.wt,
-          goal: !done && step === 3 && s.cGWt != null
+          // On a desktop both tables are on screen, so both bodies are too —
+          // the goal is born on arrival rather than on the first tab click.
+          goal: !done && step === 3 && (!s.narrow || s.cGWt != null)
             ? { bf: gBf, kg: gWt } : null,
           act: done ? null : step === 4 ? 0.5 : step === 6 ? 0.92 : null,
           press: !done && step === 5,
@@ -4694,6 +4714,25 @@ class Component extends DCLogic {
               ? { left: "calc(1px - min(32px, (100vw - 100%) / 2))" }
               : { right: "calc(1px - min(32px, (100vw - 100%) / 2))" });
         };
+        // The phone asks for one measure at a time: cells across the top, one
+        // slider under them, and a tap to say which cell the slider drives.
+        // A desktop has no reason to ration — every measure gets its own row,
+        // its figure and its slider side by side, and nothing has to be
+        // selected before it can be moved. The rows are filled in by the step
+        // blocks below and read out after them.
+        const tbl = { rows: [], rows2: [] };
+        const mkRow = c => ({
+          lab: c.label, val: c.val, unit: c.unit || "",
+          min: String(c.lo), max: String(c.hi), step: String(c.stp),
+          cur: String(c.cur),
+          onSlide: e => c.set(+e.target.value),
+          trackS: { "--p": (100 * (c.cur - c.lo)
+            / Math.max(1e-6, c.hi - c.lo)).toFixed(1) + "%",
+            flex: "1 1 auto", minWidth: 0, margin: 0 }
+        });
+        // The screens that carry the figure, named once: the layout, the
+        // tables and the column width all key off it.
+        const cFigOn = step >= 2 && step <= 6;
         // What the notches can do right now, so the keyboard can be exactly
         // as capable as they are and no more.
         cNav.backOn = done || step > 0;
@@ -4722,8 +4761,7 @@ class Component extends DCLogic {
           cIsRes: step === 5, cIsCard: step === 6,
           // The figure carries height, body and the three activity screens;
           // the first two questions are centred slides.
-          cFigOn: step === 2 || step === 3 || step === 4 || step === 5
-            || step === 6,
+          cFigOn: cFigOn,
           cQOn: step === 0 || step === 1,
           cQ: STEPS[step],
           // The way forward is the right notch on every screen; the last one
@@ -4783,6 +4821,16 @@ class Component extends DCLogic {
             const ti = Math.round(cm / 2.54);
             const sel = s.cHtSel === "ft" ? "ft" : "cm";
             const TRAY = "#0d1a20";
+            const setCm = v => this.setState({ cHt: clampF(f, v),
+              cGWt: null, cGBf: null });
+            if (D && step === 2) tbl.rows = [
+              { label: "HEIGHT CM", unit: " CM", val: String(cm),
+                lo: f.lo, hi: f.hi, stp: 1, cur: cm, set: setCm },
+              { label: "HEIGHT FT", unit: "",
+                val: Math.floor(ti / 12) + "\u2032" + (ti % 12) + "\u2033",
+                lo: Math.ceil(f.lo / 2.54), hi: Math.floor(f.hi / 2.54),
+                stp: 1, cur: ti, set: v => setCm(Math.round(v * 2.54)) }
+            ].map(mkRow);
             return {
               cHtGrid: { position: "relative", zIndex: 1, marginBottom: "-1px",
                 display: "grid",
@@ -4852,6 +4900,7 @@ class Component extends DCLogic {
                 cur: Math.round(m.walkS / 100), set: v => setS(v * 100) }
             };
             const d = M[sel];
+            if (D && step === 4) tbl.rows = ["s", "m"].map(k => mkRow(M[k]));
             return {
               cWalkCells: ["s", "m"].map(k => {
                 const c = M[k], on = k === sel;
@@ -4909,6 +4958,12 @@ class Component extends DCLogic {
             fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
           cResUnitS: { fontFamily: "var(--font-2)", fontSize: ".8rem",
             letterSpacing: ".08em", color: "#9fb3c0" },
+          ...(D && step === 5 ? (() => {
+            tbl.rows = [mkRow({ label: "SESSIONS", unit: " / WK",
+              val: String(m.trnW), lo: 3, hi: 7, stp: 1, cur: m.trnW,
+              set: v => this.setState({ cLift: Math.round(v) }) })];
+            return {};
+          })() : {}),
           cResVal2: String(m.trnW),
           cResMin: "3", cResMax: "7", cResStep: "1",
           cResVal: String(m.trnW),
@@ -4937,6 +4992,7 @@ class Component extends DCLogic {
                 set: v => setH(v / kWk) }
             };
             const d = M[sel];
+            if (D && step === 6) tbl.rows = ["h", "k"].map(k => mkRow(M[k]));
             return {
               cCardCells: ["h", "k"].map(k => {
                 const c = M[k], on = k === sel;
@@ -4988,32 +5044,43 @@ class Component extends DCLogic {
           // this weight — so the four cells can never disagree.
           ...(() => {
             const wtF = FIELDS[2];
-            // On the goal tab the same cells edit the goal's numbers, backed by
-            // their own state keys; the current body's stay untouched behind it.
-            const WK = goalView ? "cGWt" : "cWt", BK = goalView ? "cGBf" : "cBf";
-            const wtV = goalView ? gWt : clampF(wtF, s.cWt);
-            const bfV = goalView ? gBf : bfVal;
             const hm = Math.pow(m.ht / 100, 2);
-            const bmi = wtV / hm;
-            const lean = wtV * (1 - bfV / 100);
-            const setWt = v => this.setState({ [WK]: clampF(wtF, v) });
-            const M = {
-              wt: { label: "WEIGHT", unit: " KG", val: String(wtV),
-                lo: wtF.lo, hi: wtF.hi, stp: 1, cur: wtV, set: setWt },
-              lean: { label: "LEAN", unit: " KG", val: String(Math.round(lean)),
-                lo: Math.round(wtV * 0.45),
-                hi: Math.round(wtV * (1 - bfLo / 100)),
-                stp: 1, cur: lean,
-                set: v => this.setState({ [BK]: Math.max(bfLo, Math.min(bfHi,
-                  Math.round(100 * (1 - v / wtV)))) }) },
-              bf: { label: "BODY FAT", unit: " %", val: String(bfV),
-                lo: bfLo, hi: bfHi, stp: 1, cur: bfV,
-                set: v => this.setState({ [BK]: Math.round(v) }) },
-              bmi: { label: "BMI", unit: "", val: bmi.toFixed(1),
-                lo: Math.ceil(10 * wtF.lo / hm) / 10,
-                hi: Math.floor(10 * wtF.hi / hm) / 10,
-                stp: 0.1, cur: bmi, set: v => setWt(v * hm) }
+            // The same four measures for either body, backed by that body's
+            // own state keys. The phone shows one set at a time behind the
+            // tabs; a desktop stands both side by side, current on the left
+            // and goal on the right, and the tabs only say which is lit.
+            const metricsOf = goal => {
+              const WK = goal ? "cGWt" : "cWt", BK = goal ? "cGBf" : "cBf";
+              const wtV = goal ? gWt : clampF(wtF, s.cWt);
+              const bfV = goal ? gBf : bfVal;
+              const bmi = wtV / hm;
+              const lean = wtV * (1 - bfV / 100);
+              const setWt = v => this.setState({ [WK]: clampF(wtF, v) });
+              return {
+                wt: { label: "WEIGHT", unit: " KG", val: String(wtV),
+                  lo: wtF.lo, hi: wtF.hi, stp: 1, cur: wtV, set: setWt },
+                lean: { label: "LEAN", unit: " KG",
+                  val: String(Math.round(lean)),
+                  lo: Math.round(wtV * 0.45),
+                  hi: Math.round(wtV * (1 - bfLo / 100)),
+                  stp: 1, cur: lean,
+                  set: v => this.setState({ [BK]: Math.max(bfLo,
+                    Math.min(bfHi, Math.round(100 * (1 - v / wtV)))) }) },
+                bf: { label: "BODY FAT", unit: " %", val: String(bfV),
+                  lo: bfLo, hi: bfHi, stp: 1, cur: bfV,
+                  set: v => this.setState({ [BK]: Math.round(v) }) },
+                bmi: { label: "BMI", unit: "", val: bmi.toFixed(1),
+                  lo: Math.ceil(10 * wtF.lo / hm) / 10,
+                  hi: Math.floor(10 * wtF.hi / hm) / 10,
+                  stp: 0.1, cur: bmi, set: v => setWt(v * hm) }
+              };
             };
+            const M = metricsOf(goalView);
+            const ORDER = ["wt", "lean", "bf", "bmi"];
+            if (D && step === 3) {
+              tbl.rows = ORDER.map(k => mkRow(metricsOf(false)[k]));
+              tbl.rows2 = ORDER.map(k => mkRow(metricsOf(true)[k]));
+            }
             const sel = M[s.cBodySel] ? s.cBodySel : "wt";
             const d = M[sel];
             // Tabs, not tiles: the cells overlap the slider tray by a pixel,
@@ -5373,7 +5440,8 @@ class Component extends DCLogic {
             fontVariantNumeric: "tabular-nums" },
           // The figure gets the screen. Every step holds it at the same size, so it
           // never jumps between questions — it is the one constant in the run.
-          cFigWrap: { flex: "1 1 auto", minHeight: D ? "26rem" : "20rem",
+          cFigWrap: { flex: "1 1 auto", minWidth: 0,
+            minHeight: D ? "26rem" : "20rem",
             display: "flex", alignItems: "center", justifyContent: "center",
             padding: ".2rem 0" },
           // Slider and number on one row: the slider takes the width, the number is a
@@ -5427,9 +5495,57 @@ class Component extends DCLogic {
             textIndent: ".24em",
             transition: "background 160ms ease, border-color 160ms ease" },
           // ── the body screen: figure above, its metrics under it ─────────────────
-          cBodyPanel: { flex: "none", display: "flex", flexDirection: "column",
-            gap: 0, width: "100%", maxWidth: D ? "34rem" : "24rem",
-            alignSelf: "center" },
+          // The phone's cell-and-tray. A desktop reads the same numbers off
+          // the tables beside the figure, so it never draws this.
+          cBodyPanel: D ? { display: "none" }
+            : { flex: "none", display: "flex", flexDirection: "column",
+              gap: 0, width: "100%", maxWidth: "24rem", alignSelf: "center" },
+          // ── the desktop tables ──────────────────────────────────────────────────
+          // The figure keeps the middle and a table stands at each side of it,
+          // so the numbers sit at the edge of the frame where the rails are
+          // rather than stacked under the body.
+          cStage: D
+            ? { flex: "1 1 auto", minHeight: 0, display: "flex",
+              alignItems: "stretch", gap: "1.6rem", width: "100%" }
+            : { display: "contents" },
+          cTblOn: D && cFigOn,
+          cTbl2On: D && step === 3,
+          // One table and a figure would hang the body off-centre; the empty
+          // half of the pair keeps it in the middle of the frame.
+          cTblPadOn: D && cFigOn && step !== 3,
+          cTblPad: { flex: "0 0 26rem" },
+          cTblRows: tbl.rows,
+          cTblRows2: tbl.rows2,
+          // Lit or held back: on the two-body screen the table follows its
+          // tab, so the pair reads as one selection rather than two.
+          cTblLS: (on => ({ flex: "0 0 26rem", minWidth: 0,
+            display: "flex", flexDirection: "column",
+            justifyContent: "center", cursor: "pointer",
+            opacity: on ? 1 : .38,
+            transition: "opacity 200ms ease" }))(step !== 3 || !goalView),
+          cTblRS: (on => ({ flex: "0 0 26rem", minWidth: 0,
+            display: "flex", flexDirection: "column",
+            justifyContent: "center", cursor: "pointer",
+            opacity: on ? 1 : .38,
+            transition: "opacity 200ms ease" }))(goalView),
+          cTblPick: () => this.setState({ cView: "cur" }),
+          cTblPick2: () => this.setState({ cView: "goal",
+            cGWt: s.cGWt == null ? gDef.wt : s.cGWt,
+            cGBf: s.cGBf == null ? gDef.bf : s.cGBf }),
+          // A table, not a box: hairlines between the rows and nothing round
+          // the outside, so it reads as figures set on the page.
+          cTblRow: { display: "flex", alignItems: "center", gap: ".9rem",
+            height: "3.4rem", borderTop: "1px solid #1e293b" },
+          cTblLab: { flex: "0 0 8.6rem", minWidth: 0,
+            fontFamily: "var(--font-2)", fontSize: ".92rem",
+            letterSpacing: ".1em", whiteSpace: "nowrap", color: "#9fb3c0" },
+          cTblVal: { flex: "0 0 6rem", minWidth: 0, textAlign: "right",
+            fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.5rem",
+            lineHeight: 1, whiteSpace: "nowrap",
+            fontVariantNumeric: "tabular-nums", color: "#f2f8fc" },
+          cTblUnit: { marginLeft: ".2rem", fontFamily: "var(--font-2)",
+            fontSize: ".8rem", letterSpacing: ".08em", color: "#9fb3c0" },
+          cTblEnd: { borderBottom: "1px solid #1e293b" },
           // The way on and the way back are notches on the glass — mid-screen
           // tabs clinging to the edges, so neither costs the figure a row.
           // On the phone the notches cling to the glass edges. On desktop
@@ -5470,12 +5586,20 @@ class Component extends DCLogic {
           cWrap: { position: s.narrow ? "relative" : "static",
             flex: 1, minHeight: 0, display: "flex",
             flexDirection: "column", width: "100%",
-            // The steps stand in a reading column; the assumptions are six
-            // bullets in three columns and want the frame.
+            // Three widths: the centred slides and the plan stand in a
+            // reading column, the figure steps take the frame because a table
+            // stands at each side of the body, and the assumptions take it
+            // because six bullets in three columns need it.
             maxWidth: s.narrow ? "none"
-              : done && phInfo ? "min(76rem, 100%)" : "46rem",
+              : done ? (phInfo ? "min(76rem, 100%)" : "46rem")
+                : cFigOn ? "none" : "46rem",
             margin: "0 auto",
-            padding: s.narrow ? ".2rem .5rem .8rem" : ".4rem 0 1rem", boxSizing: "border-box" },
+            // Full-width screens take the frame's own gutter; the reading
+            // column already stands clear of the rails.
+            padding: s.narrow ? ".2rem .5rem .8rem"
+              : !done && cFigOn ? ".4rem " + FRAME_GUT + " 1rem"
+                : ".4rem 0 1rem",
+            boxSizing: "border-box" },
           cHead: { flex: "none", display: "flex", alignItems: "center", gap: ".4rem",
             height: "2.6rem" },
           cTagS: { fontFamily: "var(--font-2)", fontSize: ".84rem", letterSpacing: ".18em",
