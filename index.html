@@ -3980,7 +3980,7 @@ class Component extends DCLogic {
         flex: "none", display: "flex", alignItems: "center",
         gap: s.narrow ? "1.1rem" : "2.4rem",
         height: s.narrow ? "2.45rem" : "64px",
-        marginBottom: s.narrow ? "0" : "calc(.35rem + 1px)",
+        marginBottom: s.narrow ? "0" : "1px",
         padding: s.narrow ? "0 .6rem" : "0 clamp(1.25rem, 4vw, 2.8rem)",
         boxSizing: "border-box",
         fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".94rem",
@@ -5180,8 +5180,11 @@ class Component extends DCLogic {
             transition: "background 160ms ease, border-color 160ms ease" },
             s.narrow
               ? { left: "-.5rem", borderLeft: "none", borderRadius: 0 }
-              : { left: "calc(-2.1rem + 1px)", borderRight: "none",
-                borderRadius: "3px 0 0 3px" }),
+              // Out into the margin by the width of the tab, or by whatever
+              // margin there is if the glass is narrower than the frame —
+              // the band keeps its 1320 and the notch does the yielding.
+              : { left: "calc(1px - min(2.1rem, (100vw - 100%) / 2))",
+                borderRight: "none", borderRadius: "3px 0 0 3px" }),
           cNotchR: Object.assign({ position: "absolute",
             top: "42%", transform: "translateY(-50%)", zIndex: 5,
             display: "flex", alignItems: "center", justifyContent: "center",
@@ -5192,8 +5195,8 @@ class Component extends DCLogic {
             transition: "background 160ms ease, border-color 160ms ease" },
             s.narrow
               ? { right: "0", borderRight: "none", borderRadius: 0 }
-              : { right: "calc(-2.1rem + 1px)", borderLeft: "none",
-                borderRadius: "0 3px 3px 0" }),
+              : { right: "calc(1px - min(2.1rem, (100vw - 100%) / 2))",
+                borderLeft: "none", borderRadius: "0 3px 3px 0" }),
           cValRow: { flex: "none", display: "flex", alignItems: "baseline",
             justifyContent: "center", gap: ".45rem", paddingBottom: ".1rem" },
           cValS: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "2.9rem",
@@ -5864,15 +5867,15 @@ class Component extends DCLogic {
       // No frame on a tablet. A border round the column drew the app as a phone parked
       // on a bigger screen, which is exactly what it should not read as; the gutters do
       // the same job of holding the column off the glass without the picture frame.
-      // The frame's column: 1320px, centred, the side margins simply the
-      // leftover glass. The min() holds a sliver back on smaller desktops so
-      // the calc's docked notches never clip. The bottom padding is the
-      // footer band's 65px - a 1px rule and a 64px sliver - so the main
-      // band is exactly the viewport minus nav and footer.
+      // The frame's column: 1320px, centred, and the side margins are simply
+      // the leftover glass — (100vw - 1320px) / 2, collapsing to nothing
+      // below 1320. Nav is 64px and a hairline, footer a hairline and 64px,
+      // so this band's bottom padding is 65 and the main region below the
+      // nav is exactly 100vh - 130px.
       dShell: {
         position: "relative",
-        width: "100%",
-        maxWidth: s.narrow ? TOUCH_W : "min(1320px, 100% - 4.6rem)",
+        width: "100%", margin: "0 auto",
+        maxWidth: s.narrow ? TOUCH_W : "1320px",
         display: "flex", flexDirection: "column", flex: 1, minHeight: 0,
         boxSizing: "border-box",
         paddingBottom: s.narrow ? 0 : "65px",
