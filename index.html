@@ -238,7 +238,6 @@ option{background:#070b12;color:#d7e6ef}
 </helmet>
 <div style="{{ shell }}">
 <div style="{{ dShell }}">
-  <span style="{{ frameGrid }}"></span>
   <span style="{{ frameRailL }}"></span>
   <span style="{{ frameRailR }}"></span>
   <span style="{{ frameRuleTop }}"></span>
@@ -6269,20 +6268,11 @@ class Component extends DCLogic {
         transition: "max-width 560ms cubic-bezier(.22,1,.36,1)"
       },
       // The desktop frame: two vertical hairlines the full height of the
-      // band below the nav, the nav's own rule crossing them, and a faint
-      // 96px grid behind it all — content sits inside a measured drawing
-      // rather than floating on a page. The phone keeps its clean glass.
-      frameGrid: {
-        display: s.narrow || app === "home" ? "none" : "block",
-        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
-        backgroundImage:
-          "linear-gradient(rgba(30,41,59,.55) 1px, transparent 1px)," +
-          "linear-gradient(90deg, rgba(30,41,59,.55) 1px, transparent 1px)",
-        backgroundSize: "96px 96px",
-        maskImage: "radial-gradient(ellipse 120% 75% at 50% 0%, #000 38%, transparent 80%)",
-        WebkitMaskImage: "radial-gradient(ellipse 120% 75% at 50% 0%, #000 38%, transparent 80%)",
-        opacity: .5
-      },
+      // band below the nav, and the nav's own rule crossing them. Content
+      // sits inside a measured drawing rather than floating on a page. There
+      // was a faint 96px grid behind it too; with the figure and the tables
+      // filling the band it was pattern for its own sake, and it read
+      // through the body. The phone keeps its clean glass either way.
       // The rails run the full height of the glass and the two bars the full
       // width — four lines crossing at the corners of the content band, a
       // drawing frame over the whole app.
