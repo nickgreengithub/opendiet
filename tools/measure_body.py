@@ -344,6 +344,88 @@ def level_report(sex):
     return out
 
 
+# ── the reference: ANSUR II ───────────────────────────────────────────────────
+# 6,068 soldiers, 93 measures each, public domain (US Army NSRDEC, 2012).
+# Lengths are millimetres and weightkg is tenths of a kilogram. The survey
+# carries no body composition, so each subject's is estimated from their own
+# tape: the Hodgdon-Beckett circumference equations the Navy screens with,
+# metric form. They carry a standard error near 3-4 points, which is fine for
+# binning a sample and not fine for anything else.
+ANSUR = {"m": "ANSUR II MALE Public.csv", "f": "ANSUR_II_FEMALE.csv"}
+ANSUR_COLS = {"neck": "neckcircumference", "chest": "chestcircumference",
+              "waist": "waistcircumference", "hip": "buttockcircumference",
+              "thigh": "thighcircumference", "arm": "bicepscircumferenceflexed"}
+
+
+def navy_bf(sex, ht, neck, waist, hip):
+    import math
+    if sex == "m":
+        d = (1.0324 - 0.19077 * math.log10(max(1e-6, waist - neck))
+             + 0.15456 * math.log10(ht))
+    else:
+        d = (1.29579 - 0.35004 * math.log10(max(1e-6, waist + hip - neck))
+             + 0.22100 * math.log10(ht))
+    return 495.0 / d - 450.0
+
+
+def load_ansur(sex, cache={}):
+    import csv
+    if sex in cache:
+        return cache[sex]
+    path = os.path.join(HERE, "..", "data", "body", ANSUR[sex])
+    if not os.path.exists(path):
+        cache[sex] = None
+        return None
+    rows = []
+    with open(path, encoding="latin-1") as fh:
+        rd = csv.reader(fh)
+        head = next(rd)
+        first = next(rd)
+        # The two public files are not the same file twice: one carries an
+        # unnamed index column, and they disagree on the units of the only
+        # two fields that are not millimetres.
+        if len(first) == len(head) + 1:
+            head = ["_idx"] + head
+        for raw in [first] + list(rd):
+            r = dict(zip(head, raw))
+            try:
+                g = {k: float(r[c]) / 10.0 for k, c in ANSUR_COLS.items()}
+                ht = (float(r["stature"]) / 10.0 if r.get("stature")
+                      else float(r["stature_m"]) * 100.0)
+                kg = (float(r["weightkg"]) / 10.0 if r.get("weightkg")
+                      else float(r["weight_kg"]))
+            except (TypeError, ValueError, KeyError):
+                continue
+            g["ht"], g["kg"] = ht, kg
+            g["bf"] = navy_bf(sex, ht, g["neck"], g["waist"], g["hip"])
+            rows.append(g)
+    cache[sex] = rows
+    return rows
+
+
+def ansur_near(sex, ht, kg, bf=None, d_ht=4.0, d_kg=4.0, d_bf=4.0):
+    """The subjects who are this tall, this heavy and — where the sample can
+    afford it — this fat. All three, because a figure built from exactly
+    those three numbers is only fairly judged against bodies that share
+    them: an 84 kg man at 12% and one at 24% are not the same waist.
+    Widens the window rather than reporting a median of four people."""
+    rows = load_ansur(sex)
+    if not rows:
+        return None, 0
+    sel = []
+    for scale in (1.0, 2.0, 4.0):
+        sel = [r for r in rows if abs(r["ht"] - ht) <= d_ht * scale
+               and abs(r["kg"] - kg) <= d_kg * scale
+               and (bf is None or abs(r["bf"] - bf) <= d_bf * scale)]
+        if len(sel) >= 25:
+            break
+    if not sel:
+        return None, 0
+    med = {k: float(np.median([r[k] for r in sel]))
+           for k in list(ANSUR_COLS) + ["bf"]}
+    return med, len(sel)
+
+
 GRID = [
     ("m", 175, 60, 10), ("m", 175, 70, 15), ("m", 175, 84, 24),
     ("m", 175, 95, 30), ("m", 175, 110, 36), ("m", 190, 95, 20),
@@ -361,6 +443,9 @@ def main():
     ap.add_argument("--bf", type=float)
     ap.add_argument("--levels", action="store_true",
                     help="what each baked fat level actually weighs")
+    ap.add_argument("--ansur", action="store_true",
+                    help="compare girths against ANSUR II subjects of the "
+                         "same stature and weight")
     ap.add_argument("--measured-anchors", action="store_true",
                     help="re-run the grid with each level anchored at the "
                          "fat-mass index its shape actually has")
@@ -383,6 +468,28 @@ def main():
         base, tris, _, _ = read_glb(GLB % sex)
         print("%s: %d verts, %d tris, %d open edges"
               % (sex, len(base), len(tris), open_edges(tris)))
+    if a.ansur:
+        head = ("sex  ht   kg   bf% | mesh kg  err% |  waist        hip"
+                "      chest      thigh        arm   | n     ANSUR bf%")
+        print("\n" + head)
+        print("-" * len(head))
+        for g in GRID:
+            r = row(*g)
+            ref, n = ansur_near(r["sex"], r["ht"], r["kg"], r["bf"])
+            if not ref:
+                print("%-3s %4.0f %4.0f %4.0f | no reference in range"
+                      % (r["sex"], r["ht"], r["kg"], r["bf"]))
+                continue
+            cells = "".join(
+                " %5.0f/%-5.0f" % (r[k], ref[k])
+                for k in ("waist", "hip", "chest", "thigh", "arm"))
+            print("%-3s %4.0f %4.0f %4.0f | %7.1f %5.1f |%s | %-5d %5.1f"
+                  % (r["sex"], r["ht"], r["kg"], r["bf"], r["mesh_kg"],
+                     r["err"], cells, n, ref["bf"]))
+        print("\nmesh/ANSUR, centimetres. ANSUR is a soldier sample: leaner"
+              " and more muscular at a given\nweight than the population the"
+              " calc serves, and thin above BMI 30. n is the window size.")
+        return
     head = ("sex  ht   kg   bf%  bmi  ffmi | mesh L  want L   err%  mesh kg"
             "     k | neck chest waist   hip thigh   arm")
     print("\n" + head)
