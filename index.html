@@ -988,11 +988,6 @@ option{background:var(--panel);color:var(--body)}
     <div style="text-align:center;margin-top:1.5rem"><a onClick="{{ onSignIn }}" style="font-family:var(--font-2);font-size:.78rem;letter-spacing:.16em;color:var(--muted);cursor:pointer">CREATE ACCOUNT</a></div>
   </div>
   </sc-if>
-  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
-  <div style="flex:none;margin-top:auto">
-    <div style="{{ dFootRule }}"></div>
-  </div>
-  </sc-if>
 </div>
 </div>
 </x-dc>
@@ -4064,11 +4059,6 @@ class Component extends DCLogic {
       dSumRule: {
         flex: "none", marginRight: "10px",
         borderTop: "1px solid " + (dLanding ? "transparent" : "var(--line)")
-      },
-      dFootRule: {
-        marginRight: "10px",
-        borderTop: "1px solid " + (dLanding ? "transparent" : "var(--line)"),
-        transition: "border-color 460ms ease"
       },
       searchHint: !s.narrow && !dLanding && !s.searchHinted && !q ? "on" : "off",
       isMobile: !!s.narrow, isDesktop: !s.narrow,
