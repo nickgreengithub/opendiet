@@ -571,7 +571,7 @@ option{background:#070b12;color:#d7e6ef}
       <div data-back="{{ r.back }}" style="{{ dRowWrap }}">
         <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ dRowStyle }}" style-hover="background:rgba(34,211,238,.20)">
           <span style="display:flex;align-items:center;gap:.55rem;min-width:0;padding-right:.9rem">
-            <span style="flex:1;min-width:0;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span>
+            <span style="flex:1;min-width:0;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><sc-for list="{{ r.nameSeg }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.s }}">{{ sg.t }}</span></sc-for></span>
           </span>
           <span style="{{ measureCell }}">{{ r.measureVal }}<span style="{{ sizeSuffix }}">{{ r.measureUnit }}</span></span>
           <span style="{{ r.cellWa }}"><span style="{{ r.fillWa }}"></span><span style="{{ numWrap }}">{{ r.vWa }}</span></span>
@@ -679,7 +679,7 @@ option{background:#070b12;color:#d7e6ef}
             <sc-if value="{{ r.finger }}" hint-placeholder-val="{{ false }}">
               <span data-finger><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span>
             </sc-if>
-            <span style="{{ r.mNameStyle }}">{{ r.name }}</span>
+            <span style="{{ r.mNameStyle }}"><sc-for list="{{ r.nameSeg }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.s }}">{{ sg.t }}</span></sc-for></span>
             <span style="{{ r.mValCell }}">{{ r.mVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
           </div>
           <div style="{{ r.mExpand }}">
@@ -2432,7 +2432,8 @@ class Component extends DCLogic {
       const rSubs = [fo.sg || 0, fo.fb || 0, rSt, fo.sf || 0, fo.mo || 0, fo.po || 0];
       const rSubHue = SUB_GRN.concat(SUB_CRL);
       return {
-        name: fo.name, cat: fo.cat, catLabel: this.catLabel(fo.cat), kcal: String(fo.kcal),
+        name: fo.name, nameSeg: segsFor(fo.name),
+        cat: fo.cat, catLabel: this.catLabel(fo.cat), kcal: String(fo.kcal),
         p: this.fmt(fo.p), c: this.fmt(fo.c), f: this.fmt(fo.f), fb: this.fmt(fo.fb),
         score: String(sc), band: bd,
         kcalVal: String(Math.round(ekc * uf)),
@@ -2493,6 +2494,37 @@ class Component extends DCLogic {
     const qWords = q ? q.split(/\s+/).filter(Boolean) : [];
     const stem = stemWord;
     const qStems = qWords.map(stem);
+    // Which letters of a name the query actually landed on. Marked here and drawn by
+    // the rows: each word is looked for literally and then by its stem, the same two
+    // ways the filter looked for it, so "berries" lights the berry in blueberry.
+    // Overlapping hits merge, so two words sharing letters light once, not twice.
+    const HI_ON = { color: "#67e8f9" };
+    const segsFor = name => {
+      if (!qWords.length) return [{ t: name }];
+      const n = name.toLowerCase(), marks = [];
+      for (let i = 0; i < qWords.length; i++) {
+        const forms = qStems[i] === qWords[i] ? [qWords[i]] : [qWords[i], qStems[i]];
+        for (let k = 0; k < forms.length; k++) {
+          const t = forms[k];
+          if (!t) continue;
+          for (let at = n.indexOf(t); at >= 0; at = n.indexOf(t, at + t.length)) marks.push([at, at + t.length]);
+        }
+      }
+      if (!marks.length) return [{ t: name }];
+      marks.sort((a, b) => a[0] - b[0]);
+      const segs = [];
+      let cut = 0, i = 0;
+      while (i < marks.length) {
+        let a = marks[i][0], b = marks[i][1];
+        i++;
+        while (i < marks.length && marks[i][0] <= b) { if (marks[i][1] > b) b = marks[i][1]; i++; }
+        if (a > cut) segs.push({ t: name.slice(cut, a) });
+        segs.push({ t: name.slice(a, b), s: HI_ON });
+        cut = b;
+      }
+      if (cut < name.length) segs.push({ t: name.slice(cut) });
+      return segs;
+    };
     // How the query landed decides the order, and nothing else can overturn it: a whole word
     // (plural or not), then the start of a longer word, then a hit buried inside one. The
     // gap between those tiers is wider than every bonus put together, so "appl" ranks Apples
@@ -3889,7 +3921,7 @@ class Component extends DCLogic {
       dSortCell: { display: dLanding ? "none" : "flex", alignItems: "center", cursor: "pointer" },
       dSearchInput: {
         flex: 1, minWidth: 0, background: "transparent", border: 0, padding: 0,
-        color: "#eaf5fb", fontFamily: "var(--font-2)", textTransform: "uppercase", textOverflow: "ellipsis",
+        color: "#eaf5fb", fontFamily: "var(--font-2)", textOverflow: "ellipsis",
         height: dLanding ? "2.6rem" : "1.6rem",
         fontSize: dLanding ? "1.5rem" : ".75rem",
         letterSpacing: dLanding ? ".1em" : ".12em",
@@ -6014,7 +6046,7 @@ class Component extends DCLogic {
         opacity: landing ? 0 : 1, transition: "opacity 300ms ease 200ms" },
       mSearchInput: {
         flex: 1, minWidth: 0, background: "transparent", border: 0,
-        color: "#eaf5fb", fontFamily: "var(--font-2)", textTransform: "uppercase", textOverflow: "ellipsis",
+        color: "#eaf5fb", fontFamily: "var(--font-2)", textOverflow: "ellipsis",
         height: landing ? "2.7rem" : "2rem",
         textAlign: landing ? "center" : "left",
         padding: landing ? "0 .1rem" : "0 .3rem",
