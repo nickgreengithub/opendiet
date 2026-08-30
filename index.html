@@ -3188,6 +3188,10 @@ class Component extends DCLogic {
     const dCols = "minmax(7.5rem,1fr) 3.4rem " + D_NW + " " + D_NW + D_SUB3 + " " + D_TW +
       D_SUB3 + " " + D_TW + " " + D_NW + " " + D_NW + " 2.6rem";
     const D_GRID_T = "grid-template-columns 500ms cubic-bezier(.22,1,.36,1)";
+    // One row height for the desktop table — the rows themselves, the blanks, the
+    // total line, and the ruled empty space below them all measure from here, so
+    // the drawn continuation lines keep step with the real ones.
+    const D_ROW = "2.1rem";
     // A sub-macro cell: clipped while its track is 0, padded only when open so the box
     // itself can reach zero width. The display value and the bar's scale are the
     // caller's, since search rows read per-measure and plate rows per their own grams.
@@ -3876,8 +3880,8 @@ class Component extends DCLogic {
           flex: "1 1 auto", minHeight: 0, pointerEvents: "none",
           backgroundRepeat: stops.map(() => "no-repeat").join(", ") + ", repeat",
           backgroundImage: stops.map(t => "linear-gradient(" + t[1] + "," + t[1] + ")").join(",") +
-            ",repeating-linear-gradient(to bottom, transparent 0, transparent 1.8rem, " + INNER_C + " 1.8rem, " + INNER_C + " calc(1.8rem + 1px))",
-          backgroundSize: stops.map(t => t[2] + "px 100%").join(", ") + ", 100% calc(1.8rem + 1px)",
+            ",repeating-linear-gradient(to bottom, transparent 0, transparent " + D_ROW + ", " + INNER_C + " " + D_ROW + ", " + INNER_C + " calc(" + D_ROW + " + 1px))",
+          backgroundSize: stops.map(t => t[2] + "px 100%").join(", ") + ", 100% calc(" + D_ROW + " + 1px)",
           backgroundPosition: stops.map(t => "right " + t[0].toFixed(1) + "rem top").join(", ") + ", left top",
           transition: "background-position 500ms cubic-bezier(.22,1,.36,1)"
         };
@@ -6293,20 +6297,20 @@ class Component extends DCLogic {
       // expansion is a single animation the whole table performs together.
       dRowStyle: {
         display: "grid", gridTemplateColumns: dCols, columnGap: 0,
-        alignItems: "stretch", minHeight: "1.8rem",
+        alignItems: "stretch", minHeight: D_ROW,
         borderBottom: "1px solid #1e293b", fontSize: ".9rem",
         color: "#d7e6ef", cursor: "pointer",
         transition: "background 140ms ease, " + D_GRID_T
       },
       dBlankRow: {
         display: "grid", gridTemplateColumns: dCols, columnGap: 0,
-        alignItems: "stretch", minHeight: "1.8rem",
+        alignItems: "stretch", minHeight: D_ROW,
         borderBottom: "1px solid #1e293b",
         transition: D_GRID_T
       },
       dTotRow: {
         flex: "none", marginRight: "10px", display: "grid", gridTemplateColumns: dCols,
-        columnGap: 0, alignItems: "stretch", minHeight: "1.8rem",
+        columnGap: 0, alignItems: "stretch", minHeight: D_ROW,
         borderTop: "1px solid #1e293b", fontSize: ".9rem", color: "#d7e6ef",
         transition: D_GRID_T
       },
