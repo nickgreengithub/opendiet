@@ -606,6 +606,12 @@ option{background:var(--panel);color:var(--body)}
   <div style="{{ dFrameCol }}">
     <div style="flex:none;z-index:5;padding-right:10px">
 
+    <div style="{{ dGrpRow }}">
+      <span></span><span></span><span></span><span></span>
+      <span style="{{ dGrpCarb }}">CARBS</span>
+      <span style="{{ dGrpFat }}">FATS</span>
+      <span></span><span></span><span></span>
+    </div>
     <div style="{{ dHeadRow }}">
       <span data-hint="{{ searchHint }}" style="{{ dSearchCell }}">
         <span style="{{ dLandHide }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.8" style="flex:none"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg></span>
@@ -615,13 +621,13 @@ option{background:var(--panel);color:var(--body)}
       </span>
       <span onMouseEnter="{{ tipOn.wa }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.wa }}" style="{{ headWa }}"><span>WATER</span><span style="{{ headUnit }}">{{ vzUnit }}</span><sc-if value="{{ sorted.wa }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.wa }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">WATER</span><span style="{{ headTipText }}">{{ tipText.wa }}</span></span></span></sc-if></span>
       <span onMouseEnter="{{ tipOn.s1 }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.s1 }}" style="{{ head1 }}"><span>PROT</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s1 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-25%</span></sc-if><sc-if value="{{ tip.s1 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">PROTEIN</span><span style="{{ headTipText }}">{{ tipText.s1 }}</span></span></span></sc-if></span>
-      <span onMouseEnter="{{ tipOn.sg }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span style="{{ subPre }}">CAR</span><span>SUGAR</span><sc-if value="{{ tip.sg }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">SUGAR</span><span style="{{ headTipText }}">{{ tipText.sg }}</span></span></span></sc-if></span>
-      <span onMouseEnter="{{ tipOn.fb }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span style="{{ subPre }}">CAR</span><span>FIBRE</span><sc-if value="{{ tip.fb }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">FIBRE</span><span style="{{ headTipText }}">{{ tipText.fb }}</span></span></span></sc-if></span>
-      <span onMouseEnter="{{ tipOn.st }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span style="{{ subPre }}">CAR</span><span>STARCH</span><sc-if value="{{ tip.st }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">STARCH</span><span style="{{ headTipText }}">{{ tipText.st }}</span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.sg }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span>SUGAR</span><sc-if value="{{ tip.sg }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">SUGAR</span><span style="{{ headTipText }}">{{ tipText.sg }}</span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.fb }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span>FIBRE</span><sc-if value="{{ tip.fb }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">FIBRE</span><span style="{{ headTipText }}">{{ tipText.fb }}</span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.st }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span>STARCH</span><sc-if value="{{ tip.st }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">STARCH</span><span style="{{ headTipText }}">{{ tipText.st }}</span></span></span></sc-if></span>
       <span onMouseEnter="{{ tipOn.s2 }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.s2 }}" style="{{ head2 }}"><span>CARBS</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s2 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-8%</span></sc-if><sc-if value="{{ tip.s2 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">CARBS</span><span style="{{ headTipText }}">{{ tipText.s2 }}</span></span></span></sc-if></span>
-      <span onMouseEnter="{{ tipOn.sf }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span style="{{ subPre }}">FAT</span><span>SATURA</span><sc-if value="{{ tip.sf }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">SATURATED FAT</span><span style="{{ headTipText }}">{{ tipText.sf }}</span></span></span></sc-if></span>
-      <span onMouseEnter="{{ tipOn.mo }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span style="{{ subPre }}">FAT</span><span>MONO</span><sc-if value="{{ tip.mo }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">MONOUNSATURATED</span><span style="{{ headTipText }}">{{ tipText.mo }}</span></span></span></sc-if></span>
-      <span onMouseEnter="{{ tipOn.po }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span style="{{ subPre }}">FAT</span><span>POLY</span><sc-if value="{{ tip.po }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">POLYUNSATURATED</span><span style="{{ headTipText }}">{{ tipText.po }}</span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.sf }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span>SATURA</span><sc-if value="{{ tip.sf }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">SATURATED FAT</span><span style="{{ headTipText }}">{{ tipText.sf }}</span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.mo }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span>MONO</span><sc-if value="{{ tip.mo }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">MONOUNSATURATED</span><span style="{{ headTipText }}">{{ tipText.mo }}</span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.po }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span>POLY</span><sc-if value="{{ tip.po }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">POLYUNSATURATED</span><span style="{{ headTipText }}">{{ tipText.po }}</span></span></span></sc-if></span>
       <span onMouseEnter="{{ tipOn.s3 }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.s3 }}" style="{{ head3 }}"><span>FATS</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s3 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-2%</span></sc-if><sc-if value="{{ tip.s3 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">FATS</span><span style="{{ headTipText }}">{{ tipText.s3 }}</span></span></span></sc-if></span>
       <span onMouseEnter="{{ tipOn.kcal }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.kcal }}" style="{{ headTotal }}"><span>KCAL</span><sc-if value="{{ sorted.kcal }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.kcal }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);box-shadow:0 0 28px rgba(var(--cyan-rgb),.12)"><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="display:block;padding:0 .7rem .7rem"><span style="font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:var(--ink-3);text-wrap:pretty">Digestion costs 25% of protein calories, 8% of carbohydrate, 2% of fat. Applied to the calorie figures throughout.</span></span><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid var(--line)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:var(--muted)">KCAL</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:var(--ink);text-wrap:pretty">{{ tipText.kcal }}</span></span></span></span></sc-if></span>
       <span onMouseEnter="{{ tipOn.score }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.extra }}" style="{{ headIsland }}"><span>{{ extraLabel }}</span><sc-if value="{{ sorted.extra }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2.2" style="flex:none"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.score }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">FULLNESS SCORE</span><span style="{{ headTipText }}">{{ tipText.score }}</span></span></span></sc-if></span>
@@ -3967,6 +3973,35 @@ class Component extends DCLogic {
         padding: D_PAD + " calc(" + FRAME_GUT + " - 10px) " + D_PAD + " " + FRAME_GUT,
         boxSizing: "border-box"
       },
+      // Expanding does not squeeze six columns into the header line; it opens a
+      // line above it and the table steps down to make room. In that line the two
+      // grid rules that fence the sub-macros carry on upwards, and the word they
+      // are fencing sits between them — so which columns are carbs and which are
+      // fats is said by the grid itself rather than by a mark in every header.
+      dGrpRow: {
+        display: "grid", gridTemplateColumns: dCols, columnGap: 0,
+        // Stretch, not centre: the cells ARE the rules, and a rule that only
+        // spans its own text leaves a gap where it should meet the header.
+        alignItems: "stretch", overflow: "hidden",
+        height: dxp && !dLanding ? D_ROW : "0px",
+        fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em",
+        color: "var(--muted)", textTransform: "uppercase",
+        transition: "height 500ms cubic-bezier(.22,1,.36,1), " + D_GRID_T
+      },
+      // The carbs bracket owns both its edges; the fats bracket starts on the one
+      // the carbs bracket closed with, so the shared rule is drawn once.
+      dGrpCarb: {
+        gridColumn: "span 4", display: "flex", alignItems: "center",
+        justifyContent: "center", minWidth: 0, overflow: "hidden",
+        borderLeft: INNER, borderRight: INNER,
+        opacity: dxp ? 1 : 0, transition: "opacity 300ms ease"
+      },
+      dGrpFat: {
+        gridColumn: "span 4", display: "flex", alignItems: "center",
+        justifyContent: "center", minWidth: 0, overflow: "hidden",
+        borderRight: INNER,
+        opacity: dxp ? 1 : 0, transition: "opacity 300ms ease"
+      },
       dHeadRow: {
         display: "grid", gridTemplateColumns: dLanding ? "minmax(0,1fr)" : dCols,
         columnGap: 0, alignItems: "stretch",
@@ -6388,21 +6423,20 @@ class Component extends DCLogic {
       tipStyle, tipStyleLeft, tipTitle, tipBody,
       head1: Object.assign(headCell(HUE[0]), dHide),
       // Expanded, CARBS and FATS give their headers up with their columns; the sub
-      // headers are full citizens of the one header line, each wearing its parent's
-      // three-letter mark pinned at the cell's left in darker type.
+      // headers are full citizens of the one header line, and which parent each
+      // belongs to is said once, by the bracket above them.
       head2: Object.assign(headCell(HUE[1]), xpFoldHead, dHide),
       head3: Object.assign(headCell(HUE[2]), xpFoldHead, dHide),
       headWa: Object.assign(headCell(null, true), dHide),
       headTotal: Object.assign({}, headIsland, { borderLeft: INNER }, dHide),
       subHead: Object.assign({
         position: "relative", minWidth: 0, overflow: "hidden",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
+        display: "flex", alignItems: "center", justifyContent: "flex-end",
         gap: ".2rem", whiteSpace: "nowrap", color: "var(--ink)",
         borderLeft: dxp ? INNER : "1px solid transparent",
         padding: dxp ? "0 .4rem 0 .35rem" : "0",
         transition: "border-color 300ms ease, padding 500ms cubic-bezier(.22,1,.36,1)"
       }, dHide),
-      subPre: { fontSize: ".62rem", letterSpacing: ".1em", color: "var(--dim-2)" },
       // One grid to rule every desktop row — search, plate and blank alike — so the
       // expansion is a single animation the whole table performs together.
       dRowStyle: {
