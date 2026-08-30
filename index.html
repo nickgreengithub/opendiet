@@ -1017,6 +1017,25 @@ const TOUCH_W = "40rem";
 // table, about panel, footer stamp — so nothing sits closer to a rail
 // than anything else.
 const FRAME_GUT = "clamp(1.25rem, 4vw, 2.8rem)";
+// One file, two sites. The finished app is the dictionary, and that is what
+// opendiet.org serves; the game and the calc are still being built and go to
+// beta.opendiet.org, to a machine running it locally, and to the raw Pages
+// URL where they can be checked. The test is the address rather than a build
+// flag, so there is one file and one commit behind both — and the default is
+// the strict one, so a host nobody has named here shows the finished app and
+// nothing else.
+const FULL_SITE = (() => {
+  try {
+    const h = (location.hostname || "").toLowerCase();
+    return h === "" || h === "localhost" || h === "127.0.0.1"
+      || h.indexOf("beta.") === 0 || /\.github\.io$/.test(h)
+      // A way to see the unfinished apps on the live address without a
+      // second site to point at — for checking a build, not for linking to.
+      || /(^|[?&])full=1(&|$)/.test(location.search);
+  } catch (e) {
+    return false;
+  }
+})();
 // The air a tablet holds either side of the column. A phone has none: its rows run to
 // the glass because there is no room to spare. A tablet has room to spare, and text
 // against the bezel is the tell that an app was drawn for something smaller.
@@ -2574,10 +2593,16 @@ class Component extends DCLogic {
       { k: "calc", label: "CALORIE CALC", icon: ICON_CALC,
         note: "What your body spends in a day, and what happens if you hold a number. Move the intake and the body answers \u2014 no goal to name, no target weight to type.",
         card: "What you spend, and what holding a number does." }
-    ];
+    ].filter(a => FULL_SITE || a.k === "search");
     // A phone opens on the launcher and picks an app; a desktop is wide enough to
-    // open straight into the table with the others a tab away.
-    const app = s.app || (s.narrow ? "home" : "search");
+    // open straight into the table with the others a tab away. With one app
+    // there is nothing to launch and nothing to tab to, so both open on it —
+    // and a stored app that this site does not serve falls back to it rather
+    // than rendering a screen that is not there.
+    const app = (() => {
+      const a = s.app || (s.narrow ? "home" : "search");
+      return FULL_SITE || a === "about" || a === "search" ? a : "search";
+    })();
     // Six lines at the mobile width holds either app's sentence; the desktop's wider
     // measure needs fewer, and the reserve simply goes unused.
     const SOON_LINES = s.narrow ? "9.9rem" : "4.9rem";
