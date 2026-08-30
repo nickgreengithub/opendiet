@@ -3127,7 +3127,11 @@ class Component extends DCLogic {
     // page. Typing lifts it to its header position and the table comes up underneath.
     // 82px is the shell's top padding plus the tab bar; 54 is the tall landing row.
     const dLanding = !s.narrow && !s.typed && app === "search";
-    const dDrop = Math.max(0, Math.round((vh - 54) / 2) - 82);
+    // The table breathes against the frame's own hairlines: the same gap above
+    // the header row as below the last empty row, so it reads as a block set
+    // inside the frame rather than as something wedged between two rules.
+    const D_PAD = "1.5rem";
+    const dDrop = Math.max(0, Math.round((vh - 54) / 2) - 82 - 24);
     // The desktop table expands the way a macro row does on mobile: the ringed + in the
     // actions header widens the whole app and opens six sub-macro tracks under CARBS and
     // FATS. Every track exists all the time — a grid ignores display:none children, which
@@ -3821,8 +3825,13 @@ class Component extends DCLogic {
         const subLn = dxp ? INNER_C : "transparent";
         const totLn = dxp ? "transparent" : INNER_C;
         const stops = [];
+        // The two strong rules — the one that opens the numeric block and the
+        // one that fences the actions — stop with the last row. Continued
+        // into the empty space below they are the brightest thing on a screen
+        // that has nothing in it, and they read as two stray lines rather
+        // than as the table keeping its shape.
         let gx = 2.6;
-        stops.push([gx, EDGE_C, 1]);
+        stops.push([gx, "transparent", 1]);
         gx += nw; stops.push([gx, INNER_C, 1]);
         gx += nw; stops.push([gx, INNER_C, 1]);
         gx += tw; stops.push([gx, totLn, 1]);
@@ -3830,7 +3839,7 @@ class Component extends DCLogic {
         gx += tw; stops.push([gx, totLn, 1]);
         for (let i = 0; i < 3; i++) { gx += sw; stops.push([gx, subLn, 1]); }
         gx += nw; stops.push([gx, INNER_C, 1]);
-        gx += nw; stops.push([gx, EDGE_C, 1]);
+        gx += nw; stops.push([gx, "transparent", 1]);
         return {
           flex: "1 1 auto", minHeight: 0, pointerEvents: "none",
           backgroundRepeat: stops.map(() => "no-repeat").join(", ") + ", repeat",
@@ -3849,14 +3858,18 @@ class Component extends DCLogic {
         // The right side gives 10px back: the rows reserve that much inside
         // themselves for a scrollbar, and without the discount the table
         // would sit 10px further off the right rail than the left.
-        padding: "0 calc(" + FRAME_GUT + " - 10px) 0 " + FRAME_GUT,
+        padding: D_PAD + " calc(" + FRAME_GUT + " - 10px) " + D_PAD + " " + FRAME_GUT,
         boxSizing: "border-box"
       },
       dHeadRow: {
         display: "grid", gridTemplateColumns: dLanding ? "minmax(0,1fr)" : dCols,
         columnGap: 0, alignItems: "stretch",
         height: dLanding ? "3.4rem" : "1.95rem",
-        borderTop: "1px solid " + (dLanding ? "transparent" : "#1e293b"),
+        // No top rule on a desktop: the frame's own hairline sits directly
+        // above this row, and a second one a pixel under it reads as one
+        // thick line rather than as two things meeting.
+        borderTop: "1px solid "
+          + (dLanding || !s.narrow ? "transparent" : "#1e293b"),
         borderBottom: "1px solid " + (dLanding ? "transparent" : "#1e293b"),
         transform: dLanding ? "translateY(" + dDrop + "px)" : "none",
         fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em",
