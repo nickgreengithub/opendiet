@@ -128,7 +128,15 @@ export function mount(canvas) {
   // unfocused body dims by COLOUR rather than opacity — a self-overlapping
   // mesh goes wrong under transparency and stays honest under darkness.
   const materialB = material.clone();
-  const BRIGHT = new THREE.Color(0x4d6b80), DIMC = new THREE.Color(0x263640);
+  // Dimming means receding, and what recedes depends on what it is standing on:
+  // on the dark page the unfocused body sinks towards black, on the light one it
+  // rises towards the paper. Read from the root element rather than passed in,
+  // so the switch in the nav needs to know nothing about the scene.
+  const BRIGHT = new THREE.Color(0x4d6b80);
+  const DIM_DARK = new THREE.Color(0x263640), DIM_LIGHT = new THREE.Color(0xc2cbd2);
+  const dimC = () => document.documentElement.getAttribute("data-theme") === "light"
+    ? DIM_LIGHT : DIM_DARK;
+  let dimWas = null;
 
   const pivot = new THREE.Group();
   scene.add(pivot);
@@ -481,9 +489,14 @@ export function mount(canvas) {
       if (Math.abs(d) > 0.003) { anim[k] += d * 0.14; mv = true; }
       else if (anim[k] !== tgt[k]) { anim[k] = tgt[k]; mv = true; }
     }
+    // A theme switch changes what dim means, and nothing else about the scene
+    // is moving when it happens, so it has to ask for the frame itself.
+    const dNow = dimC();
+    if (dNow !== dimWas) { dimWas = dNow; mv = true; }
     if (mv) {
       pivot.position.x = anim.ax;
       pivotB.position.x = anim.bx;
+      const DIMC = dNow;
       material.color.copy(DIMC).lerp(BRIGHT, anim.aB);
       materialB.color.copy(DIMC).lerp(BRIGHT, anim.bB);
       place();
