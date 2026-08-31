@@ -4072,24 +4072,17 @@ class Component extends DCLogic {
       },
       dSumWrap: {
         flex: "0 0 auto", maxHeight: "55%", minHeight: 0, display: "flex", flexDirection: "column",
-        marginTop: "1.5rem",
-        // One step off the page, and only one: the plate is the same table read
-        // under the same headers, so it wants to be marked as yours without
-        // being detached from the columns it is still speaking in. Painted as a
-        // gradient rather than a background colour so it can stop where the rows
-        // stop — they reserve 10px for the scrollbar, and a panel that ignored
-        // that would overhang the table's right rule.
-        backgroundImage: "linear-gradient(var(--panel-3),var(--panel-3))",
-        backgroundRepeat: "no-repeat",
-        backgroundSize: "calc(100% - 10px) 100%",
         opacity: dLanding ? 0 : 1, pointerEvents: dLanding ? "none" : "auto",
         transition: "opacity 420ms ease 120ms"
       },
       // The plate is a second table on the same page, so it says what it is —
       // quietly, in the chrome face, at the size the column headers use. The
-      // bottom row is left to name itself: TOTALS.
+      // bottom row is left to name itself: TOTALS. A rule above the title closes
+      // the search table and opens this one, with no gap between them: they are
+      // one table, read under one set of headers.
       dSumTitle: {
-        flex: "none", padding: "0 0 .5rem",
+        flex: "none", marginRight: "10px", padding: ".6rem 0 .5rem",
+        borderTop: "1px solid " + (dLanding ? "transparent" : "var(--line)"),
         fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em",
         color: "var(--dim-4)",
         opacity: dLanding ? 0 : 1, transition: "opacity 420ms ease 120ms"
