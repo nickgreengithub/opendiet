@@ -612,8 +612,8 @@ option{background:var(--panel);color:var(--body)}
 
     <div style="{{ dGrpRow }}">
       <span></span><span></span><span></span><span></span>
-      <span style="{{ dGrpCarb }}">CARBS</span>
-      <span style="{{ dGrpFat }}">FATS</span>
+      <span style="{{ dGrpCarb }}"><span>CARBS</span><span style="{{ headUnit }}">{{ basisUnit }}</span></span>
+      <span style="{{ dGrpFat }}"><span>FATS</span><span style="{{ headUnit }}">{{ basisUnit }}</span></span>
       <span></span><span></span><span></span>
     </div>
     <div style="{{ dHeadRow }}">
@@ -4018,13 +4018,13 @@ class Component extends DCLogic {
       // the carbs bracket closed with, so the shared rule is drawn once.
       dGrpCarb: {
         gridColumn: "span 4", display: "flex", alignItems: "center",
-        justifyContent: "center", minWidth: 0, overflow: "hidden",
+        justifyContent: "center", gap: ".3rem", minWidth: 0, overflow: "hidden",
         borderLeft: INNER, borderRight: INNER,
         opacity: dxp ? 1 : 0, transition: "opacity 300ms ease"
       },
       dGrpFat: {
         gridColumn: "span 4", display: "flex", alignItems: "center",
-        justifyContent: "center", minWidth: 0, overflow: "hidden",
+        justifyContent: "center", gap: ".3rem", minWidth: 0, overflow: "hidden",
         borderRight: INNER,
         opacity: dxp ? 1 : 0, transition: "opacity 300ms ease"
       },
@@ -4073,6 +4073,15 @@ class Component extends DCLogic {
       dSumWrap: {
         flex: "0 0 auto", maxHeight: "55%", minHeight: 0, display: "flex", flexDirection: "column",
         marginTop: "1.5rem",
+        // One step off the page, and only one: the plate is the same table read
+        // under the same headers, so it wants to be marked as yours without
+        // being detached from the columns it is still speaking in. Painted as a
+        // gradient rather than a background colour so it can stop where the rows
+        // stop — they reserve 10px for the scrollbar, and a panel that ignored
+        // that would overhang the table's right rule.
+        backgroundImage: "linear-gradient(var(--panel-3),var(--panel-3))",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "calc(100% - 10px) 100%",
         opacity: dLanding ? 0 : 1, pointerEvents: dLanding ? "none" : "auto",
         transition: "opacity 420ms ease 120ms"
       },
@@ -6572,7 +6581,8 @@ class Component extends DCLogic {
           borderLeft: "0 solid transparent", borderRight: "5.5px solid var(--ink)", margin: "0 1.5px 0 0" }
         : { width: 0, height: 0, borderTop: "4px solid transparent", borderBottom: "4px solid transparent",
           borderLeft: "5.5px solid var(--ink)", borderRight: "0 solid transparent", margin: "0 0 0 1.5px" },
-      extraLabel: extra.label, extraUnit: extra.unit,
+      // The header has a column's width to say it in; the tooltip says the rest.
+      extraLabel: extra.k === "score" ? "FULL" : extra.label, extraUnit: extra.unit,
       extraSuffix: { marginLeft: ".25rem", fontFamily: "var(--font-2)", fontSize: s.narrow ? ".84rem" : ".66rem", letterSpacing: ".04em", color: "var(--dim-4)" },
       extraOpen: !!s.extraOpen,
       openExtra: () => this.setState({ extraOpen: true }),
