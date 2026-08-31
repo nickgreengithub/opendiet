@@ -4004,10 +4004,11 @@ class Component extends DCLogic {
         // Origin is the content box, so left is the first column's edge.
         backgroundOrigin: "content-box",
         backgroundImage: dLanding ? "none"
-          : "linear-gradient(var(--line),var(--line)), linear-gradient(var(--line),var(--line))",
-        backgroundRepeat: "no-repeat, no-repeat",
-        backgroundSize: "1px 100%, 1px 100%",
-        backgroundPosition: "left top, right 10px top"
+          : "linear-gradient(var(--line),var(--line)), linear-gradient(var(--line),var(--line)),"
+            + "linear-gradient(var(--line),var(--line)), linear-gradient(var(--line),var(--line))",
+        backgroundRepeat: "no-repeat, no-repeat, no-repeat, no-repeat",
+        backgroundSize: "1px 100%, 1px 100%, calc(100% - 10px) 1px, calc(100% - 10px) 1px",
+        backgroundPosition: "left top, right 10px top, left top, left bottom"
       },
       // Expanding does not squeeze six columns into the header line; it opens a
       // line above it and the table steps down to make room. In that line the two
@@ -4089,10 +4090,11 @@ class Component extends DCLogic {
         // column behind it draws.
         backgroundImage: "linear-gradient(var(--line),var(--line)),"
           + "linear-gradient(var(--line),var(--line)),"
+          + "linear-gradient(var(--line),var(--line)),"
           + "linear-gradient(var(--panel-3),var(--panel-3))",
-        backgroundRepeat: "no-repeat, no-repeat, no-repeat",
-        backgroundSize: "1px 100%, 1px 100%, calc(100% - 10px) 100%",
-        backgroundPosition: "left top, right 10px top, left top",
+        backgroundRepeat: "no-repeat, no-repeat, no-repeat, no-repeat",
+        backgroundSize: "1px 100%, 1px 100%, calc(100% - 10px) 1px, calc(100% - 10px) 100%",
+        backgroundPosition: "left top, right 10px top, left bottom, left top",
         opacity: dLanding ? 0 : 1, pointerEvents: dLanding ? "none" : "auto",
         transition: "opacity 420ms ease 120ms"
       },
@@ -6496,10 +6498,18 @@ class Component extends DCLogic {
         borderBottom: "1px solid var(--line)",
         transition: D_GRID_T
       },
+      // The last row of the plate is marked by being a shade deeper than the
+      // plate, not by a rule: its own rule fell on top of the last food row's
+      // and the pair read as one thick line. The fill is inset by a pixel each
+      // side so the table's outer rules carry on through it.
       dTotRow: {
         flex: "none", marginRight: "10px", display: "grid", gridTemplateColumns: dCols,
         columnGap: 0, alignItems: "stretch", minHeight: D_ROW,
-        borderTop: "1px solid var(--line)", fontSize: ".9rem", color: "var(--body)",
+        backgroundImage: "linear-gradient(var(--sel),var(--sel))",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "calc(100% - 2px) calc(100% - 1px)",
+        backgroundPosition: "left 1px top",
+        fontSize: ".9rem", color: "var(--body)",
         transition: D_GRID_T
       },
       blankSub: { borderLeft: dxp ? INNER : "1px solid transparent", transition: "border-color 300ms ease" },
