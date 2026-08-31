@@ -643,7 +643,7 @@ option{background:var(--panel);color:var(--body)}
     <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
       <div data-back="{{ r.back }}" style="{{ dRowWrap }}">
         <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ dRowStyle }}" style-hover="background:rgba(var(--cyan-rgb),.20)">
-          <span style="display:flex;align-items:center;gap:.55rem;min-width:0;padding-right:.9rem">
+          <span style="display:flex;align-items:center;gap:.55rem;min-width:0;padding:0 .9rem 0 .65rem">
             <span style="flex:1;min-width:0;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><sc-for list="{{ r.nameSeg }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.s }}">{{ sg.t }}</span></sc-for></span>
           </span>
           <span style="{{ measureCell }}">{{ r.measureVal }}<span style="{{ sizeSuffix }}">{{ r.measureUnit }}</span></span>
@@ -675,7 +675,7 @@ option{background:var(--panel);color:var(--body)}
           <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
             <div data-new="{{ r.arrived }}" data-gone="{{ r.leaving }}">
               <div data-row onClick="{{ r.toggleRow }}" style="{{ dRowStyle }}" style-hover="background:rgba(var(--cyan-rgb),.20)">
-                <span style="display:flex;align-items:center;gap:.55rem;min-width:0;padding-right:.9rem">
+                <span style="display:flex;align-items:center;gap:.55rem;min-width:0;padding:0 .9rem 0 .65rem">
                   <span style="font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:color 140ms ease" style-hover="color:var(--cyan-bright)">{{ r.name }}</span>
                 </span>
                 <span style="{{ sumSizeCell }}"><input value="{{ r.qty }}" onChange="{{ r.onQty }}" onBlur="{{ r.qtyBlur }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ qtyStyle }}"><span style="{{ sizeSuffix }}">{{ r.qtyUnit }}</span></span>
@@ -3997,7 +3997,17 @@ class Component extends DCLogic {
         // themselves for a scrollbar, and without the discount the table
         // would sit 10px further off the right rail than the left.
         padding: D_PAD + " calc(" + FRAME_GUT + " - 10px) " + D_PAD + " " + FRAME_GUT,
-        boxSizing: "border-box"
+        boxSizing: "border-box",
+        // The table's own left and right edges. Painted rather than bordered:
+        // a border would sit on the element, and the element is ten pixels wider
+        // than the table on the right, where the rows reserve their scrollbar.
+        // Origin is the content box, so left is the first column's edge.
+        backgroundOrigin: "content-box",
+        backgroundImage: dLanding ? "none"
+          : "linear-gradient(var(--line),var(--line)), linear-gradient(var(--line),var(--line))",
+        backgroundRepeat: "no-repeat, no-repeat",
+        backgroundSize: "1px 100%, 1px 100%",
+        backgroundPosition: "left top, right 10px top"
       },
       // Expanding does not squeeze six columns into the header line; it opens a
       // line above it and the table steps down to make room. In that line the two
@@ -4048,7 +4058,7 @@ class Component extends DCLogic {
         gridColumn: dLanding ? "auto" : "span 2",
         position: "relative", display: "flex", alignItems: "center",
         justifyContent: dLanding ? "center" : "flex-start",
-        gap: ".55rem", padding: dLanding ? "0 1.25rem" : "0 .85rem 0 0",
+        gap: ".55rem", padding: dLanding ? "0 1.25rem" : "0 .85rem 0 .65rem",
         minWidth: 0, whiteSpace: "nowrap", transition: "padding 760ms ease"
       },
       // The landing line is the search and nothing else — no icon, no sort arrow, no library.
@@ -4072,6 +4082,17 @@ class Component extends DCLogic {
       },
       dSumWrap: {
         flex: "0 0 auto", maxHeight: "55%", minHeight: 0, display: "flex", flexDirection: "column",
+        // One step off the page: what is on your plate, marked as yours. Painted
+        // as a gradient so it stops where the rows stop rather than running out
+        // under the scrollbar reserve — and carrying the table's two outer rules
+        // itself, since an opaque fill would otherwise paint over the ones the
+        // column behind it draws.
+        backgroundImage: "linear-gradient(var(--line),var(--line)),"
+          + "linear-gradient(var(--line),var(--line)),"
+          + "linear-gradient(var(--panel-3),var(--panel-3))",
+        backgroundRepeat: "no-repeat, no-repeat, no-repeat",
+        backgroundSize: "1px 100%, 1px 100%, calc(100% - 10px) 100%",
+        backgroundPosition: "left top, right 10px top, left top",
         opacity: dLanding ? 0 : 1, pointerEvents: dLanding ? "none" : "auto",
         transition: "opacity 420ms ease 120ms"
       },
@@ -4081,7 +4102,7 @@ class Component extends DCLogic {
       // the search table and opens this one, with no gap between them: they are
       // one table, read under one set of headers.
       dSumTitle: {
-        flex: "none", marginRight: "10px", padding: ".6rem 0 .5rem",
+        flex: "none", marginRight: "10px", padding: ".6rem 0 .5rem .65rem",
         borderTop: "1px solid " + (dLanding ? "transparent" : "var(--line)"),
         fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em",
         color: "var(--dim-4)",
@@ -6484,6 +6505,7 @@ class Component extends DCLogic {
       blankSub: { borderLeft: dxp ? INNER : "1px solid transparent", transition: "border-color 300ms ease" },
       blankTot: { borderLeft: dxp ? "1px solid transparent" : INNER, transition: "border-color 300ms ease" },
       dSumLab: { display: "flex", alignItems: "center", gap: ".35rem", minWidth: 0,
+        paddingLeft: ".65rem",
         overflow: "hidden", whiteSpace: "nowrap", fontFamily: "var(--font-2)",
         fontSize: ".75rem", letterSpacing: ".12em", color: "var(--muted)" },
       dSumLabText: { overflow: "hidden", textOverflow: "ellipsis" },
