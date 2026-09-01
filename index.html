@@ -70,9 +70,27 @@
   /* The donut's two neutral slices. Not ink: a filled wedge on paper wants a
      mid tone, and the ink ladder's answer here would be nearly black. */
   --mac:#b9cbd8;--ash:#3f5364;
+  /* How the chrome says "this one is selected". On the dark page a soft glow;
+     on paper there is nothing to glow against, so the colour says it alone. */
+  --lit:0 0 12px rgba(34,211,238,.45);--lit-2:0 0 12px rgba(34,211,238,.35);
   --cyan-rgb:34,211,238;--cyanhi-rgb:165,243,252;
   --carb-rgb:126,224,168;--fat-rgb:240,140,122;
   --body-rgb:215,230,239;--ink2-rgb:148,168,188;--bg-rgb:2,6,23;--water-rgb:123,135,224;
+}
+/* Switching theme is a change of light, not a jump cut. For the length of the
+   fade every element carries the same transition on the properties a palette can
+   move; then the class comes off and each component keeps its own timings again.
+   Colours resolve through custom properties, which do not themselves animate —
+   but the properties reading them do, which is what this catches. */
+html.od-fade, html.od-fade *, html.od-fade *::before, html.od-fade *::after {
+  transition: background-color 1100ms ease, color 1100ms ease,
+    border-color 1100ms ease, box-shadow 1100ms ease, text-shadow 1100ms ease,
+    fill 1100ms ease, stroke 1100ms ease !important;
+}
+@media (prefers-reduced-motion:reduce){
+  html.od-fade, html.od-fade *, html.od-fade *::before, html.od-fade *::after {
+    transition: none !important;
+  }
 }
 html[data-theme="light"]{
   color-scheme:light;
@@ -88,6 +106,7 @@ html[data-theme="light"]{
   --grade-b:#3f6212;--grade-c:#b45309;--swipe:#9f1239;
   --water:#4c4f7a;--alc:#655a8c;
   --mac:#6b6560;--ash:#b3ada7;
+  --lit:none;--lit-2:none;
   --cyan-rgb:14,116,144;--cyanhi-rgb:21,94,117;
   --carb-rgb:4,120,87;--fat-rgb:154,52,18;
   --body-rgb:41,37,36;--ink2-rgb:69,65,64;--bg-rgb:245,245,244;--water-rgb:76,79,122;
@@ -2792,13 +2811,13 @@ class Component extends DCLogic {
           flex: 1,
           borderBottom: "1px solid " + (mode === "g" ? "var(--cyan)" : "var(--line)"),
           color: mode === "g" ? "var(--text)" : "var(--muted)",
-          textShadow: mode === "g" ? "0 0 12px rgba(var(--cyan-rgb),.35)" : "none"
+          textShadow: mode === "g" ? "var(--lit-2)" : "none"
         }),
         sCell: Object.assign({}, amtCellBase, {
           flex: servLabel.length > 4 ? 1.3 : 1,
           borderBottom: "1px solid " + (mode === "s" ? "var(--cyan)" : "var(--line)"),
           color: mode === "s" ? "var(--text)" : "var(--muted)",
-          textShadow: mode === "s" ? "0 0 12px rgba(var(--cyan-rgb),.35)" : "none"
+          textShadow: mode === "s" ? "var(--lit-2)" : "none"
         }),
         gStepL: Object.assign({}, stepL, { display: mode === "g" ? "flex" : "none" }),
         gStepR: Object.assign({}, stepR, { display: mode === "g" ? "flex" : "none" }),
@@ -4180,13 +4199,13 @@ class Component extends DCLogic {
         display: "flex", alignItems: "center", height: "1.9rem", cursor: "pointer", whiteSpace: "nowrap",
         transition: "color 160ms ease, text-shadow 160ms ease",
         color: unit.k === "100G" ? "var(--cyan)" : "var(--dim-3)",
-        textShadow: unit.k === "100G" ? "0 0 12px rgba(var(--cyan-rgb),.45)" : "none"
+        textShadow: unit.k === "100G" ? "var(--lit)" : "none"
       },
       dMeasOzS: {
         display: "flex", alignItems: "center", height: "1.9rem", cursor: "pointer", whiteSpace: "nowrap",
         transition: "color 160ms ease, text-shadow 160ms ease",
         color: unit.k === "OZ" ? "var(--cyan)" : "var(--dim-3)",
-        textShadow: unit.k === "OZ" ? "0 0 12px rgba(var(--cyan-rgb),.45)" : "none"
+        textShadow: unit.k === "OZ" ? "var(--lit)" : "none"
       },
       // ABOUT holds the corner whether or not the measure pair is on screen.
       // It carries no type of its own: it is one of the nav's tabs and takes
@@ -4195,7 +4214,7 @@ class Component extends DCLogic {
       tabAbout: {
         display: "flex", alignItems: "center", height: "1.9rem",
         color: app === "about" ? "var(--cyan)" : "var(--dim-3)",
-        textShadow: app === "about" ? "0 0 12px rgba(var(--cyan-rgb),.45)" : "none",
+        textShadow: app === "about" ? "var(--lit)" : "none",
         marginLeft: !s.narrow && app === "search" && !dLanding ? "1.4rem" : "auto",
         cursor: "pointer", whiteSpace: "nowrap", transition: "color 160ms ease"
       },
@@ -4213,8 +4232,19 @@ class Component extends DCLogic {
       toggleTheme: () => {
         const light = !s.light;
         try {
-          if (light) document.documentElement.setAttribute("data-theme", "light");
-          else document.documentElement.removeAttribute("data-theme");
+          // The fade class goes on first, so the palette swap it wraps is the
+          // thing being transitioned, and comes off once the fade has run.
+          const root = document.documentElement;
+          root.classList.add("od-fade");
+          // A transition only runs if the element already carried it before the
+          // value changed, so the class has to be flushed to style before the
+          // palette moves — otherwise both land in one recalculation and the
+          // page cuts rather than fades.
+          void root.offsetWidth;
+          clearTimeout(this._fadeT);
+          this._fadeT = setTimeout(() => root.classList.remove("od-fade"), 1200);
+          if (light) root.setAttribute("data-theme", "light");
+          else root.removeAttribute("data-theme");
           localStorage.setItem("od-theme", light ? "light" : "dark");
         } catch (e) {}
         this.setState({ light: light });
@@ -4349,7 +4379,7 @@ class Component extends DCLogic {
           transition: "color 160ms ease, text-shadow 160ms ease",
           pointerEvents: live(a.k) ? "auto" : "none",
           color: !live(a.k) ? "var(--dim-1)" : a.k === app ? "var(--cyan)" : "var(--dim-3)",
-          textShadow: a.k === app ? "0 0 12px rgba(var(--cyan-rgb),.45)" : "none"
+          textShadow: a.k === app ? "var(--lit)" : "none"
         }
       })),
       // Each app is a row you can press rather than a card in a grid: the phone reads
@@ -5457,7 +5487,7 @@ class Component extends DCLogic {
             fontSize: D ? "2.1rem" : "1.6rem",
             letterSpacing: ".14em", color: "var(--cyan-2)", whiteSpace: "nowrap",
             marginBottom: ".3rem",
-            textShadow: "0 0 16px rgba(var(--cyan-rgb),.35)" },
+            textShadow: "var(--lit-2)" },
           cPhLineC: { fontFamily: "var(--font-1)", fontWeight: 300,
             fontSize: D ? "1.3rem" : "1.18rem", lineHeight: 1.5,
             color: "var(--ink-3)",
