@@ -757,17 +757,17 @@ option{background:var(--panel);color:var(--body)}
         <div style="{{ dTotRow }}">
           <span style="{{ dSumLab }}"><span style="{{ dSumLabText }}">TOTALS</span></span>
           <span style="{{ measureCell }}">{{ tot.qty }}<span style="{{ sizeSuffix }}">{{ tot.qtyUnit }}</span></span>
-          <span style="{{ tot.cellWa }}"><span style="{{ tot.fillWa }}"></span><span style="{{ numWrap }}">{{ tot.vWa }}</span></span>
-          <span style="{{ tot.cell1 }}"><span style="{{ tot.fill1 }}"></span><span style="{{ numWrap }}">{{ tot.v1 }}</span></span>
-          <span style="{{ tot.sub1.c }}"><span style="{{ tot.sub1.f }}"></span><span style="{{ numWrap }}">{{ tot.sub1.v }}</span></span>
-          <span style="{{ tot.sub2.c }}"><span style="{{ tot.sub2.f }}"></span><span style="{{ numWrap }}">{{ tot.sub2.v }}</span></span>
-          <span style="{{ tot.sub3.c }}"><span style="{{ tot.sub3.f }}"></span><span style="{{ numWrap }}">{{ tot.sub3.v }}</span></span>
-          <span style="{{ tot.cell2 }}"><span style="{{ tot.fill2 }}"></span><span style="{{ numWrap }}">{{ tot.v2 }}</span></span>
-          <span style="{{ tot.sub4.c }}"><span style="{{ tot.sub4.f }}"></span><span style="{{ numWrap }}">{{ tot.sub4.v }}</span></span>
-          <span style="{{ tot.sub5.c }}"><span style="{{ tot.sub5.f }}"></span><span style="{{ numWrap }}">{{ tot.sub5.v }}</span></span>
-          <span style="{{ tot.sub6.c }}"><span style="{{ tot.sub6.f }}"></span><span style="{{ numWrap }}">{{ tot.sub6.v }}</span></span>
-          <span style="{{ tot.cell3 }}"><span style="{{ tot.fill3 }}"></span><span style="{{ numWrap }}">{{ tot.v3 }}</span></span>
-          <span style="{{ tot.cellK }}"><span style="{{ tot.fillK }}"></span><span style="{{ numWrap }}">{{ tot.kcalVal }}</span></span>
+          <span style="{{ tot.cellWa }}"><span style="{{ numWrap }}">{{ tot.vWa }}</span></span>
+          <span style="{{ tot.cell1 }}"><span style="{{ numWrap }}">{{ tot.v1 }}</span></span>
+          <span style="{{ tot.sub1.c }}"><span style="{{ numWrap }}">{{ tot.sub1.v }}</span></span>
+          <span style="{{ tot.sub2.c }}"><span style="{{ numWrap }}">{{ tot.sub2.v }}</span></span>
+          <span style="{{ tot.sub3.c }}"><span style="{{ numWrap }}">{{ tot.sub3.v }}</span></span>
+          <span style="{{ tot.cell2 }}"><span style="{{ numWrap }}">{{ tot.v2 }}</span></span>
+          <span style="{{ tot.sub4.c }}"><span style="{{ numWrap }}">{{ tot.sub4.v }}</span></span>
+          <span style="{{ tot.sub5.c }}"><span style="{{ numWrap }}">{{ tot.sub5.v }}</span></span>
+          <span style="{{ tot.sub6.c }}"><span style="{{ numWrap }}">{{ tot.sub6.v }}</span></span>
+          <span style="{{ tot.cell3 }}"><span style="{{ numWrap }}">{{ tot.v3 }}</span></span>
+          <span style="{{ tot.cellK }}"><span style="{{ numWrap }}">{{ tot.kcalVal }}</span></span>
           <span style="{{ tot.cellScore }}">{{ tot.extraVal }}<span style="{{ extraSuffix }}">{{ extraUnit }}</span></span>
           <span style="{{ dActHead }}"><button onClick="{{ copyPlate }}" style="{{ dCopyBtn }}" style-hover="color:var(--cyan-bright)"><sc-if value="{{ copied }}" hint-placeholder-val="{{ false }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none;stroke:var(--carb)"><path d="M4.5 12.5l5 5 10-11"></path></svg></sc-if><sc-if value="{{ notCopied }}" hint-placeholder-val="{{ true }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><rect x="9" y="9" width="11" height="11" rx="1.6"></rect><path d="M6 15H5a1.6 1.6 0 0 1-1.6-1.6V5A1.6 1.6 0 0 1 5 3.4h8.4A1.6 1.6 0 0 1 15 5v1"></path></svg></sc-if></button></span>
         </div>
@@ -2510,10 +2510,11 @@ class Component extends DCLogic {
     const fillOf = (v, max, bg) => ({ position: "absolute", left: 0, top: 0, bottom: 0, display: v > 0 ? "block" : "none", width: Math.max(0, Math.min(100, v / max * 100)) + "%", background: bg || "rgba(var(--cyan-rgb),.30)", transition: "width 140ms ease" });
     const sumFillOf = (v, max, bg) => Object.assign({}, fillOf(v, max), { background: bg || "rgba(var(--cyanhi-rgb),.24)" });
     // Total is scaled against itself, so it gets its own, slightly brighter tone.
-    const totFillOf = (v, max, bg) => Object.assign({}, fillOf(v, max), { background: bg || "rgba(var(--cyanhi-rgb),.34)" });
+    // The totals row carries no bars. A bar is a comparison, and the row it sits
+    // in has nothing to be compared with — every other row on the plate is one
+    // food against the others, while this one is the plate itself.
     const CARB_FILL = "rgba(var(--carb-rgb),.26)", FAT_FILL = "rgba(var(--fat-rgb),.26)";
     const CARB_FILL_S = "rgba(var(--carb-rgb),.20)", FAT_FILL_S = "rgba(var(--fat-rgb),.20)";
-    const CARB_FILL_T = "rgba(var(--carb-rgb),.32)", FAT_FILL_T = "rgba(var(--fat-rgb),.32)";
     const numWrap = { position: "relative", display: "flex", alignItems: "baseline", justifyContent: "flex-end" };
     const unitSuffix = { marginLeft: ".15rem", fontFamily: "var(--font-2)", fontSize: s.narrow ? ".84rem" : ".66rem", letterSpacing: ".06em", color: "var(--ink-3)" };
     const inSum = name => (s.sum || []).includes(name);
@@ -3892,15 +3893,10 @@ class Component extends DCLogic {
       kcalVal: String(tKDisp),
       extraVal: extra.k === "score" ? (tScore ? String(tScore) : "\u2014") : gFmt(sumFoods.reduce((a, fo) => a + extra.get(fo) * gs(fo), 0)),
       mTotVal: mCol.k === "score" ? (tScore ? String(tScore) : "\u2014") : mCol.k === "kcal" ? String(tKDisp) : this.fmt(sumFoods.reduce((a, fo) => a + mCol.get(fo) * gs(fo), 0)),
-      fill1: totFillOf(tfv[0], tfvMax),
-      fill2: Object.assign(totFillOf(tfv[1], tfvMax, CARB_FILL_T), dxp ? { display: "none" } : null),
-      fill3: Object.assign(totFillOf(tfv[2], tfvMax, FAT_FILL_T), dxp ? { display: "none" } : null),
-      fillK: totFillOf(1, 1),
       cellK: Object.assign({}, totCell, { borderLeft: INNER }),
       cellScore: Object.assign({}, totCell, { borderLeft: INNER, color: "var(--cyan)" }),
       vWa: gFmt(tWa),
       cellWa: Object.assign({}, totCell, { borderLeft: EDGE }),
-      fillWa: fillOf(tQty ? tWa / tQty * 100 : 0, 100, WATER_FILL),
       sub1: subCellOf(tSg, SUB_GRN[0], tfvMax, gFmt(tSg)),
       sub2: subCellOf(tFb, SUB_GRN[1], tfvMax, gFmt(tFb)),
       sub3: subCellOf(tSt, SUB_GRN[2], tfvMax, gFmt(tSt)),
