@@ -86,15 +86,25 @@
 [data-dexp] [data-ring],[data-dexp] [data-tri]{transition:border-color 140ms ease}
 [data-dexp]:hover [data-ring]{border-color:var(--cyan)!important}
 [data-dexp]:hover [data-tri]{border-left-color:var(--cyan)!important;border-right-color:var(--cyan)!important}
+/* Where the browser can cross-fade a snapshot of the whole page, that is the
+   honest way to change the light: property transitions can only carry what
+   interpolates, and the painted rules, the plate's fill and the wash behind the
+   page are gradients, which do not. Linear rather than eased — an eased colour
+   ramp does most of its work in the first third and reads as a flash. */
+html.od-vt::view-transition-old(root),
+html.od-vt::view-transition-new(root){
+  animation-duration:1200ms;
+  animation-timing-function:linear;
+}
 /* Switching theme is a change of light, not a jump cut. For the length of the
    fade every element carries the same transition on the properties a palette can
    move; then the class comes off and each component keeps its own timings again.
    Colours resolve through custom properties, which do not themselves animate —
    but the properties reading them do, which is what this catches. */
 html.od-fade, html.od-fade *, html.od-fade *::before, html.od-fade *::after {
-  transition: background-color 1100ms ease, color 1100ms ease,
-    border-color 1100ms ease, box-shadow 1100ms ease, text-shadow 1100ms ease,
-    fill 1100ms ease, stroke 1100ms ease !important;
+  transition: background-color 1200ms linear, color 1200ms linear,
+    border-color 1200ms linear, box-shadow 1200ms linear, text-shadow 1200ms linear,
+    fill 1200ms linear, stroke 1200ms linear !important;
 }
 @media (prefers-reduced-motion:reduce){
   html.od-fade, html.od-fade *, html.od-fade *::before, html.od-fade *::after {
@@ -4240,23 +4250,39 @@ class Component extends DCLogic {
       themeLabel: s.light ? "Switch to the dark theme" : "Switch to the light theme",
       toggleTheme: () => {
         const light = !s.light;
-        try {
-          // The fade class goes on first, so the palette swap it wraps is the
-          // thing being transitioned, and comes off once the fade has run.
-          const root = document.documentElement;
-          root.classList.add("od-fade");
-          // A transition only runs if the element already carried it before the
-          // value changed, so the class has to be flushed to style before the
-          // palette moves — otherwise both land in one recalculation and the
-          // page cuts rather than fades.
-          void root.offsetWidth;
-          clearTimeout(this._fadeT);
-          this._fadeT = setTimeout(() => root.classList.remove("od-fade"), 1200);
+        const root = typeof document !== "undefined" ? document.documentElement : null;
+        const swap = () => {
           if (light) root.setAttribute("data-theme", "light");
           else root.removeAttribute("data-theme");
-          localStorage.setItem("od-theme", light ? "light" : "dark");
-        } catch (e) {}
-        this.setState({ light: light });
+          // Inside the view transition the DOM has to be finished before the
+          // browser takes its second snapshot, so the icon flushes with it.
+          try {
+            const RD = window.ReactDOM;
+            if (RD && RD.flushSync) RD.flushSync(() => this.setState({ light: light }));
+            else this.setState({ light: light });
+          } catch (e) { this.setState({ light: light }); }
+        };
+        try { localStorage.setItem("od-theme", light ? "light" : "dark"); } catch (e) {}
+        let reduce = false;
+        try { reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+        if (!root) return;
+        if (!reduce && document.startViewTransition) {
+          root.classList.add("od-vt");
+          const done = () => root.classList.remove("od-vt");
+          try {
+            const t = document.startViewTransition(swap);
+            t.finished.then(done, done);
+          } catch (e) { done(); swap(); }
+          return;
+        }
+        // No snapshot to cross-fade: transition the properties that can move.
+        // The class has to be flushed to style before the palette does, or both
+        // land in one recalculation and the page cuts rather than fades.
+        root.classList.add("od-fade");
+        void root.offsetWidth;
+        clearTimeout(this._fadeT);
+        this._fadeT = setTimeout(() => root.classList.remove("od-fade"), 1300);
+        swap();
       },
       mColOpts: MCOLS.map((x, xi) => ({
         label: x.label, unit: x.unit,
