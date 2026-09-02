@@ -3594,6 +3594,14 @@ class Component extends DCLogic {
     TIP_KEYS.forEach(k => { tipOn[k] = () => this.setState({ tip: k }); });
     // Newest first, so a food always joins the plate at the top row and drops in from above.
     const sumFoods = (s.sum || []).map(n => this.foods().find(fo => fo.name === n)).filter(Boolean).reverse();
+    // A food folding out of the plate still has a row on screen, but it is already off
+    // the plate as far as the arithmetic goes: the totals and the bar scales answer on
+    // the click rather than waiting for the fold to finish. Only the rows read the list
+    // that still holds it, because one of them is the row that is folding.
+    const sumLive = s.leaving ? sumFoods.filter(fo => fo.name !== s.leaving) : sumFoods;
+    // The bars scale off the same live list — except when it is emptying, where the row
+    // folding away is the only one left and would have nothing to be measured against.
+    const sumScale = sumLive.length ? sumLive : sumFoods;
     // Each summary row carries its own quantity; macros and totals scale off it.
     const QTY_MAX = 990;
     const qtyOf = name => { const v = (s.qty || {})[name]; return v === undefined ? "100" : v; };
@@ -3606,9 +3614,9 @@ class Component extends DCLogic {
       this.setState(st => ({ qty: Object.assign({}, st.qty, { [name]: String(capped) }) }));
     };
     const gramsOf = name => { const n = parseFloat(qtyOf(name)); return isNaN(n) || n < 0 ? 0 : n; };
-    const sumKcalMax = Math.max.apply(null, sumFoods.map(fo => kcalOf(fo) * (gramsOf(fo.name) / 100)).concat([1]));
-    const sumGramMax = Math.max.apply(null, sumFoods.map(fo => { const g = gramsOf(fo.name) / 100; return Math.max(fo.p, fo.c, fo.f) * g; }).concat([1]));
-    const sumMacroMax = Math.max.apply(null, sumFoods.map(fo => { const g = gramsOf(fo.name) / 100, r = fo.p * 4 + fo.c * 4 + fo.f * 9 || 1, k = fo.kcal / r; return Math.max(fo.p * 4, fo.c * 4, fo.f * 9) * k * g; }).concat([1]));
+    const sumKcalMax = Math.max.apply(null, sumScale.map(fo => kcalOf(fo) * (gramsOf(fo.name) / 100)).concat([1]));
+    const sumGramMax = Math.max.apply(null, sumScale.map(fo => { const g = gramsOf(fo.name) / 100; return Math.max(fo.p, fo.c, fo.f) * g; }).concat([1]));
+    const sumMacroMax = Math.max.apply(null, sumScale.map(fo => { const g = gramsOf(fo.name) / 100, r = fo.p * 4 + fo.c * 4 + fo.f * 9 || 1, k = fo.kcal / r; return Math.max(fo.p * 4, fo.c * 4, fo.f * 9) * k * g; }).concat([1]));
     const qtyStyle = {
       width: s.narrow ? "2.8rem" : "2.9rem", textAlign: "right", background: "transparent", border: 0,
       borderRadius: 0, padding: s.narrow ? "0 .25rem" : "0 0 .1rem",
@@ -3855,24 +3863,24 @@ class Component extends DCLogic {
       });
     });
     const gs = fo => gramsOf(fo.name) / 100;
-    const tP = sumFoods.reduce((a, fo) => a + fo.p * gs(fo), 0), tC = sumFoods.reduce((a, fo) => a + fo.c * gs(fo), 0), tF = sumFoods.reduce((a, fo) => a + fo.f * gs(fo), 0);
-    const tK = sumFoods.reduce((a, fo) => a + kcalOf(fo) * gs(fo), 0);
-    const tQty = sumFoods.reduce((a, fo) => a + gramsOf(fo.name), 0);
+    const tP = sumLive.reduce((a, fo) => a + fo.p * gs(fo), 0), tC = sumLive.reduce((a, fo) => a + fo.c * gs(fo), 0), tF = sumLive.reduce((a, fo) => a + fo.f * gs(fo), 0);
+    const tK = sumLive.reduce((a, fo) => a + kcalOf(fo) * gs(fo), 0);
+    const tQty = sumLive.reduce((a, fo) => a + gramsOf(fo.name), 0);
     const totCell = { position: "relative", overflow: "hidden", minWidth: 0, display: "flex", alignItems: "center", justifyContent: "flex-end", fontVariantNumeric: "tabular-nums", fontWeight: 300, fontSize: ".875rem", color: "var(--body)", borderLeft: INNER, paddingLeft: ".55rem", paddingRight: ".5rem" };
-    const tFb = sumFoods.reduce((a, fo) => a + fo.fb * gs(fo), 0);
+    const tFb = sumLive.reduce((a, fo) => a + fo.fb * gs(fo), 0);
     // Totals must sum the rows as displayed: each food rebased by its OWN Atwater factor.
     // Sum what the rows display, not the unrounded values — otherwise the total contradicts them.
-    const tMk = sumFoods.reduce((a, fo) => {
+    const tMk = sumLive.reduce((a, fo) => {
       const g = gs(fo), m = macroK(fo);
       return [a[0] + Math.round(m[0] * g), a[1] + Math.round(m[1] * g), a[2] + Math.round(m[2] * g)];
     }, [0, 0, 0]);
     // The displayed total must sum the rounded row figures, not the raw ones.
-    const tKDisp = sumFoods.reduce((a, fo) => a + Math.round(kcalOf(fo) * gs(fo)), 0);
-    const tKGross = sumFoods.reduce((a, fo) => a + fo.kcal * gs(fo), 0);
+    const tKDisp = sumLive.reduce((a, fo) => a + Math.round(kcalOf(fo) * gs(fo)), 0);
+    const tKGross = sumLive.reduce((a, fo) => a + fo.kcal * gs(fo), 0);
     // The plate's fullness is the average of its foods' scores, each weighing in at
     // the grams it was added at.
-    const tScore = tQty > 0 && sumFoods.length
-      ? Math.round(sumFoods.reduce((a, fo) => a + scoreOf(fo) * gramsOf(fo.name), 0) / tQty)
+    const tScore = tQty > 0 && sumLive.length
+      ? Math.round(sumLive.reduce((a, fo) => a + scoreOf(fo) * gramsOf(fo.name), 0) / tQty)
       : 0;
     const tMkSum = tMk[0] + tMk[1] + tMk[2] || 1;
     const tShares = [tMk[0] / tMkSum, tMk[1] / tMkSum, tMk[2] / tMkSum];
@@ -3880,12 +3888,12 @@ class Component extends DCLogic {
     const tGsh = [tP / tGram * 100, tC / tGram * 100, tF / tGram * 100];
     const tfv = isPct ? tGsh : isKcalBasis ? tMk : [tP, tC, tF];
     const tfvMax = isPct ? 100 : Math.max(tfv[0], tfv[1], tfv[2]) || 1;
-    const tWa = sumFoods.reduce((a, fo) => a + (fo.wa || 0) * gs(fo), 0);
-    const tSg = sumFoods.reduce((a, fo) => a + (fo.sg || 0) * gs(fo), 0);
-    const tSt = sumFoods.reduce((a, fo) => a + Math.max(0, fo.c - (fo.sg || 0) - (fo.fb || 0)) * gs(fo), 0);
-    const tSf = sumFoods.reduce((a, fo) => a + (fo.sf || 0) * gs(fo), 0);
-    const tMo = sumFoods.reduce((a, fo) => a + (fo.mo || 0) * gs(fo), 0);
-    const tPo = sumFoods.reduce((a, fo) => a + (fo.po || 0) * gs(fo), 0);
+    const tWa = sumLive.reduce((a, fo) => a + (fo.wa || 0) * gs(fo), 0);
+    const tSg = sumLive.reduce((a, fo) => a + (fo.sg || 0) * gs(fo), 0);
+    const tSt = sumLive.reduce((a, fo) => a + Math.max(0, fo.c - (fo.sg || 0) - (fo.fb || 0)) * gs(fo), 0);
+    const tSf = sumLive.reduce((a, fo) => a + (fo.sf || 0) * gs(fo), 0);
+    const tMo = sumLive.reduce((a, fo) => a + (fo.mo || 0) * gs(fo), 0);
+    const tPo = sumLive.reduce((a, fo) => a + (fo.po || 0) * gs(fo), 0);
     const tot = {
       v1: isPct ? this.pctFmt(tGsh[0]) : isKcalBasis ? String(Math.round(tMk[0])) : gFmt(tP),
       v2: isPct ? this.pctFmt(tGsh[1]) : isKcalBasis ? String(Math.round(tMk[1])) : gFmt(tC),
@@ -3896,8 +3904,8 @@ class Component extends DCLogic {
       cell1: totCell,
       cell2: Object.assign({}, totCell, xpFold), cell3: Object.assign({}, totCell, xpFold),
       kcalVal: String(tKDisp),
-      extraVal: extra.k === "score" ? (tScore ? String(tScore) : "\u2014") : gFmt(sumFoods.reduce((a, fo) => a + extra.get(fo) * gs(fo), 0)),
-      mTotVal: mCol.k === "score" ? (tScore ? String(tScore) : "\u2014") : mCol.k === "kcal" ? String(tKDisp) : this.fmt(sumFoods.reduce((a, fo) => a + mCol.get(fo) * gs(fo), 0)),
+      extraVal: extra.k === "score" ? (tScore ? String(tScore) : "\u2014") : gFmt(sumLive.reduce((a, fo) => a + extra.get(fo) * gs(fo), 0)),
+      mTotVal: mCol.k === "score" ? (tScore ? String(tScore) : "\u2014") : mCol.k === "kcal" ? String(tKDisp) : this.fmt(sumLive.reduce((a, fo) => a + mCol.get(fo) * gs(fo), 0)),
       cellK: Object.assign({}, totCell, { borderLeft: INNER }),
       cellScore: Object.assign({}, totCell, { borderLeft: INNER, color: "var(--cyan)" }),
       vWa: gFmt(tWa),
@@ -3910,11 +3918,11 @@ class Component extends DCLogic {
       sub6: subCellOf(tPo, SUB_CRL[2], tfvMax, gFmt(tPo)),
       qty: dOz ? String(Math.round(tQty / 28.35 * 10) / 10) : String(Math.round(tQty)),
       // Mixed solids + liquids fall back to G, matching USDA's gram basis.
-      qtyUnit: dOz ? "oz" : (sumFoods.length && sumFoods.every(fo => fo.mu === "ml") ? "ml" : "g")
+      qtyUnit: dOz ? "oz" : (sumLive.length && sumLive.every(fo => fo.mu === "ml") ? "ml" : "g")
     };
     // The plate summed as one food: absolute grams re-expressed per 100 g, so the same
     // drawing that explains one food explains the whole plate.
-    const totAgg = k => sumFoods.reduce((a, fo) => a + (fo[k] || 0) * gs(fo), 0);
+    const totAgg = k => sumLive.reduce((a, fo) => a + (fo[k] || 0) * gs(fo), 0);
     const foTot = tQty > 0 ? { name: "__TOT__",
       p: tP / tQty * 100, c: tC / tQty * 100, f: tF / tQty * 100,
       wa: totAgg("wa") / tQty * 100, ah: totAgg("ah") / tQty * 100,
@@ -3967,7 +3975,7 @@ class Component extends DCLogic {
     // What the copy button puts on the clipboard: a shopping list rather than a table. One
     // dash-led line per food with its grams, its household measure when it has one, and the
     // chosen column, then the totals. It reads aloud the way a list on the fridge does.
-    const plateText = sumFoods.map(fo => {
+    const plateText = sumLive.map(fo => {
       const g = Math.round(gramsOf(fo.name)), u = fo.mu === "ml" ? "ml" : "g";
       const n = fo.pg ? g / fo.pg : 0;
       const alt = fo.pg ? (Math.abs(n - Math.round(n)) < 0.05 ? String(Math.round(n)) : n.toFixed(1)) + " " + fo.pn : "";
