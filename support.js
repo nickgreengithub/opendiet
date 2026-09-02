@@ -611,6 +611,12 @@
   function walkFor(el, host) {
     const listGet = compileAttr(el.getAttribute("list") || "");
     const asName = el.getAttribute("as") || "item";
+    // Rows are keyed by position unless the list says otherwise. A list whose items
+    // move — a table that re-sorts, a list something is inserted into — should name a
+    // key of its own, or React rewrites each node in place instead of moving it, and
+    // anything mid-transition animates from one item's value to the next one's.
+    const keyRaw = el.getAttribute("key");
+    const keyGet = keyRaw != null ? compileAttr(keyRaw) : null;
     const hintN = parseInt(el.getAttribute("hint-placeholder-count") || "0", 10);
     const kids = walkChildren(el, host);
     const listSrc = el.getAttribute("list") || "";
@@ -634,9 +640,17 @@
         { key },
         list.map((item, i) => {
           const sub = { ...vals, [asName]: item, $index: i };
+          let k = i;
+          if (keyGet) {
+            // A placeholder pass has no items to read a key from; position will do.
+            try {
+              const kv = keyGet(sub);
+              if (kv !== void 0 && kv !== null && kv !== "") k = kv;
+            } catch (e) {}
+          }
           return h(
             getReact().Fragment,
-            { key: i },
+            { key: k },
             kids.map((b, j) => b(sub, ctx, j))
           );
         })

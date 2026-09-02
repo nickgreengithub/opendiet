@@ -678,7 +678,7 @@ option{background:var(--panel);color:var(--body)}
     </div>
     <div style="{{ dBody }}">
     <div data-scroll="rows" style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box;display:flex;flex-direction:column">
-    <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
+    <sc-for list="{{ rows }}" as="r" key="{{ r.name }}" hint-placeholder-count="10">
       <div data-back="{{ r.back }}" style="{{ dRowWrap }}">
         <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ dRowStyle }}" style-hover="background:rgba(var(--cyan-rgb),.20)">
           <span style="display:flex;align-items:center;gap:.55rem;min-width:0;padding:0 .9rem 0 .65rem">
@@ -710,7 +710,7 @@ option{background:var(--panel);color:var(--body)}
         <div style="{{ dSumRule }}"></div>
         <div style="position:relative;flex:1;min-height:0;display:flex;flex-direction:column">
         <div data-scroll style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box">
-          <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
+          <sc-for list="{{ sumRows }}" as="r" key="{{ r.name }}" hint-placeholder-count="2">
             <div data-new="{{ r.arrived }}" data-gone="{{ r.leaving }}">
               <div data-row onClick="{{ r.toggleRow }}" style="{{ dRowStyle }}" style-hover="background:rgba(var(--cyan-rgb),.20)">
                 <span style="display:flex;align-items:center;gap:.55rem;min-width:0;padding:0 .9rem 0 .65rem">
@@ -785,7 +785,7 @@ option{background:var(--panel);color:var(--body)}
     </div>
     <div style="{{ mBody }}">
     <div data-scroll="rows" style="{{ mListStyle }}">
-      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
+      <sc-for list="{{ rows }}" as="r" key="{{ r.name }}" hint-placeholder-count="10">
         <div data-back="{{ r.back }}" data-lift="m">
           <div data-row data-sel="{{ r.selOn }}" data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ r.mRow }}">
             <sc-if value="{{ r.finger }}" hint-placeholder-val="{{ false }}">
@@ -866,7 +866,7 @@ option{background:var(--panel);color:var(--body)}
       </div>
       <div style="{{ sumBody }}"><div style="{{ sumBodyIn }}">
       <div data-scroll="sum" style="{{ mSumScroll }}">
-        <sc-for list="{{ sumRows }}" as="r" hint-placeholder-count="2">
+        <sc-for list="{{ sumRows }}" as="r" key="{{ r.name }}" hint-placeholder-count="2">
           <div data-new="{{ r.arrived }}" data-gone="{{ r.leaving }}" data-lift="m" style="{{ r.sWrap }}">
           <span style="{{ r.swipeBg }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M4 7h16"></path><path d="M10 11.5v5.5M14 11.5v5.5"></path><path d="M6.5 7l.9 12.1a1.4 1.4 0 0 0 1.4 1.3h6.4a1.4 1.4 0 0 0 1.4-1.3L17.5 7"></path><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"></path></svg></span>
           <div data-row data-swipe="{{ r.swipeArm }}" onClick="{{ r.sToggle }}" onTouchStart="{{ r.onTouchStart }}" onTouchMove="{{ r.onTouchMove }}" onTouchEnd="{{ r.onTouchEnd }}" onTouchCancel="{{ r.onTouchEnd }}" style="{{ r.mSumRow }}">
