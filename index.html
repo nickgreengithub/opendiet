@@ -2315,14 +2315,18 @@ class Component extends DCLogic {
   band(s) { return s >= 80 ? "A" : s >= 65 ? "B" : s >= 45 ? "C" : s >= 30 ? "D" : "F"; }
   fmt(n) { return n === 0 ? "0" : n < 1 ? n.toFixed(2) : n < 10 ? n.toFixed(1) : String(Math.round(n)); }
   toggleSum(name) {
-    // Taking a food off the plate is not instant: the row folds up where it stands, and only
-    // once it has gone does the food actually leave, so it can rise back into the search list.
+    // Taking a food off the plate is one movement in two places: the plate row folds up
+    // where it stands while the same food rises back into the search list. Both start on
+    // the click. The plate row stays in `sum` until its fold is done — that is what keeps
+    // it on screen to fold — but the list already counts it as gone.
     if ((this.state.sum || []).includes(name)) {
       if (this.state.leaving === name) return;
       // Only one row folds at a time, so a second removal finishes the first one outright
       // rather than leaving it stranded half shut when its timer is taken away.
       if (this.state.leaving) { clearTimeout(this._goneT); this.dropFromSum(this.state.leaving); }
-      this.setState({ leaving: name, sOpen: null });
+      this.setState({ leaving: name, sOpen: null, justBack: name });
+      clearTimeout(this._backT);
+      this._backT = setTimeout(() => this.setState({ justBack: null }), 1600);
       clearTimeout(this._goneT);
       this._goneT = setTimeout(() => this.dropFromSum(name), 300);
       return;
@@ -2390,15 +2394,13 @@ class Component extends DCLogic {
       } else old();
     } catch (e) { old(); }
   }
-  // The second half of a removal, once the plate row has finished folding up.
+  // The second half of a removal, once the plate row has finished folding up. By now
+  // the food is already back in the list and lit; this only commits it.
   dropFromSum(name) {
     this.setState(s => {
       const sum = (s.sum || []).filter(n => n !== name);
       try { localStorage.setItem("nutri-search-sum", JSON.stringify(sum)); } catch (e) {}
-      // The food is back in the search list, where it says so for a moment.
-      clearTimeout(this._backT);
-      this._backT = setTimeout(() => this.setState({ justBack: null }), 1600);
-      return { sum, leaving: null, starred: true, rowHint: false, justBack: name };
+      return { sum, leaving: null, rowHint: false };
     });
   }
   toTop() {
@@ -2517,7 +2519,10 @@ class Component extends DCLogic {
     const CARB_FILL_S = "rgba(var(--carb-rgb),.20)", FAT_FILL_S = "rgba(var(--fat-rgb),.20)";
     const numWrap = { position: "relative", display: "flex", alignItems: "baseline", justifyContent: "flex-end" };
     const unitSuffix = { marginLeft: ".15rem", fontFamily: "var(--font-2)", fontSize: s.narrow ? ".84rem" : ".66rem", letterSpacing: ".06em", color: "var(--ink-3)" };
-    const inSum = name => (s.sum || []).includes(name);
+    // A food that is folding out of the plate is already back in the list. The two
+    // animations are one movement — the slot closing here and the row opening there —
+    // so the list must not wait for the plate to finish before it starts.
+    const inSum = name => (s.sum || []).includes(name) && s.leaving !== name;
     // These three sweep the whole library, so they are measured once per render rather than
     // once per row — with a hundred rows on screen that was the cost of a tap.
     const rowKcalMax = Math.max.apply(null, visible.map(fo2 => kcalOf(fo2)).concat([1]));
