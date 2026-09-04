@@ -3333,7 +3333,13 @@ class Component extends DCLogic {
     // header, right-aligned across its span, sits over the total it names.
     const dCols = "minmax(7.5rem,1fr) 3.4rem " + D_NW + " " + D_NW + D_SUB3 + " " + D_TW +
       D_SUB3 + " " + D_TW + " " + D_NW + " " + D_NW + " 2.6rem";
-    const D_GRID_T = "grid-template-columns 500ms cubic-bezier(.22,1,.36,1)";
+    // One clock for the whole expansion — the column tracks, the header line that opens
+    // above them, the padding inside the cells that are widening, the rules that fade in
+    // between them, and the drawn continuation lines below. Slow enough to read as one
+    // thing unfolding rather than a jump.
+    const D_XP = "720ms cubic-bezier(.22,1,.36,1)";
+    const D_XP_C = "420ms ease";
+    const D_GRID_T = "grid-template-columns " + D_XP;
     // One row height for the desktop table — the rows themselves, the blanks, the
     // total line, and the ruled empty space below them all measure from here, so
     // the drawn continuation lines keep step with the real ones.
@@ -3348,7 +3354,7 @@ class Component extends DCLogic {
         color: vAbs ? "var(--body)" : "var(--muted)",
         borderLeft: dxp ? INNER : "1px solid transparent",
         paddingLeft: dxp ? ".55rem" : "0", paddingRight: dxp ? ".5rem" : "0",
-        transition: "border-color 300ms ease, padding 500ms cubic-bezier(.22,1,.36,1)" },
+        transition: "border-color " + D_XP_C + ", padding " + D_XP },
       f: { position: "absolute", left: 0, top: 0, bottom: 0,
         display: vAbs > 0 && dxp ? "block" : "none",
         width: Math.max(0, Math.min(100, vAbs / max * 100)) + "%",
@@ -3360,12 +3366,12 @@ class Component extends DCLogic {
     const xpFold = {
       borderLeft: dxp ? "1px solid transparent" : INNER,
       paddingLeft: dxp ? "0" : ".55rem", paddingRight: dxp ? "0" : ".5rem",
-      transition: "border-color 300ms ease, padding 500ms cubic-bezier(.22,1,.36,1)"
+      transition: "border-color " + D_XP_C + ", padding " + D_XP
     };
     const xpFoldHead = {
       borderLeft: dxp ? "1px solid transparent" : INNER,
       padding: dxp ? "0" : "0 .5rem 0 .55rem",
-      transition: "border-color 300ms ease, padding 500ms cubic-bezier(.22,1,.36,1)"
+      transition: "border-color " + D_XP_C + ", padding " + D_XP
     };
     // Sub-macro bar shades follow the donut's own ramp: sugars before fibre before
     // starch, saturated before mono before poly.
@@ -4032,7 +4038,7 @@ class Component extends DCLogic {
             ",repeating-linear-gradient(to bottom, transparent 0, transparent " + D_ROW + ", " + INNER_C + " " + D_ROW + ", " + INNER_C + " calc(" + D_ROW + " + 1px))",
           backgroundSize: stops.map(t => t[2] + "px 100%").join(", ") + ", 100% calc(" + D_ROW + " + 1px)",
           backgroundPosition: stops.map(t => "right " + t[0].toFixed(1) + "rem top").join(", ") + ", left top",
-          transition: "background-position 500ms cubic-bezier(.22,1,.36,1)"
+          transition: "background-position " + D_XP
         };
       })(),
       // Every band inside the frame keeps the frame's own gutter, the nav's
@@ -4070,7 +4076,7 @@ class Component extends DCLogic {
         height: dxp && !dLanding ? D_ROW : "0px",
         fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em",
         color: "var(--muted)", textTransform: "uppercase",
-        transition: "height 500ms cubic-bezier(.22,1,.36,1), " + D_GRID_T
+        transition: "height " + D_XP + ", " + D_GRID_T
       },
       // The carbs bracket owns both its edges; the fats bracket starts on the one
       // the carbs bracket closed with, so the shared rule is drawn once.
@@ -6563,7 +6569,7 @@ class Component extends DCLogic {
         gap: ".2rem", whiteSpace: "nowrap", color: "var(--ink)",
         borderLeft: dxp ? INNER : "1px solid transparent",
         padding: dxp ? "0 .4rem 0 .35rem" : "0",
-        transition: "border-color 300ms ease, padding 500ms cubic-bezier(.22,1,.36,1)"
+        transition: "border-color " + D_XP_C + ", padding " + D_XP
       }, dHide),
       // One grid to rule every desktop row — search, plate and blank alike — so the
       // expansion is a single animation the whole table performs together.
@@ -6594,8 +6600,8 @@ class Component extends DCLogic {
         fontSize: ".9rem", color: "var(--body)",
         transition: D_GRID_T
       },
-      blankSub: { borderLeft: dxp ? INNER : "1px solid transparent", transition: "border-color 300ms ease" },
-      blankTot: { borderLeft: dxp ? "1px solid transparent" : INNER, transition: "border-color 300ms ease" },
+      blankSub: { borderLeft: dxp ? INNER : "1px solid transparent", transition: "border-color " + D_XP_C },
+      blankTot: { borderLeft: dxp ? "1px solid transparent" : INNER, transition: "border-color " + D_XP_C },
       dSumLab: { display: "flex", alignItems: "center", gap: ".35rem", minWidth: 0,
         paddingLeft: ".65rem",
         overflow: "hidden", whiteSpace: "nowrap", fontFamily: "var(--font-2)",
@@ -6674,7 +6680,12 @@ class Component extends DCLogic {
       dExpToggle: () => this.setState({ dxp: !s.dxp }),
       dExpBox: {
         display: dLanding ? "none" : "flex", alignItems: "center", justifyContent: "center",
-        width: "100%", height: "100%", cursor: "pointer"
+        width: "100%", height: "100%", cursor: "pointer",
+        // Expanding opens a line above the header, which would carry this button down
+        // with it. It rides back up by exactly that much, on the same clock, so the
+        // control that undoes the expansion is still under the pointer that caused it.
+        transform: dxp ? "translateY(-" + D_ROW + ")" : "none",
+        transition: "transform " + D_XP
       },
       // The column expander points where the table will go: right to open out,
       // left to come home.
