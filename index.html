@@ -2237,6 +2237,15 @@ class Component extends DCLogic {
         (d.pools || []).forEach(a => {
           const fo = mkFood(a);
           fo.pool = (a[19] || []).map(i => d.foods[i][0]);
+          // Everything from the first "·" is the mark and whatever had to be said to tell
+          // two pools apart — not words of the food. The search reads the name without
+          // them, or "Beerwurst · avg" does not share a head with "Beerwurst, pork and
+          // beef" and ranks below the very entries it stands for.
+          const plain = fo.name.split(" \u00b7 ")[0].toLowerCase();
+          fo.nl = plain;
+          fo.w = plain.split(/[^a-z0-9]+/).filter(Boolean);
+          fo.ns = fo.w.map(stemWord).join(" ");
+          fo.h1 = plain.split(",")[0].split(/[^a-z0-9]+/).filter(Boolean).map(stemWord).join(" ");
           const alias = a[20] || [];
           if (alias.length) {
             fo.nl += " " + alias.join(" ");

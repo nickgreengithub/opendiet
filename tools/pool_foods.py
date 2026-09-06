@@ -48,17 +48,24 @@ ROOT = Path(__file__).resolve().parent.parent
 BRANDED = re.compile(r"\b(?!NFS\b|NS\b|USDA\b|RTE\b|UPC\b|I{2,3}\b|IV\b)[A-Z]{2,}\b")
 OWNED = re.compile(r"\b[A-Z][a-z]+'s\b")
 
-# The band per axis: (absolute floor, share of the largest value in the pool).
-# The pool's range on the axis must stay within max(floor, share * max).
+# A gram is not a gram. One of fat is nine calories, one of protein or carbohydrate is
+# four, one of fibre is two and one of water is none — so a band in grams asks more of a
+# fatty food than of a starchy one for no reason anybody can defend, and a floor of a gram
+# and a half of carbohydrate is a tenth of a boiled potato and a fiftieth of a sausage.
+# What makes two entries the same food is that the energy does not move and neither does
+# where the energy comes from. So the three that carry the energy are banded by what a
+# difference in them does to it, as a share of the food's own energy.
+KCAL_PER_G = {"p": 4, "c": 4, "f": 9}
+ENERGY_TOL = 0.15
+ENERGY_FLOOR = 8.0      # kcal; under this a difference is rounding, whatever the food
+# The rest carry meaning without much energy, and keep a band in grams: (floor, share of
+# the largest value in the pool). The three fats the fat figure breaks into veto only a
+# difference of kind — coconut oil against olive — never the butter in an omelet.
 BAND = {
-    "p": (0.8, 0.25), "c": (1.5, 0.25), "f": (0.8, 0.25),
-    "fb": (0.8, 0.25), "sg": (1.5, 0.25), "wa": (2.0, 0.06), "kcal": (12, 0.25),
-    # The three fats the fat figure breaks into are a detail of a detail: they veto only
-    # a difference that is a difference of kind — coconut oil against olive — never the
-    # butter in an omelet. A tight band here was what kept a scrambled egg from pooling
-    # with a boiled one.
+    "fb": (1.0, 0.25), "sg": (1.5, 0.25), "wa": (2.0, 0.10), "kcal": (12, 0.25),
     "sf": (1.5, 0.35), "mo": (1.5, 0.35), "po": (1.5, 0.35),
 }
+AXES_G = list(BAND)
 # USDA files some things under a category rather than a food — "Beverages, coffee",
 # "Snacks, potato chips", "Fast foods, hamburger". For these the head is the first two
 # segments, or every drink in the book would pool as "Beverages".
@@ -78,7 +85,7 @@ CATEGORY_HEADS = {
     "pasta", "noodles", "potatoes", "squash", "lettuce", "cabbage", "onions", "peppers",
     "tomatoes", "apples", "oranges", "grapes", "berries", "oil", "margarine", "butter",
 }
-AXES = list(BAND)
+AXES = AXES_G + list(KCAL_PER_G)
 MIN_MEMBERS = 2
 # The figures a release does not always analyse. Where nobody measured one, SR Legacy
 # leaves the nutrient out and the build writes a zero, so a zero here says two things at
@@ -171,14 +178,20 @@ class Pool:
         # and the pool ends up straddling the very line the constraint drew.
         if self.state and other.state and self.state != other.state:
             return False
+        energy = max(ENERGY_FLOOR,
+                     ENERGY_TOL * max(self.hi["kcal"], other.hi["kcal"]))
         for a in AXES:
             # An axis votes only where both sides have something to say on it.
             if not (self.seen[a] and other.seen[a]):
                 continue
             lo = min(self.lo[a], other.lo[a])
             hi = max(self.hi[a], other.hi[a])
-            floor, share = BAND[a]
-            if hi - lo > max(floor, share * abs(hi)):
+            if a in KCAL_PER_G:
+                band = energy / KCAL_PER_G[a]
+            else:
+                floor, share = BAND[a]
+                band = max(floor, share * abs(hi))
+            if hi - lo > band:
                 return False
         return True
 
@@ -193,6 +206,13 @@ class Pool:
             else:
                 self.lo[a] = min(self.lo[a], other.lo[a])
                 self.hi[a] = max(self.hi[a], other.hi[a])
+
+
+def apart(x, y):
+    """How far two rows are in calories: the energy between them, and the energy moved by
+    the difference in each macro that carries it."""
+    return abs(field(x, "kcal") - field(y, "kcal")) + sum(
+        per * abs(field(x, a) - field(y, a)) for a, per in KCAL_PER_G.items())
 
 
 def jaccard(a, b):
@@ -225,7 +245,10 @@ def cluster_head(rows):
             ra, rb = rows[x][1], rows[y][1]
             if field(ra, "cat") != field(rb, "cat") or bool(field(ra, "ml")) != bool(field(rb, "ml")):
                 continue
-            pairs.append((-jaccard(quals[a], quals[b]), a, b))
+            pairs.append((-jaccard(quals[a], quals[b]), apart(ra, rb), a, b))
+    # Words propose the order and numbers break its ties: "cooked, omelet" shares one word
+    # with "cooked, fried" and one with "cooked, hard-boiled", and which it is put with
+    # should not come down to which USDA happened to file first.
     pairs.sort()
     # Repeat until nothing more fits. A pool grows as it goes, so a merge refused early
     # can become possible later; one pass would leave a row outside a pool it belongs in,
@@ -233,7 +256,7 @@ def cluster_head(rows):
     moved = True
     while moved:
         moved = False
-        for _, a, b in pairs:
+        for _, _, a, b in pairs:
             ra, rb = find(a), find(b)
             if ra == rb:
                 continue
@@ -250,6 +273,14 @@ def shared_name(names):
     head = head_of(names[0])
     depth = head.count(",") + 1
     segs_of = lambda n: [x.strip() for x in n.split(",")][depth:]
+    # A segment is shared when every member has that segment, not when its words turn up
+    # somewhere in every member. "Beerwurst, pork and beef" contains the word pork, but a
+    # pool of it and "Beerwurst, beer salami, pork" is not a pork beerwurst — two thirds of
+    # it is beef as well. What they share is the name of the sausage, and that is the name.
+    shared = None
+    for n in names:
+        segs = {seg for seg in segs_of(n) if seg}
+        shared = segs if shared is None else shared & segs
     common = None
     for n in names:
         toks = {t for seg in segs_of(n) for t in words(seg)}
@@ -264,7 +295,7 @@ def shared_name(names):
         toks = words(seg)
         if not seg or not toks:
             continue
-        if all(t in common for t in toks):
+        if seg in shared:
             order.append(seg)
             continue
         raw = [w for w in re.split(r"[^A-Za-z0-9%]+", seg) if w]
@@ -298,6 +329,8 @@ def build_pools(foods):
 
 
 def _band(p, a):
+    if a in KCAL_PER_G:
+        return max(ENERGY_FLOOR, ENERGY_TOL * abs(p.hi["kcal"])) / KCAL_PER_G[a]
     floor, share = BAND[a]
     return max(floor, share * abs(p.hi[a]))
 
@@ -441,8 +474,13 @@ def dedupe_names(rows, foods):
             if not all(known(r, a) for r in group):
                 continue
             vals = [field(r, a) for r in group]
-            floor, share = BAND[a]
-            spread = (max(vals) - min(vals)) / max(floor, share * max(abs(v) for v in vals) or floor)
+            if a in KCAL_PER_G:
+                span = max(ENERGY_FLOOR,
+                           ENERGY_TOL * max(field(r, "kcal") for r in group)) / KCAL_PER_G[a]
+            else:
+                floor, share = BAND[a]
+                span = max(floor, share * max(abs(v) for v in vals) or floor)
+            spread = (max(vals) - min(vals)) / span
             ranked.append((-spread, a))
         # The widest axis is the first choice, but an axis that reads the same for two of
         # them has not told them apart: keep going until one does.

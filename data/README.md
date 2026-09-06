@@ -78,16 +78,26 @@ under `Pork, cured` — so a search for the word still finds the pool. Nothing i
 the members stay as they are, the pool ranks above them, and the table opens it to show
 what it is typical of.
 
-A family is found by constrained clustering: within a name head, entries merge in order
-of the qualifier words they share, and a merge is refused if the pool's range on any axis
-— protein, carbohydrate, fat, fibre, sugar, water and energy — would exceed a band of a
-quarter of the value, or an absolute floor, whichever is larger. The three fats the fat
-figure breaks into gate too, but loosely: they part coconut oil from olive, never a
-scrambled egg from a boiled one. The band is on the pool's diameter, not on the pair,
+A family is found by constrained clustering: within a name head, entries merge in order of
+the qualifier words they share — ties going to the pair that is closest in calories — and a
+merge is refused if the pool's range on any axis would carry it too far. A gram is not a
+gram, so the three axes that carry the energy are banded by what a difference in them does
+to it: protein, carbohydrate and fat may each move a sixth of the food's calories, which is
+a gram of fat in milk and four in a sausage. Fibre, sugar, water and the three fats the fat
+figure breaks into carry meaning without much energy and keep a band in grams. The band is
+on the pool's diameter, not on the pair,
 so a pool cannot grow by chaining; and merging repeats until nothing more fits, so a pool
 is everything that belongs in it rather than an arbitrary slice of its head. Where USDA
 files a thing under a category — `Beverages, coffee`, `Beef, chuck` — the head runs two
 segments deep, or every drink in the book would pool as one.
+
+The name is the segments every member has, whole: not the words that turn up in all of
+them. "Beerwurst, pork and beef" contains the word pork, but pooled with "Beerwurst, beer
+salami, pork" it is not a pork beerwurst, since two thirds of the pool is beef as well.
+What the three of them share is the name of the sausage, so the pool is `Beerwurst`. A pool
+that comes out named exactly what one of its members is named is dropped: USDA already
+ships that entry, it already is the average of the family, and two rows of the same words
+help nobody.
 
 Two things the numbers cannot say for themselves:
 
