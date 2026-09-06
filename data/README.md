@@ -63,13 +63,13 @@ release totals (SR Legacy ships 7,793 foods; 37 carry no kcal).
 written by [`../tools/pool_foods.py`](../tools/pool_foods.py). Bread by the bakery, milk by
 the vitamin added, lentils with and without salt — a search for the plain word returns
 dozens of entries whose numbers are all but the same, so each such family gets a row that
-is typical of it: the mean of its members, named by the words they all share, with the
-count in its name.
+is typical of it: the mean of its members, named by the words they all share and marked
+`· avg`, which the table shows as a badge.
 
 ```json
-["Egg, whole · typical of 4", 3, 147, 12.5, 0.88, 0, 9.88, 3.23, 0.53, 0, 0, 28.35, "OUNCES",
- 75.6, 1.15, 3.82, 1.77, 0,
- 0, [3287, 3289, 3293, 3294], []]
+["Egg, whole \u00b7 avg", 3, 148, 11.77, 0.95, 0.0, 10.37, 3.25, 0.63, 0, 0,
+ 28.35, "OUNCES", 75.82, 1.1, 4.08, 2.03, 0.0,
+ 0, [3287, 3288, 3289, 3290, 3293, 3294], []]
 ```
 
 The first eighteen fields are a food row; then trans fat, then the members as indices
@@ -80,11 +80,14 @@ what it is typical of.
 
 A family is found by constrained clustering: within a name head, entries merge in order
 of the qualifier words they share, and a merge is refused if the pool's range on any axis
-— protein, carbohydrate, fat, fibre, sugar, water, energy, and the three fats — would
-exceed a band. The band is on the pool's diameter, not on the pair, so a pool cannot grow
-by chaining, and a pool that touches its neighbours on every axis is a slice of a
-continuum rather than a family and is dropped — which is why there are no beef pools:
-beef spans every fat level with no gap between them. The tool says the rest.
+— protein, carbohydrate, fat, fibre, sugar, water and energy — would exceed a band of a
+quarter of the value, or an absolute floor, whichever is larger. The three fats the fat
+figure breaks into gate too, but loosely: they part coconut oil from olive, never a
+scrambled egg from a boiled one. The band is on the pool's diameter, not on the pair,
+so a pool cannot grow by chaining; and merging repeats until nothing more fits, so a pool
+is everything that belongs in it rather than an arbitrary slice of its head. Where USDA
+files a thing under a category — `Beverages, coffee`, `Beef, chuck` — the head runs two
+segments deep, or every drink in the book would pool as one. The tool says the rest.
 
 ## Categories
 

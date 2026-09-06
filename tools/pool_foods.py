@@ -51,18 +51,14 @@ OWNED = re.compile(r"\b[A-Z][a-z]+'s\b")
 # The band per axis: (absolute floor, share of the largest value in the pool).
 # The pool's range on the axis must stay within max(floor, share * max).
 BAND = {
-    "p": (0.8, 0.12), "c": (1.5, 0.12), "f": (0.8, 0.12),
-    "fb": (0.8, 0.25), "sg": (1.5, 0.20), "wa": (2.0, 0.03), "kcal": (12, 0.08),
-    "sf": (0.6, 0.15), "mo": (0.8, 0.15), "po": (0.8, 0.15),
+    "p": (0.8, 0.25), "c": (1.5, 0.25), "f": (0.8, 0.25),
+    "fb": (0.8, 0.25), "sg": (1.5, 0.25), "wa": (2.0, 0.06), "kcal": (12, 0.25),
+    # The three fats the fat figure breaks into are a detail of a detail: they veto only
+    # a difference that is a difference of kind — coconut oil against olive — never the
+    # butter in an omelet. A tight band here was what kept a scrambled egg from pooling
+    # with a boiled one.
+    "sf": (1.5, 0.35), "mo": (1.5, 0.35), "po": (1.5, 0.35),
 }
-# A pool must be a mode, not a bin. Beef spans every fat level with no gap between
-# them, so a band alone would chop it into a dozen slices with arbitrary membership.
-# A finished pool is kept only if it stands apart from its neighbours: rows under the
-# same head that sit within this share of the band of it on EVERY axis are "touching",
-# and a pool that touches more rows than this fraction of its own size is a slice of a
-# continuum rather than a family.
-TOUCH = 0.5
-TOUCH_MAX = 0.34
 # USDA files some things under a category rather than a food — "Beverages, coffee",
 # "Snacks, potato chips", "Fast foods, hamburger". For these the head is the first two
 # segments, or every drink in the book would pool as "Beverages".
@@ -74,6 +70,11 @@ CATEGORY_HEADS = {
     "salad dressing", "sweeteners", "desserts", "pie", "cake", "muffins", "rolls",
     "bagels", "biscuits", "pancakes", "waffles", "game meat", "sausage", "fish", "mollusks",
     "crustaceans", "cheese", "yogurt", "milk", "egg", "juice", "beans", "peas", "rice",
+    # USDA files a meat as species, cut, treatment — "Beef, chuck, ...", "Pork, loin, ...".
+    # Under the species alone a pool spans cuts that have nothing to do with each other
+    # but a fat figure, so for these the cut is part of the head.
+    "beef", "pork", "lamb", "veal", "chicken", "turkey", "duck", "goose", "ostrich",
+    "emu", "bison", "buffalo", "elk", "deer", "moose", "rabbit", "quail", "pheasant",
     "pasta", "noodles", "potatoes", "squash", "lettuce", "cabbage", "onions", "peppers",
     "tomatoes", "apples", "oranges", "grapes", "berries", "oil", "margarine", "butter",
 }
@@ -170,14 +171,21 @@ def cluster_head(rows):
                 continue
             pairs.append((-jaccard(quals[a], quals[b]), a, b))
     pairs.sort()
-    for _, a, b in pairs:
-        ra, rb = find(a), find(b)
-        if ra == rb:
-            continue
-        if pools[ra].fits(pools[rb]):
-            pools[ra].absorb(pools[rb])
-            owner[rb] = ra
-            del pools[rb]
+    # Repeat until nothing more fits. A pool grows as it goes, so a merge refused early
+    # can become possible later; one pass would leave a row outside a pool it belongs in,
+    # and a pool that is not everything it could be is an arbitrary slice of its head.
+    moved = True
+    while moved:
+        moved = False
+        for _, a, b in pairs:
+            ra, rb = find(a), find(b)
+            if ra == rb:
+                continue
+            if pools[ra].fits(pools[rb]):
+                pools[ra].absorb(pools[rb])
+                owner[rb] = ra
+                del pools[rb]
+                moved = True
     return list(pools.values())
 
 
@@ -207,17 +215,7 @@ def build_pools(foods):
     for head, rows in by_head.items():
         if len(rows) < MIN_MEMBERS:
             continue
-        found = [p for p in cluster_head(rows) if len(p.members) >= MIN_MEMBERS]
-        for p in found:
-            inside = set(p.members)
-            touching = 0
-            for i, row in rows:
-                if i in inside:
-                    continue
-                if all(_gap(p, row, a) < TOUCH * _band(p, a) for a in AXES):
-                    touching += 1
-            if touching <= max(1, TOUCH_MAX * len(p.members)):
-                pools.append(p)
+        pools += [p for p in cluster_head(rows) if len(p.members) >= MIN_MEMBERS]
     return pools
 
 
@@ -346,10 +344,11 @@ def dedupe_names(rows, foods):
 
 def label(rows):
     """"Cheese, cheddar" is both a pool and a real food, and a plate cannot hold two
-    things by one name. The count goes into the name itself: it is the one thing that
-    says what the row is, everywhere the name goes."""
+    things by one name. The mark goes into the name itself, since the name is what
+    travels — to the plate, to the clipboard, to a saved list. The table shows it as a
+    badge instead of reading it out."""
     for r in rows:
-        r[IX["name"]] = f"{r[IX['name']]} \u00b7 typical of {len(r[MEMBERS])}"
+        r[IX["name"]] = f"{r[IX['name']]} \u00b7 avg"
     return rows
 
 

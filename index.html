@@ -792,7 +792,7 @@ option{background:var(--panel);color:var(--body)}
             <sc-if value="{{ r.finger }}" hint-placeholder-val="{{ false }}">
               <span data-finger><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span>
             </sc-if>
-            <span style="{{ r.mNameStyle }}"><sc-for list="{{ r.nameSeg }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.s }}">{{ sg.t }}</span></sc-for><sc-if value="{{ r.poolTag }}" hint-placeholder-val="{{ false }}"><span style="{{ r.poolTagS }}">{{ r.poolTag }}</span></sc-if></span>
+            <span style="{{ r.mNameRow }}"><span style="{{ r.mNameStyle }}"><sc-for list="{{ r.nameSeg }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.s }}">{{ sg.t }}</span></sc-for></span><sc-if value="{{ r.poolTag }}" hint-placeholder-val="{{ false }}"><span style="{{ r.poolTagS }}">{{ r.poolTag }}</span></sc-if></span>
             <span style="{{ r.mValCell }}">{{ r.mVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
           </div>
           <div style="{{ r.mExpand }}">
@@ -2566,20 +2566,24 @@ class Component extends DCLogic {
       const rSt = Math.max(0, fo.c - (fo.sg || 0) - (fo.fb || 0));
       const rSubs = [fo.sg || 0, fo.fb || 0, rSt, fo.sf || 0, fo.mo || 0, fo.po || 0];
       const rSubHue = SUB_GRN.concat(SUB_CRL);
-      // A pool's name ends "· typical of N": the table shows the name and wears the
-      // count as a tag, and the tag is what opens the members up underneath.
-      const tagAt = fo.pool ? fo.name.indexOf(" \u00b7 typical of ") : -1;
+      // A pool's name ends "· avg": the table shows the name and wears the mark as a
+      // tag, and the tag is what opens the members up underneath.
+      const tagAt = fo.pool ? fo.name.indexOf(" \u00b7 avg") : -1;
       const shown = tagAt > 0 ? fo.name.slice(0, tagAt) : fo.name;
       return {
         name: fo.name, nameSeg: segsFor(shown), key: fo.name,
-        poolTag: tagAt > 0 ? fo.name.slice(tagAt + 3) : "",
+        poolTag: tagAt > 0 ? "AVG" : "",
         poolOn: !!fo.pool && s.poolOpen === fo.name,
         nameCell: { display: "flex", alignItems: "center", gap: ".55rem", minWidth: 0, padding: "0 .9rem 0 .65rem" },
-        // The tag is the count, in the chrome face, ringed like the expander in the
+        // Pinned to the right of the name column: a badge that follows the words moves
+        // with every food, and a mark you cannot find twice in the same place is not
+        // a mark. Mobile puts the name and the badge on one line for the same reason.
+        mNameRow: { display: "flex", alignItems: "baseline", gap: ".5rem", minWidth: 0 },
+        // The tag is one word, in the chrome face, ringed like the expander in the
         // header: it is the control that opens the pool, and it says so by looking
         // like one.
         poolTagS: {
-          flex: "none", marginLeft: s.narrow ? ".5rem" : 0,
+          flex: "none", marginLeft: "auto",
           fontFamily: "var(--font-2)", fontSize: s.narrow ? ".7rem" : ".62rem",
           letterSpacing: ".1em", textTransform: "uppercase", whiteSpace: "nowrap",
           lineHeight: s.narrow ? "1.3rem" : "1.15rem", padding: "0 .4rem",
