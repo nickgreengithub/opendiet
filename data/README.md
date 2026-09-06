@@ -123,13 +123,25 @@ this — the pooling reads the tell instead: a zero under a parent figure that i
 
 `null` is only ever written under `--keep-incomplete`, and the site does not render it yet.
 
+The libraries in `data/` were built before any of that, so the difference was already gone
+from them and could not be read back out of the source.
+[`../tools/prune_unmeasured.py`](../tools/prune_unmeasured.py) recovered it from the file
+instead and took the foods out: within a category, count how many of the foods that have
+the parent figure report the figure itself, and where most of them do, a zero is the odd
+one out. Four dairy foods in five carry carbohydrate and no fibre, so a zero there is a
+measurement and milk stays; nine vegetables in ten carry fibre, so a vegetable with
+carbohydrate and none is a vegetable nobody tested. Fat over a gram broken into four zeros
+needs no counting, and neither does a food that contradicts itself. SR Legacy lost 1,458 of
+7,756 foods that way, 15 of them meat and 7 fish; the libraries now say `"zeros":
+"measured"` and mean it.
+
 [`../tools/audit_data.py`](../tools/audit_data.py) checks a library for zeros the numbers
 themselves contradict, and exits non-zero on any: energy is a known function of the macros,
 the parts of 100 g have to reach 100 g, fat over a gram is made of something, and the parts
-of a figure cannot exceed it. On the shipped libraries the macros and water come through
-almost clean — one taco seasoning whose energy needs 8 g of fat it does not state, and no
-water zero unaccounted for in 18,000 foods. What the check cannot rule on is the sugar and
-fibre zeros, which is the half of the file only the source can speak for.
+of a figure cannot exceed it. When it was first run on the shipped libraries the macros
+and water came through almost clean — one taco seasoning whose energy needed 8 g of fat it
+did not state, and no water zero unaccounted for in 18,000 foods. What it found was in the
+sub-figures, and the prune below took those foods out; it now passes.
 
 ## Categories
 
