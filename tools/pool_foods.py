@@ -263,12 +263,66 @@ def pool_row(p, foods):
 
 AXIS_LABEL = {"p": "protein", "c": "carbs", "f": "fat", "fb": "fibre", "sg": "sugar",
               "wa": "water", "kcal": "kcal", "sf": "sat fat", "mo": "mono", "po": "poly"}
+MAX_TELLING = 3
+# Words that carry no food in them: they cannot be what tells two pools apart.
+EMPTY = {"with", "without", "and", "or", "in", "of", "the", "a", "an", "to", "from",
+         "added", "includes", "all", "extra", "style", "type", "prepared", "made",
+         "including", "plus", "not", "no", "unspecified", "other", "regular", "commercial",
+         "commercially", "home", "each", "per", "used", "use", "uses", "for", "on", "at",
+         "by", "is", "as", "its", "than", "this", "that", "these", "those", "only", "both"}
+
+
+def member_words(r, foods):
+    """Every word the pool's members use, after the head."""
+    out = set()
+    for i in r[MEMBERS]:
+        n = foods[i][IX["name"]]
+        depth = head_of(n).count(",") + 1
+        for seg in [x.strip() for x in n.split(",")][depth:]:
+            out |= set(words(seg))
+    return out
+
+
+def retell(rows, foods):
+    """A pool named "Egg, whole, cooked" sat beside one named "Egg, whole" that held the
+    hard-boiled and the poached: "cooked" was not what told them apart, so the pair read
+    as a food and a subset of itself. Where one pool's name nests inside another's under
+    the same head and every qualifier it adds is one the sibling's members own too, the
+    words only this pool's members use are added — omelet, scrambled. Names that already
+    distinguish are left alone: a name has to say what the food is, not only how it
+    differs."""
+    by_head = defaultdict(list)
+    for r in rows:
+        by_head[head_of(r[IX["name"]]).lower()].append(r)
+    for head, group in by_head.items():
+        if len(group) < 2:
+            continue
+        own = {id(r): member_words(r, foods) for r in group}
+        names = {id(r): r[IX["name"]] for r in group}
+        for r in group:
+            name = names[id(r)]
+            if not any(o is not r and (name.startswith(names[id(o)] + ",")
+                                       or names[id(o)].startswith(name + ",")
+                                       or names[id(o)] == name) for o in group):
+                continue
+            others = set()
+            for o in group:
+                if o is not r:
+                    others |= own[id(o)]
+            depth = head_of(name).count(",") + 1
+            segs = [x.strip() for x in name.split(",")]
+            if any(seg and not all(w in others for w in words(seg)) for seg in segs[depth:]):
+                continue      # the name already says something the sibling cannot
+            telling = sorted(w for w in own[id(r)] - others if w not in EMPTY and len(w) > 1)
+            if telling and len(telling) <= MAX_TELLING:
+                r[IX["name"]] = name + ", " + " or ".join(telling)
+    return rows
 
 
 def dedupe_names(rows, foods):
-    """White breads and wholemeal breads both come out as "Bread": every word they
-    share is the same word. What differs is a number, so the number breaks the clash
-    — the axis on which the clashing pools are furthest apart, stated for each."""
+    """White breads and wholemeal breads can come out as one name: every word they share
+    is the same word. What differs is a number, so the number breaks the clash — the axis
+    on which the clashing pools are furthest apart, stated for each."""
     seen = defaultdict(list)
     for r in rows:
         seen[r[IX["name"]].lower()].append(r)
@@ -309,7 +363,7 @@ def main():
     d = json.loads(path.read_text())
     foods = d["foods"]
     pools = build_pools(foods)
-    rows = label(dedupe_names([pool_row(p, foods) for p in pools], foods))
+    rows = label(dedupe_names(retell([pool_row(p, foods) for p in pools], foods), foods))
     rows.sort(key=lambda r: (-len(r[MEMBERS]), r[IX["name"]]))
 
     sizes = [len(r[MEMBERS]) for r in rows]
