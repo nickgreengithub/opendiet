@@ -122,11 +122,23 @@ def field(row, k):
     return row[i] if i < len(row) else 0
 
 
+# Set from the library: True where the file promises every zero in it was measured.
+MEASURED = False
+
+
 def known(row, a):
     """Whether the row actually carries a figure on this axis, or only a zero standing in
-    for a measurement nobody made."""
+    for a measurement nobody made. A library built by a tools/build_data.py that keeps the
+    difference says so and is believed; an older one has to be read for the tell, which is
+    a figure of zero under a parent figure that is not — milk with five grams of
+    carbohydrate and no sugar was not measured, since the carbohydrate in milk is sugar."""
+    v = field(row, a)
+    if v is None:
+        return False
+    if MEASURED:
+        return True
     parent = PARENT.get(a)
-    return not (parent and field(row, a) == 0 and field(row, parent) > 0.5)
+    return not (parent and v == 0 and field(row, parent) > 0.5)
 
 
 def state_of(qual):
@@ -452,6 +464,8 @@ def main():
     path = ROOT / "data" / f"{args.lib}.json"
     d = json.loads(path.read_text())
     foods = d["foods"]
+    global MEASURED
+    MEASURED = d.get("zeros") == "measured"
     pools = build_pools(foods)
     rows = label(dedupe_names(retell([pool_row(p, foods) for p in pools], foods), foods))
     rows.sort(key=lambda r: (-len(r[MEMBERS]), r[IX["name"]]))

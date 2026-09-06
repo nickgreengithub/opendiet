@@ -91,14 +91,9 @@ segments deep, or every drink in the book would pool as one.
 
 Two things the numbers cannot say for themselves:
 
-A zero is not always a measurement. SR Legacy leaves a nutrient out where nobody analysed
-it and the build writes a zero, so a zero under sugar, fibre or one of the three fats says
-both "none of it" and "nobody looked" — and only the parent figure tells which. Milk with
-five grams of carbohydrate and no sugar has not been measured: the carbohydrate in milk is
-sugar. So a zero under a parent that is not zero is unknown; an axis votes only where both
-sides have a figure on it, and a mean is taken over the members that carry one. Twenty-odd
-per cent of the entries with carbohydrate carry no sugar figure, which was enough to split
-2% milk into two pools that differed in nothing else.
+A zero is not always a measurement — see [Missing figures](#missing-figures) below. An axis
+votes only where both sides have a figure on it, and a mean is taken over the members that
+carry one. Sugar was enough to split 2% milk into two pools that differed in nothing else.
 
 Raw and cooked are different foods. Water leaves in the pan and every figure per 100 g
 moves with it, so a name that says raw and a name that says boiled cannot pool however
@@ -106,6 +101,27 @@ close their numbers land — and the constraint is on the pool, not on the pair,
 carrots reach the cooked ones through the frozen ones in between.
 
 The tool says the rest.
+
+## Missing figures
+
+FDC writes a row for a nutrient somebody analysed and no row at all for one nobody did. SR
+Legacy analysed sugars for about seven entries in ten, so for the other three there is no
+sugar figure — which is not the same statement as no sugar. The build used to write both as
+`0`, and the difference was gone by the time anything read the file: milk with five grams
+of carbohydrate and no sugar had not been measured, since the carbohydrate in milk is sugar.
+
+`tools/build_data.py` now keeps the difference. A food missing any of the seven figures the
+table shows is left out of the library; `--keep-incomplete` keeps it and writes `null` for
+what nobody measured instead. `tools/add_composition.py` does the same for the figures it
+adds — water, ash and the two unsaturated fats. Alcohol and trans fat are the exception:
+FDC leaves those out of a food that has none of them, not only of one nobody tested, so
+absent reads as zero for those two.
+
+A file built this way carries `"zeros": "measured"`, which is its promise that every zero
+in it is a figure somebody wrote down. Where that promise is absent — a file built before
+this — the pooling reads the tell instead: a zero under a parent figure that is not zero.
+
+`null` is only ever written under `--keep-incomplete`, and the site does not render it yet.
 
 ## Categories
 

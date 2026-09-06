@@ -3,8 +3,11 @@
 
 Output per library: {"cats": [...], "foods": [[name, catIdx, kcal, p, c, fb, f, sf, sg, liquid], ...]}
 All nutrient values are per 100 g (or per 100 ml for foods flagged liquid), matching FDC's basis.
+
+    python3 tools/build_data.py                    # leave out a food with a figure missing
+    python3 tools/build_data.py --keep-incomplete  # keep it, and write null for the figure
 """
-import csv, json, os, re, sys, collections
+import argparse, csv, json, os, re, sys, collections
 
 B = "probe/shahadsuliman_USDA-Food-DATA/dataset"
 SR = "usda/srlegacy"
@@ -14,6 +17,12 @@ OUT = "/home/user/opendiet/data"
 # FDC nutrient ids -> the fields the table shows.
 NUT = {"1008": "kcal", "1003": "p", "1005": "c", "1079": "fb",
        "1004": "f", "1258": "sf", "2000": "sg"}
+# FDC writes a row for a nutrient somebody analysed and no row at all for one nobody did.
+# A food with no sugar row is not a food with no sugar — SR Legacy analysed sugars for
+# about seven entries in ten — so the two must not arrive here as the same number. Where a
+# figure is missing the food is left out, unless --keep-incomplete, which writes null for
+# it instead; either way nothing downstream sees a zero nobody measured.
+REQUIRED = ("kcal", "p", "c", "fb", "f", "sf", "sg")
 
 # SR Legacy food_category_id -> the site's short category token.
 SR_CAT = {
@@ -72,8 +81,11 @@ def read_nutrients(path, keep=None):
             fid = r["fdc_id"]
             if keep is not None and fid not in keep:
                 continue
+            amount = (r["amount"] or "").strip()
+            if not amount:
+                continue      # an empty cell is not a zero either
             try:
-                vals[fid][k] = float(r["amount"])
+                vals[fid][k] = float(amount)
             except (ValueError, TypeError):
                 pass
     return vals
@@ -84,24 +96,37 @@ def num(x, nd=1):
         v = 0.0
     return int(v) if v == int(v) else v
 
-def pack(rows):
-    """rows: list of (name, cat, vals, liquid) -> compact dict."""
-    cats = sorted({c for _, c, _, _ in rows})
+def pack(rows, keep_incomplete=False, require=REQUIRED):
+    """rows: list of (name, cat, vals, liquid) -> compact dict, and how many were left out
+    for want of a figure."""
+    kept = [r for r in rows if keep_incomplete or all(k in r[2] for k in require)]
+    dropped = len(rows) - len(kept)
+    cats = sorted({c for _, c, _, _ in kept})
     idx = {c: i for i, c in enumerate(cats)}
+    cell = lambda v, k: (num(v[k]) if k in v else None)
     foods = []
-    for name, cat, v, liq in sorted(rows, key=lambda r: r[0].lower()):
-        foods.append([name, idx[cat], int(round(v.get("kcal", 0))),
-                      num(v.get("p")), num(v.get("c")), num(v.get("fb")),
-                      num(v.get("f")), num(v.get("sf")), num(v.get("sg")), liq])
-    return {"cats": cats, "foods": foods}
+    for name, cat, v, liq in sorted(kept, key=lambda r: r[0].lower()):
+        foods.append([name, idx[cat],
+                      int(round(v["kcal"])) if "kcal" in v else None,
+                      cell(v, "p"), cell(v, "c"), cell(v, "fb"),
+                      cell(v, "f"), cell(v, "sf"), cell(v, "sg"), liq])
+    # A later step cannot see the difference between a file whose zeros were all measured
+    # and one that lost the difference, so the file says which it is. Only a file built
+    # without --keep-incomplete can promise it.
+    out = {"cats": cats, "foods": foods}
+    if not keep_incomplete:
+        out["zeros"] = "measured"
+    return out, dropped
 
-def write(name, payload):
+def write(name, packed):
+    payload, dropped = packed
     os.makedirs(OUT, exist_ok=True)
     p = os.path.join(OUT, name)
     with open(p, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, separators=(",", ":"))
+    short = f"  ({dropped} left out, a figure unmeasured)" if dropped else ""
     print(f"  {name:14s} {len(payload['foods']):6d} foods  "
-          f"{len(payload['cats']):2d} cats  {os.path.getsize(p)/1024:8.0f} KB")
+          f"{len(payload['cats']):2d} cats  {os.path.getsize(p)/1024:8.0f} KB{short}")
 
 # ---------------------------------------------------------------- SR Legacy
 def build_legacy():
@@ -166,11 +191,18 @@ def build_core(legacy_rows):
     return out
 
 if __name__ == "__main__":
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--keep-incomplete", action="store_true",
+                    help="keep a food that is missing one of the figures and write null "
+                         "for what nobody measured, instead of leaving the food out")
+    ap.add_argument("--require", default=",".join(REQUIRED),
+                    help="the figures a food must carry to be kept (comma separated)")
+    args = ap.parse_args()
+    require = tuple(k.strip() for k in args.require.split(",") if k.strip())
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     print("building:")
     legacy = build_legacy()
     core = build_core(legacy)
     survey = build_survey()
-    write("legacy.json", pack(legacy))
-    write("survey.json", pack(survey))
-    write("core.json", pack(core))
+    for name, rows in (("legacy.json", legacy), ("survey.json", survey), ("core.json", core)):
+        write(name, pack(rows, args.keep_incomplete, require))
