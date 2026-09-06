@@ -57,12 +57,21 @@ OWNED = re.compile(r"\b[A-Z][a-z]+'s\b")
 # difference in them does to it, as a share of the food's own energy.
 KCAL_PER_G = {"p": 4, "c": 4, "f": 9}
 ENERGY_TOL = 0.15
-ENERGY_FLOOR = 8.0      # kcal; under this a difference is rounding, whatever the food
+# And under twenty calories in a hundred grams is not a difference anybody eats: it is a
+# fifth of an apple, and holding a raw kale apart from a boiled one over sixteen of them
+# is a strictness that serves nothing. Without this the share alone asks more of a lettuce
+# than of a cheese, which is the same fault the gram floors had, upside down.
+ENERGY_FLOOR = 20.0
 # The rest carry meaning without much energy, and keep a band in grams: (floor, share of
 # the largest value in the pool). The three fats the fat figure breaks into veto only a
 # difference of kind — coconut oil against olive — never the butter in an omelet.
+# Fibre's floor is the one that has to be argued for. Kale runs 2.0 to 4.1 grams across
+# USDA's own entries — 2.3 in the boiled kale with salt and 4.0 in the boiled kale without,
+# which is the same vegetable twice — while white bread and wholemeal run 2.7 to 7.0 and
+# are two different loaves. A floor of two and a half grams sits between them with room on
+# both sides.
 BAND = {
-    "fb": (1.0, 0.25), "sg": (1.5, 0.25), "wa": (2.0, 0.10), "kcal": (12, 0.25),
+    "fb": (2.5, 0.25), "sg": (1.5, 0.25), "wa": (2.0, 0.10), "kcal": (20, 0.25),
     "sf": (1.5, 0.35), "mo": (1.5, 0.35), "po": (1.5, 0.35),
 }
 AXES_G = list(BAND)
@@ -94,12 +103,6 @@ MIN_MEMBERS = 2
 # carbohydrate in milk is sugar. A zero under a parent that is not zero is therefore
 # unknown, and an unknown neither vetoes a merge nor drags a mean down.
 PARENT = {"sg": "c", "fb": "c", "sf": "f", "mo": "f", "po": "f"}
-# A raw food and a cooked one are not one food whatever the numbers say: water leaves in
-# the pan, and every figure per 100 g moves with it. Where both names state the state, a
-# difference of state cannot be merged.
-RAW = {"raw", "uncooked", "unprepared"}
-COOKED = {"cooked", "boiled", "braised", "roasted", "baked", "fried", "grilled", "broiled",
-          "steamed", "microwaved", "stewed", "simmered", "poached", "toasted", "griddled"}
 MIN_TELLING_WORDS = 2
 
 # Field layout of a food row — see data/README.md.
@@ -148,13 +151,6 @@ def known(row, a):
     return not (parent and v == 0 and field(row, parent) > 0.5)
 
 
-def state_of(qual):
-    """"raw", "cooked", or "" for a name that does not say."""
-    if qual & RAW:
-        return "cooked" if qual & COOKED else "raw"
-    return "cooked" if qual & COOKED else ""
-
-
 def head_of(name):
     segs = [x.strip() for x in name.split(",")]
     if segs[0].lower() in CATEGORY_HEADS and len(segs) > 1:
@@ -163,21 +159,22 @@ def head_of(name):
 
 
 class Pool:
-    __slots__ = ("members", "lo", "hi", "seen", "state")
+    __slots__ = ("members", "lo", "hi", "seen")
 
-    def __init__(self, i, row, state=""):
+    def __init__(self, i, row):
         self.members = [i]
-        self.state = state
         self.seen = {a: known(row, a) for a in AXES}
         self.lo = {a: (field(row, a) if self.seen[a] else 0.0) for a in AXES}
         self.hi = dict(self.lo)
 
     def fits(self, other):
-        # A cannot-link holds for the pool, not only for the pair that proposed it:
-        # otherwise raw carrots reach cooked carrots through the frozen ones in between,
-        # and the pool ends up straddling the very line the constraint drew.
-        if self.state and other.state and self.state != other.state:
-            return False
+        # Raw and cooked used to be a cannot-link here, because a pool of raw kale and
+        # boiled kale came out named "Kale, raw". That was the name lying, not the pool
+        # being wrong: a name is the segments every member has now, so such a pool is
+        # called "Kale" and says exactly what it is. Where cooking does move the numbers —
+        # rice, pasta, beans, a potato, any meat — the bands part them without being told
+        # to; where it does not, as in a leaf that is nine tenths water either way, there
+        # was never anything to part.
         energy = max(ENERGY_FLOOR,
                      ENERGY_TOL * max(self.hi["kcal"], other.hi["kcal"]))
         for a in AXES:
@@ -197,7 +194,6 @@ class Pool:
 
     def absorb(self, other):
         self.members += other.members
-        self.state = self.state or other.state
         for a in AXES:
             if not other.seen[a]:
                 continue
@@ -228,7 +224,7 @@ def cluster_head(rows):
         name = row[IX["name"]]
         rest = name.split(",", 1)[1] if "," in name else ""
         quals[i] = frozenset(words(rest))
-    pools = {i: Pool(i, row, state_of(quals[i])) for i, row in rows}
+    pools = {i: Pool(i, row) for i, row in rows}
     owner = {i: i for i, _ in rows}
 
     def find(i):

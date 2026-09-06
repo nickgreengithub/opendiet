@@ -82,9 +82,13 @@ A family is found by constrained clustering: within a name head, entries merge i
 the qualifier words they share — ties going to the pair that is closest in calories — and a
 merge is refused if the pool's range on any axis would carry it too far. A gram is not a
 gram, so the three axes that carry the energy are banded by what a difference in them does
-to it: protein, carbohydrate and fat may each move a sixth of the food's calories, which is
-a gram of fat in milk and four in a sausage. Fibre, sugar, water and the three fats the fat
-figure breaks into carry meaning without much energy and keep a band in grams. The band is
+to it: protein, carbohydrate and fat may each move a sixth of the food's calories, or twenty
+calories in a hundred grams, whichever is more — a gram of fat in milk, four in a sausage,
+and enough in a leaf that a raw kale and a boiled one are one kale. Fibre, sugar, water and
+the three fats the fat figure breaks into carry meaning without much energy and keep a band
+in grams. Fibre's floor of two and a half grams is the one that has to be argued for: kale
+runs 2.0 to 4.1 across USDA's own entries, white bread and wholemeal run 2.7 to 7.0, and the
+floor sits between them. The band is
 on the pool's diameter, not on the pair,
 so a pool cannot grow by chaining; and merging repeats until nothing more fits, so a pool
 is everything that belongs in it rather than an arbitrary slice of its head. Where USDA
@@ -105,10 +109,12 @@ A zero is not always a measurement — see [Missing figures](#missing-figures) b
 votes only where both sides have a figure on it, and a mean is taken over the members that
 carry one. Sugar was enough to split 2% milk into two pools that differed in nothing else.
 
-Raw and cooked are different foods. Water leaves in the pan and every figure per 100 g
-moves with it, so a name that says raw and a name that says boiled cannot pool however
-close their numbers land — and the constraint is on the pool, not on the pair, or raw
-carrots reach the cooked ones through the frozen ones in between.
+Raw and cooked used to be a cannot-link, because a pool of raw kale and boiled kale came
+out named "Kale, raw". That was the name lying rather than the pool being wrong, and the
+naming rule above fixes it: such a pool is called `Kale` and says what it is. Where cooking
+moves the numbers — rice, pasta, beans, a potato, any meat — the bands part raw from cooked
+without being told to. Where it does not, in a leaf that is nine tenths water either way,
+there was nothing to part.
 
 The tool says the rest.
 
