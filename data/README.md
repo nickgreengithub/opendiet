@@ -123,6 +123,14 @@ this — the pooling reads the tell instead: a zero under a parent figure that i
 
 `null` is only ever written under `--keep-incomplete`, and the site does not render it yet.
 
+[`../tools/audit_data.py`](../tools/audit_data.py) checks a library for zeros the numbers
+themselves contradict, and exits non-zero on any: energy is a known function of the macros,
+the parts of 100 g have to reach 100 g, fat over a gram is made of something, and the parts
+of a figure cannot exceed it. On the shipped libraries the macros and water come through
+almost clean — one taco seasoning whose energy needs 8 g of fat it does not state, and no
+water zero unaccounted for in 18,000 foods. What the check cannot rule on is the sugar and
+fibre zeros, which is the half of the file only the source can speak for.
+
 ## Categories
 
 SR Legacy carries USDA food-group ids, mapped to the short tokens above. FNDDS has no
