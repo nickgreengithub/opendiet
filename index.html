@@ -678,11 +678,12 @@ option{background:var(--panel);color:var(--body)}
     </div>
     <div style="{{ dBody }}">
     <div data-scroll="rows" style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box;display:flex;flex-direction:column">
-    <sc-for list="{{ rows }}" as="r" key="{{ r.name }}" hint-placeholder-count="10">
+    <sc-for list="{{ rows }}" as="r" key="{{ r.key }}" hint-placeholder-count="10">
       <div data-back="{{ r.back }}" style="{{ dRowWrap }}">
         <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ dRowStyle }}" style-hover="background:rgba(var(--cyan-rgb),.20)">
-          <span style="display:flex;align-items:center;gap:.55rem;min-width:0;padding:0 .9rem 0 .65rem">
+          <span style="{{ r.nameCell }}">
             <span style="flex:1;min-width:0;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><sc-for list="{{ r.nameSeg }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.s }}">{{ sg.t }}</span></sc-for></span>
+            <sc-if value="{{ r.poolTag }}" hint-placeholder-val="{{ false }}"><span data-pool onClick="{{ r.togglePool }}" style="{{ r.poolTagS }}" style-hover="color:var(--cyan);border-color:var(--cyan)">{{ r.poolTag }}</span></sc-if>
           </span>
           <span style="{{ measureCell }}">{{ r.measureVal }}<span style="{{ sizeSuffix }}">{{ r.measureUnit }}</span></span>
           <span style="{{ r.cellWa }}"><span style="{{ r.fillWa }}"></span><span style="{{ numWrap }}">{{ r.vWa }}</span></span>
@@ -785,13 +786,13 @@ option{background:var(--panel);color:var(--body)}
     </div>
     <div style="{{ mBody }}">
     <div data-scroll="rows" style="{{ mListStyle }}">
-      <sc-for list="{{ rows }}" as="r" key="{{ r.name }}" hint-placeholder-count="10">
+      <sc-for list="{{ rows }}" as="r" key="{{ r.key }}" hint-placeholder-count="10">
         <div data-back="{{ r.back }}" data-lift="m">
           <div data-row data-sel="{{ r.selOn }}" data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ r.mRow }}">
             <sc-if value="{{ r.finger }}" hint-placeholder-val="{{ false }}">
               <span data-finger><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span>
             </sc-if>
-            <span style="{{ r.mNameStyle }}"><sc-for list="{{ r.nameSeg }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.s }}">{{ sg.t }}</span></sc-for></span>
+            <span style="{{ r.mNameStyle }}"><sc-for list="{{ r.nameSeg }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.s }}">{{ sg.t }}</span></sc-for><sc-if value="{{ r.poolTag }}" hint-placeholder-val="{{ false }}"><span style="{{ r.poolTagS }}">{{ r.poolTag }}</span></sc-if></span>
             <span style="{{ r.mValCell }}">{{ r.mVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
           </div>
           <div style="{{ r.mExpand }}">
@@ -2197,7 +2198,7 @@ class Component extends DCLogic {
     fetch(src)
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(d => {
-        cache[k] = d.foods.map(a => {
+        const mkFood = a => {
           const fo = { name: a[0], cat: d.cats[a[1]], kcal: a[2], p: a[3], c: a[4], fb: a[5], f: a[6], sf: a[7], sg: a[8] };
           if (a[9]) fo.mu = "ml";
           // Eleventh element: this is the entry someone typing the plain word meant.
@@ -2226,7 +2227,25 @@ class Component extends DCLogic {
             fo.tr = a[18] || 0;
           }
           return fo;
+        };
+        const foods = d.foods.map(mkFood);
+        // The pools: one typical row per family of near-identical entries, the mean
+        // of its members, written by tools/pool_foods.py. Twentieth element is the
+        // members, twenty-first the words every member shares that the name leaves
+        // out — "ham" under "Pork, cured" — folded into what the search reads so the
+        // word still finds the pool.
+        (d.pools || []).forEach(a => {
+          const fo = mkFood(a);
+          fo.pool = (a[19] || []).map(i => d.foods[i][0]);
+          const alias = a[20] || [];
+          if (alias.length) {
+            fo.nl += " " + alias.join(" ");
+            fo.w = fo.w.concat(alias);
+            fo.ns = fo.w.map(stemWord).join(" ");
+          }
+          foods.push(fo);
         });
+        cache[k] = foods;
         this.setState({ loadTick: (this.state.loadTick || 0) + 1 });
         this.startTypewriter();
       })
@@ -2547,8 +2566,32 @@ class Component extends DCLogic {
       const rSt = Math.max(0, fo.c - (fo.sg || 0) - (fo.fb || 0));
       const rSubs = [fo.sg || 0, fo.fb || 0, rSt, fo.sf || 0, fo.mo || 0, fo.po || 0];
       const rSubHue = SUB_GRN.concat(SUB_CRL);
+      // A pool's name ends "· typical of N": the table shows the name and wears the
+      // count as a tag, and the tag is what opens the members up underneath.
+      const tagAt = fo.pool ? fo.name.indexOf(" \u00b7 typical of ") : -1;
+      const shown = tagAt > 0 ? fo.name.slice(0, tagAt) : fo.name;
       return {
-        name: fo.name, nameSeg: segsFor(fo.name),
+        name: fo.name, nameSeg: segsFor(shown), key: fo.name,
+        poolTag: tagAt > 0 ? fo.name.slice(tagAt + 3) : "",
+        poolOn: !!fo.pool && s.poolOpen === fo.name,
+        nameCell: { display: "flex", alignItems: "center", gap: ".55rem", minWidth: 0, padding: "0 .9rem 0 .65rem" },
+        // The tag is the count, in the chrome face, ringed like the expander in the
+        // header: it is the control that opens the pool, and it says so by looking
+        // like one.
+        poolTagS: {
+          flex: "none", marginLeft: s.narrow ? ".5rem" : 0,
+          fontFamily: "var(--font-2)", fontSize: s.narrow ? ".7rem" : ".62rem",
+          letterSpacing: ".1em", textTransform: "uppercase", whiteSpace: "nowrap",
+          lineHeight: s.narrow ? "1.3rem" : "1.15rem", padding: "0 .4rem",
+          color: s.poolOpen === fo.name ? "var(--cyan)" : "var(--muted)",
+          border: "1px solid " + (s.poolOpen === fo.name ? "var(--cyan)" : "var(--line)"),
+          cursor: s.narrow ? "default" : "pointer",
+          transition: "color 140ms ease, border-color 140ms ease"
+        },
+        togglePool: fo.pool ? (e => {
+          if (e && e.stopPropagation) e.stopPropagation();
+          this.setState(st => ({ poolOpen: st.poolOpen === fo.name ? null : fo.name }));
+        }) : null,
         cat: fo.cat, catLabel: this.catLabel(fo.cat), kcal: String(fo.kcal),
         p: this.fmt(fo.p), c: this.fmt(fo.c), f: this.fmt(fo.f), fb: this.fmt(fo.fb),
         score: String(sc), band: bd,
@@ -2664,6 +2707,11 @@ class Component extends DCLogic {
     // Not being a brand is worth a whole tier, and it is the one bonus that is: a plain food
     // matched at the start of a word ranks with a restaurant's matched square on.
     const PLAIN_PTS = 8;
+    // A pool matches only through words every member has, so whenever it matches at
+    // all, so does each of its members, and someone typing the plain word gets the
+    // typical row first and the particular ones under it. Enough to clear the
+    // everyday bonus, since the pool is the everyday answer.
+    const POOL_PTS = 9;
     // What the food is called, before USDA starts qualifying it.
     const qHead = qStems.join(" ");
     const qJoin = qWords.join(" ");
@@ -2697,6 +2745,7 @@ class Component extends DCLogic {
       }
       if (fo.cm) hit += COMMON_PTS;
       if (!fo.br) hit += PLAIN_PTS;
+      if (fo.pool) hit += POOL_PTS;
       // "chicken br" opening the name is the user typing the name itself, and it outranks
       // being the everyday one: they mean chicken breast, not the chicken USDA files under
       // "Chicken, broilers". Guarded so a single whole word keeps its old, quiet +1.
@@ -3493,6 +3542,23 @@ class Component extends DCLogic {
         }
       });
     });
+    // An open pool shows what it is typical of: its members, as rows of their own,
+    // under it and set in from the edge. They are the same foods that may appear
+    // elsewhere in the list, so they take a key of their own.
+    if (s.poolOpen) {
+      const at = rows.findIndex(r => r.name === s.poolOpen);
+      const fo = at >= 0 ? this.foods().find(f => f.name === s.poolOpen) : null;
+      if (fo && fo.pool) {
+        const byName = new Map(this.foods().map(f => [f.name, f]));
+        const kids = fo.pool.map(n => byName.get(n)).filter(Boolean).map(m => {
+          const r = rows.find(x => x.name === m.name && !x.inPool) || mkRow(m);
+          return Object.assign({}, r, { key: m.name + " \u2190 " + fo.name, inPool: true,
+            hint: "off", back: "off",
+            nameCell: Object.assign({}, r.nameCell, { paddingLeft: "1.9rem", color: "var(--ink)" }) });
+        });
+        rows.splice(at + 1, 0, ...kids);
+      }
+    }
     // The library decides which groups exist, so the filter list follows the data.
     const cats = ["ALL"].concat(Array.from(new Set(this.foods().map(fo => fo.cat))).sort());
     const microBtn = active => ({
