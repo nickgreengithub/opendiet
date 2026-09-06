@@ -87,7 +87,25 @@ scrambled egg from a boiled one. The band is on the pool's diameter, not on the 
 so a pool cannot grow by chaining; and merging repeats until nothing more fits, so a pool
 is everything that belongs in it rather than an arbitrary slice of its head. Where USDA
 files a thing under a category — `Beverages, coffee`, `Beef, chuck` — the head runs two
-segments deep, or every drink in the book would pool as one. The tool says the rest.
+segments deep, or every drink in the book would pool as one.
+
+Two things the numbers cannot say for themselves:
+
+A zero is not always a measurement. SR Legacy leaves a nutrient out where nobody analysed
+it and the build writes a zero, so a zero under sugar, fibre or one of the three fats says
+both "none of it" and "nobody looked" — and only the parent figure tells which. Milk with
+five grams of carbohydrate and no sugar has not been measured: the carbohydrate in milk is
+sugar. So a zero under a parent that is not zero is unknown; an axis votes only where both
+sides have a figure on it, and a mean is taken over the members that carry one. Twenty-odd
+per cent of the entries with carbohydrate carry no sugar figure, which was enough to split
+2% milk into two pools that differed in nothing else.
+
+Raw and cooked are different foods. Water leaves in the pan and every figure per 100 g
+moves with it, so a name that says raw and a name that says boiled cannot pool however
+close their numbers land — and the constraint is on the pool, not on the pair, or raw
+carrots reach the cooked ones through the frozen ones in between.
+
+The tool says the rest.
 
 ## Categories
 

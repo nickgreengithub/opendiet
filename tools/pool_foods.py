@@ -80,6 +80,20 @@ CATEGORY_HEADS = {
 }
 AXES = list(BAND)
 MIN_MEMBERS = 2
+# The figures a release does not always analyse. Where nobody measured one, SR Legacy
+# leaves the nutrient out and the build writes a zero, so a zero here says two things at
+# once — "none of it" and "nobody looked" — and only the parent figure tells them apart.
+# Milk with five grams of carbohydrate and no sugar has not been measured: the
+# carbohydrate in milk is sugar. A zero under a parent that is not zero is therefore
+# unknown, and an unknown neither vetoes a merge nor drags a mean down.
+PARENT = {"sg": "c", "fb": "c", "sf": "f", "mo": "f", "po": "f"}
+# A raw food and a cooked one are not one food whatever the numbers say: water leaves in
+# the pan, and every figure per 100 g moves with it. Where both names state the state, a
+# difference of state cannot be merged.
+RAW = {"raw", "uncooked", "unprepared"}
+COOKED = {"cooked", "boiled", "braised", "roasted", "baked", "fried", "grilled", "broiled",
+          "steamed", "microwaved", "stewed", "simmered", "poached", "toasted", "griddled"}
+MIN_TELLING_WORDS = 2
 
 # Field layout of a food row — see data/README.md.
 IX = {"name": 0, "cat": 1, "kcal": 2, "p": 3, "c": 4, "fb": 5, "f": 6, "sf": 7, "sg": 8,
@@ -108,6 +122,20 @@ def field(row, k):
     return row[i] if i < len(row) else 0
 
 
+def known(row, a):
+    """Whether the row actually carries a figure on this axis, or only a zero standing in
+    for a measurement nobody made."""
+    parent = PARENT.get(a)
+    return not (parent and field(row, a) == 0 and field(row, parent) > 0.5)
+
+
+def state_of(qual):
+    """"raw", "cooked", or "" for a name that does not say."""
+    if qual & RAW:
+        return "cooked" if qual & COOKED else "raw"
+    return "cooked" if qual & COOKED else ""
+
+
 def head_of(name):
     segs = [x.strip() for x in name.split(",")]
     if segs[0].lower() in CATEGORY_HEADS and len(segs) > 1:
@@ -116,15 +144,25 @@ def head_of(name):
 
 
 class Pool:
-    __slots__ = ("members", "lo", "hi")
+    __slots__ = ("members", "lo", "hi", "seen", "state")
 
-    def __init__(self, i, row):
+    def __init__(self, i, row, state=""):
         self.members = [i]
-        self.lo = {a: field(row, a) for a in AXES}
+        self.state = state
+        self.seen = {a: known(row, a) for a in AXES}
+        self.lo = {a: (field(row, a) if self.seen[a] else 0.0) for a in AXES}
         self.hi = dict(self.lo)
 
     def fits(self, other):
+        # A cannot-link holds for the pool, not only for the pair that proposed it:
+        # otherwise raw carrots reach cooked carrots through the frozen ones in between,
+        # and the pool ends up straddling the very line the constraint drew.
+        if self.state and other.state and self.state != other.state:
+            return False
         for a in AXES:
+            # An axis votes only where both sides have something to say on it.
+            if not (self.seen[a] and other.seen[a]):
+                continue
             lo = min(self.lo[a], other.lo[a])
             hi = max(self.hi[a], other.hi[a])
             floor, share = BAND[a]
@@ -134,9 +172,15 @@ class Pool:
 
     def absorb(self, other):
         self.members += other.members
+        self.state = self.state or other.state
         for a in AXES:
-            self.lo[a] = min(self.lo[a], other.lo[a])
-            self.hi[a] = max(self.hi[a], other.hi[a])
+            if not other.seen[a]:
+                continue
+            if not self.seen[a]:
+                self.lo[a], self.hi[a], self.seen[a] = other.lo[a], other.hi[a], True
+            else:
+                self.lo[a] = min(self.lo[a], other.lo[a])
+                self.hi[a] = max(self.hi[a], other.hi[a])
 
 
 def jaccard(a, b):
@@ -152,7 +196,7 @@ def cluster_head(rows):
         name = row[IX["name"]]
         rest = name.split(",", 1)[1] if "," in name else ""
         quals[i] = frozenset(words(rest))
-    pools = {i: Pool(i, row) for i, row in rows}
+    pools = {i: Pool(i, row, state_of(quals[i])) for i, row in rows}
     owner = {i: i for i, _ in rows}
 
     def find(i):
@@ -198,9 +242,31 @@ def shared_name(names):
     for n in names:
         toks = {t for seg in segs_of(n) for t in words(seg)}
         common = toks if common is None else common & toks
-    # A segment survives whole or not at all: a trimmed segment is prose nobody wrote.
-    order = [seg for seg in segs_of(names[0])
-             if seg and words(seg) and all(t in common for t in words(seg))]
+    # A segment survives whole where every word of it is shared. Where it is not, the
+    # run of words it opens with can still be shared and still be a phrase — "with added
+    # nonfat milk solids" out of "…solids and vitamin A and vitamin D" — and that phrase
+    # names the family better than dropping the segment does. It has to end on a word
+    # that carries a food, or the name trails off mid-breath.
+    order, partial = [], False
+    for seg in segs_of(names[0]):
+        toks = words(seg)
+        if not seg or not toks:
+            continue
+        if all(t in common for t in toks):
+            order.append(seg)
+            continue
+        raw = [w for w in re.split(r"[^A-Za-z0-9%]+", seg) if w]
+        keep = []
+        for w in raw:
+            if stem(w.lower()) not in common:
+                break
+            keep.append(w)
+        while keep and (stem(keep[-1].lower()) in EMPTY or len(keep[-1]) < 2):
+            keep.pop()
+        # One such phrase per name: a second is a name assembled out of scraps.
+        if len(keep) >= MIN_TELLING_WORDS and not partial:
+            order.append(" ".join(keep))
+            partial = True
     return head if not order else head + ", " + ", ".join(order)
 
 
@@ -238,8 +304,8 @@ def pool_row(p, foods):
     out[IX["name"]] = name
     out[IX["cat"]] = rows[0][IX["cat"]]
     for k in MEANED:
-        vals = [field(r, k) for r in rows]
-        out[IX[k]] = round(sum(vals) / len(vals), 2 if k != "kcal" else 0)
+        vals = [field(r, k) for r in rows if known(r, k)]
+        out[IX[k]] = round(sum(vals) / len(vals), 2 if k != "kcal" else 0) if vals else 0
     out[IX["kcal"]] = int(out[IX["kcal"]])
     liquid = 1 if field(rows[0], "ml") else 0
     out[IX["ml"]] = liquid
@@ -270,15 +336,21 @@ EMPTY = {"with", "without", "and", "or", "in", "of", "the", "a", "an", "to", "fr
          "by", "is", "as", "its", "than", "this", "that", "these", "those", "only", "both"}
 
 
-def member_words(r, foods):
-    """Every word the pool's members use, after the head."""
-    out = set()
+def member_words(r, foods, every=False):
+    """The words the pool's members use after the head: any of them, or — with every —
+    only the words all of them use. A name may only be told by the second kind. Half the
+    members being frozen does not make the pool frozen, and a name that says so of the
+    other half is a name that is not true."""
+    out = None if every else set()
     for i in r[MEMBERS]:
         n = foods[i][IX["name"]]
         depth = head_of(n).count(",") + 1
-        for seg in [x.strip() for x in n.split(",")][depth:]:
-            out |= set(words(seg))
-    return out
+        toks = {t for seg in [x.strip() for x in n.split(",")][depth:] for t in words(seg)}
+        if every:
+            out = toks if out is None else out & toks
+        else:
+            out |= toks
+    return out or set()
 
 
 def retell(rows, foods):
@@ -296,6 +368,7 @@ def retell(rows, foods):
         if len(group) < 2:
             continue
         own = {id(r): member_words(r, foods) for r in group}
+        all_own = {id(r): member_words(r, foods, every=True) for r in group}
         names = {id(r): r[IX["name"]] for r in group}
         for r in group:
             name = names[id(r)]
@@ -311,10 +384,16 @@ def retell(rows, foods):
             segs = [x.strip() for x in name.split(",")]
             if any(seg and not all(w in others for w in words(seg)) for seg in segs[depth:]):
                 continue      # the name already says something the sibling cannot
-            telling = sorted(w for w in own[id(r)] - others if w not in EMPTY and len(w) > 1)
+            telling = sorted(w for w in all_own[id(r)] - others if w not in EMPTY and len(w) > 1)
             if telling and len(telling) <= MAX_TELLING:
                 r[IX["name"]] = name + ", " + " or ".join(telling)
     return rows
+
+
+def show_axis(v, a):
+    if a == "kcal" or v >= 10:
+        return f"{v:.0f}"
+    return f"{v:.1f}" if abs(round(v, 1) - v) < 0.05 else f"{v:.2f}"
 
 
 def dedupe_names(rows, foods):
@@ -327,18 +406,30 @@ def dedupe_names(rows, foods):
     for name, group in seen.items():
         if len(group) < 2:
             continue
-        best, best_axis = -1, None
+        ranked = []
         for a in AXES:
+            # Never break a clash on a figure one of them does not have: "sugar 0.0 g"
+            # would be the name of a measurement nobody made.
+            if not all(known(r, a) for r in group):
+                continue
             vals = [field(r, a) for r in group]
             floor, share = BAND[a]
             spread = (max(vals) - min(vals)) / max(floor, share * max(abs(v) for v in vals) or floor)
-            if spread > best:
-                best, best_axis = spread, a
-        unit = "" if best_axis == "kcal" else " g"
-        for r in group:
-            v = field(r, best_axis)
-            shown = f"{v:.0f}" if best_axis == "kcal" or v >= 10 else f"{v:.1f}"
-            r[IX["name"]] = f"{r[IX['name']]} \u00b7 {AXIS_LABEL[best_axis]} {shown}{unit}"
+            ranked.append((-spread, a))
+        # The widest axis is the first choice, but an axis that reads the same for two of
+        # them has not told them apart: keep going until one does.
+        pick = None
+        for _, a in sorted(ranked):
+            shown = [show_axis(field(r, a), a) for r in group]
+            if len(set(shown)) == len(group):
+                pick = (a, shown)
+                break
+        if pick is None:
+            continue
+        axis, shown = pick
+        unit = "" if axis == "kcal" else " g"
+        for r, v in zip(group, shown):
+            r[IX["name"]] = f"{r[IX['name']]} \u00b7 {AXIS_LABEL[axis]} {v}{unit}"
     return rows
 
 
