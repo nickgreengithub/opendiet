@@ -408,6 +408,22 @@ def show_axis(v, a):
     return f"{v:.1f}" if abs(round(v, 1) - v) < 0.05 else f"{v:.2f}"
 
 
+def drop_twins(rows, foods):
+    """A pool named exactly what one of its members is named is not a row anyone can read:
+    two lines of the same words, and the reader has to guess which one they meant. It
+    happens where USDA already ships the generic entry the varieties are variations on —
+    "Apples, raw, with skin" beside five named apples, "Beerwurst, pork and beef" beside
+    the beer salami. That generic already is the average of the family, written by somebody
+    who measured it, so the pool has nothing to add and goes. Its members stay where they
+    are."""
+    keep = []
+    for r in rows:
+        names = {foods[i][IX["name"]] for i in r[MEMBERS]}
+        if r[IX["name"]] not in names:
+            keep.append(r)
+    return keep
+
+
 def dedupe_names(rows, foods):
     """White breads and wholemeal breads can come out as one name: every word they share
     is the same word. What differs is a number, so the number breaks the clash — the axis
@@ -467,7 +483,8 @@ def main():
     global MEASURED
     MEASURED = d.get("zeros") == "measured"
     pools = build_pools(foods)
-    rows = label(dedupe_names(retell([pool_row(p, foods) for p in pools], foods), foods))
+    rows = [pool_row(p, foods) for p in pools]
+    rows = label(dedupe_names(drop_twins(retell(rows, foods), foods), foods))
     rows.sort(key=lambda r: (-len(r[MEMBERS]), r[IX["name"]]))
 
     sizes = [len(r[MEMBERS]) for r in rows]
