@@ -367,7 +367,7 @@ option{background:var(--panel);color:var(--body)}
     <sc-for list="{{ appTabs }}" as="t" hint-placeholder-count="4">
       <span onClick="{{ t.onClick }}" style="{{ t.style }}" style-hover="color:var(--body)">{{ t.label }}</span>
     </sc-for>
-    <span style="{{ dMeasWrap }}"><span onClick="{{ dMeas100 }}" style="{{ dMeas100S }}">100 G</span><span onClick="{{ dMeasOz }}" style="{{ dMeasOzS }}">OZ</span></span>
+    <span style="{{ dMeasWrap }}"><span onClick="{{ dMeasToggle }}" style="{{ dMeas100S }}" style-hover="color:var(--cyan)">100 G</span><span onClick="{{ dMeasToggle }}" style="{{ dMeasOzS }}" style-hover="color:var(--cyan)">OZ</span></span>
     <span onClick="{{ openAbout }}" style="{{ tabAbout }}" style-hover="color:var(--cyan)">ABOUT</span>
     <span onClick="{{ toggleTheme }}" title="{{ themeLabel }}" style="{{ themeBtn }}" style-hover="color:var(--cyan)">
       <sc-if value="{{ themeDark }}" hint-placeholder-val="{{ true }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="display:block"><circle cx="12" cy="12" r="4" stroke="none"></circle><path d="M12 2.4v2M12 19.6v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2.4 12h2M19.6 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" fill="none"></path></svg></sc-if>
@@ -704,8 +704,8 @@ option{background:var(--panel);color:var(--body)}
     <div style="{{ dBody }}">
     <div data-scroll="rows" style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box;display:flex;flex-direction:column">
     <sc-for list="{{ rows }}" as="r" key="{{ r.key }}" hint-placeholder-count="10">
-      <div data-back="{{ r.back }}" data-limb="{{ r.limb }}" style="{{ dRowWrap }}">
-        <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ dRowStyle }}" style-hover="background:rgba(var(--cyan-rgb),.20)">
+      <div data-back="{{ r.back }}" data-limb="{{ r.limb }}" style="{{ r.wrapS }}">
+        <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ r.rowS }}" style-hover="background:rgba(var(--cyan-rgb),.20)">
           <span style="{{ r.nameCell }}">
             <sc-if value="{{ r.branch }}" hint-placeholder-val="{{ false }}"><span style="{{ r.branchS }}"><span style="{{ r.branchT }}"></span></span></sc-if>
             <span style="flex:1;min-width:0;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><sc-for list="{{ r.nameSeg }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.s }}">{{ sg.t }}</span></sc-for></span>
@@ -2795,7 +2795,7 @@ class Component extends DCLogic {
     const POOL_INLINE = 6;
     // Where the trunk stands, and where anything drawn across the row has to start so as
     // not to run through it.
-    const TRUNK_X = "1.15rem", TRUNK_END = "1.9rem", TICK_Y = "1.25rem";
+    const TRUNK_X = "1.15rem", TRUNK_END = "1.9rem";
     // What the food is called, before USDA starts qualifying it.
     const qHead = qStems.join(" ");
     const qJoin = qWords.join(" ");
@@ -3501,6 +3501,17 @@ class Component extends DCLogic {
     // total line, and the ruled empty space below them all measure from here, so
     // the drawn continuation lines keep step with the real ones.
     const D_ROW = "2.1rem";
+    // The desktop row and its wrapper, built here rather than with the rest of the render's
+    // styles, because a row in an open cluster needs its own copy of both: the rule under
+    // it moves, and the tree is drawn behind it.
+    const D_ROW_S = {
+      display: "grid", gridTemplateColumns: dCols, columnGap: 0,
+      alignItems: "stretch", minHeight: D_ROW,
+      borderBottom: "1px solid var(--line)", fontSize: ".9rem",
+      color: "var(--body)", cursor: "pointer",
+      transition: "background 140ms ease, " + D_GRID_T
+    };
+    const D_WRAP_S = { flex: "none", contentVisibility: "auto", containIntrinsicSize: "auto 29px" };
     // A sub-macro cell: clipped while its track is 0, padded only when open so the box
     // itself can reach zero width. The display value and the bar's scale are the
     // caller's, since search rows read per-measure and plate rows per their own grams.
@@ -3600,7 +3611,7 @@ class Component extends DCLogic {
         return { v1: val[0], v2: val[1], v3: val[2], col: col };
       })();
       return Object.assign(r, {
-        limb: "",
+        limb: "", rowS: D_ROW_S, wrapS: s.narrow ? null : D_WRAP_S,
         hint: ri === 0 && rowHint && !s.narrow ? "on" : "off",
         finger: ri === 0 && rowHint && !!s.narrow,
         back: s.justBack === fo.name ? "on" : "off",
@@ -3682,39 +3693,40 @@ class Component extends DCLogic {
     // rows it opened — and they are one thing. It starts where its members' rules start
     // instead, so the whole block shares a left edge and reads as a family. (The desktop
     // table rules every row alike, so there the line belongs where it is.)
-    if (s.narrow && openPool) {
+    // Half a row down, which is where a branch meets the name beside it. The phone's rows
+    // are taller than the desktop's.
+    const TICK_Y = s.narrow ? "1.25rem" : "1.05rem";
+    const LINE = "linear-gradient(var(--line),var(--line))";
+    const noRule = r => (s.narrow
+      ? { mRow: Object.assign({}, r.mRow, { borderBottom: 0 }) }
+      : { rowS: Object.assign({}, r.rowS, { borderBottom: 0 }) });
+    const wrapBase = () => (s.narrow ? {} : Object.assign({}, D_WRAP_S));
+    if (openPool) {
       const head = rows.find(r => r.name === openPool);
-      if (head) Object.assign(head, {
-        mRow: Object.assign({}, head.mRow, { borderBottom: 0 }),
-        wrapS: {
-          backgroundImage: "linear-gradient(var(--line),var(--line))",
+      if (head) Object.assign(head, noRule(head), {
+        wrapS: Object.assign(wrapBase(), {
+          backgroundImage: LINE,
           backgroundRepeat: "no-repeat",
           backgroundPosition: "right bottom",
           backgroundSize: "calc(100% - " + TRUNK_END + ") 1px"
-        }
+        })
       });
     }
     if (poolKids.size) {
       rows.forEach(r => {
         const mark = poolKids.get(r.name);
         if (!mark) return;
-        Object.assign(r, {
+        Object.assign(r, noRule(r), {
           inPool: true, hint: "off", finger: false, back: "off",
           limb: s.poolAnim && s.poolAnim.name === mark.pool ? s.poolAnim.dir : "",
           // The rule runs down from the pool and turns in to each member; on the last it
           // stops halfway, which is what makes the block read as one thing rather than as
           // rows that happen to be indented.
           branch: true,
-          // On a phone the whole tree is drawn behind the row, so this is only the room it
-          // needs: a rule inside the cell and a rule behind it never line up to the pixel,
-          // and two lines that nearly meet read worse than one that does.
-          branchS: s.narrow ? { flex: "none", width: "1.52rem" } : {
-            flex: "none", alignSelf: "stretch", width: ".62rem",
-            marginLeft: ".5rem", marginRight: ".4rem",
-            display: "flex", alignItems: "center",
-            background: "linear-gradient(var(--line),var(--line)) no-repeat left top",
-            backgroundSize: mark.last ? "1px 50%" : "1px 100%"
-          },
+          // The whole tree is drawn behind the row, so this is only the room it needs: a
+          // rule inside the cell and a rule behind it never line up to the pixel, and two
+          // lines that nearly meet read worse than one that does.
+          branchS: { flex: "none", width: "1.52rem" },
           branchT: { flex: "1", height: "1px", background: "var(--line)" },
           // The trunk is drawn behind the whole row rather than inside the name, so it
           // runs the full height of it and meets the next one with nothing in between —
@@ -3722,10 +3734,8 @@ class Component extends DCLogic {
           // divider is drawn with it, starting clear of the trunk so it does not cross
           // the branch on its way across; on the last member it runs the full width, to
           // close the group.
-          wrapS: {
-            backgroundImage: "linear-gradient(var(--line),var(--line)),"
-              + "linear-gradient(var(--line),var(--line)),"
-              + "linear-gradient(var(--line),var(--line))",
+          wrapS: Object.assign(wrapBase(), {
+            backgroundImage: LINE + ", " + LINE + ", " + LINE,
             backgroundRepeat: "no-repeat, no-repeat, no-repeat",
             // Trunk, branch, divider. The branch sits at the middle of a row rather than
             // of the wrapper, so it stays on the first line of a name that wraps and where
@@ -3734,8 +3744,7 @@ class Component extends DCLogic {
             backgroundSize: (mark.last ? "1px " + TICK_Y : "1px 100%")
               + ", calc(" + TRUNK_END + " - " + TRUNK_X + ") 1px, "
               + (mark.last ? "100% 1px" : "calc(100% - " + TRUNK_END + ") 1px")
-          },
-          mRow: Object.assign({}, r.mRow, { borderBottom: 0 }),
+          }),
           more: mark.more ? "+" + mark.more + " MORE" : "",
           openScope: e => {
             if (e && e.stopPropagation) e.stopPropagation();
@@ -4504,8 +4513,12 @@ class Component extends DCLogic {
       // The measure lives above the desktop table now: two words, the active one lit.
       dMeasWrap: { marginLeft: "auto", display: !s.narrow && app === "search" && !dLanding ? "flex" : "none",
         alignItems: "center", gap: "1.15rem" },
-      dMeas100: () => this.setState({ unit: "100G", qtyOzRaw: {} }),
-      dMeasOz: () => this.setState({ unit: "OZ", qtyOzRaw: {} }),
+      // One switch with two faces, not two buttons. Clicking the lit one is not a
+      // request for what is already on screen, so either side throws it the other way —
+      // and the pair reads as a thing with a state rather than a pair of choices where
+      // one of them does nothing.
+      dMeasToggle: () => this.setState(st => ({
+        unit: (st.unit || "100G") === "OZ" ? "100G" : "OZ", qtyOzRaw: {} })),
       dMeas100S: {
         display: "flex", alignItems: "center", height: "1.9rem", cursor: "pointer", whiteSpace: "nowrap",
         transition: "color 160ms ease, text-shadow 160ms ease",
