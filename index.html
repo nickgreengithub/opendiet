@@ -791,7 +791,7 @@ option{background:var(--panel);color:var(--body)}
     <div style="{{ mBody }}">
     <div data-scroll="rows" style="{{ mListStyle }}">
       <sc-for list="{{ rows }}" as="r" key="{{ r.key }}" hint-placeholder-count="10">
-        <div data-back="{{ r.back }}" data-lift="m">
+        <div data-back="{{ r.back }}" data-lift="m" style="{{ r.wrapS }}">
           <div data-row data-sel="{{ r.selOn }}" data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ r.mRow }}">
             <sc-if value="{{ r.finger }}" hint-placeholder-val="{{ false }}">
               <span data-finger><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span>
@@ -2758,6 +2758,9 @@ class Component extends DCLogic {
     const POOL_PTS = 9;
     // How many members open in place before the rest are a list of their own.
     const POOL_INLINE = 6;
+    // Where the trunk stands, and where anything drawn across the row has to start so as
+    // not to run through it.
+    const TRUNK_X = "1.15rem", TRUNK_END = "1.9rem", TICK_Y = "1.25rem";
     // What the food is called, before USDA starts qualifying it.
     const qHead = qStems.join(" ");
     const qJoin = qWords.join(" ");
@@ -3647,13 +3650,37 @@ class Component extends DCLogic {
           // stops halfway, which is what makes the block read as one thing rather than as
           // rows that happen to be indented.
           branch: true,
-          branchS: {
-            flex: "none", alignSelf: "stretch", width: "1.05rem", marginRight: ".35rem",
+          // On a phone the whole tree is drawn behind the row, so this is only the room it
+          // needs: a rule inside the cell and a rule behind it never line up to the pixel,
+          // and two lines that nearly meet read worse than one that does.
+          branchS: s.narrow ? { flex: "none", width: "1.52rem" } : {
+            flex: "none", alignSelf: "stretch", width: ".62rem",
+            marginLeft: ".5rem", marginRight: ".4rem",
             display: "flex", alignItems: "center",
             background: "linear-gradient(var(--line),var(--line)) no-repeat left top",
             backgroundSize: mark.last ? "1px 50%" : "1px 100%"
           },
           branchT: { flex: "1", height: "1px", background: "var(--line)" },
+          // The trunk is drawn behind the whole row rather than inside the name, so it
+          // runs the full height of it and meets the next one with nothing in between —
+          // a rule inside a cell stops at the cell and the line comes out dashed. The
+          // divider is drawn with it, starting clear of the trunk so it does not cross
+          // the branch on its way across; on the last member it runs the full width, to
+          // close the group.
+          wrapS: {
+            backgroundImage: "linear-gradient(var(--line),var(--line)),"
+              + "linear-gradient(var(--line),var(--line)),"
+              + "linear-gradient(var(--line),var(--line))",
+            backgroundRepeat: "no-repeat, no-repeat, no-repeat",
+            // Trunk, branch, divider. The branch sits at the middle of a row rather than
+            // of the wrapper, so it stays on the first line of a name that wraps and where
+            // it was when the row opens into its card.
+            backgroundPosition: TRUNK_X + " top, " + TRUNK_X + " " + TICK_Y + ", right bottom",
+            backgroundSize: (mark.last ? "1px " + TICK_Y : "1px 100%")
+              + ", calc(" + TRUNK_END + " - " + TRUNK_X + ") 1px, "
+              + (mark.last ? "100% 1px" : "calc(100% - " + TRUNK_END + ") 1px")
+          },
+          mRow: Object.assign({}, r.mRow, { borderBottom: 0 }),
           more: mark.more ? "+" + mark.more + " MORE" : "",
           openScope: e => {
             if (e && e.stopPropagation) e.stopPropagation();
