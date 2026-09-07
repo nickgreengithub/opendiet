@@ -4517,7 +4517,11 @@ class Component extends DCLogic {
         flex: "none", marginRight: "10px", padding: ".6rem 0 .5rem .65rem",
         borderTop: "1px solid " + (dLanding ? "transparent" : "var(--line)"),
         fontFamily: "var(--font-2)", fontSize: ".75rem", letterSpacing: ".12em",
-        color: "var(--dim-4)",
+        // The plate's name, and it was the faintest thing on the plate: dim-4 at .75rem
+        // beside column heads in --ink and a TOTALS row in --body, which is a label
+        // whispering next to everything it labels. The phone's says it in --muted and
+        // always did; this is the desktop agreeing with the phone.
+        color: "var(--muted)",
         opacity: dLanding ? 0 : 1, transition: "opacity 420ms ease 120ms"
       },
       // The rows reserve 10px for the scrollbar, so a rule drawn across them stops
