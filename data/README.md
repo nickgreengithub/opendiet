@@ -101,7 +101,9 @@ salami, pork" it is not a pork beerwurst, since two thirds of the pool is beef a
 What the three of them share is the name of the sausage, so the pool is `Beerwurst`. A pool
 that comes out named exactly what one of its members is named is dropped: USDA already
 ships that entry, it already is the average of the family, and two rows of the same words
-help nobody.
+help nobody. Where two pools under one head come out with the same name as each other, the
+larger one keeps it and the rest are dropped for the same reason — a name that is not the
+name of one thing is not a name. Their entries stay in the library and stand on their own.
 
 Two things the numbers cannot say for themselves:
 

@@ -324,18 +324,6 @@ def build_pools(foods):
     return pools
 
 
-def _band(p, a):
-    if a in KCAL_PER_G:
-        return max(ENERGY_FLOOR, ENERGY_TOL * abs(p.hi["kcal"])) / KCAL_PER_G[a]
-    floor, share = BAND[a]
-    return max(floor, share * abs(p.hi[a]))
-
-
-def _gap(p, row, a):
-    v = field(row, a)
-    return max(0.0, p.lo[a] - v, v - p.hi[a])
-
-
 def pool_row(p, foods):
     members = sorted(p.members)
     rows = [foods[i] for i in members]
@@ -366,8 +354,6 @@ def pool_row(p, foods):
     return out + [0, members, aliases]
 
 
-AXIS_LABEL = {"p": "protein", "c": "carbs", "f": "fat", "fb": "fibre", "sg": "sugar",
-              "wa": "water", "kcal": "kcal", "sf": "sat fat", "mo": "mono", "po": "poly"}
 MAX_TELLING = 3
 # Words that carry no food in them: they cannot be what tells two pools apart.
 EMPTY = {"with", "without", "and", "or", "in", "of", "the", "a", "an", "to", "from",
@@ -431,12 +417,6 @@ def retell(rows, foods):
     return rows
 
 
-def show_axis(v, a):
-    if a == "kcal" or v >= 10:
-        return f"{v:.0f}"
-    return f"{v:.1f}" if abs(round(v, 1) - v) < 0.05 else f"{v:.2f}"
-
-
 def drop_twins(rows, foods):
     """A pool named exactly what one of its members is named is not a row anyone can read:
     two lines of the same words, and the reader has to guess which one they meant. It
@@ -453,46 +433,27 @@ def drop_twins(rows, foods):
     return keep
 
 
-def dedupe_names(rows, foods):
-    """White breads and wholemeal breads can come out as one name: every word they share
-    is the same word. What differs is a number, so the number breaks the clash — the axis
-    on which the clashing pools are furthest apart, stated for each."""
+
+def drop_clashes(rows, foods):
+    """Two pools under one head whose members share the same words come out with the same
+    name, and a name that is not the name of one thing is not a name: the plate keys on it,
+    and a reader cannot pick between two rows that read alike. They used to be told apart by
+    the figure they were furthest apart on — "Apricots \u00b7 carbs 22 g" — which put a
+    nutrient in the middle of a food's name and answered a question nobody had asked.
+
+    So the larger pool keeps the name and the rest do not get one. Nothing leaves the
+    library: their entries were always in it, and they go back to standing on their own,
+    which is what an entry that cannot be spoken for does."""
     seen = defaultdict(list)
     for r in rows:
         seen[r[IX["name"]].lower()].append(r)
-    for name, group in seen.items():
-        if len(group) < 2:
-            continue
-        ranked = []
-        for a in AXES:
-            # Never break a clash on a figure one of them does not have: "sugar 0.0 g"
-            # would be the name of a measurement nobody made.
-            if not all(known(r, a) for r in group):
-                continue
-            vals = [field(r, a) for r in group]
-            if a in KCAL_PER_G:
-                span = max(ENERGY_FLOOR,
-                           ENERGY_TOL * max(field(r, "kcal") for r in group)) / KCAL_PER_G[a]
-            else:
-                floor, share = BAND[a]
-                span = max(floor, share * max(abs(v) for v in vals) or floor)
-            spread = (max(vals) - min(vals)) / span
-            ranked.append((-spread, a))
-        # The widest axis is the first choice, but an axis that reads the same for two of
-        # them has not told them apart: keep going until one does.
-        pick = None
-        for _, a in sorted(ranked):
-            shown = [show_axis(field(r, a), a) for r in group]
-            if len(set(shown)) == len(group):
-                pick = (a, shown)
-                break
-        if pick is None:
-            continue
-        axis, shown = pick
-        unit = "" if axis == "kcal" else " g"
-        for r, v in zip(group, shown):
-            r[IX["name"]] = f"{r[IX['name']]} \u00b7 {AXIS_LABEL[axis]} {v}{unit}"
-    return rows
+    keep = set()
+    for group in seen.values():
+        # Size decides, and where two are the same size the earlier member does, so the
+        # same library always yields the same pools.
+        best = sorted(group, key=lambda r: (-len(r[MEMBERS]), r[MEMBERS][0]))[0]
+        keep.add(id(best))
+    return [r for r in rows if id(r) in keep]
 
 
 def label(rows):
@@ -518,7 +479,7 @@ def main():
     MEASURED = d.get("zeros") == "measured"
     pools = build_pools(foods)
     rows = [pool_row(p, foods) for p in pools]
-    rows = label(dedupe_names(drop_twins(retell(rows, foods), foods), foods))
+    rows = label(drop_clashes(drop_twins(retell(rows, foods), foods), foods))
     rows.sort(key=lambda r: (-len(r[MEMBERS]), r[IX["name"]]))
 
     sizes = [len(r[MEMBERS]) for r in rows]
