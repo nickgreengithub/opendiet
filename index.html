@@ -121,9 +121,17 @@ html[data-theme="light"]{
   --bg:#f5f5f4;--panel:#fafaf9;--panel-2:#f7f6f5;--panel-3:#f0efed;--plate:#e3e0da;
   --tray:#eceae8;--sel:#e7e5e4;
   --line:#bfbbb7;--line-2:#d6d3d1;
-  --ghost:#d6d3d1;--dim-1:#c4bfbb;--dim-2:#aca6a1;--dim-3:#948e88;--dim-4:#837c76;
-  --muted:#57534e;--ink-3:#4c4844;--ink-2:#454140;--ink-1:#403c39;--ink-0:#3b3835;
-  --ink:#34302d;--body:#292524;--text-2:#1c1917;--text:#0c0a09;
+  /* Dark ink on a light ground reads thinner than light ink on a dark one — the strokes
+     do not bloom, they are eaten into. So a light theme cannot simply mirror a dark one's
+     greys, and this one did: every step of the quiet ramp landed short of its opposite,
+     dim-3 at 2.97 against the page where the dark theme's is 4.26, dim-1 at 1.67 against
+     2.53. That ramp is where the small type lives — the unit beside a figure, the amount,
+     the badge — which is exactly the type that had nothing to spare. Matched to the dark
+     theme's ratios here, and the darkest two given a little over, since the face is a
+     Light and stays one. */
+  --ghost:#cbc6c1;--dim-1:#a8a29c;--dim-2:#918b85;--dim-3:#7c766f;--dim-4:#6e6862;
+  --muted:#4f4b46;--ink-3:#47433f;--ink-2:#423e3b;--ink-1:#3d3936;--ink-0:#383431;
+  --ink:#2b2825;--body:#1c1917;--text-2:#141110;--text:#0c0a09;
   --cyan:#0e7490;--cyan-2:#0b6076;--cyan-hi:#155e75;--cyan-bright:#164e63;
   --carb:#047857;--carb-flare:#065f46;
   --fat:#9a3412;--fat-bright:#7c2d12;--fat-flare:#7c2d12;
