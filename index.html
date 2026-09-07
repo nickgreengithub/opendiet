@@ -3678,6 +3678,22 @@ class Component extends DCLogic {
     // spliced into it after: they are the same foods as every other row and have to be
     // dressed the same way, or they arrive on a phone without the card the rest of them
     // open into. What marks them out is added on top, once the row exists.
+    // The rule under an open pool runs the width of the list, which cuts it off from the
+    // rows it opened — and they are one thing. It starts where its members' rules start
+    // instead, so the whole block shares a left edge and reads as a family. (The desktop
+    // table rules every row alike, so there the line belongs where it is.)
+    if (s.narrow && openPool) {
+      const head = rows.find(r => r.name === openPool);
+      if (head) Object.assign(head, {
+        mRow: Object.assign({}, head.mRow, { borderBottom: 0 }),
+        wrapS: {
+          backgroundImage: "linear-gradient(var(--line),var(--line))",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "right bottom",
+          backgroundSize: "calc(100% - " + TRUNK_END + ") 1px"
+        }
+      });
+    }
     if (poolKids.size) {
       rows.forEach(r => {
         const mark = poolKids.get(r.name);
