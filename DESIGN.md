@@ -610,7 +610,11 @@ The layout rules below were the first things it was built to test, and still hol
   fractions of an ounce. Picking any measure also restates an open food's amount as one
   of it, so choosing OZ lands on exactly 1 oz.
 - The island column is protein per 100 kcal: `protein g / kcal * 100`, one division and no
-  weight anybody chose. It replaced a fullness index — macro shares of a food's energy at
+  weight anybody chose. It divides by the calories the KCAL column is showing, so with the
+  thermic deduction on it is per 100 net calories — the check a reader can do against the
+  two figures beside it only holds if both columns mean the same calorie. It raises a
+  chicken breast from 19 to 23 and olive oil not at all, which is the deduction saying what
+  it says: a calorie of protein costs a quarter of itself to digest. It replaced a fullness index — macro shares of a food's energy at
   70/20/5, fibre at 2.6, a saturating bulk term worth 30, sugar at −0.5 — which predicted
   measured satiety far better than this does and could not be read off the row. Against
   Holt's 1995 index, the only measured satiety data there is, 33 of whose 38 foods are in

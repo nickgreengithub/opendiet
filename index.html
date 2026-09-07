@@ -2530,9 +2530,13 @@ class Component extends DCLogic {
       const k = kcalOf(fo) / (net[0] + net[1] + net[2] || 1);
       return [net[0] * k, net[1] * k, net[2] * k];
     };
-    // Protein per calorie is a ratio of two figures the food already carries, so the
-    // thermic deduction — which is applied for display — has no business in it.
-    const scoreOf = fo => this.score(fo);
+    // Over the calories the row is showing, which is the point of the column: it is the
+    // one figure a reader can check against the two beside it, and that check fails the
+    // moment the two columns mean different calories. With the deduction on, KCAL is net
+    // of digestion, so this is protein per 100 of those. It also happens to be the truer
+    // answer — protein costs a quarter of itself to digest, so a calorie of it buys less
+    // than it says, and every protein-dense food gains here.
+    const scoreOf = fo => this.score(fo, kcalOf(fo));
     // One user-chosen island column: protein per calorie or a raw nutrient.
     // Ordered as the expanded donut reads them: fat's part, then carb's parts, then water.
     const EXTRAS = [
@@ -3893,7 +3897,7 @@ class Component extends DCLogic {
       sf: "Saturated fat, solid at room temperature. Most guidelines cap it near 10% of daily calories, though the strength of that advice is argued over.",
       mo: "Monounsaturated fat, one double bond in the chain. The dominant fat in olive oil, avocados and most nuts.",
       po: "Polyunsaturated fat, several double bonds. Includes the omega-3 and omega-6 fatty acids that are essential, meaning the body cannot make them.",
-      score: "Grams of protein per 100 calories: how much protein a calorie buys. One division of two figures on the row, with no weighting and nothing chosen by us \u2014 an egg is 8.7, a chicken breast 21, olive oil 0. It is a measure of protein for the calorie, not of how filling a food is: bacon scores well on it and an apple does not."
+      score: "Grams of protein per 100 calories: how much protein a calorie buys. One division of the two figures beside it on the row \u2014 an egg is 8.8, a chicken breast 19, olive oil 0 \u2014 so it follows the KCAL column, and rises when the thermic deduction is on, since digesting protein spends a quarter of it. It is a measure of protein for the calorie, not of how filling a food is: bacon scores well on it and an apple does not."
     };
     const tipStyle = {
       position: "absolute", top: "100%", right: 0, zIndex: 40, width: "20rem",
@@ -4211,13 +4215,14 @@ class Component extends DCLogic {
     }, [0, 0, 0]);
     // The displayed total must sum the rounded row figures, not the raw ones.
     const tKDisp = sumLive.reduce((a, fo) => a + Math.round(kcalOf(fo) * gs(fo)), 0);
-    const tKGross = sumLive.reduce((a, fo) => a + fo.kcal * gs(fo), 0);
+    const tKNet = sumLive.reduce((a, fo) => a + kcalOf(fo) * gs(fo), 0);
     // The plate's figure is the plate's protein over the plate's calories — the same
-    // division a row does, on the totals. An average of the rows' ratios would not be the
-    // ratio of anything, and would say a plate of oil and whey had the protein of neither.
-    const tScore = tKGross > 0
-      ? (tP / tKGross * 100 >= 10 ? Math.round(tP / tKGross * 100)
-        : Math.round(tP / tKGross * 1000) / 10)
+    // division a row does, on the totals, and over the same calories the plate is showing.
+    // An average of the rows' ratios would not be the ratio of anything, and would say a
+    // plate of oil and whey had the protein of neither.
+    const tScore = tKNet > 0
+      ? (tP / tKNet * 100 >= 10 ? Math.round(tP / tKNet * 100)
+        : Math.round(tP / tKNet * 1000) / 10)
       : 0;
     const tMkSum = tMk[0] + tMk[1] + tMk[2] || 1;
     const tShares = [tMk[0] / tMkSum, tMk[1] / tMkSum, tMk[2] / tMkSum];

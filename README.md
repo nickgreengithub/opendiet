@@ -37,7 +37,8 @@ This is that missing page. One table, every number visible at once, sortable by 
   typed in directly, and a copy button that puts the plate on the clipboard as a shopping
   list. Saved in your browser, not on a server.
 - **Protein per 100 kcal** per food — grams of protein for a hundred calories of it, which
-  is one division of two figures already on the row. The plate carries its own protein over
+  is one division of the two figures beside it on the row, and follows the calorie column
+  when the thermic deduction is on. The plate carries its own protein over
   its own calories.
 - **Thermic effect toggle.** Deducts the energy digestion itself costs: 25% of protein calories,
   8% of carbohydrate, 2% of fat.
