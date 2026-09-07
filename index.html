@@ -4517,7 +4517,7 @@ class Component extends DCLogic {
       mTipPop: { position: "absolute", top: "100%", right: 0, zIndex: 40, width: "16rem", display: "flex", flexDirection: "column", gap: ".35rem", padding: ".7rem .85rem", background: "var(--panel)", border: "1px solid var(--line)", boxShadow: "0 0 28px rgba(var(--cyan-rgb),.12)", textAlign: "left", textTransform: "none", letterSpacing: 0, whiteSpace: "normal", cursor: "default" },
       mExtra: () => this.setState({ extraOpen: !s.extraOpen, libOpen: false, unitOpen: false, catOpen: false }),
       // Eight characters at most in the bar, so the selector never crowds the query.
-      mColLabel: mCol.label === "PROTEIN PER 100 KCAL" ? "P/100 KCAL"
+      mColLabel: mCol.label === "PROTEIN PER 100 KCAL" ? "P/KCAL"
         : mCol.label === "SATURATED FAT" ? "SAT FAT" : mCol.label, mColUnit: mCol.unit,
       basisUnit: barBasisUnit,
       sortOn: {
@@ -7075,8 +7075,9 @@ class Component extends DCLogic {
           borderLeft: "0 solid transparent", borderRight: "5.5px solid var(--ink)", margin: "0 1.5px 0 0" }
         : { width: 0, height: 0, borderTop: "4px solid transparent", borderBottom: "4px solid transparent",
           borderLeft: "5.5px solid var(--ink)", borderRight: "0 solid transparent", margin: "0 0 0 1.5px" },
-      // The header has a column's width to say it in; the tooltip says the rest.
-      extraLabel: extra.k === "score" ? "P/100KCAL" : extra.label, extraUnit: extra.unit,
+      // A column head has a column's width to say it in, and the tooltip over it says the
+      // rest — PROTEIN PER 100 KCAL, and what that means.
+      extraLabel: extra.k === "score" ? "P/KCAL" : extra.label, extraUnit: extra.unit,
       extraSuffix: { marginLeft: ".25rem", fontFamily: "var(--font-2)", fontSize: s.narrow ? ".84rem" : ".66rem", letterSpacing: ".04em", color: "var(--dim-4)" },
       extraOpen: !!s.extraOpen,
       openExtra: () => this.setState({ extraOpen: true }),
