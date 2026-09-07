@@ -720,7 +720,7 @@ option{background:var(--panel);color:var(--body)}
       <span onMouseEnter="{{ tipOn.po }}" onMouseLeave="{{ tipOff }}" style="{{ subHead }}"><span style="{{ headClip }}"><span>POLY</span></span><sc-if value="{{ tip.po }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">POLYUNSATURATED</span><span style="{{ headTipText }}">{{ tipText.po }}</span></span></span></sc-if></span>
       <span onMouseEnter="{{ tipOn.s3 }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.s3 }}" style="{{ head3 }}"><span style="{{ headClip }}"><span>FATS</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s3 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke-width="2.2" style="flex:none;stroke:var(--cyan)"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-2%</span></sc-if></span><sc-if value="{{ tip.s3 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">FATS</span><span style="{{ headTipText }}">{{ tipText.s3 }}</span></span></span></sc-if></span>
       <span onMouseEnter="{{ tipOn.kcal }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.kcal }}" style="{{ headTotal }}"><span>KCAL</span><sc-if value="{{ sorted.kcal }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke-width="2.2" style="flex:none;stroke:var(--cyan)"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.kcal }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="position:absolute;top:100%;right:0;z-index:40;display:flex;flex-direction:column;min-width:20rem;padding-top:.35rem;text-transform:none;letter-spacing:0"><span style="display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);box-shadow:0 0 28px rgba(var(--cyan-rgb),.12)"><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="display:block;padding:0 .7rem .7rem"><span style="font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:var(--ink-3);text-wrap:pretty">Digestion costs 25% of protein calories, 8% of carbohydrate, 2% of fat. Applied to the calorie figures throughout.</span></span><span style="display:block;padding:.55rem .7rem .7rem;border-top:1px solid var(--line)"><span style="font-family:var(--font-2);font-size:.7rem;letter-spacing:.12em;color:var(--muted)">KCAL</span><span style="display:block;margin-top:.3rem;font-family:var(--font-1);font-weight:300;font-size:.85rem;line-height:1.55;color:var(--ink);text-wrap:pretty">{{ tipText.kcal }}</span></span></span></span></sc-if></span>
-      <span onMouseEnter="{{ tipOn.score }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.extra }}" style="{{ headIsland }}"><span>{{ extraLabel }}</span><sc-if value="{{ sorted.extra }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke-width="2.2" style="flex:none;stroke:var(--cyan)"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.score }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">FULLNESS SCORE</span><span style="{{ headTipText }}">{{ tipText.score }}</span></span></span></sc-if></span>
+      <span onMouseEnter="{{ tipOn.score }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.extra }}" style="{{ headIsland }}"><span>{{ extraLabel }}</span><sc-if value="{{ sorted.extra }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke-width="2.2" style="flex:none;stroke:var(--cyan)"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.score }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">PROTEIN PER 100 KCAL</span><span style="{{ headTipText }}">{{ tipText.score }}</span></span></span></sc-if></span>
       <span style="{{ dActHead }}"><span data-dexp onClick="{{ dExpToggle }}" style="{{ dExpBox }}"><span data-ring style="{{ dExpChev }}"><span data-tri style="{{ dExpTri }}"></span></span></span></span>
     </div>
     </div>
@@ -2362,41 +2362,26 @@ class Component extends DCLogic {
       (s.cat === "ALL" || fo.cat === s.cat)
     );
   }
-  // Every term is per calorie: macro shares of energy, fibre and sugar per 100 kcal.
+  // Grams of protein per 100 kcal, and nothing else. There is one division in it and no
+  // weight anybody chose, which is the point: the figure it replaced was a composite of
+  // six terms whose coefficients I guessed, and a number you have to be told how to read
+  // is a number you have to take on trust.
   //
-  // The weights were guessed, then checked against the only measured satiety data there is
-  // — Holt 1995, 38 foods eaten in 1000 kJ servings and ranked against white bread. 33 of
-  // them are in SR Legacy. Refitting all of it scored better on those 33 and worse on a food
-  // it had not seen, which is overfitting rather than calibration, so the guessed weights
-  // stand. The one term that survived the test on its own is sugar: see
-  // tools/calibrate_fullness.py, which re-derives the number.
-  fullness(fo, k) {
-    const K = k || fo.kcal;
-    const tot = fo.p * 4 + fo.c * 4 + fo.f * 9 || 1;
-    // Grams of food per 100 kcal — the bulk a calorie buys. Saturating, so water-heavy
-    // foods stop gaining once they are already very dilute.
-    const bulk = 100 / (K / 100);
-    return {
-      p: 70 * (fo.p * 4 / tot),
-      c: 20 * (fo.c * 4 / tot),
-      f: 5 * (fo.f * 9 / tot),
-      fb: 2.6 * (fo.fb / K * 100),
-      bk: 30 * (1 - Math.exp(-bulk / 120)),
-      // Sweetness costs a food some of its fullness. USDA reports total sugars, so this
-      // charges an apple for the same gram it charges a jellybean — the one place the term
-      // is known to be unfair, and it still improves the ranking on every held-out food.
-      sg: -0.5 * (fo.sg / K * 100)
-    };
-  }
+  // It is not a satiety index and does not claim to be. Against Holt 1995 — 38 foods eaten
+  // in 1000 kJ servings, 33 of them here, the only measured data of its kind — it ranks at
+  // +0.37 where the composite ranked at +0.80, and it puts an apple near the bottom and
+  // bacon near the top. What it answers instead is a question the composite could not:
+  // how much protein a calorie buys.
   score(fo, k) {
-    const t = this.fullness(fo, k);
-    return Math.max(0, Math.min(100, Math.round(t.p + t.c + t.f + t.fb + t.bk + t.sg)));
+    const K = k || fo.kcal;
+    if (!K) return 0;
+    const v = fo.p / K * 100;
+    return v >= 10 ? Math.round(v) : Math.round(v * 10) / 10;
   }
   catLabel(c) { const t = c.slice(0, 7); return t.charAt(0) + t.slice(1).toLowerCase(); }
   // Nothing of something is 0 of it, not a blank. The figure still greys out, so a row of
   // zeroes reads as quietly as a row of dashes did.
   pctFmt(v) { return v === 0 ? "0" : v < 1 ? v.toFixed(1) : String(Math.round(v)); }
-  band(s) { return s >= 80 ? "A" : s >= 65 ? "B" : s >= 45 ? "C" : s >= 30 ? "D" : "F"; }
   fmt(n) { return n === 0 ? "0" : n < 1 ? n.toFixed(2) : n < 10 ? n.toFixed(1) : String(Math.round(n)); }
   // Opening a pool, or shutting one. Shutting keeps the members in the list until their
   // fold is done — the same trick a food leaving the plate uses — because a row cannot
@@ -2545,23 +2530,25 @@ class Component extends DCLogic {
       const k = kcalOf(fo) / (net[0] + net[1] + net[2] || 1);
       return [net[0] * k, net[1] * k, net[2] * k];
     };
-    // Fullness already prices in digestion cost through its macro weights, so it stays on gross kcal.
+    // Protein per calorie is a ratio of two figures the food already carries, so the
+    // thermic deduction — which is applied for display — has no business in it.
     const scoreOf = fo => this.score(fo);
-    // One user-chosen island column: the fullness index or a raw nutrient.
+    // One user-chosen island column: protein per calorie or a raw nutrient.
     // Ordered as the expanded donut reads them: fat's part, then carb's parts, then water.
     const EXTRAS = [
-      { k: "score", label: "FULLNESS", unit: "/100", get: fo => scoreOf(fo), sum: false },
+      { k: "score", label: "P/100 KCAL", unit: "g", get: fo => scoreOf(fo), sum: false },
       { k: "sf", label: "SAT FAT", unit: "g", get: fo => fo.sf || 0, sum: true },
       { k: "sg", label: "SUGAR", unit: "g", get: fo => fo.sg || 0, sum: true },
       { k: "fb", label: "FIBRE", unit: "g", get: fo => fo.fb, sum: true },
       { k: "wa", label: "WATER", unit: "g", get: fo => fo.wa || 0, sum: true }
     ];
-    // The expanded columns made the swappable extra column redundant: FULLNESS it is.
+    // The expanded columns made the swappable extra column redundant: protein per calorie
+    // it is.
     const extra = EXTRAS[0];
     // Mobile's last column does double duty: kcal by default, or one chosen nutrient.
     const MCOLS = [
       { k: "kcal", label: "CALORIES", unit: "kcal", get: fo => kcalOf(fo) },
-      { k: "score", label: "FULLNESS SCORE", unit: "/100", get: fo => scoreOf(fo) },
+      { k: "score", label: "PROTEIN PER 100 KCAL", unit: "g", get: fo => scoreOf(fo) },
       { k: "wa", label: "WATER", unit: "g", get: fo => fo.wa || 0 },
       { k: "p", label: "PROTEIN", unit: "g", get: fo => fo.p },
       { k: "f", label: "FAT", unit: "g", get: fo => fo.f },
@@ -2633,7 +2620,7 @@ class Component extends DCLogic {
     const gramMax = Math.max.apply(null, visible.map(fo2 => Math.max(fo2.p, fo2.c, fo2.f)).concat([1]));
     const macroMax = Math.max.apply(null, visible.map(fo2 => { const r2 = fo2.p * 4 + fo2.c * 4 + fo2.f * 9 || 1, k2 = fo2.kcal / r2; return Math.max(fo2.p * 4, fo2.c * 4, fo2.f * 9) * k2; }).concat([1]));
     const mkRow = fo => {
-      const sc = scoreOf(fo), bd = this.band(sc), mu = fo.mu === "ml" ? "ml" : "g", ekc = kcalOf(fo);
+      const sc = scoreOf(fo), mu = fo.mu === "ml" ? "ml" : "g", ekc = kcalOf(fo);
       const mk = macroK(fo);
       const tot = mk[0] + mk[1] + mk[2] || 1;
       const pct = v => Math.round(v / tot * 1000) / 10;
@@ -2704,7 +2691,7 @@ class Component extends DCLogic {
         }) : null,
         cat: fo.cat, catLabel: this.catLabel(fo.cat), kcal: String(fo.kcal),
         p: this.fmt(fo.p), c: this.fmt(fo.c), f: this.fmt(fo.f), fb: this.fmt(fo.fb),
-        score: String(sc), band: bd,
+        score: String(sc),
         kcalVal: String(Math.round(ekc * uf)),
         measureVal: dOz ? "1" : String(unit.k === "100G" ? 100 : unit.grams), measureUnit: dOz ? "oz" : mu,
         extraVal: extra.k === "score" ? String(sc) : gFmt(extra.get(fo) * uf),
@@ -3903,7 +3890,7 @@ class Component extends DCLogic {
       sf: "Saturated fat, solid at room temperature. Most guidelines cap it near 10% of daily calories, though the strength of that advice is argued over.",
       mo: "Monounsaturated fat, one double bond in the chain. The dominant fat in olive oil, avocados and most nuts.",
       po: "Polyunsaturated fat, several double bonds. Includes the omega-3 and omega-6 fatty acids that are essential, meaning the body cannot make them.",
-      score: "An index used on this site, not an official measure. It weighs each macronutrient's share of a food's calories — protein highest, then carbohydrate, then fat — adds a bonus for fibre and for the bulk a calorie buys, and takes something back for sugar. Checked against Holt's 1995 satiety index, the only measured data of its kind."
+      score: "Grams of protein per 100 calories: how much protein a calorie buys. One division of two figures on the row, with no weighting and nothing chosen by us \u2014 an egg is 8.7, a chicken breast 21, olive oil 0. It is a measure of protein for the calorie, not of how filling a food is: bacon scores well on it and an apple does not."
     };
     const tipStyle = {
       position: "absolute", top: "100%", right: 0, zIndex: 40, width: "20rem",
@@ -4222,10 +4209,12 @@ class Component extends DCLogic {
     // The displayed total must sum the rounded row figures, not the raw ones.
     const tKDisp = sumLive.reduce((a, fo) => a + Math.round(kcalOf(fo) * gs(fo)), 0);
     const tKGross = sumLive.reduce((a, fo) => a + fo.kcal * gs(fo), 0);
-    // The plate's fullness is the average of its foods' scores, each weighing in at
-    // the grams it was added at.
-    const tScore = tQty > 0 && sumLive.length
-      ? Math.round(sumLive.reduce((a, fo) => a + scoreOf(fo) * gramsOf(fo.name), 0) / tQty)
+    // The plate's figure is the plate's protein over the plate's calories — the same
+    // division a row does, on the totals. An average of the rows' ratios would not be the
+    // ratio of anything, and would say a plate of oil and whey had the protein of neither.
+    const tScore = tKGross > 0
+      ? (tP / tKGross * 100 >= 10 ? Math.round(tP / tKGross * 100)
+        : Math.round(tP / tKGross * 1000) / 10)
       : 0;
     const tMkSum = tMk[0] + tMk[1] + tMk[2] || 1;
     const tShares = [tMk[0] / tMkSum, tMk[1] / tMkSum, tMk[2] / tMkSum];
@@ -4520,7 +4509,7 @@ class Component extends DCLogic {
       mTipPop: { position: "absolute", top: "100%", right: 0, zIndex: 40, width: "16rem", display: "flex", flexDirection: "column", gap: ".35rem", padding: ".7rem .85rem", background: "var(--panel)", border: "1px solid var(--line)", boxShadow: "0 0 28px rgba(var(--cyan-rgb),.12)", textAlign: "left", textTransform: "none", letterSpacing: 0, whiteSpace: "normal", cursor: "default" },
       mExtra: () => this.setState({ extraOpen: !s.extraOpen, libOpen: false, unitOpen: false, catOpen: false }),
       // Eight characters at most in the bar, so the selector never crowds the query.
-      mColLabel: mCol.label === "FULLNESS SCORE" ? "FULLNESS"
+      mColLabel: mCol.label === "PROTEIN PER 100 KCAL" ? "P/100 KCAL"
         : mCol.label === "SATURATED FAT" ? "SAT FAT" : mCol.label, mColUnit: mCol.unit,
       basisUnit: barBasisUnit,
       sortOn: {
@@ -7071,16 +7060,16 @@ class Component extends DCLogic {
         : { width: 0, height: 0, borderTop: "4px solid transparent", borderBottom: "4px solid transparent",
           borderLeft: "5.5px solid var(--ink)", borderRight: "0 solid transparent", margin: "0 0 0 1.5px" },
       // The header has a column's width to say it in; the tooltip says the rest.
-      extraLabel: extra.k === "score" ? "FULL" : extra.label, extraUnit: extra.unit,
+      extraLabel: extra.k === "score" ? "P/100KCAL" : extra.label, extraUnit: extra.unit,
       extraSuffix: { marginLeft: ".25rem", fontFamily: "var(--font-2)", fontSize: s.narrow ? ".84rem" : ".66rem", letterSpacing: ".04em", color: "var(--dim-4)" },
       extraOpen: !!s.extraOpen,
       openExtra: () => this.setState({ extraOpen: true }),
       closeExtra: () => this.setState({ extraOpen: false }),
       extraOpts: EXTRAS.map(x => ({
-        label: x.k === "score" ? "FULLNESS SCORE" : x.k === "fb" ? "DIETARY FIBRE" : x.k === "sf" ? "SATURATED FAT" : x.k === "sg" ? "SUGAR" : "WATER",
+        label: x.k === "score" ? "PROTEIN PER 100 KCAL" : x.k === "fb" ? "DIETARY FIBRE" : x.k === "sf" ? "SATURATED FAT" : x.k === "sg" ? "SUGAR" : "WATER",
         unit: x.unit,
         desc: x.k === "score"
-          ? "(protein% \u00d7 0.7) + (carb% \u00d7 0.2) + (fat% \u00d7 0.05) + (fibre g per 100 kcal \u00d7 2.6) + bulk, where bulk is 30 \u00d7 (1 \u2212 e^\u2212grams per 100 kcal / 120). Capped at 100; percentages are shares of the food's energy."
+          ? "protein g \u00f7 kcal \u00d7 100. Grams of protein per hundred calories of the food."
           : x.k === "fb"
             ? "Carbohydrate the body cannot digest. Adds bulk and slows digestion, with little usable energy."
             : x.k === "sf"

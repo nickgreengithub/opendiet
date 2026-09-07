@@ -36,8 +36,9 @@ This is that missing page. One table, every number visible at once, sortable by 
 - **Build a plate.** Added foods drop into a summary with running totals, their portions
   typed in directly, and a copy button that puts the plate on the clipboard as a shopping
   list. Saved in your browser, not on a server.
-- **A fullness score** per food — a per-calorie index built from macro energy shares, fibre
-  density and the sheer bulk a calorie buys. The plate carries the weighted average of its own.
+- **Protein per 100 kcal** per food — grams of protein for a hundred calories of it, which
+  is one division of two figures already on the row. The plate carries its own protein over
+  its own calories.
 - **Thermic effect toggle.** Deducts the energy digestion itself costs: 25% of protein calories,
   8% of carbohydrate, 2% of fat.
 

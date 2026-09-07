@@ -498,10 +498,10 @@ The layout rules below were the first things it was built to test, and still hol
   (RELEVANCE, or the chosen column with an arrow that flips between highest-first and
   lowest-first on a second tap), then the thermic-effect switch. Picking a new column
   carries an active column-sort with it.
-- The FULLNESS column is fixed now — the expanded sub-columns made a swappable extra
+- The P/100KCAL column is fixed now — the expanded sub-columns made a swappable extra
   column redundant. Every header explains itself the same way: hovering any of them —
-  water, the macros, the six sub-macros, calories, fullness — gives its name and a
-  sentence. The basis menu that used to hang off PROT, CARBS and FATS is gone with the
+  water, the macros, the six sub-macros, calories, protein per calorie — gives its name
+  and a sentence. The basis menu that used to hang off PROT, CARBS and FATS is gone with the
   bases themselves: a column that could silently be showing percentages or calories made
   every figure a question, and grams answers it.
 - The desktop table wears the donut's own colours: each macro column's bar is its slice's
@@ -536,8 +536,9 @@ The layout rules below were the first things it was built to test, and still hol
   because two strong lines side by side read as a doubled border; the actions fence is
   1px like everything else, since double thickness read as a doubled line. The desktop
   totals row says MY FOOD SUMMARY, keeps a copy button in the actions column — the same
-  shopping list the mobile header copies — and its FULLNESS is the average of its foods'
-  scores, each weighing in at the grams it was added at. There is deliberately no
+  shopping list the mobile header copies — and its P/100KCAL is the plate's protein over
+  the plate's calories, which is the same division a row does on figures that have been
+  added up. An average of the rows' own ratios would not be the ratio of anything. There is deliberately no
   target to compare against: converting a calorie figure into a protein or carbohydrate
   goal is contested enough that the table would be taking a side it has no business
   taking. It states what is on the plate.
@@ -564,7 +565,7 @@ The layout rules below were the first things it was built to test, and still hol
   still opens on it. ABOUT, which lived in that menu, is a quiet line on the launcher now.
 - Mobile's measure · column selector rides in the search bar itself rather than a bar of
   its own, sharing one type size with the input, and its column names run to eight
-  characters at most — FULLNESS, SAT FAT — so the selector never crowds the query.
+  characters at most — P/100 KCAL, SAT FAT — so the selector never crowds the query.
 - Search matches every word of the query, in any order, and treats a plural as its
   singular in both directions — "apple" finds `Apples, raw`, "eggs" finds `Egg, whole, raw`,
   "berry" reaches `Blueberries`. Results are then scored by how the query landed: 20 for a
@@ -608,16 +609,17 @@ The layout rules below were the first things it was built to test, and still hol
   the hole shows with a macro open, two decimals below ten because most foods are
   fractions of an ounce. Picking any measure also restates an open food's amount as one
   of it, so choosing OZ lands on exactly 1 oz.
-- FULLNESS is checked against evidence rather than asserted. `tools/calibrate_fullness.py`
-  matches 33 of the 38 foods in Holt's 1995 satiety index — the only measured satiety data
-  there is — to SR Legacy and reports rank correlation, judged leave-one-out: fit on 32
-  foods, predict the 33rd. Refitting all six parameters scores 0.795 on the foods it was
-  fitted to and 0.530 on one it has not seen, which is overfitting, so the weights chosen by
-  judgement stand. One term survived the test on its own and is now in the score: sugar per
-  100 kcal at −0.5, which takes the correlation from 0.759 to 0.805. Water was tested too
-  and earns nothing — it correlates 0.96 with the bulk term and the fit sets its weight to
-  zero every time. The sugar term's known unfairness is that USDA reports total sugars, so
-  an apple is charged the same gram as a jellybean.
+- The island column is protein per 100 kcal: `protein g / kcal * 100`, one division and no
+  weight anybody chose. It replaced a fullness index — macro shares of a food's energy at
+  70/20/5, fibre at 2.6, a saturating bulk term worth 30, sugar at −0.5 — which predicted
+  measured satiety far better than this does and could not be read off the row. Against
+  Holt's 1995 index, the only measured satiety data there is, 33 of whose 38 foods are in
+  SR Legacy, the composite ranked at +0.797 and protein per calorie ranks at +0.369: it
+  puts a boiled potato, the most satiating food ever measured, 19th of 33, and an apple
+  32nd. That was the trade, made deliberately. A number the reader can check against the
+  two figures beside it needs no defending; a number with six coefficients in it needs one
+  every time, and the coefficients were guesses. What the column answers now is a question
+  the index could not: how much protein a calorie buys.
 - An open food is a donut in two equal rings, with two levels of story. At rest it tells
   the whole food: the inner ring is all of 100 g — macros as one light slice, then water,
   ash, alcohol when there is any — and the outer ring rides only the macros slice's arc,
