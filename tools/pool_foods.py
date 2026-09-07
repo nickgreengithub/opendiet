@@ -19,7 +19,7 @@ How a pool is found — constrained agglomerative clustering, in three parts:
      they share. Pairs are merged most-similar first.
 
   2. Numbers veto. A merge is refused if the merged pool's range on ANY axis —
-     protein, carbohydrate, fat, fibre, sugar, water, energy — would exceed a band.
+     protein, carbohydrate, fat, fibre, sugar, energy — would exceed a band.
      The band is on the pool's diameter rather than on the pair, so a pool cannot
      grow by chaining: every member of a finished pool is within the band of every
      other member, which is what makes the mean representative of all of them.
@@ -71,10 +71,24 @@ ENERGY_FLOOR = 20.0
 # are two different loaves. A floor of two and a half grams sits between them with room on
 # both sides.
 BAND = {
-    "fb": (2.5, 0.25), "sg": (1.5, 0.25), "wa": (2.0, 0.10), "kcal": (20, 0.25),
+    "fb": (2.5, 0.25), "sg": (1.5, 0.25), "kcal": (20, 0.25),
     "sf": (1.5, 0.35), "mo": (1.5, 0.35), "po": (1.5, 0.35),
 }
 AXES_G = list(BAND)
+# Water is not on that list, and why it is not is the same argument the list is built on.
+# A band has to be measured in what a difference costs, and water is the one figure in the
+# row that is not a measurement of the food at all: it is a hundred grams minus the food.
+# So a difference in water is a difference in dry matter, and what that is worth is set by
+# the dry matter displaced — which protein, carbohydrate, fat and energy already band, in
+# energy. Banding water as a share of itself was the last place the rule this file rejects
+# survived: it asked least where water is most of the food and a gram of dry matter counts
+# for most, and most where water is least and it counts for least. Backwards, and in grams.
+#
+# It was not a small error. Water alone refused 2,082 merges every other axis passed — more
+# than any other axis on its own — and it lost the boiled chickpea from the canned one by a
+# hundredth of a gram while the energy that actually separates them sat 26 kcal inside a
+# band of 41. Without it the same rules speak for 89 more foods, and the families that open
+# are families: pecans across roastings, pie crust baked and unbaked, ham by cut.
 # USDA files some things under a category rather than a food — "Beverages, coffee",
 # "Snacks, potato chips", "Fast foods, hamburger". For these the head is the first two
 # segments, or every drink in the book would pool as "Beverages".

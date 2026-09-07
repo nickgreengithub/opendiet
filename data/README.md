@@ -84,11 +84,20 @@ merge is refused if the pool's range on any axis would carry it too far. A gram 
 gram, so the three axes that carry the energy are banded by what a difference in them does
 to it: protein, carbohydrate and fat may each move a sixth of the food's calories, or twenty
 calories in a hundred grams, whichever is more — a gram of fat in milk, four in a sausage,
-and enough in a leaf that a raw kale and a boiled one are one kale. Fibre, sugar, water and
-the three fats the fat figure breaks into carry meaning without much energy and keep a band
-in grams. Fibre's floor of two and a half grams is the one that has to be argued for: kale
+and enough in a leaf that a raw kale and a boiled one are one kale. Fibre, sugar and the
+three fats the fat figure breaks into carry meaning without much energy and keep a band in
+grams. Fibre's floor of two and a half grams is the one that has to be argued for: kale
 runs 2.0 to 4.1 across USDA's own entries, white bread and wholemeal run 2.7 to 7.0, and the
-floor sits between them. The band is
+floor sits between them.
+
+Water is not an axis, and it used to be. It is the one figure in the row that is not a
+measurement of the food: it is a hundred grams minus the food. So a difference in water is
+a difference in dry matter, and what that costs is set by the dry matter displaced — which
+the macros and the calories already band, in energy. A share of the water asked least where
+water is most of the food and a gram of dry matter counts for most, and most where water is
+least, which is backwards. It refused 2,082 merges every other axis passed, more than any
+other axis on its own, and it kept a boiled chickpea from a canned one by a hundredth of a
+gram while the energy between them sat 26 kcal inside a band of 41. The band is
 on the pool's diameter, not on the pair,
 so a pool cannot grow by chaining; and merging repeats until nothing more fits, so a pool
 is everything that belongs in it rather than an arbitrary slice of its head. Where USDA
