@@ -2390,6 +2390,18 @@ class Component extends DCLogic {
   pctFmt(v) { return v === 0 ? "0" : v < 1 ? v.toFixed(1) : String(Math.round(v)); }
   band(s) { return s >= 80 ? "A" : s >= 65 ? "B" : s >= 45 ? "C" : s >= 30 ? "D" : "F"; }
   fmt(n) { return n === 0 ? "0" : n < 1 ? n.toFixed(2) : n < 10 ? n.toFixed(1) : String(Math.round(n)); }
+  // Opening a pool, or shutting one. Shutting keeps the members in the list until their
+  // fold is done — the same trick a food leaving the plate uses — because a row cannot
+  // animate out of a list it has already been taken out of.
+  flipPool(name) {
+    clearTimeout(this._limbT);
+    this.setState(st => {
+      const shutting = st.poolOpen === name;
+      this._limbT = setTimeout(() => this.setState({ poolAnim: null }), shutting ? 250 : 440);
+      return { poolOpen: shutting ? null : name,
+               poolAnim: { name: name, dir: shutting ? "off" : "on" } };
+    });
+  }
   toggleSum(name) {
     // Taking a food off the plate is one movement in two places: the plate row folds up
     // where it stands while the same food rises back into the search list. Both start on
@@ -2670,17 +2682,17 @@ class Component extends DCLogic {
         },
         togglePool: fo.pool ? (e => {
           if (e && e.stopPropagation) e.stopPropagation();
-          // Shutting keeps the members in the list until their fold is done — the same
-          // trick a food leaving the plate uses — because a row cannot animate out of a
-          // list it has already been taken out of.
-          clearTimeout(this._limbT);
-          this.setState(st => {
-            const shutting = st.poolOpen === fo.name;
-            this._limbT = setTimeout(() => this.setState({ poolAnim: null }),
-                                     shutting ? 250 : 340);
-            return { poolOpen: shutting ? null : fo.name,
-                     poolAnim: { name: fo.name, dir: shutting ? "off" : "on" } };
-          });
+          // Tapping the badge with the keyboard up sends the keyboard away, and the value
+          // column comes back as it goes. That is a second movement, and it used to land
+          // just as the rows had finished arriving — two beats where there is one thing
+          // happening. So the rows wait for the column and the list opens at once.
+          clearTimeout(this._poolT);
+          if (this.state.kb) {
+            try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (e2) {}
+            this._poolT = setTimeout(() => this.flipPool(fo.name), 400);
+            return;
+          }
+          this.flipPool(fo.name);
         }) : null,
         cat: fo.cat, catLabel: this.catLabel(fo.cat), kcal: String(fo.kcal),
         p: this.fmt(fo.p), c: this.fmt(fo.c), f: this.fmt(fo.f), fb: this.fmt(fo.fb),
@@ -2722,8 +2734,9 @@ class Component extends DCLogic {
         toggleRow: () => this.toggleSum(fo.name),
         mRow: {
           position: "relative",
-          display: "grid", gridTemplateColumns: mCols, columnGap: ".4rem",
-          alignItems: "center", minHeight: "2.5rem", cursor: "pointer", transition: "background 140ms ease",
+          display: "grid", gridTemplateColumns: mCols, columnGap: bare ? "0rem" : ".4rem",
+          alignItems: "center", minHeight: "2.5rem", cursor: "pointer",
+          transition: "background 140ms ease, " + M_COL_T,
           borderBottom: "1px solid var(--line)",
           borderLeft: "2px solid transparent", background: "transparent"
         },
@@ -2952,7 +2965,13 @@ class Component extends DCLogic {
       paddingRight: ".3rem",
       fontSize: "1.04rem", color: "var(--body)", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap"
     };
-    const mCols = bare ? "minmax(0,1fr)" : "minmax(0,1fr) 7rem";
+    // Two tracks either way, the second one closing to nothing while the keyboard is up.
+    // A one-track list and a two-track list cannot be interpolated between, so the column
+    // used to appear all at once — and it appears at the moment the keyboard leaves, which
+    // is often the same moment something else in the list is moving.
+    const mCols = "minmax(0,1fr) " + (bare ? "0rem" : "7rem");
+    const M_COL_T = "grid-template-columns 340ms cubic-bezier(.22,1,.36,1),"
+      + " column-gap 340ms cubic-bezier(.22,1,.36,1)";
     // Grams and servings are two ways of saying the same amount, so they are drawn as a
     // pair to choose between — a box each, the chosen one lit.
     const amtNumBase = { flex: 1, minWidth: 0, textAlign: "center", padding: "0 .1rem" };
@@ -3659,11 +3678,15 @@ class Component extends DCLogic {
         // that may now wrap.
         mVal: open && xv ? xv.col : r.mVal,
         mValCell: Object.assign({}, mColCellBase, {
-          display: bare ? "none" : "flex",
+          // Kept in the row rather than taken out of it, so it can go with its track:
+          // display has no half-way and the figure would blink in at the end.
+          overflow: "hidden", minWidth: 0,
+          opacity: bare ? 0 : 1,
+          paddingRight: bare ? 0 : ".3rem",
           color: open ? "var(--cyan)" : "var(--body)",
           alignSelf: open ? "start" : "center",
           paddingTop: open ? ".5rem" : 0,
-          transition: "color 160ms ease"
+          transition: "color 160ms ease, opacity 260ms ease, padding-right 340ms ease"
         }),
         resetCtl: {
           flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
