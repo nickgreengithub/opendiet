@@ -266,8 +266,13 @@ input:focus{outline:none;background:rgba(var(--cyan-rgb),.14)!important;box-shad
   100%{transform:none;opacity:1}}
 /* Every slot needs to know the height it is opening or closing to; the phone's rows are
    taller than the desktop's, so the mobile lists mark themselves. */
-[data-new],[data-back],[data-gone],[data-limb]{--od-row:1.9rem}
-[data-lift="m"]{--od-row:2.6rem}
+[data-new],[data-back],[data-gone]{--od-row:1.9rem}
+/* The fall a row makes into its slot has to be a fraction of the row, not a fixed number
+   of pixels: eleven of them is a quarter of a phone's row and a third of the desktop's,
+   where it stops reading as arriving and starts reading as a lurch. The desktop's shorter
+   rows are given a shorter fall and a little longer to make it. */
+[data-limb]{--od-row:2.1rem;--od-fall:6px;--od-limb:400ms}
+[data-lift="m"]{--od-row:2.6rem;--od-fall:11px;--od-limb:320ms}
 [data-new="on"]{overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;animation:od-arrive 440ms linear}
 [data-new="on"]>*{animation:od-drop 440ms cubic-bezier(.2,.72,.32,1)}
 /* A food leaving the plate goes the way it came, upward: the row lifts out of its slot and
@@ -302,17 +307,22 @@ input:focus{outline:none;background:rgba(var(--cyan-rgb),.14)!important;box-shad
   76%{max-height:var(--od-row,2rem)}
   100%{max-height:40rem}}
 @keyframes od-unfurl-in{
-  0%{transform:translateY(-11px);opacity:0}
+  0%{transform:translateY(calc(-1 * var(--od-fall,11px)));opacity:0}
   70%{opacity:1}
   100%{transform:none;opacity:1}}
-[data-limb="on"]{overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;animation:od-unfurl 320ms linear}
-[data-limb="on"]>*{animation:od-unfurl-in 320ms cubic-bezier(.2,.72,.32,1)}
+/* A row the desktop list has told the browser it may skip drawing cannot be animated
+   smoothly: it is measured from `contain-intrinsic-size` until it is painted, and the
+   guess and the truth disagree by a few pixels every frame. While a row is moving it is
+   drawn like any other. */
+[data-limb="on"],[data-limb="off"],[data-anim="on"]>*{content-visibility:visible!important;contain-intrinsic-size:auto!important}
+[data-limb="on"]{overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;animation:od-unfurl var(--od-limb,320ms) linear}
+[data-limb="on"]>*{animation:od-unfurl-in var(--od-limb,320ms) cubic-bezier(.2,.72,.32,1)}
 @keyframes od-furl{
   0%{max-height:var(--od-row,2rem)}
   100%{max-height:0}}
 @keyframes od-furl-out{
   0%{transform:none;opacity:1}
-  100%{transform:translateY(-9px);opacity:0}}
+  100%{transform:translateY(calc(-0.8 * var(--od-fall,11px)));opacity:0}}
 [data-limb="off"]{overflow:hidden;animation:od-furl 240ms cubic-bezier(.4,0,.7,.9) forwards}
 [data-limb="off"]>*{animation:od-furl-out 240ms cubic-bezier(.4,0,.7,.9) forwards}
 @media (prefers-reduced-motion:reduce){
@@ -702,7 +712,7 @@ option{background:var(--panel);color:var(--body)}
     </div>
     </div>
     <div style="{{ dBody }}">
-    <div data-scroll="rows" style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box;display:flex;flex-direction:column">
+    <div data-scroll="rows" data-anim="{{ listAnim }}" style="flex:1;min-height:0;overflow-y:auto;padding-right:10px;box-sizing:border-box;display:flex;flex-direction:column">
     <sc-for list="{{ rows }}" as="r" key="{{ r.key }}" hint-placeholder-count="10">
       <div data-back="{{ r.back }}" data-limb="{{ r.limb }}" style="{{ r.wrapS }}">
         <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ r.rowS }}" style-hover="background:rgba(var(--cyan-rgb),.20)">
@@ -814,7 +824,7 @@ option{background:var(--panel);color:var(--body)}
       <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ mClearBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if><span data-pop onClick="{{ mColToggle }}" style="{{ mHeadOne }}"><sc-if value="{{ ozOn }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" style="flex:none;opacity:.85"><path d="M5.7 3.4v18" stroke="currentColor" stroke-width="1.5" fill="none"></path><rect x="5.7" y="4.6" width="13.6" height="9.2" fill="none" stroke="currentColor" stroke-width="1.3"></rect><rect x="5.7" y="4.6" width="6.2" height="4.6" fill="currentColor" stroke="none"></rect><path d="M11.9 7h7.4M5.7 11.2h13.6" stroke="currentColor" stroke-width="1.1" fill="none"></path></svg></sc-if><span>{{ measureLabel }}</span><span style="{{ mHeadDot }}">·</span><span style="{{ mHeadCol }}">{{ mColLabel }}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ mColOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><span style="{{ mPopHead }}">MEASURE</span><span style="display:grid;grid-template-columns:1fr 1fr"><sc-for list="{{ unitOpts }}" as="u" hint-placeholder-count="2"><button onClick="{{ u.onClick }}" style="{{ u.style }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span>{{ u.label }}</span><span style="{{ u.gStyle }}">{{ u.grams }}</span></button></sc-for></span><span style="{{ mPopHead }}">COLUMN</span><span style="display:grid;grid-template-columns:1fr 1fr"><sc-for list="{{ mColOpts }}" as="o" hint-placeholder-count="9"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span>{{ o.label }}</span><span style="{{ o.unitStyle }}">{{ o.unit }}</span></button></sc-for></span><span style="{{ mPopHead }}">SORT</span><span style="display:grid;grid-template-columns:1fr 1fr"><button onClick="{{ mSortRel }}" style="{{ mSortRelS }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span>RELEVANCE</span></button><button onClick="{{ mSortCol }}" style="{{ mSortColS }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span>{{ mColLabel }}</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="{{ mSortIcon }}"></path></svg></button></span><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="{{ mPopNote }}">Digestion costs 25% of protein calories, 8% of carbohydrate and 2% of fat. Applied to calories.</span></span></span></sc-if></span>
     </div>
     <div style="{{ mBody }}">
-    <div data-scroll="rows" style="{{ mListStyle }}">
+    <div data-scroll="rows" data-anim="{{ listAnim }}" style="{{ mListStyle }}">
       <sc-for list="{{ rows }}" as="r" key="{{ r.key }}" hint-placeholder-count="10">
         <div data-back="{{ r.back }}" data-lift="m" data-limb="{{ r.limb }}" style="{{ r.wrapS }}">
           <div data-row data-sel="{{ r.selOn }}" data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ r.mRow }}">
@@ -3476,6 +3486,13 @@ class Component extends DCLogic {
     // animation instead of snapping. Column gaps are gone (a gap beside a 0rem track is
     // dead space that never closes); the cells carry their own padding instead.
     const dxp = !!s.dxp && !s.narrow;
+    // Expanded, the table takes the room the frame was holding. The gutter closes to a hair
+    // and the width lands where it is wanted: the name is the one track that stretches, so
+    // it is the one that gets it, and a food stops being cut off three qualifiers in. The
+    // nav and the footer move with it, since what they are lined up with is the table.
+    const GUT = "clamp(1.25rem, 4vw, 2.8rem)";
+    const dGut = dxp ? ".85rem" : GUT;
+    const GUT_T = "padding 720ms cubic-bezier(.22,1,.36,1)";
     // The numeric tracks hold one width in both modes — the figures never needed more —
     // so the expansion animates only the six sub tracks and the shell. Fewer moving
     // tracks is also what keeps the animation smooth.
@@ -4335,8 +4352,9 @@ class Component extends DCLogic {
         // The right side gives 10px back: the rows reserve that much inside
         // themselves for a scrollbar, and without the discount the table
         // would sit 10px further off the right rail than the left.
-        padding: D_PAD + " calc(" + FRAME_GUT + " - 10px) " + D_PAD + " " + FRAME_GUT,
+        padding: D_PAD + " calc(" + dGut + " - 10px) " + D_PAD + " " + dGut,
         boxSizing: "border-box",
+        transition: GUT_T,
         // The table's own left and right edges. Painted rather than bordered:
         // a border would sit on the element, and the element is ten pixels wider
         // than the table on the right, where the rows reserve their scrollbar.
@@ -4771,8 +4789,8 @@ class Component extends DCLogic {
         gap: s.narrow ? "1.1rem" : "2.4rem",
         height: s.narrow ? "2.45rem" : "64px",
         marginBottom: s.narrow ? "0" : "1px",
-        padding: s.narrow ? "0 .6rem" : "0 " + FRAME_GUT,
-        boxSizing: "border-box",
+        padding: s.narrow ? "0 .6rem" : "0 " + dGut,
+        boxSizing: "border-box", transition: GUT_T,
         fontFamily: "var(--font-2)", fontSize: s.narrow ? ".88rem" : ".94rem",
         letterSpacing: s.narrow ? ".1em" : ".14em"
       },
@@ -6831,6 +6849,10 @@ class Component extends DCLogic {
       searchPlaceholder: landing || dLanding
         ? this.landingPrompt().slice(0, s.tw || 0) + ((s.tw || 0) < this.landingPrompt().length ? "\u258f" : "")
         : this.placeholderText(),
+      // While a cluster is moving, every row in the list is drawn: a row the browser has
+      // been told it may skip is measured from a guess until it is painted, and a list
+      // reflowing every frame keeps crossing that line.
+      listAnim: s.poolAnim ? "on" : "off",
       rows, cats, selStyle, catOpts, libOpts, unitOpts, unitFoot: unit.foot,
       libLabel: (libs.find(d => d.k === lib) || libs[0]).label,
       libShort: (libs.find(d => d.k === lib) || libs[0]).label.replace("USDA ", ""),
@@ -6938,11 +6960,15 @@ class Component extends DCLogic {
       dShell: {
         position: "relative",
         width: "100%", margin: "0 auto",
-        maxWidth: s.narrow ? TOUCH_W : "1320px",
+        // Expanded, the frame itself opens: the two rails are this element's edges, so
+        // widening it takes them out towards the window and the table comes with them.
+        // Nine columns and a name that is not cut off will not both fit in 1320px, and of
+        // the two it is the name that cannot be made narrower without being made useless.
+        maxWidth: s.narrow ? TOUCH_W : dxp ? "calc(100% - 2.4rem)" : "1320px",
         display: "flex", flexDirection: "column", flex: 1, minHeight: 0,
         boxSizing: "border-box",
         paddingBottom: s.narrow ? 0 : "65px",
-        transition: "max-width 560ms cubic-bezier(.22,1,.36,1)"
+        transition: "max-width 720ms cubic-bezier(.22,1,.36,1)"
       },
       // The desktop frame: two vertical hairlines the full height of the
       // band below the nav, and the nav's own rule crossing them. Content
@@ -6980,7 +7006,7 @@ class Component extends DCLogic {
       },
       frameFootTxt: {
         display: s.narrow || app === "home" ? "none" : "flex",
-        position: "absolute", right: FRAME_GUT,
+        position: "absolute", right: dGut, transition: "right 720ms cubic-bezier(.22,1,.36,1)",
         bottom: 0, height: "64px", alignItems: "center",
         fontFamily: "var(--font-2)", fontSize: ".78rem",
         letterSpacing: ".16em", color: "var(--dim-3)", whiteSpace: "nowrap",
