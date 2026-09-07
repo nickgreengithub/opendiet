@@ -658,6 +658,7 @@ option{background:var(--panel);color:var(--body)}
       <span data-hint="{{ searchHint }}" style="{{ dSearchCell }}">
         <span style="{{ dLandHide }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="1.8" style="flex:none;stroke:var(--muted)"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg></span>
         <span onClick="{{ sortOn.name }}" style="{{ dSortCell }}"><sc-if value="{{ sorted.name }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke-width="2.2" style="flex:none;stroke:var(--cyan)"><path d="{{ sortMark }}"></path></svg></sc-if></span>
+        <sc-if value="{{ scopeOn }}" hint-placeholder-val="{{ false }}"><span onClick="{{ exitScope }}" style="{{ scopeBack }}" style-hover="color:var(--cyan)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;display:block"><path d="M15 6l-6 6 6 6"></path></svg></span><span style="{{ scopeChip }}">{{ scopeName }}</span></sc-if>
         <input data-search data-land="{{ dLandFlag }}" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ dSearchInput }}">
         <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ dClearBtn }}" style-hover="color:var(--body)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if>
       </span>
@@ -682,7 +683,9 @@ option{background:var(--panel);color:var(--body)}
       <div data-back="{{ r.back }}" style="{{ dRowWrap }}">
         <div data-row data-hint="{{ r.hint }}" onClick="{{ r.toggleRow }}" style="{{ dRowStyle }}" style-hover="background:rgba(var(--cyan-rgb),.20)">
           <span style="{{ r.nameCell }}">
+            <sc-if value="{{ r.branch }}" hint-placeholder-val="{{ false }}"><span style="{{ r.branchS }}"><span style="{{ r.branchT }}"></span></span></sc-if>
             <span style="flex:1;min-width:0;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><sc-for list="{{ r.nameSeg }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.s }}">{{ sg.t }}</span></sc-for></span>
+            <sc-if value="{{ r.more }}" hint-placeholder-val="{{ false }}"><span data-pool onClick="{{ r.openScope }}" style="{{ r.moreS }}" style-hover="color:var(--cyan);border-color:var(--cyan)">{{ r.more }}</span></sc-if>
             <sc-if value="{{ r.poolTag }}" hint-placeholder-val="{{ false }}"><span data-pool onClick="{{ r.togglePool }}" style="{{ r.poolTagS }}" style-hover="color:var(--cyan);border-color:var(--cyan)">{{ r.poolTag }}</span></sc-if>
           </span>
           <span style="{{ measureCell }}">{{ r.measureVal }}<span style="{{ sizeSuffix }}">{{ r.measureUnit }}</span></span>
@@ -781,6 +784,7 @@ option{background:var(--panel);color:var(--body)}
     <sc-if value="{{ popOpen }}" hint-placeholder-val="{{ false }}"><div data-pop onClick="{{ closePops }}" style="{{ popScrim }}"></div></sc-if>
     <div data-hint="{{ searchHint }}" style="{{ mSearchRow }}">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="1.8" style="{{ mSearchIcon }}"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
+      <sc-if value="{{ scopeOn }}" hint-placeholder-val="{{ false }}"><span onClick="{{ exitScope }}" style="{{ scopeBack }}" style-hover="color:var(--cyan)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;display:block"><path d="M15 6l-6 6 6 6"></path></svg></span><span style="{{ scopeChip }}">{{ scopeName }}</span></sc-if>
       <input data-search="m" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ mSearchInput }}">
       <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ mClearBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if><span data-pop onClick="{{ mColToggle }}" style="{{ mHeadOne }}"><sc-if value="{{ ozOn }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" style="flex:none;opacity:.85"><path d="M5.7 3.4v18" stroke="currentColor" stroke-width="1.5" fill="none"></path><rect x="5.7" y="4.6" width="13.6" height="9.2" fill="none" stroke="currentColor" stroke-width="1.3"></rect><rect x="5.7" y="4.6" width="6.2" height="4.6" fill="currentColor" stroke="none"></rect><path d="M11.9 7h7.4M5.7 11.2h13.6" stroke="currentColor" stroke-width="1.1" fill="none"></path></svg></sc-if><span>{{ measureLabel }}</span><span style="{{ mHeadDot }}">·</span><span style="{{ mHeadCol }}">{{ mColLabel }}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ mColOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><span style="{{ mPopHead }}">MEASURE</span><span style="display:grid;grid-template-columns:1fr 1fr"><sc-for list="{{ unitOpts }}" as="u" hint-placeholder-count="2"><button onClick="{{ u.onClick }}" style="{{ u.style }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span>{{ u.label }}</span><span style="{{ u.gStyle }}">{{ u.grams }}</span></button></sc-for></span><span style="{{ mPopHead }}">COLUMN</span><span style="display:grid;grid-template-columns:1fr 1fr"><sc-for list="{{ mColOpts }}" as="o" hint-placeholder-count="9"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span>{{ o.label }}</span><span style="{{ o.unitStyle }}">{{ o.unit }}</span></button></sc-for></span><span style="{{ mPopHead }}">SORT</span><span style="display:grid;grid-template-columns:1fr 1fr"><button onClick="{{ mSortRel }}" style="{{ mSortRelS }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span>RELEVANCE</span></button><button onClick="{{ mSortCol }}" style="{{ mSortColS }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span>{{ mColLabel }}</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="{{ mSortIcon }}"></path></svg></button></span><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="{{ mPopNote }}">Digestion costs 25% of protein calories, 8% of carbohydrate and 2% of fat. Applied to calories.</span></span></span></sc-if></span>
     </div>
@@ -792,7 +796,7 @@ option{background:var(--panel);color:var(--body)}
             <sc-if value="{{ r.finger }}" hint-placeholder-val="{{ false }}">
               <span data-finger><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span>
             </sc-if>
-            <span style="{{ r.mNameRow }}"><span style="{{ r.mNameStyle }}"><sc-for list="{{ r.nameSeg }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.s }}">{{ sg.t }}</span></sc-for></span><sc-if value="{{ r.poolTag }}" hint-placeholder-val="{{ false }}"><span style="{{ r.poolTagS }}">{{ r.poolTag }}</span></sc-if></span>
+            <span style="{{ r.mNameRow }}"><sc-if value="{{ r.branch }}" hint-placeholder-val="{{ false }}"><span style="{{ r.branchS }}"><span style="{{ r.branchT }}"></span></span></sc-if><span style="{{ r.mNameStyle }}"><sc-for list="{{ r.nameSeg }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.s }}">{{ sg.t }}</span></sc-for></span><sc-if value="{{ r.more }}" hint-placeholder-val="{{ false }}"><span data-pool onClick="{{ r.openScope }}" style="{{ r.moreS }}" style-hover="color:var(--cyan);border-color:var(--cyan)">{{ r.more }}</span></sc-if><sc-if value="{{ r.poolTag }}" hint-placeholder-val="{{ false }}"><span data-pool onClick="{{ r.togglePool }}" style="{{ r.poolTagS }}">{{ r.poolTag }}</span></sc-if></span>
             <span style="{{ r.mValCell }}">{{ r.mVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
           </div>
           <div style="{{ r.mExpand }}">
@@ -2252,6 +2256,10 @@ class Component extends DCLogic {
             fo.w = fo.w.concat(alias);
             fo.ns = fo.w.map(stemWord).join(" ");
           }
+          // Each member is told which pool stands for it. The clustering partitions a
+          // head, so a food is in one pool or none, and the list can ask a food what it
+          // belongs to rather than searching every pool for it on every keystroke.
+          (a[19] || []).forEach(i => { if (foods[i]) foods[i].ofPool = fo; });
           foods.push(fo);
         });
         cache[k] = foods;
@@ -2374,8 +2382,16 @@ class Component extends DCLogic {
       clearTimeout(this._holdT);
       this._holdT = setTimeout(() => this.setState({ sumHold: false }), 700);
     }
+    // A pool and one of its members are the same food counted twice, so the plate holds
+    // one or the other: adding the typical row takes off any of the entries it stands for,
+    // and adding an entry takes off the row that stands for it. Two different entries of
+    // one family are two foods and both may stay.
+    const added = this.foods().find(f => f.name === name);
+    const clash = !added ? [] : added.pool ? added.pool : added.ofPool ? [added.ofPool.name] : [];
     this.setState(s => {
-      const sum = (s.sum || []).includes(name) ? (s.sum || []).filter(n => n !== name) : (s.sum || []).concat(name);
+      const sum = (s.sum || []).includes(name)
+        ? (s.sum || []).filter(n => n !== name)
+        : (s.sum || []).filter(n => clash.indexOf(n) < 0).concat(name);
       try { localStorage.setItem("nutri-search-sum", JSON.stringify(sum)); } catch (e) {}
       // An emptied plate leaves removal mode, so the next one does not open in it.
       // Adding a food answers the "tap a row" hint, so retire it for this session.
@@ -2595,10 +2611,11 @@ class Component extends DCLogic {
           flex: "none", marginLeft: "auto",
           fontFamily: "var(--font-2)", fontSize: s.narrow ? ".7rem" : ".62rem",
           letterSpacing: ".1em", textTransform: "uppercase", whiteSpace: "nowrap",
-          lineHeight: s.narrow ? "1.3rem" : "1.15rem", padding: "0 .4rem",
+          lineHeight: s.narrow ? "1.55rem" : "1.15rem",
+          padding: s.narrow ? "0 .6rem" : "0 .4rem",
           color: s.poolOpen === fo.name ? "var(--cyan)" : "var(--muted)",
           border: "1px solid " + (s.poolOpen === fo.name ? "var(--cyan)" : "var(--line)"),
-          cursor: s.narrow ? "default" : "pointer",
+          cursor: "pointer",
           transition: "color 140ms ease, border-color 140ms ease"
         },
         togglePool: fo.pool ? (e => {
@@ -2656,7 +2673,11 @@ class Component extends DCLogic {
     // Filter and sort the plain foods first, then build row objects for the slice that
     // actually gets painted — a whole USDA library is thousands of rows, and mapping every
     // one of them into styles per keystroke is what makes the table feel dead.
+    // An opened pool narrows the whole list to itself and its members: one family, and
+    // nothing else to read past. A query then searches inside it rather than out of it.
     let src = this.foods();
+    if (s.poolScope) src = src.filter(fo =>
+      fo.name === s.poolScope || (fo.ofPool && fo.ofPool.name === s.poolScope));
     const q = s.q.trim().toLowerCase();
     // Every word has to appear, but not in the order it was typed: USDA writes
     // "Oil, olive, salad or cooking", and someone looking for it types "olive oil".
@@ -2725,6 +2746,8 @@ class Component extends DCLogic {
     // typical row first and the particular ones under it. Enough to clear the
     // everyday bonus, since the pool is the everyday answer.
     const POOL_PTS = 9;
+    // How many members open in place before the rest are a list of their own.
+    const POOL_INLINE = 6;
     // What the food is called, before USDA starts qualifying it.
     const qHead = qStems.join(" ");
     const qJoin = qWords.join(" ");
@@ -2773,6 +2796,24 @@ class Component extends DCLogic {
       return true;
     });
     if (s.cat !== "ALL") src = src.filter(fo => fo.cat === s.cat);
+    // A pool stands for its members, so the members do not stand beside it. The pool's name
+    // is only what every one of them shares, so a query the pool answers is a query all of
+    // them answer and their rows say nothing the pool has not: seven kales become one. A
+    // query that names one of them — "frozen", "poached" — is not such a query, and brings
+    // that one out on its own. The pool has to be in the list for this: filtered out by a
+    // category or already on the plate, it stands for nothing and its members are foods
+    // like any other.
+    if (!s.poolScope) {
+      // A pool already on the plate is not in the list to stand for anything, so its
+      // members go back to being foods like any other.
+      const listed = new Set(src.filter(fo => !inSum(fo.name)).map(fo => fo.name));
+      src = src.filter(fo => {
+        const p = fo.ofPool;
+        if (!p || !listed.has(p.name)) return true;
+        return !qWords.every((tok, i) =>
+          p.nl.indexOf(tok) >= 0 || p.ns.indexOf(qStems[i]) >= 0);
+      });
+    }
     // An added food moves to the summary rather than sitting in both lists.
     src = src.filter(fo => !inSum(fo.name));
     const matchCount = src.length;
@@ -2788,6 +2829,12 @@ class Component extends DCLogic {
       key !== "name" ? dir * (sortNum(a) - sortNum(b))
         : q ? (b._hit - a._hit) || (a.name.length - b.name.length) || dir * a.name.localeCompare(b.name)
           : dir * a.name.localeCompare(b.name));
+    // In an opened pool the typical row leads and its members follow it, whatever the
+    // column asked for: it is the thing the list is about.
+    if (s.poolScope) {
+      const at = src.findIndex(fo => fo.name === s.poolScope);
+      if (at > 0) src = [src[at]].concat(src.slice(0, at), src.slice(at + 1));
+    }
     // Ambient onboarding, per session rather than per person: glow the search box until
     // something is typed, then glow the top result until a food is actually added. Both
     // reset on a fresh load, so a returning user still gets the nudge.
@@ -3452,6 +3499,27 @@ class Component extends DCLogic {
     const openQty = s.mQty === undefined ? Math.round(unit.g) : s.mQty;
     const openMode = s.mMode === "s" ? "s" : "g";
     const setQty = q => this.setState({ mQty: Math.min(990, Math.max(1, Math.round(q))) });
+    // An open pool puts its members into the list directly under it, and takes them out of
+    // wherever else they had landed so no food is in the list twice. Nine pools in ten hold
+    // six entries or fewer, so six open in place and anything past that gets a way through
+    // to the rest rather than a wall of rows to scroll.
+    const poolKids = new Map();
+    if (s.poolOpen && !s.poolScope) {
+      const pf = src.find(fo => fo.name === s.poolOpen);
+      if (pf && pf.pool) {
+        const byName = new Map(this.foods().map(f => [f.name, f]));
+        const all = pf.pool.map(n => byName.get(n)).filter(f => f && !inSum(f.name));
+        const cut = Math.min(all.length, POOL_INLINE);
+        const kids = all.slice(0, cut), held = new Set(kids);
+        src = src.filter(fo => !held.has(fo));
+        const at = src.indexOf(pf);
+        kids.forEach((k, ix) => poolKids.set(k.name, {
+          last: ix === cut - 1, pool: pf.name,
+          more: ix === cut - 1 && all.length > cut ? all.length - cut : 0
+        }));
+        src = src.slice(0, at + 1).concat(kids, src.slice(at + 1));
+      }
+    }
     let rows = src.slice(0, ROW_CAP).map((fo, ri) => {
       const open = openName === fo.name;
       const zoomed = open && s.vizZoom === fo.name;
@@ -3555,22 +3623,41 @@ class Component extends DCLogic {
         }
       });
     });
-    // An open pool shows what it is typical of: its members, as rows of their own,
-    // under it and set in from the edge. They are the same foods that may appear
-    // elsewhere in the list, so they take a key of their own.
-    if (s.poolOpen) {
-      const at = rows.findIndex(r => r.name === s.poolOpen);
-      const fo = at >= 0 ? this.foods().find(f => f.name === s.poolOpen) : null;
-      if (fo && fo.pool) {
-        const byName = new Map(this.foods().map(f => [f.name, f]));
-        const kids = fo.pool.map(n => byName.get(n)).filter(Boolean).map(m => {
-          const r = rows.find(x => x.name === m.name && !x.inPool) || mkRow(m);
-          return Object.assign({}, r, { key: m.name + " \u2190 " + fo.name, inPool: true,
-            hint: "off", back: "off",
-            nameCell: Object.assign({}, r.nameCell, { paddingLeft: "1.9rem", color: "var(--ink)" }) });
+    // The rows a pool opens into are added to the list before it is drawn rather than
+    // spliced into it after: they are the same foods as every other row and have to be
+    // dressed the same way, or they arrive on a phone without the card the rest of them
+    // open into. What marks them out is added on top, once the row exists.
+    if (poolKids.size) {
+      rows.forEach(r => {
+        const mark = poolKids.get(r.name);
+        if (!mark) return;
+        Object.assign(r, {
+          inPool: true, hint: "off", finger: false, back: "off",
+          // The rule runs down from the pool and turns in to each member; on the last it
+          // stops halfway, which is what makes the block read as one thing rather than as
+          // rows that happen to be indented.
+          branch: true,
+          branchS: {
+            flex: "none", alignSelf: "stretch", width: "1.05rem", marginRight: ".35rem",
+            display: "flex", alignItems: "center",
+            background: "linear-gradient(var(--line),var(--line)) no-repeat left top",
+            backgroundSize: mark.last ? "1px 50%" : "1px 100%"
+          },
+          branchT: { flex: "1", height: "1px", background: "var(--line)" },
+          more: mark.more ? "+" + mark.more + " MORE" : "",
+          openScope: e => {
+            if (e && e.stopPropagation) e.stopPropagation();
+            this.setState({ poolScope: mark.pool, poolOpen: null, sOpen: null, mOpen: null });
+          },
+          moreS: {
+            flex: "none", marginLeft: ".5rem", fontFamily: "var(--font-2)",
+            fontSize: s.narrow ? ".7rem" : ".62rem", letterSpacing: ".1em",
+            lineHeight: s.narrow ? "1.55rem" : "1.15rem",
+            padding: s.narrow ? "0 .6rem" : "0 .4rem", cursor: "pointer",
+            color: "var(--muted)", border: "1px solid var(--line)"
+          }
         });
-        rows.splice(at + 1, 0, ...kids);
-      }
+      });
     }
     // The library decides which groups exist, so the filter list follows the data.
     const cats = ["ALL"].concat(Array.from(new Set(this.foods().map(fo => fo.cat))).sort());
@@ -6408,8 +6495,27 @@ class Component extends DCLogic {
         letterSpacing: landing ? ".07em" : ".05em",
         transition: "font-size 760ms cubic-bezier(.22,1,.36,1), height 760ms cubic-bezier(.22,1,.36,1), letter-spacing 760ms ease, padding 760ms ease"
       },
-      hasQuery: !!q && !landing,
-      clearQ: () => this.setState({ q: "" }),
+      hasQuery: (!!q || !!s.poolScope) && !landing,
+      clearQ: () => this.setState({ q: "", poolScope: null }),
+      // An opened pool takes the place a query would have: the name of the family sits in
+      // the search line with a way back out to the left of it, and typing narrows what is
+      // in front of you rather than leaving it.
+      scopeOn: !!s.poolScope,
+      scopeName: (s.poolScope || "").split(" \u00b7 ")[0],
+      exitScope: () => this.setState({ poolScope: null, sOpen: null, mOpen: null }),
+      scopeBack: {
+        display: "flex", alignItems: "center", justifyContent: "center",
+        width: s.narrow ? "1.7rem" : "1.4rem", height: "100%", flex: "none",
+        cursor: "pointer", color: "var(--muted)", transition: "color 140ms ease"
+      },
+      scopeChip: {
+        flex: "none", maxWidth: "13rem", overflow: "hidden", textOverflow: "ellipsis",
+        whiteSpace: "nowrap", fontFamily: "var(--font-2)",
+        fontSize: s.narrow ? ".8rem" : ".7rem", letterSpacing: ".08em",
+        textTransform: "uppercase", lineHeight: s.narrow ? "1.45rem" : "1.3rem",
+        padding: "0 .5rem", marginRight: ".4rem",
+        color: "var(--cyan)", border: "1px solid var(--cyan)"
+      },
       mClearBtn: {
         display: "flex", alignItems: "center", justifyContent: "center",
         width: "1.9rem", height: "100%", flex: "none", cursor: "pointer", color: "var(--muted)"
