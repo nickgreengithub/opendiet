@@ -686,7 +686,7 @@ option{background:var(--panel);color:var(--body)}
             <sc-if value="{{ r.branch }}" hint-placeholder-val="{{ false }}"><span style="{{ r.branchS }}"><span style="{{ r.branchT }}"></span></span></sc-if>
             <span style="flex:1;min-width:0;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><sc-for list="{{ r.nameSeg }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.s }}">{{ sg.t }}</span></sc-for></span>
             <sc-if value="{{ r.more }}" hint-placeholder-val="{{ false }}"><span data-pool onClick="{{ r.openScope }}" style="{{ r.moreS }}" style-hover="color:var(--cyan);border-color:var(--cyan)">{{ r.more }}</span></sc-if>
-            <sc-if value="{{ r.poolTag }}" hint-placeholder-val="{{ false }}"><span data-pool onClick="{{ r.togglePool }}" style="{{ r.poolTagS }}" style-hover="color:var(--cyan);border-color:var(--cyan)">{{ r.poolTag }}</span></sc-if>
+            <sc-if value="{{ r.poolTag }}" hint-placeholder-val="{{ false }}"><span data-pool onClick="{{ r.togglePool }}" style="{{ r.poolTagS }}" style-hover="color:var(--cyan);border-color:var(--cyan)"><span>{{ r.poolTag }}</span><span style="{{ r.poolNumS }}">{{ r.poolCount }}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;display:block"><path d="{{ r.poolChev }}"></path></svg></span></sc-if>
           </span>
           <span style="{{ measureCell }}">{{ r.measureVal }}<span style="{{ sizeSuffix }}">{{ r.measureUnit }}</span></span>
           <span style="{{ r.cellWa }}"><span style="{{ r.fillWa }}"></span><span style="{{ numWrap }}">{{ r.vWa }}</span></span>
@@ -796,7 +796,7 @@ option{background:var(--panel);color:var(--body)}
             <sc-if value="{{ r.finger }}" hint-placeholder-val="{{ false }}">
               <span data-finger><svg width="23" height="27" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 13.4V4.6a1.9 1.9 0 0 1 3.8 0v7.2"></path><path d="M13 11.8v-1.4a1.8 1.8 0 0 1 3.6 0v2.4"></path><path d="M16.6 12.8v-.9a1.8 1.8 0 0 1 3.6 0v5.6c0 3.7-2.7 6.6-6.4 6.6h-1.5c-2.5 0-4.2-1.1-5.4-3l-3-4.6a1.8 1.8 0 0 1 2.9-2.1l2.4 2.8"></path></svg></span>
             </sc-if>
-            <span style="{{ r.mNameRow }}"><sc-if value="{{ r.branch }}" hint-placeholder-val="{{ false }}"><span style="{{ r.branchS }}"><span style="{{ r.branchT }}"></span></span></sc-if><span style="{{ r.mNameStyle }}"><sc-for list="{{ r.nameSeg }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.s }}">{{ sg.t }}</span></sc-for></span><sc-if value="{{ r.more }}" hint-placeholder-val="{{ false }}"><span data-pool onClick="{{ r.openScope }}" style="{{ r.moreS }}" style-hover="color:var(--cyan);border-color:var(--cyan)">{{ r.more }}</span></sc-if><sc-if value="{{ r.poolTag }}" hint-placeholder-val="{{ false }}"><span data-pool onClick="{{ r.togglePool }}" style="{{ r.poolTagS }}">{{ r.poolTag }}</span></sc-if></span>
+            <span style="{{ r.mNameRow }}"><sc-if value="{{ r.branch }}" hint-placeholder-val="{{ false }}"><span style="{{ r.branchS }}"><span style="{{ r.branchT }}"></span></span></sc-if><span style="{{ r.mNameStyle }}"><sc-for list="{{ r.nameSeg }}" as="sg" hint-placeholder-count="1"><span style="{{ sg.s }}">{{ sg.t }}</span></sc-for></span><sc-if value="{{ r.more }}" hint-placeholder-val="{{ false }}"><span data-pool onClick="{{ r.openScope }}" style="{{ r.moreS }}" style-hover="color:var(--cyan);border-color:var(--cyan)">{{ r.more }}</span></sc-if><sc-if value="{{ r.poolTag }}" hint-placeholder-val="{{ false }}"><span data-pool onClick="{{ r.togglePool }}" style="{{ r.poolTagS }}"><span>{{ r.poolTag }}</span><span style="{{ r.poolNumS }}">{{ r.poolCount }}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;display:block"><path d="{{ r.poolChev }}"></path></svg></span></sc-if></span>
             <span style="{{ r.mValCell }}">{{ r.mVal }}<span style="{{ extraSuffix }}">{{ mColUnit }}</span></span>
           </div>
           <div style="{{ r.mExpand }}">
@@ -2598,6 +2598,15 @@ class Component extends DCLogic {
       return {
         name: fo.name, nameSeg: segsFor(shown), key: fo.name,
         poolTag: tagAt > 0 ? "AVG" : "",
+        // A row that stands for six others has to say six, or it reads as the only kale
+        // there is and the other six look lost. The count is the affordance: it is the
+        // one thing on the row that could not be true of a food standing for itself.
+        poolCount: fo.pool ? String(fo.pool.length) : "",
+        poolChev: s.poolOpen === fo.name ? "M6 15l6-6 6 6" : "M6 9l6 6 6-6",
+        poolNumS: {
+          fontVariantNumeric: "tabular-nums", opacity: .95,
+          marginLeft: s.narrow ? ".38rem" : ".3rem"
+        },
         poolOn: !!fo.pool && s.poolOpen === fo.name,
         nameCell: { display: "flex", alignItems: "center", gap: ".55rem", minWidth: 0, padding: "0 .9rem 0 .65rem" },
         // Pinned to the right of the name column: a badge that follows the words moves
@@ -2611,8 +2620,9 @@ class Component extends DCLogic {
           flex: "none", marginLeft: "auto",
           fontFamily: "var(--font-2)", fontSize: s.narrow ? ".7rem" : ".62rem",
           letterSpacing: ".1em", textTransform: "uppercase", whiteSpace: "nowrap",
-          lineHeight: s.narrow ? "1.55rem" : "1.15rem",
-          padding: s.narrow ? "0 .6rem" : "0 .4rem",
+          display: "inline-flex", alignItems: "center", gap: s.narrow ? ".3rem" : ".22rem",
+          height: s.narrow ? "1.55rem" : "1.15rem",
+          padding: s.narrow ? "0 .45rem 0 .6rem" : "0 .3rem 0 .4rem",
           color: s.poolOpen === fo.name ? "var(--cyan)" : "var(--muted)",
           border: "1px solid " + (s.poolOpen === fo.name ? "var(--cyan)" : "var(--line)"),
           cursor: "pointer",
