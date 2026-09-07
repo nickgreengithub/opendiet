@@ -3512,12 +3512,17 @@ class Component extends DCLogic {
     // animation instead of snapping. Column gaps are gone (a gap beside a 0rem track is
     // dead space that never closes); the cells carry their own padding instead.
     const dxp = !!s.dxp && !s.narrow;
-    // Expanded, the table takes the room the frame was holding. The gutter closes to a hair
-    // and the width lands where it is wanted: the name is the one track that stretches, so
-    // it is the one that gets it, and a food stops being cut off three qualifiers in. The
-    // nav and the footer move with it, since what they are lined up with is the table.
+    // Expanded, the table takes the room the frame was holding. The gutter narrows and the
+    // width lands where it is wanted: the name is the one track that stretches, so it is
+    // the one that gets it, and a food stops being cut off three qualifiers in. The nav
+    // and the footer move with it, since what they are lined up with is the table.
+    //
+    // It narrows to the frame's own top gap and no further. The rails go out to the glass
+    // either way; what the table wanted was the room, not the last hair of it, and a block
+    // set 1.5rem from the rule above it and a hair from the rules beside it does not read
+    // as set inside anything. Same figure on all four sides, and it does.
     const GUT = "clamp(1.25rem, 4vw, 2.8rem)";
-    const dGut = dxp ? ".85rem" : GUT;
+    const dGut = dxp ? D_PAD : GUT;
     const GUT_T = "padding 720ms cubic-bezier(.22,1,.36,1)";
     // The numeric tracks hold one width in both modes — the figures never needed more —
     // so the expansion animates only the six sub tracks and the shell. Fewer moving
