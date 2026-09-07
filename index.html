@@ -143,6 +143,21 @@ html[data-theme="light"]{
   --carb-rgb:4,120,87;--fat-rgb:154,52,18;
   --body-rgb:41,37,36;--ink2-rgb:69,65,64;--bg-rgb:245,245,244;--water-rgb:76,79,122;
 }
+/* The plate is a step off the page, and a step off the page is a step out of every
+   grey standing on it: the same ink that reads at 4.1 against the page reads at 3.4
+   against the plate, and the quiet end of the ramp — the title, the AVG badge, the
+   unit beside a figure — is where there was nothing to give. So the plate carries its
+   own ramp, each step darkened until it reads against the plate exactly as its page
+   value reads against the page, computed rather than eyeballed. The plate keeps the
+   step that makes it a plate; the type on it stops paying for it. Dark theme needs
+   none of this: ink lighter than its ground gains contrast on a darker surface.
+   --body and up are left alone — 13:1 on the plate is not the problem, and matching
+   them exactly would want a black the face was never drawn in. */
+html[data-theme="light"] [data-plate]{
+  --ghost:#b9b5b0;--dim-1:#98928d;--dim-2:#837d78;--dim-3:#6e6963;--dim-4:#615c56;
+  --muted:#423f3b;--ink-3:#3a3734;--ink-2:#35322f;--ink-1:#302c2a;--ink-0:#2a2724;
+  --ink:#1a1816;
+}
 html,body{margin:0;background:radial-gradient(900px 500px at 50% -20%, rgba(var(--cyan-rgb),.07), transparent 60%), var(--bg);color:var(--body);font-family:var(--font-1),sans-serif}
 /* A tablet runs the phone's design, because below 1000px the table cannot name a food.
    But a phone's design at a phone's size on a tablet is a phone emulator, so the root
@@ -756,7 +771,7 @@ option{background:var(--panel);color:var(--body)}
     </div>
     </div>
     <sc-if value="{{ hasSummary }}" hint-placeholder-val="{{ false }}">
-      <div style="{{ dSumWrap }}">
+      <div data-plate style="{{ dSumWrap }}">
         <span style="{{ dSumTitle }}">MY FOOD SUMMARY</span>
         <div style="{{ dSumRule }}"></div>
         <div style="position:relative;flex:1;min-height:0;display:flex;flex-direction:column">
@@ -909,7 +924,7 @@ option{background:var(--panel);color:var(--body)}
       </sc-for>
     </div>
     <sc-if value="{{ hasSummary }}" hint-placeholder-val="{{ false }}">
-    <div data-rise style="{{ mSumPanel }}">
+    <div data-rise data-plate style="{{ mSumPanel }}">
       <div onClick="{{ sumHeadTap }}" style="{{ mSumHead }}">
         <span style="{{ mSumHeadGrid }}">
           <span style="{{ mSumTitleCell }}"><sc-if value="{{ sumTuck }}" hint-placeholder-val="{{ false }}"><span style="{{ sumRing }}"></span></sc-if><span style="{{ mSumTitle }}">MY FOOD SUMMARY</span></span>
