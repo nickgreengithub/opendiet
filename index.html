@@ -416,7 +416,7 @@ option{background:var(--panel);color:var(--body)}
       <span onClick="{{ t.onClick }}" style="{{ t.style }}" style-hover="color:var(--body)">{{ t.label }}</span>
     </sc-for>
     <sc-if value="{{ navSearchOn }}" hint-placeholder-val="{{ false }}">
-      <span data-hint="{{ searchHint }}" style="{{ navSearchCell }}">
+      <span style="{{ navSearchCell }}">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="1.7" style="flex:none;stroke:var(--muted)"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
         <sc-if value="{{ scopeOn }}" hint-placeholder-val="{{ false }}"><span onClick="{{ exitScope }}" style="{{ scopeBack }}" style-hover="color:var(--cyan)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;display:block"><path d="M15 6l-6 6 6 6"></path></svg></span><span style="{{ scopeChip }}">{{ scopeName }}</span></sc-if>
         <input data-search data-land="off" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ navSearchInput }}">
@@ -5087,15 +5087,16 @@ class Component extends DCLogic {
       // flexes to push the measure/ABOUT controls to the right.
       navSearchCell: { flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: ".55rem",
         height: "100%", marginRight: "1.4rem" },
+      // Same size as the 100 G / OZ / ABOUT nav items (tabBar is .94rem / .14em).
       navSearchInput: { flex: 1, minWidth: 0, background: "transparent", border: 0, padding: 0,
         color: "var(--text)", fontFamily: "var(--font-2)", textOverflow: "ellipsis",
-        height: "1.8rem", fontSize: ".82rem", letterSpacing: ".12em", outline: "none" },
+        height: "1.9rem", fontSize: ".94rem", letterSpacing: ".14em", outline: "none" },
       // In the search bar (desktop): an underlined text link to the right of the input, no
       // box — it is an action on the bar, not a second control competing with it.
-      barPasteBtn: { marginLeft: "auto", flex: "none", display: "flex", alignItems: "center", gap: ".4rem",
+      barPasteBtn: { marginLeft: "auto", flex: "none", display: "flex", alignItems: "center", gap: ".45rem",
         padding: "0 .2rem", background: "transparent", border: 0,
         color: "var(--ink-2)", cursor: "pointer", fontFamily: "var(--font-2)",
-        fontSize: ".72rem", letterSpacing: ".1em", whiteSpace: "nowrap",
+        fontSize: ".94rem", letterSpacing: ".14em", whiteSpace: "nowrap",
         textDecoration: "underline", textUnderlineOffset: "3px",
         transition: "color 160ms ease" },
       // Mobile: an icon-only button, since the row is tight.
