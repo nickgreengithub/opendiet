@@ -4,6 +4,153 @@
 "use strict";
 (function (root) {
 
+// ---- search: stemming, food objects, ranking ----------------------------------------------
+// Moved out of index.html's live search path (was stemWord, the mkFood closure and the
+// inline scorer in renderVals) so a Node test and the recipe matcher run the identical code
+// the site does. index.html calls OD.stemWord / OD.mkFoods / OD.rankFoods; behaviour is
+// unchanged — see the "same top results before/after" check in tools/recipe_test.js.
+
+// Apples is apple. Enough of a stemmer for a shopping list: USDA pluralises the food and
+// people type the singular, or the other way round.
+function stemWord(w) {
+  return w.length > 4 && w.slice(-3) === "ies" ? w.slice(0, -3) + "y"
+    : w.length > 4 && (w.slice(-3) === "oes" || w.slice(-3) === "ses" || w.slice(-3) === "xes" || w.slice(-3) === "hes") ? w.slice(0, -2)
+      : w.length > 3 && w.slice(-1) === "s" && w.slice(-2) !== "ss" ? w.slice(0, -1)
+        : w;
+}
+
+// A brand, as USDA writes one: shouted in capitals (QUAKER, MEAD JOHNSON, KFC) or owned by
+// somebody (McDonald's, Applebee's). Same rules tools/pool_foods.py uses, so a brand here is
+// a brand there.
+const BRANDED = /\b(?!NFS\b|NS\b|USDA\b|RTE\b|UPC\b|I{2,3}\b|IV\b)[A-Z]{2,}\b/;
+const OWNED = /\b[A-Z][a-z]+'s\b/;
+
+// Turns a parsed library file ({cats, foods, pools}) into the food objects the search and
+// the recipe matcher both read: name/category/macros off the array, plus the derived fields
+// (nl/w/ns/h1/br) every match against a food needs.
+function mkFoods(d) {
+  const mkFood = a => {
+    const fo = { name: a[0], cat: d.cats[a[1]], kcal: a[2], p: a[3], c: a[4], fb: a[5], f: a[6], sf: a[7], sg: a[8] };
+    if (a[9]) fo.mu = "ml";
+    // Eleventh element: this is the entry someone typing the plain word meant.
+    if (a[10]) fo.cm = 1;
+    // Split once here rather than on every keystroke: search works word by word.
+    fo.nl = fo.name.toLowerCase();
+    fo.w = fo.nl.split(/[^a-z0-9]+/).filter(Boolean);
+    // The singular of every word, joined — so "berry" can reach "blueberries".
+    fo.ns = fo.w.map(stemWord).join(" ");
+    // And the head of the name on its own: "Apples, raw, with skin" is an apple,
+    // "Apple juice, canned or bottled" is a juice.
+    fo.h1 = fo.nl.split(",")[0].split(/[^a-z0-9]+/).filter(Boolean).map(stemWord).join(" ");
+    fo.br = BRANDED.test(fo.name) || OWNED.test(fo.name) ? 1 : 0;
+    // Twelfth and thirteenth: what one household serving of this food weighs, and
+    // what to call it — "182 g", "MEDIUM".
+    if (a[11]) { fo.pg = a[11]; fo.pn = a[12]; }
+    // Fourteenth on: what the rest of 100 g is. Carbohydrate is reported by
+    // difference, so water + protein + carb + fat + ash + alcohol is 100 g by
+    // construction, and the food can be drawn as well as listed. Then the two fats
+    // that break the fat figure down. tools/add_composition.py writes them.
+    if (a.length > 13) {
+      fo.wa = a[13]; fo.ah = a[14]; fo.mo = a[15]; fo.po = a[16]; fo.al = a[17];
+      fo.tr = a[18] || 0;
+    }
+    return fo;
+  };
+  const foods = d.foods.map(mkFood);
+  // The pools: one typical row per family of near-identical entries, the mean of its
+  // members, written by tools/pool_foods.py. Twentieth element is the members, twenty-first
+  // the words every member shares that the name leaves out — folded into what the search
+  // reads so the word still finds the pool.
+  (d.pools || []).forEach(a => {
+    const fo = mkFood(a);
+    fo.pool = (a[19] || []).map(i => d.foods[i][0]);
+    // Everything from the first "·" is the mark, not a word of the food.
+    const plain = fo.name.split(" · ")[0].toLowerCase();
+    fo.nl = plain;
+    fo.w = plain.split(/[^a-z0-9]+/).filter(Boolean);
+    fo.ns = fo.w.map(stemWord).join(" ");
+    fo.h1 = plain.split(",")[0].split(/[^a-z0-9]+/).filter(Boolean).map(stemWord).join(" ");
+    const alias = a[20] || [];
+    if (alias.length) {
+      fo.nl += " " + alias.join(" ");
+      fo.w = fo.w.concat(alias);
+      fo.ns = fo.w.map(stemWord).join(" ");
+    }
+    // Each member is told which pool stands for it.
+    (a[19] || []).forEach(i => { if (foods[i]) foods[i].ofPool = fo; });
+    foods.push(fo);
+  });
+  return foods;
+}
+
+// Filters `list` to the foods a query q matches and scores each with fo._hit, the same
+// scoring renderVals used to sort by. Returns list unchanged for an empty query — the
+// caller (index.html) still sorts, applies the category filter and pool scoping.
+function rankFoods(list, q) {
+  const qWords = q ? q.split(/\s+/).filter(Boolean) : [];
+  if (!qWords.length) return list;
+  const qStems = qWords.map(stemWord);
+  // What the food is called, before USDA starts qualifying it.
+  const qHead = qStems.join(" ");
+  const qJoin = qWords.join(" ");
+  // How the query landed decides the order, and nothing else can overturn it: a whole word
+  // (plural or not), then the start of a longer word, then a hit buried inside one.
+  const WHOLE_PTS = 20, START_PTS = 12, INSIDE_PTS = 4;
+  // The rest settle foods that landed the same way: being the everyday one, opening the
+  // name, landing in its first words, and how much of the word the query spelled, and the
+  // whole head of the name matched with nothing else.
+  const COMMON_PTS = 7, LEAD_PTS = 1, PART_LEAD_PTS = 9, NEAR_PTS = 3, CLOSE_PTS = 3, HEAD_PTS = 10;
+  // Not being a brand is worth a whole tier.
+  const PLAIN_PTS = 8;
+  // A pool matches only through words every member has, so whenever it matches at all, so
+  // does each of its members; enough to clear the everyday bonus, since the pool is the
+  // everyday answer.
+  const POOL_PTS = 9;
+  return list.filter(fo => {
+    const n = fo.nl, words = fo.w;
+    let hit = 0, near = 99, spare = 99, firstTier = 0;
+    for (let i = 0; i < qWords.length; i++) {
+      const tok = qWords[i], tokStem = qStems[i];
+      if (n.indexOf(tok) < 0 && fo.ns.indexOf(tokStem) < 0) return false;
+      let best = 0, bestAt = 99, bestSpare = 99;
+      for (let j = 0; j < words.length; j++) {
+        const wd = words[j];
+        // Only a plural reads differently from its stem, so only plurals pay for one.
+        const wdStem = wd.charCodeAt(wd.length - 1) === 115 ? stemWord(wd) : wd;
+        let at = wd.indexOf(tok);
+        if (at < 0) at = wdStem.indexOf(tokStem);
+        if (at < 0) continue;
+        // Filling a whole word only counts for the top tier if there was a word's worth of
+        // it: "t" fills the "t" of "t-bone steak" exactly, and means nothing by doing so.
+        const pts = wdStem === tokStem ? (tokStem.length > 2 ? WHOLE_PTS : START_PTS)
+          : at === 0 ? START_PTS : INSIDE_PTS;
+        const left = wdStem.length - tokStem.length;
+        if (pts > best || (pts === best && j < bestAt)) { best = pts; bestAt = j; bestSpare = left; }
+        if (best === WHOLE_PTS && bestAt === 0) break;
+      }
+      // A token that straddles a break ("3.25") still counts, just weakly.
+      hit += best || INSIDE_PTS;
+      if (i === 0) firstTier = best || INSIDE_PTS;
+      if (bestAt < near) near = bestAt;
+      if (bestSpare < spare) spare = bestSpare;
+    }
+    if (fo.cm) hit += COMMON_PTS;
+    if (!fo.br) hit += PLAIN_PTS;
+    if (fo.pool) hit += POOL_PTS;
+    // "chicken br" opening the name is the user typing the name itself, and it outranks
+    // being the everyday one. Guarded so a single whole word keeps its old, quiet +1.
+    if (n.indexOf(qJoin) === 0 && (qWords.length > 1 || firstTier !== WHOLE_PTS)) hit += PART_LEAD_PTS;
+    else if (n.indexOf(qWords[0]) === 0) hit += firstTier === WHOLE_PTS ? LEAD_PTS : PART_LEAD_PTS;
+    hit += Math.max(0, NEAR_PTS - near);
+    hit += Math.max(0, CLOSE_PTS - spare);
+    // The whole of the name's head, and nothing else: an apple rather than an apple juice.
+    if (fo.h1 === qHead) hit += HEAD_PTS;
+    // Scratch field, rewritten on every keystroke; only the sort after this reads it.
+    fo._hit = hit;
+    return true;
+  });
+}
+
 // ---- normalisation --------------------------------------------------------------------
 
 const FRACTION_CHARS = {
@@ -304,6 +451,9 @@ function recipeServings(rows) {
 // ---- exports --------------------------------------------------------------------------
 
 const OD = root.OD || {};
+OD.stemWord = stemWord;
+OD.mkFoods = mkFoods;
+OD.rankFoods = rankFoods;
 OD.parseRecipe = parseRecipe;
 OD.recipeServings = recipeServings;
 root.OD = OD;

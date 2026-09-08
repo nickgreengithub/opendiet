@@ -35,6 +35,7 @@
   }());
 </script>
 <script src="./support.js"></script>
+<script src="./recipe.js"></script>
 </head>
 <body>
 <x-dc>
@@ -1113,13 +1114,10 @@ option{background:var(--panel);color:var(--body)}
 const DATA = "data/";
 
 // Apples is apple. Enough of a stemmer for a shopping list: USDA pluralises the food and
-// people type the singular, or the other way round.
-function stemWord(w) {
-  return w.length > 4 && w.slice(-3) === "ies" ? w.slice(0, -3) + "y"
-    : w.length > 4 && (w.slice(-3) === "oes" || w.slice(-3) === "ses" || w.slice(-3) === "xes" || w.slice(-3) === "hes") ? w.slice(0, -2)
-      : w.length > 3 && w.slice(-1) === "s" && w.slice(-2) !== "ss" ? w.slice(0, -1)
-        : w;
-}
+// people type the singular, or the other way round. Lives in recipe.js as OD.stemWord so a
+// Node test and a future recipe matcher run the identical code; kept as a local name here
+// since every call site in this file already says stemWord.
+const stemWord = OD.stemWord;
 
 const VH = typeof CSS !== "undefined" && CSS.supports && CSS.supports("height", "100dvh") ? "100dvh" : "100vh";
 // Where the table gives way to the drawing. The fixed columns come to 634px, so a
@@ -1243,10 +1241,6 @@ const colWidthPx = () => {
   const w = typeof window === "undefined" ? 390 : window.innerWidth;
   return Math.min(w - (isTablet() ? 2 * TAB_PAD_REM * r : 0), 40 * r);
 };
-// A run of capitals is USDA shouting a brand. NFS ("not further specified") and the rest are
-// its own shorthand, and belong to plain foods — "Milk, NFS" is as plain as milk gets.
-const BRANDED = /\b(?!NFS\b|NS\b|USDA\b|RTE\b|UPC\b|I{2,3}\b|IV\b)[A-Z]{2,}\b/;
-const OWNED = /\b[A-Z][a-z]+'s\b/;
 // The food you have opened in the search list. Teal-dark, so it reads as picked out of the
 // page without being mistaken for the plate below, which is the darker --panel-2.
 const PICKED_BG = "var(--tray)";
@@ -2269,66 +2263,9 @@ class Component extends DCLogic {
     fetch(src)
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(d => {
-        const mkFood = a => {
-          const fo = { name: a[0], cat: d.cats[a[1]], kcal: a[2], p: a[3], c: a[4], fb: a[5], f: a[6], sf: a[7], sg: a[8] };
-          if (a[9]) fo.mu = "ml";
-          // Eleventh element: this is the entry someone typing the plain word meant.
-          if (a[10]) fo.cm = 1;
-          // Split once here rather than on every keystroke: search works word by word.
-          fo.nl = fo.name.toLowerCase();
-          fo.w = fo.nl.split(/[^a-z0-9]+/).filter(Boolean);
-          // The singular of every word, joined — so "berry" can reach "blueberries".
-          fo.ns = fo.w.map(stemWord).join(" ");
-          // And the head of the name on its own: "Apples, raw, with skin" is an apple,
-          // "Apple juice, canned or bottled" is a juice.
-          fo.h1 = fo.nl.split(",")[0].split(/[^a-z0-9]+/).filter(Boolean).map(stemWord).join(" ");
-          // A brand, as USDA writes one: shouted in capitals (QUAKER, MEAD JOHNSON, KFC) or
-          // owned by somebody (McDonald's, Applebee's). Nobody searching for a food means a
-          // restaurant's version of it first, so being nobody's costs the brands a place.
-          fo.br = BRANDED.test(fo.name) || OWNED.test(fo.name) ? 1 : 0;
-          // Twelfth and thirteenth: what one household serving of this food weighs, and
-          // what to call it — "182 g", "MEDIUM".
-          if (a[11]) { fo.pg = a[11]; fo.pn = a[12]; }
-          // Fourteenth on: what the rest of 100 g is. Carbohydrate is reported by
-          // difference, so water + protein + carb + fat + ash + alcohol is 100 g by
-          // construction, and the food can be drawn as well as listed. Then the two fats
-          // that break the fat figure down. tools/add_composition.py writes them.
-          if (a.length > 13) {
-            fo.wa = a[13]; fo.ah = a[14]; fo.mo = a[15]; fo.po = a[16]; fo.al = a[17];
-            fo.tr = a[18] || 0;
-          }
-          return fo;
-        };
-        const foods = d.foods.map(mkFood);
-        // The pools: one typical row per family of near-identical entries, the mean
-        // of its members, written by tools/pool_foods.py. Twentieth element is the
-        // members, twenty-first the words every member shares that the name leaves
-        // out — "ham" under "Pork, cured" — folded into what the search reads so the
-        // word still finds the pool.
-        (d.pools || []).forEach(a => {
-          const fo = mkFood(a);
-          fo.pool = (a[19] || []).map(i => d.foods[i][0]);
-          // Everything from the first "·" is the mark and whatever had to be said to tell
-          // two pools apart — not words of the food. The search reads the name without
-          // them, or "Beerwurst · avg" does not share a head with "Beerwurst, pork and
-          // beef" and ranks below the very entries it stands for.
-          const plain = fo.name.split(" \u00b7 ")[0].toLowerCase();
-          fo.nl = plain;
-          fo.w = plain.split(/[^a-z0-9]+/).filter(Boolean);
-          fo.ns = fo.w.map(stemWord).join(" ");
-          fo.h1 = plain.split(",")[0].split(/[^a-z0-9]+/).filter(Boolean).map(stemWord).join(" ");
-          const alias = a[20] || [];
-          if (alias.length) {
-            fo.nl += " " + alias.join(" ");
-            fo.w = fo.w.concat(alias);
-            fo.ns = fo.w.map(stemWord).join(" ");
-          }
-          // Each member is told which pool stands for it. The clustering partitions a
-          // head, so a food is in one pool or none, and the list can ask a food what it
-          // belongs to rather than searching every pool for it on every keystroke.
-          (a[19] || []).forEach(i => { if (foods[i]) foods[i].ofPool = fo; });
-          foods.push(fo);
-        });
+        // stemWord/mkFood/the food-object shape live in recipe.js as OD.mkFoods, so a Node
+        // test and the recipe matcher build the identical objects the search does.
+        const foods = OD.mkFoods(d);
         cache[k] = foods;
         this.setState({ loadTick: (this.state.loadTick || 0) + 1 });
         this.startTypewriter();
@@ -2812,83 +2749,14 @@ class Component extends DCLogic {
       if (cut < name.length) segs.push({ t: name.slice(cut) });
       return segs;
     };
-    // How the query landed decides the order, and nothing else can overturn it: a whole word
-    // (plural or not), then the start of a longer word, then a hit buried inside one. The
-    // gap between those tiers is wider than every bonus put together, so "appl" ranks Apples
-    // above Pineapple however everyday pineapple is.
-    const WHOLE_PTS = 20, START_PTS = 12, INSIDE_PTS = 4;
-    // The rest settle foods that landed the same way. The largest is for being the whole
-    // head of the name, all of it, before USDA's qualifiers start: "Cheese," is cheese and
-    // "Cheese food," is something else, so it outweighs even being the everyday one. It can
-    // only apply where every word of the query filled a word of the name, so it never lifts
-    // a weaker match over a better one. Then: being the everyday one, opening the name,
-    // landing in its first words, and how much of the word the query spelled — "appl" is
-    // most of "apples" and not much of "applebee's".
-    // Opening the name is worth almost nothing when the query was a whole word — the word
-    // itself already says which food it is — and a great deal when it was a fragment, which
-    // says nothing else at all. Typing "j" is a request for foods called J-something, not
-    // for orange juice, however everyday orange juice is.
-    const COMMON_PTS = 7, LEAD_PTS = 1, PART_LEAD_PTS = 9, NEAR_PTS = 3, CLOSE_PTS = 3, HEAD_PTS = 10;
-    // Not being a brand is worth a whole tier, and it is the one bonus that is: a plain food
-    // matched at the start of a word ranks with a restaurant's matched square on.
-    const PLAIN_PTS = 8;
-    // A pool matches only through words every member has, so whenever it matches at
-    // all, so does each of its members, and someone typing the plain word gets the
-    // typical row first and the particular ones under it. Enough to clear the
-    // everyday bonus, since the pool is the everyday answer.
-    const POOL_PTS = 9;
     // How many members open in place before the rest are a list of their own.
     const POOL_INLINE = 6;
     // Where the trunk stands, and where anything drawn across the row has to start so as
     // not to run through it.
     const TRUNK_X = "1.15rem", TRUNK_END = "1.9rem";
-    // What the food is called, before USDA starts qualifying it.
-    const qHead = qStems.join(" ");
-    const qJoin = qWords.join(" ");
-    if (qWords.length) src = src.filter(fo => {
-      const n = fo.nl, words = fo.w;
-      let hit = 0, near = 99, spare = 99, firstTier = 0;
-      for (let i = 0; i < qWords.length; i++) {
-        const tok = qWords[i], tokStem = qStems[i];
-        if (n.indexOf(tok) < 0 && fo.ns.indexOf(tokStem) < 0) return false;
-        let best = 0, bestAt = 99, bestSpare = 99;
-        for (let j = 0; j < words.length; j++) {
-          const wd = words[j];
-          // Only a plural reads differently from its stem, so only plurals pay for one.
-          const wdStem = wd.charCodeAt(wd.length - 1) === 115 ? stem(wd) : wd;
-          let at = wd.indexOf(tok);
-          if (at < 0) at = wdStem.indexOf(tokStem);
-          if (at < 0) continue;
-          // Filling a whole word only counts for the top tier if there was a word's worth of
-          // it: "t" fills the "t" of "t-bone steak" exactly, and means nothing by doing so.
-          const pts = wdStem === tokStem ? (tokStem.length > 2 ? WHOLE_PTS : START_PTS)
-            : at === 0 ? START_PTS : INSIDE_PTS;
-          const left = wdStem.length - tokStem.length;
-          if (pts > best || (pts === best && j < bestAt)) { best = pts; bestAt = j; bestSpare = left; }
-          if (best === WHOLE_PTS && bestAt === 0) break;
-        }
-        // A token that straddles a break ("3.25") still counts, just weakly.
-        hit += best || INSIDE_PTS;
-        if (i === 0) firstTier = best || INSIDE_PTS;
-        if (bestAt < near) near = bestAt;
-        if (bestSpare < spare) spare = bestSpare;
-      }
-      if (fo.cm) hit += COMMON_PTS;
-      if (!fo.br) hit += PLAIN_PTS;
-      if (fo.pool) hit += POOL_PTS;
-      // "chicken br" opening the name is the user typing the name itself, and it outranks
-      // being the everyday one: they mean chicken breast, not the chicken USDA files under
-      // "Chicken, broilers". Guarded so a single whole word keeps its old, quiet +1.
-      if (n.indexOf(qJoin) === 0 && (qWords.length > 1 || firstTier !== WHOLE_PTS)) hit += PART_LEAD_PTS;
-      else if (n.indexOf(qWords[0]) === 0) hit += firstTier === WHOLE_PTS ? LEAD_PTS : PART_LEAD_PTS;
-      hit += Math.max(0, NEAR_PTS - near);
-      hit += Math.max(0, CLOSE_PTS - spare);
-      // The whole of the name's head, and nothing else: an apple rather than an apple juice.
-      if (fo.h1 === qHead) hit += HEAD_PTS;
-      // Scratch field, rewritten on every keystroke; only the sort below reads it.
-      fo._hit = hit;
-      return true;
-    });
+    // Filtered and scored by OD.rankFoods (recipe.js) — same code a Node test and a future
+    // recipe matcher both run, so the search path never drifts from what those check.
+    src = OD.rankFoods(src, q);
     if (s.cat !== "ALL") src = src.filter(fo => fo.cat === s.cat);
     // A pool stands for its members, so the members do not stand beside it. The pool's name
     // is only what every one of them shares, so a query the pool answers is a query all of

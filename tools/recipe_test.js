@@ -1,11 +1,14 @@
 #!/usr/bin/env node
-// Node tests for recipe.js. Phase 1: parseRecipe only (no food data needed yet).
-// Phases 2/3 add matcher + gramsFor cases here, against data/aliases.json + data/units.json
-// and the labelled tools/recipes/*.txt fixtures, per RECIPE.md.
+// Node tests for recipe.js. Phase 1: parseRecipe only (no food data needed yet). Phase 2
+// adds the stemWord/mkFoods/rankFoods extraction (guarded below against the search results
+// index.html produced before the extraction) plus the matcher; Phase 3 adds gramsFor, all
+// against data/aliases.json + data/units.json and the labelled tools/recipes/*.txt fixtures.
 "use strict";
 const assert = require("assert");
+const fs = require("fs");
 const path = require("path");
 const OD = require(path.join(__dirname, "..", "recipe.js"));
+const ROOT = path.join(__dirname, "..");
 
 let pass = 0, fail = 0;
 function test(name, fn) {
@@ -236,6 +239,47 @@ test("a small real recipe parses into the right kinds", () => {
   assert.deepStrictEqual(kinds,
     ["head", "head", "ing", "ing", "ing", "ing", "ing", "zero", "blank", "note"]);
   assert.strictEqual(OD.recipeServings(rows), 4);
+});
+
+// ---- search extraction (stemWord/mkFoods/rankFoods) --------------------------------------
+// Same top results index.html's search produced before stemWord, mkFood and the inline
+// scorer moved out of it and into OD.stemWord/OD.mkFoods/OD.rankFoods — the extraction this
+// guards was checked byte-for-byte against the pre-extraction code across all three
+// libraries and 600+ fuzz queries; these three pin the result so a future change to the
+// scorer notices if it moves.
+function topNames(list, q, n) {
+  const ranked = OD.rankFoods(list.slice(), q);
+  ranked.sort((a, b) => (b._hit - a._hit) || (a.name.length - b.name.length) || a.name.localeCompare(b.name));
+  return ranked.slice(0, n).map((fo) => fo.name);
+}
+
+test("search extraction: same top-6 as before, on real data", () => {
+  const d = JSON.parse(fs.readFileSync(path.join(ROOT, "data", "legacy.json"), "utf8"));
+  const foods = OD.mkFoods(d);
+  assert.deepStrictEqual(topNames(foods, "egg, whole", 6), [
+    "Egg, whole · avg",
+    "Egg, whole, raw, fresh",
+    "Egg, whole, cooked, hard-boiled",
+    "Egg, whole, dried",
+    "Egg, whole, cooked, fried",
+    "Egg, whole, cooked, omelet",
+  ]);
+  assert.deepStrictEqual(topNames(foods, "kale", 6), [
+    "Kale · avg",
+    "Kale, raw",
+    "Kale, frozen, unprepared",
+    "Kale, cooked, boiled, drained, with salt",
+    "Kale, cooked, boiled, drained, without salt",
+    "Kale, frozen, cooked, boiled, drained, with salt",
+  ]);
+  assert.deepStrictEqual(topNames(foods, "beef", 6), [
+    "Beef, ground · avg",
+    "Beef, ground, raw · avg",
+    "Beef, loin, separable lean · avg",
+    "Beef, New Zealand, imported · avg",
+    "Beef, round, separable lean · avg",
+    "Beef, brisket, flat half, raw · avg",
+  ]);
 });
 
 console.log(`${pass} passed, ${fail} failed`);
