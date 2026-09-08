@@ -745,25 +745,17 @@ option{background:var(--panel);color:var(--body)}
         <span style="{{ rcpStepLabel }}">2 · Check the matches and portions, then add them to your food summary.</span>
         <div style="{{ rcpTableHead }}">
           <span style="{{ rcpThName }}">FOOD</span>
-          <span style="{{ rcpThSize }}">{{ rcpSizeUnit }}</span>
-          <span style="{{ rcpThNum }}">WATER</span>
-          <span style="{{ rcpThNum }}">PROT</span>
-          <span style="{{ rcpThNumD }}">CARBS</span>
-          <span style="{{ rcpThNumD }}">FATS</span>
-          <span style="{{ rcpThNum }}">KCAL</span>
+          <span style="{{ rcpThGrams }}">GRAMS</span>
+          <span style="{{ rcpThServ }}">SERVINGS</span>
           <span style="{{ rcpThAct }}"></span>
         </div>
         <div style="{{ rcpTableBody }}">
           <sc-for list="{{ rcpRows }}" as="r" key="{{ r.key }}" hint-placeholder-count="6">
             <div style="{{ r.rowStyle }}">
               <span style="{{ r.nameCell }}">{{ r.matched }}</span>
-              <span style="{{ r.sizeCell }}"><input value="{{ r.grams }}" onChange="{{ r.onGrams }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ r.gramsInput }}"><span style="{{ r.sizeUnitS }}">{{ r.sizeUnit }}</span></span>
-              <span style="{{ r.cWa }}"><span style="{{ r.fWa }}"></span><span style="{{ numWrap }}">{{ r.vWa }}</span></span>
-              <span style="{{ r.cP }}"><span style="{{ r.fP }}"></span><span style="{{ numWrap }}">{{ r.vP }}</span></span>
-              <span style="{{ r.cC }}"><span style="{{ r.fC }}"></span><span style="{{ numWrap }}">{{ r.vC }}</span></span>
-              <span style="{{ r.cF }}"><span style="{{ r.fF }}"></span><span style="{{ numWrap }}">{{ r.vF }}</span></span>
-              <span style="{{ r.cK }}"><span style="{{ r.fK }}"></span><span style="{{ numWrap }}">{{ r.vK }}</span></span>
-              <span style="{{ r.actCell }}"><button onClick="{{ r.dropRow }}" style="{{ r.dropBtn }}" style-hover="color:var(--fat-bright)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:block"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></span>
+              <span style="{{ r.gramsCell }}"><input value="{{ r.grams }}" onChange="{{ r.onGrams }}" onClick="{{ stopProp }}" inputmode="numeric" style="{{ r.gramsInput }}"><span style="{{ r.unitS }}">g</span></span>
+              <span style="{{ r.servCell }}"><input value="{{ r.servings }}" onChange="{{ r.onServings }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ r.servInput }}"><span style="{{ r.servTypeS }}">{{ r.servType }}</span></span>
+              <span style="{{ r.actCell }}"><button onClick="{{ r.dropRow }}" style="{{ r.dropBtn }}" style-hover="color:var(--fat-bright)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:block"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></span>
             </div>
           </sc-for>
         </div>
@@ -796,7 +788,7 @@ option{background:var(--panel);color:var(--body)}
         <sc-if value="{{ scopeOn }}" hint-placeholder-val="{{ false }}"><span onClick="{{ exitScope }}" style="{{ scopeBack }}" style-hover="color:var(--cyan)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;display:block"><path d="M15 6l-6 6 6 6"></path></svg></span><span style="{{ scopeChip }}">{{ scopeName }}</span></sc-if>
         <input data-search data-land="{{ dLandFlag }}" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ dSearchInput }}">
         <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ dClearBtn }}" style-hover="color:var(--body)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if>
-        <sc-if value="{{ barPasteOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ openRecipeClick }}" style="{{ barPasteBtn }}" style-hover="border-color:var(--cyan);color:var(--cyan)"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="{{ recipeIcon }}"></path></svg><span>PASTE A RECIPE</span></button></sc-if>
+        <sc-if value="{{ barPasteOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ openRecipeClick }}" style="{{ barPasteBtn }}" style-hover="color:var(--cyan)"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="{{ recipeIcon }}"></path></svg><span>PASTE A RECIPE</span></button></sc-if>
       </span>
       <span onMouseEnter="{{ tipOn.wa }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.wa }}" style="{{ headWa }}"><span>WATER</span><span style="{{ headUnit }}">{{ vzUnit }}</span><sc-if value="{{ sorted.wa }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke-width="2.2" style="flex:none;stroke:var(--cyan)"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.wa }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">WATER</span><span style="{{ headTipText }}">{{ tipText.wa }}</span></span></span></sc-if></span>
       <span onMouseEnter="{{ tipOn.s1 }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.s1 }}" style="{{ head1 }}"><span>PROT</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s1 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke-width="2.2" style="flex:none;stroke:var(--cyan)"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-25%</span></sc-if><sc-if value="{{ tip.s1 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">PROTEIN</span><span style="{{ headTipText }}">{{ tipText.s1 }}</span></span></span></sc-if></span>
@@ -2421,6 +2413,19 @@ class Component extends DCLogic {
   setRecipeGrams(i, val) {
     const n = Math.max(0, Math.min(RCP_MAX, Math.round(+val || 0)));
     const rows = (this.state.recipe || []).map(r => r.i === i ? Object.assign({}, r, { grams: n }) : r);
+    this.setState({ recipe: rows });
+  }
+  // Servings and grams are two readings of the same amount: editing servings sets the
+  // grams off the food's own per-serving weight (or ounces, when it has no serving).
+  setRecipeServings(i, val) {
+    const foods = this.foods();
+    const rows = (this.state.recipe || []).map(r => {
+      if (r.i !== i) return r;
+      const fo = r.food ? foods.find(f => f.name === r.food) : null;
+      const denom = fo && fo.pg ? fo.pg : 28.35;
+      const grams = Math.max(0, Math.min(RCP_MAX, Math.round((+val || 0) * denom)));
+      return Object.assign({}, r, { grams });
+    });
     this.setState({ recipe: rows });
   }
   dropRecipeRow(i) {
@@ -5072,12 +5077,14 @@ class Component extends DCLogic {
         color: "var(--cyan)", cursor: "pointer", fontFamily: "var(--font-2)",
         fontSize: ".9rem", letterSpacing: ".12em",
         transition: "color 160ms ease, border-color 160ms ease, background 160ms ease" },
-      // In the search bar (desktop): pushed to the right of the input.
-      barPasteBtn: { marginLeft: "auto", flex: "none", display: "flex", alignItems: "center", gap: ".45rem",
-        padding: ".38rem .7rem", background: "transparent", border: "1px solid var(--line)",
+      // In the search bar (desktop): an underlined text link to the right of the input, no
+      // box — it is an action on the bar, not a second control competing with it.
+      barPasteBtn: { marginLeft: "auto", flex: "none", display: "flex", alignItems: "center", gap: ".4rem",
+        padding: "0 .2rem", background: "transparent", border: 0,
         color: "var(--ink-2)", cursor: "pointer", fontFamily: "var(--font-2)",
         fontSize: ".72rem", letterSpacing: ".1em", whiteSpace: "nowrap",
-        transition: "color 160ms ease, border-color 160ms ease" },
+        textDecoration: "underline", textUnderlineOffset: "3px",
+        transition: "color 160ms ease" },
       // Mobile: an icon-only button, since the row is tight.
       mBarPasteBtn: { flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
         width: "2rem", height: "100%", background: "transparent", border: 0, color: "var(--ink-2)",
@@ -5102,11 +5109,12 @@ class Component extends DCLogic {
         cursor: "pointer", padding: ".2rem" },
       rcpBodyPad: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column",
         gap: "1rem", padding: "1.25rem" },
-      rcpStepLabel: { flex: "none", fontFamily: "var(--font-1)", fontWeight: 400, fontSize: "1.05rem",
+      // Body copy: the same font and weight (300) every other reading line in the app uses.
+      rcpStepLabel: { flex: "none", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.05rem",
         lineHeight: 1.55, color: "var(--body)", textWrap: "pretty" },
       rcpTextarea: { flex: 1, minHeight: 0, resize: "none", overflow: "auto",
         background: "var(--bg)", border: "1px solid var(--ghost)", outline: "none",
-        padding: "1rem", fontFamily: "var(--font-1)", fontWeight: 400, fontSize: "1.1rem",
+        padding: "1rem", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.1rem",
         lineHeight: 1.6, color: "var(--text)" },
       rcpPasteActs: { flex: "none", display: "flex", alignItems: "center",
         justifyContent: "space-between" },
@@ -5116,83 +5124,71 @@ class Component extends DCLogic {
         fontFamily: "var(--font-2)", fontSize: ".9rem", letterSpacing: ".1em", cursor: "pointer",
         padding: ".75rem 1.5rem" },
       rcpVerifyWrap: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column",
-        padding: "1.25rem", gap: ".8rem" },
-      rcpSizeUnit: dOz ? "OZ" : "G",
-      // The verify table reads as one table with the food table: same grid, same row height,
-      // same right-aligned tabular figures over the same sheer macro bars.
+        padding: "1.25rem", gap: ".85rem" },
+      // The table keeps the food table's layout — a name column and right-aligned amount
+      // columns — but carries only what the dialog is for: grams and servings, editable.
+      // The macros belong to the food table these land in, not here.
       rcpTableHead: { flex: "none", display: "grid",
-        gridTemplateColumns: (s.narrow ? "minmax(0,1fr) 4.9rem 3.8rem 1.8rem" : "minmax(0,1fr) 5.4rem 3.4rem 3.4rem 3.4rem 3.4rem 3.8rem 1.8rem"),
-        alignItems: "end", minHeight: "1.9rem", borderBottom: "1px solid var(--line)",
-        fontFamily: "var(--font-2)", fontSize: ".68rem", letterSpacing: ".08em", color: "var(--ink-2)" },
-      rcpThName: { paddingLeft: ".5rem", paddingBottom: ".35rem" },
-      rcpThSize: { textAlign: "right", padding: "0 .4rem .35rem 0", borderLeft: INNER },
-      rcpThNum: { textAlign: "right", padding: "0 .5rem .35rem 0", borderLeft: INNER },
-      rcpThNumD: Object.assign({ textAlign: "right", padding: "0 .5rem .35rem 0", borderLeft: INNER },
-        s.narrow ? { display: "none" } : null),
+        gridTemplateColumns: "minmax(0,1fr) 6.6rem 9rem 2rem",
+        alignItems: "end", minHeight: "2rem", borderBottom: "1px solid var(--line)",
+        fontFamily: "var(--font-2)", fontSize: ".78rem", letterSpacing: ".08em", color: "var(--ink-2)" },
+      rcpThName: { paddingLeft: ".55rem", paddingBottom: ".4rem" },
+      rcpThGrams: { textAlign: "right", padding: "0 .55rem .4rem 0", borderLeft: INNER },
+      rcpThServ: { textAlign: "left", padding: "0 .55rem .4rem .7rem", borderLeft: INNER },
       rcpThAct: { borderLeft: INNER },
       rcpTableBody: { flex: 1, minHeight: 0, overflowY: "auto" },
       rcpVerifyActs: { flex: "none", display: "flex", alignItems: "center",
         justifyContent: "space-between", gap: ".6rem", paddingTop: ".2rem" },
       rcpVerifyRight: { display: "flex", alignItems: "center", gap: ".6rem", flexWrap: "wrap", justifyContent: "flex-end" },
       rcpAddBtn: { background: "rgba(var(--cyan-rgb),.16)", border: "1px solid var(--cyan)",
-        color: "var(--cyan)", fontFamily: "var(--font-2)", fontSize: ".85rem", letterSpacing: ".08em",
-        cursor: "pointer", padding: ".7rem 1.1rem", whiteSpace: "nowrap" },
+        color: "var(--cyan)", fontFamily: "var(--font-2)", fontSize: ".88rem", letterSpacing: ".08em",
+        cursor: "pointer", padding: ".75rem 1.15rem", whiteSpace: "nowrap" },
       rcpReplaceBtn: { background: "transparent", border: "1px solid var(--ghost)",
-        color: "var(--ink-2)", fontFamily: "var(--font-2)", fontSize: ".85rem", letterSpacing: ".08em",
-        cursor: "pointer", padding: ".7rem 1.1rem", whiteSpace: "nowrap" },
+        color: "var(--ink-2)", fontFamily: "var(--font-2)", fontSize: ".88rem", letterSpacing: ".08em",
+        cursor: "pointer", padding: ".75rem 1.15rem", whiteSpace: "nowrap" },
       rcpRows: (() => {
         const foods = this.foods();
-        const rcpCols = s.narrow
-          ? "minmax(0,1fr) 4.9rem 3.8rem 1.8rem"
-          : "minmax(0,1fr) 5.4rem 3.4rem 3.4rem 3.4rem 3.4rem 3.8rem 1.8rem";
-        const hideNum = s.narrow ? { display: "none" } : null;
-        const info = (s.recipe || []).map(r => {
+        const rcpCols = "minmax(0,1fr) 6.6rem 9rem 2rem";
+        const g1 = n => (Math.abs(n - Math.round(n)) < 0.05 ? String(Math.round(n)) : n.toFixed(1));
+        const numInput = { boxSizing: "border-box", textAlign: "right",
+          background: "transparent", border: "1px solid var(--ghost)", color: "var(--text)",
+          fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.05rem", padding: ".28rem .4rem",
+          fontVariantNumeric: "tabular-nums", outline: "none" };
+        const unitS = { fontFamily: "var(--font-2)", fontSize: ".82rem", color: "var(--muted)", flex: "none" };
+        return (s.recipe || []).map(r => {
           const fo = r.food ? foods.find(f => f.name === r.food) : null;
-          const g = (r.grams || 0) / 100;
-          return { r, fo, wa: fo ? (fo.wa || 0) * g : 0, p: fo ? fo.p * g : 0,
-            c: fo ? fo.c * g : 0, f: fo ? fo.f * g : 0, k: fo ? kcalOf(fo) * g : 0 };
-        });
-        const mx = key => Math.max(1, ...info.map(x => x[key]));
-        const pMax = mx("p"), cMax = mx("c"), fMax = mx("f"), kMax = mx("k");
-        return info.map(({ r, fo, wa, p, c, f, k }) => {
+          const grams = Math.round(r.grams || 0);
           const isZero = r.kind === "zero";
           const isGhost = !fo && !isZero;
+          // Servings and their name: the food's own household portion first, ounces only
+          // when USDA gave it no picturable one.
+          const denom = fo && fo.pg ? fo.pg : 28.35;
+          const servType = fo ? (fo.pg ? (fo.pn || "serving").toLowerCase() : "oz") : "";
           return {
             key: "rcp" + r.i,
-            // One line, the matched food's own name, exactly as the food table names it.
             matched: isZero ? "Water / seasoning" : (fo ? fo.name : (r.ing || "no match")),
-            grams: String(Math.round(r.grams || 0)),
-            sizeUnit: dOz ? "oz" : "g",
-            vWa: fo ? gFmt(wa) : "—",
-            vP: fo ? gFmt(p) : "—", vC: fo ? gFmt(c) : "—", vF: fo ? gFmt(f) : "—",
-            vK: isZero ? "0" : (fo ? String(Math.round(k)) : "—"),
+            grams: String(grams),
+            servings: fo ? g1(grams / denom) : "—",
+            servType,
             onGrams: e => this.setRecipeGrams(r.i, e.target.value),
+            onServings: e => this.setRecipeServings(r.i, e.target.value),
             dropRow: () => this.dropRecipeRow(r.i),
             rowStyle: { display: "grid", gridTemplateColumns: rcpCols, alignItems: "stretch",
-              minHeight: "2.1rem", borderBottom: "1px solid var(--line)", fontSize: ".9rem",
-              color: "var(--body)",
+              minHeight: "2.6rem", borderBottom: "1px solid var(--line)",
               borderLeft: "2px solid " + (isGhost ? "var(--fat)" : (r.review ? "rgba(var(--cyan-rgb),.55)" : "transparent")) },
             nameCell: { display: "flex", alignItems: "center", minWidth: 0, paddingLeft: ".55rem",
-              fontFamily: "var(--font-1)", fontWeight: 300,
+              fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.02rem",
               color: isGhost ? "var(--fat-bright)" : "var(--body)",
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
-            sizeCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".2rem",
-              paddingRight: ".4rem", borderLeft: INNER },
-            gramsInput: { width: "2.8rem", boxSizing: "border-box", textAlign: "right",
-              background: "transparent", border: "1px solid var(--ghost)", color: "var(--body)",
-              fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".9rem", padding: ".15rem .3rem",
-              fontVariantNumeric: "tabular-nums", outline: "none" },
-            sizeUnitS: { fontFamily: "var(--font-2)", fontSize: ".68rem", color: "var(--muted)" },
-            cWa: Object.assign(numCell(null, !fo, true), hideNum),
-            fWa: fo ? fillOf(fo.wa || 0, 100, WATER_FILL) : { display: "none" },
-            cP: Object.assign(numCell(null, !fo, false), hideNum),
-            fP: fo ? sumFillOf(p, pMax, "rgba(var(--cyan-rgb),.24)") : { display: "none" },
-            cC: Object.assign(numCell(null, !fo, false), hideNum),
-            fC: fo ? sumFillOf(c, cMax, CARB_FILL_S) : { display: "none" },
-            cF: Object.assign(numCell(null, !fo, false), hideNum),
-            fF: fo ? sumFillOf(f, fMax, FAT_FILL_S) : { display: "none" },
-            cK: numCell(null, isZero || !fo, false),
-            fK: (fo && !isZero) ? sumFillOf(k, kMax) : { display: "none" },
+            gramsCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".28rem",
+              paddingRight: ".55rem", borderLeft: INNER },
+            gramsInput: Object.assign({ width: "3.2rem" }, numInput),
+            servCell: { display: "flex", alignItems: "center", gap: ".4rem",
+              padding: "0 .55rem 0 .7rem", borderLeft: INNER },
+            servInput: Object.assign({ width: "3rem" }, numInput, fo ? null : { display: "none" }),
+            unitS,
+            servTypeS: { fontFamily: "var(--font-2)", fontSize: ".84rem", color: "var(--ink-2)",
+              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
             actCell: { display: "flex", alignItems: "center", justifyContent: "center", borderLeft: INNER },
             dropBtn: { display: "flex", background: "transparent", border: 0, color: "var(--ink-2)",
               cursor: "pointer", padding: ".2rem" }
