@@ -415,6 +415,15 @@ option{background:var(--panel);color:var(--body)}
     <sc-for list="{{ appTabs }}" as="t" hint-placeholder-count="4">
       <span onClick="{{ t.onClick }}" style="{{ t.style }}" style-hover="color:var(--body)">{{ t.label }}</span>
     </sc-for>
+    <sc-if value="{{ navSearchOn }}" hint-placeholder-val="{{ false }}">
+      <span data-hint="{{ searchHint }}" style="{{ navSearchCell }}">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="1.7" style="flex:none;stroke:var(--muted)"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
+        <sc-if value="{{ scopeOn }}" hint-placeholder-val="{{ false }}"><span onClick="{{ exitScope }}" style="{{ scopeBack }}" style-hover="color:var(--cyan)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;display:block"><path d="M15 6l-6 6 6 6"></path></svg></span><span style="{{ scopeChip }}">{{ scopeName }}</span></sc-if>
+        <input data-search data-land="off" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ navSearchInput }}">
+        <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ dClearBtn }}" style-hover="color:var(--body)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if>
+        <button onClick="{{ openRecipeClick }}" style="{{ barPasteBtn }}" style-hover="color:var(--cyan)"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="{{ recipeIcon }}"></path></svg><span>PASTE A RECIPE</span></button>
+      </span>
+    </sc-if>
     <span style="{{ dMeasWrap }}"><span onClick="{{ dMeasToggle }}" style="{{ dMeas100S }}" style-hover="color:var(--cyan)">100 G</span><span onClick="{{ dMeasToggle }}" style="{{ dMeasOzS }}" style-hover="color:var(--cyan)">OZ</span></span>
     <span onClick="{{ openAbout }}" style="{{ tabAbout }}" style-hover="color:var(--cyan)">ABOUT</span>
     <span onClick="{{ toggleTheme }}" title="{{ themeLabel }}" style="{{ themeBtn }}" style-hover="color:var(--cyan)">
@@ -782,13 +791,9 @@ option{background:var(--panel);color:var(--body)}
       <span></span><span></span><span></span>
     </div>
     <div style="{{ dHeadRow }}">
-      <span data-hint="{{ searchHint }}" style="{{ dSearchCell }}">
-        <span style="{{ dLandHide }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="1.8" style="flex:none;stroke:var(--muted)"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg></span>
-        <span onClick="{{ sortOn.name }}" style="{{ dSortCell }}"><sc-if value="{{ sorted.name }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke-width="2.2" style="flex:none;stroke:var(--cyan)"><path d="{{ sortMark }}"></path></svg></sc-if></span>
-        <sc-if value="{{ scopeOn }}" hint-placeholder-val="{{ false }}"><span onClick="{{ exitScope }}" style="{{ scopeBack }}" style-hover="color:var(--cyan)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;display:block"><path d="M15 6l-6 6 6 6"></path></svg></span><span style="{{ scopeChip }}">{{ scopeName }}</span></sc-if>
-        <input data-search data-land="{{ dLandFlag }}" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ dSearchInput }}">
-        <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ dClearBtn }}" style-hover="color:var(--body)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if>
-        <sc-if value="{{ barPasteOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ openRecipeClick }}" style="{{ barPasteBtn }}" style-hover="color:var(--cyan)"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="{{ recipeIcon }}"></path></svg><span>PASTE A RECIPE</span></button></sc-if>
+      <span onClick="{{ sortOn.name }}" style="{{ dFoodHead }}" style-hover="color:var(--body)">
+        <span>FOOD</span>
+        <sc-if value="{{ sorted.name }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke-width="2.2" style="flex:none;stroke:var(--cyan)"><path d="{{ sortMark }}"></path></svg></sc-if>
       </span>
       <span onMouseEnter="{{ tipOn.wa }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.wa }}" style="{{ headWa }}"><span>WATER</span><span style="{{ headUnit }}">{{ vzUnit }}</span><sc-if value="{{ sorted.wa }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke-width="2.2" style="flex:none;stroke:var(--cyan)"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.wa }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">WATER</span><span style="{{ headTipText }}">{{ tipText.wa }}</span></span></span></sc-if></span>
       <span onMouseEnter="{{ tipOn.s1 }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.s1 }}" style="{{ head1 }}"><span>PROT</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s1 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke-width="2.2" style="flex:none;stroke:var(--cyan)"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-25%</span></sc-if><sc-if value="{{ tip.s1 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">PROTEIN</span><span style="{{ headTipText }}">{{ tipText.s1 }}</span></span></span></sc-if></span>
@@ -3562,7 +3567,9 @@ class Component extends DCLogic {
     // Desktop opens the same way as a phone: the search line alone, in the middle of the
     // page. Typing lifts it to its header position and the table comes up underneath.
     // 82px is the shell's top padding plus the tab bar; 54 is the tall landing row.
-    const dLanding = !s.narrow && !s.typed && app === "search";
+    // Desktop has no centred landing any more: the search lives in the top nav and the
+    // table is always shown beneath it. (Mobile keeps its landing — see `landing`.)
+    const dLanding = false;
     // The table breathes against the frame's own hairlines: the same gap above
     // the header row as below the last empty row, so it reads as a block set
     // inside the frame rather than as something wedged between two rules.
@@ -4514,17 +4521,13 @@ class Component extends DCLogic {
         color: "var(--muted)", textTransform: "uppercase",
         transition: "transform 620ms cubic-bezier(.22,1,.36,1), height 760ms cubic-bezier(.22,1,.36,1), border-color 460ms ease, " + D_GRID_T
       },
-      dSearchCell: {
-        // With the SIZE header gone the search line takes its track too.
-        gridColumn: dLanding ? "auto" : "span 2",
-        position: "relative", display: "flex", alignItems: "center",
-        justifyContent: dLanding ? "center" : "flex-start",
-        gap: ".55rem", padding: dLanding ? "0 1.25rem" : "0 .85rem 0 .65rem",
-        minWidth: 0, whiteSpace: "nowrap", transition: "padding 760ms ease"
+      // The first two tracks are the food-name column; its header is a plain FOOD label that
+      // sorts by name. The search that used to live here is in the top nav now.
+      dFoodHead: {
+        gridColumn: "span 2", display: "flex", alignItems: "center", gap: ".35rem",
+        padding: "0 .5rem 0 .65rem", cursor: "pointer", color: "var(--ink)",
+        minWidth: 0, whiteSpace: "nowrap"
       },
-      // The landing line is the search and nothing else — no icon, no sort arrow, no library.
-      dLandHide: { display: dLanding ? "none" : "flex", alignItems: "center", flex: "none" },
-      dSortCell: { display: dLanding ? "none" : "flex", alignItems: "center", cursor: "pointer" },
       dSearchInput: {
         flex: 1, minWidth: 0, background: "transparent", border: 0, padding: 0,
         color: "var(--text)", fontFamily: "var(--font-2)", textOverflow: "ellipsis",
@@ -4835,7 +4838,10 @@ class Component extends DCLogic {
       tabsOn: app !== "home",
       backOn: false,
       goHome: () => this.setState({ app: "home", mOpen: null }),
-      appTabs: APPS.map(a => ({
+      // Desktop puts the search itself in the nav (navSearchCell below), so the redundant
+      // FOOD SEARCH tab label is dropped there; mobile keeps its tab.
+      navSearchOn: !s.narrow,
+      appTabs: (s.narrow ? APPS : []).map(a => ({
         label: s.narrow ? a.label.replace("FOOD ", "").replace("CALORIE ", "") : a.label,
         onClick: live(a.k) ? setApp(a.k) : null,
         style: {
@@ -5077,6 +5083,13 @@ class Component extends DCLogic {
         color: "var(--cyan)", cursor: "pointer", fontFamily: "var(--font-2)",
         fontSize: ".9rem", letterSpacing: ".12em",
         transition: "color 160ms ease, border-color 160ms ease, background 160ms ease" },
+      // The nav search (desktop): takes the left of the top bar where FOOD SEARCH was, and
+      // flexes to push the measure/ABOUT controls to the right.
+      navSearchCell: { flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: ".55rem",
+        height: "100%", marginRight: "1.4rem" },
+      navSearchInput: { flex: 1, minWidth: 0, background: "transparent", border: 0, padding: 0,
+        color: "var(--text)", fontFamily: "var(--font-2)", textOverflow: "ellipsis",
+        height: "1.8rem", fontSize: ".82rem", letterSpacing: ".12em", outline: "none" },
       // In the search bar (desktop): an underlined text link to the right of the input, no
       // box — it is an action on the bar, not a second control competing with it.
       barPasteBtn: { marginLeft: "auto", flex: "none", display: "flex", alignItems: "center", gap: ".4rem",
