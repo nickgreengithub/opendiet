@@ -727,7 +727,7 @@ option{background:var(--panel);color:var(--body)}
     </div>
     <sc-if value="{{ rcpStepPaste }}" hint-placeholder-val="{{ true }}">
       <div style="{{ rcpBodyPad }}">
-        <span style="{{ rcpStepLabel }}">1 · PASTE YOUR RECIPE BELOW, AND EVERY INGREDIENT IS MATCHED TO THE FOOD LIBRARY.</span>
+        <span style="{{ rcpStepLabel }}">1 · Paste your recipe below, and every ingredient is matched to the food library.</span>
         <textarea data-search="c" placeholder="{{ rcpPlaceholder }}" value="{{ rText }}" onChange="{{ onRText }}" style="{{ rcpTextarea }}"></textarea>
         <div style="{{ rcpPasteActs }}">
           <button onClick="{{ useExampleClick }}" style="{{ rcpGhostBtn }}" style-hover="color:var(--cyan)">USE AN EXAMPLE</button>
@@ -737,9 +737,10 @@ option{background:var(--panel);color:var(--body)}
     </sc-if>
     <sc-if value="{{ rcpStepVerify }}" hint-placeholder-val="{{ false }}">
       <div style="{{ rcpVerifyWrap }}">
-        <span style="{{ rcpStepLabel }}">2 · CHECK THE MATCHES AND PORTIONS, THEN ADD THEM TO YOUR FOOD SUMMARY.</span>
+        <span style="{{ rcpStepLabel }}">2 · Check the matches and portions, then add them to your food summary.</span>
         <div style="{{ rcpTableHead }}">
           <span style="{{ rcpThName }}">INGREDIENT · MATCHED FOOD</span>
+          <span style="{{ rcpThServ }}">SERVING</span>
           <span style="{{ rcpThGrams }}">GRAMS</span>
           <span style="{{ rcpThKcal }}">KCAL</span>
           <span style="{{ rcpThAct }}"></span>
@@ -752,17 +753,18 @@ option{background:var(--panel);color:var(--body)}
                 <span style="{{ r.writtenStyle }}">{{ r.written }}</span>
                 <span style="{{ r.matchedStyle }}">{{ r.matched }}</span>
               </span>
-              <span style="{{ r.gramsCell }}"><input value="{{ r.grams }}" onChange="{{ r.onGrams }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ r.gramsInput }}"></span>
+              <span style="{{ r.servCell }}">{{ r.servText }}</span>
+              <span style="{{ r.gramsCell }}"><input value="{{ r.grams }}" onChange="{{ r.onGrams }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ r.gramsInput }}"><span style="{{ r.gramsUnitS }}">g</span></span>
               <span style="{{ r.kcalCell }}">{{ r.kcalText }}</span>
-              <span style="{{ r.actCell }}"><button onClick="{{ r.dropRow }}" style="{{ r.dropBtn }}" style-hover="color:var(--fat-bright)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:block"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></span>
+              <span style="{{ r.actCell }}"><button onClick="{{ r.dropRow }}" style="{{ r.dropBtn }}" style-hover="color:var(--fat-bright)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:block"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></span>
             </div>
           </sc-for>
         </div>
         <div style="{{ rcpVerifyActs }}">
           <button onClick="{{ backToPasteClick }}" style="{{ rcpGhostBtn }}" style-hover="color:var(--cyan)">← EDIT</button>
           <span style="{{ rcpVerifyRight }}">
-            <button onClick="{{ addToSumClick }}" style="{{ rcpAddBtn }}" style-hover="background:rgba(var(--cyan-rgb),.26)">ADD TO SUMMARY</button>
-            <button onClick="{{ replaceSumClick }}" style="{{ rcpReplaceBtn }}" style-hover="border-color:var(--cyan);color:var(--cyan)">REPLACE SUMMARY</button>
+            <button onClick="{{ addToSumClick }}" style="{{ rcpAddBtn }}" style-hover="background:rgba(var(--cyan-rgb),.26)">ADD TO FOOD SUMMARY</button>
+            <sc-if value="{{ rcpHasSum }}" hint-placeholder-val="{{ false }}"><button onClick="{{ replaceSumClick }}" style="{{ rcpReplaceBtn }}" style-hover="border-color:var(--cyan);color:var(--cyan)">{{ rcpReplaceLabel }}</button></sc-if>
           </span>
         </div>
       </div>
@@ -787,6 +789,7 @@ option{background:var(--panel);color:var(--body)}
         <sc-if value="{{ scopeOn }}" hint-placeholder-val="{{ false }}"><span onClick="{{ exitScope }}" style="{{ scopeBack }}" style-hover="color:var(--cyan)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;display:block"><path d="M15 6l-6 6 6 6"></path></svg></span><span style="{{ scopeChip }}">{{ scopeName }}</span></sc-if>
         <input data-search data-land="{{ dLandFlag }}" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ dSearchInput }}">
         <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ dClearBtn }}" style-hover="color:var(--body)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if>
+        <sc-if value="{{ barPasteOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ openRecipeClick }}" style="{{ barPasteBtn }}" style-hover="border-color:var(--cyan);color:var(--cyan)"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="{{ recipeIcon }}"></path></svg><span>PASTE A RECIPE</span></button></sc-if>
       </span>
       <span onMouseEnter="{{ tipOn.wa }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.wa }}" style="{{ headWa }}"><span>WATER</span><span style="{{ headUnit }}">{{ vzUnit }}</span><sc-if value="{{ sorted.wa }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke-width="2.2" style="flex:none;stroke:var(--cyan)"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tip.wa }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">WATER</span><span style="{{ headTipText }}">{{ tipText.wa }}</span></span></span></sc-if></span>
       <span onMouseEnter="{{ tipOn.s1 }}" onMouseLeave="{{ tipOff }}" onClick="{{ sortOn.s1 }}" style="{{ head1 }}"><span>PROT</span><span style="{{ headUnit }}">{{ basisUnit }}</span><sc-if value="{{ sorted.s1 }}" hint-placeholder-val="{{ false }}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke-width="2.2" style="flex:none;stroke:var(--cyan)"><path d="{{ sortMark }}"></path></svg></sc-if><sc-if value="{{ tefOn }}" hint-placeholder-val="{{ false }}"><span style="{{ tefTag }}">-25%</span></sc-if><sc-if value="{{ tip.s1 }}" hint-placeholder-val="{{ false }}"><span onClick="{{ stopProp }}" style="{{ headTipWrap }}"><span style="{{ headTipInner }}"><span style="{{ headTipName }}">PROTEIN</span><span style="{{ headTipText }}">{{ tipText.s1 }}</span></span></span></sc-if></span>
@@ -913,7 +916,7 @@ option{background:var(--panel);color:var(--body)}
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="1.8" style="{{ mSearchIcon }}"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
       <sc-if value="{{ scopeOn }}" hint-placeholder-val="{{ false }}"><span onClick="{{ exitScope }}" style="{{ scopeBack }}" style-hover="color:var(--cyan)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;display:block"><path d="M15 6l-6 6 6 6"></path></svg></span><span style="{{ scopeChip }}">{{ scopeName }}</span></sc-if>
       <input data-search="m" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ mSearchInput }}">
-      <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ mClearBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if><span data-pop onClick="{{ mColToggle }}" style="{{ mHeadOne }}"><sc-if value="{{ ozOn }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" style="flex:none;opacity:.85"><path d="M5.7 3.4v18" stroke="currentColor" stroke-width="1.5" fill="none"></path><rect x="5.7" y="4.6" width="13.6" height="9.2" fill="none" stroke="currentColor" stroke-width="1.3"></rect><rect x="5.7" y="4.6" width="6.2" height="4.6" fill="currentColor" stroke="none"></rect><path d="M11.9 7h7.4M5.7 11.2h13.6" stroke="currentColor" stroke-width="1.1" fill="none"></path></svg></sc-if><span>{{ measureLabel }}</span><span style="{{ mHeadDot }}">·</span><span style="{{ mHeadCol }}">{{ mColLabel }}</span><span style="{{ mHeadUnit }}">{{ mColUnit }}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ mColOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><span style="{{ mPopHead }}">MEASURE</span><span style="display:grid;grid-template-columns:1fr 1fr"><sc-for list="{{ unitOpts }}" as="u" hint-placeholder-count="2"><button onClick="{{ u.onClick }}" style="{{ u.style }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span>{{ u.label }}</span><span style="{{ u.gStyle }}">{{ u.grams }}</span></button></sc-for></span><span style="{{ mPopHead }}">COLUMN</span><span style="display:grid;grid-template-columns:1fr 1fr"><sc-for list="{{ mColOpts }}" as="o" hint-placeholder-count="9"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span>{{ o.label }}</span><span style="{{ o.unitStyle }}">{{ o.unit }}</span></button></sc-for></span><span style="{{ mPopHead }}">SORT</span><span style="display:grid;grid-template-columns:1fr 1fr"><button onClick="{{ mSortRel }}" style="{{ mSortRelS }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span>RELEVANCE</span></button><button onClick="{{ mSortCol }}" style="{{ mSortColS }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span>{{ mColLabel }}</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="{{ mSortIcon }}"></path></svg></button></span><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="{{ mPopNote }}">Digestion costs 25% of protein calories, 8% of carbohydrate and 2% of fat. Applied to calories.</span></span></span></sc-if></span>
+      <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ mClearBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if><sc-if value="{{ barPasteOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ openRecipeClick }}" style="{{ mBarPasteBtn }}" style-hover="color:var(--cyan)"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="flex:none;display:block"><path d="{{ recipeIcon }}"></path></svg></button></sc-if><span data-pop onClick="{{ mColToggle }}" style="{{ mHeadOne }}"><sc-if value="{{ ozOn }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" style="flex:none;opacity:.85"><path d="M5.7 3.4v18" stroke="currentColor" stroke-width="1.5" fill="none"></path><rect x="5.7" y="4.6" width="13.6" height="9.2" fill="none" stroke="currentColor" stroke-width="1.3"></rect><rect x="5.7" y="4.6" width="6.2" height="4.6" fill="currentColor" stroke="none"></rect><path d="M11.9 7h7.4M5.7 11.2h13.6" stroke="currentColor" stroke-width="1.1" fill="none"></path></svg></sc-if><span>{{ measureLabel }}</span><span style="{{ mHeadDot }}">·</span><span style="{{ mHeadCol }}">{{ mColLabel }}</span><span style="{{ mHeadUnit }}">{{ mColUnit }}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ mColOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><span style="{{ mPopHead }}">MEASURE</span><span style="display:grid;grid-template-columns:1fr 1fr"><sc-for list="{{ unitOpts }}" as="u" hint-placeholder-count="2"><button onClick="{{ u.onClick }}" style="{{ u.style }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span>{{ u.label }}</span><span style="{{ u.gStyle }}">{{ u.grams }}</span></button></sc-for></span><span style="{{ mPopHead }}">COLUMN</span><span style="display:grid;grid-template-columns:1fr 1fr"><sc-for list="{{ mColOpts }}" as="o" hint-placeholder-count="9"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span>{{ o.label }}</span><span style="{{ o.unitStyle }}">{{ o.unit }}</span></button></sc-for></span><span style="{{ mPopHead }}">SORT</span><span style="display:grid;grid-template-columns:1fr 1fr"><button onClick="{{ mSortRel }}" style="{{ mSortRelS }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span>RELEVANCE</span></button><button onClick="{{ mSortCol }}" style="{{ mSortColS }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span>{{ mColLabel }}</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="{{ mSortIcon }}"></path></svg></button></span><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="{{ mPopNote }}">Digestion costs 25% of protein calories, 8% of carbohydrate and 2% of fat. Applied to calories.</span></span></span></sc-if></span>
     </div>
     <div style="{{ mBody }}">
     <div data-scroll="rows" data-anim="{{ listAnim }}" style="{{ mListStyle }}">
@@ -2418,7 +2421,9 @@ class Component extends DCLogic {
       else qty[r.food] = String(Math.min(RCP_MAX, (+qty[r.food] || 0) + r.grams));
     });
     try { localStorage.setItem("nutri-search-sum", JSON.stringify(sum)); } catch (e) {}
-    this.setState({ sum, qty, rcpOpen: false, sumHold: false });
+    // Land in the body table with the summary showing, not back on the empty landing —
+    // `typed` is what takes the app off the landing screen.
+    this.setState({ sum, qty, rcpOpen: false, sumHold: false, view: "results", typed: true });
   }
   // The landing screen asks; it does not report. The count belongs on the docked bar.
   landingPrompt() { return "SEARCH FOODS"; }
@@ -5023,6 +5028,8 @@ class Component extends DCLogic {
       // ---- recipe dialog (a button on the landing + a modal, not an app) ----
       recipeIcon: ICON_RECIPE,
       showPasteBtn: (landing || dLanding) && !s.rcpOpen,
+      // The compact entry point in the search bar, once you are past the landing.
+      barPasteOn: !landing && !dLanding && !s.rcpOpen,
       openRecipeClick: () => this.openRecipe(),
       closeRecipeClick: () => this.closeRecipe(),
       onRText: e => this.onRecipeText(e),
@@ -5035,99 +5042,123 @@ class Component extends DCLogic {
       rcpOpen: !!s.rcpOpen,
       rcpStepPaste: s.rcpStep !== "verify",
       rcpStepVerify: s.rcpStep === "verify",
+      rcpHasSum: (s.sum || []).length > 0,
+      rcpReplaceLabel: "REPLACE THE " + (s.sum || []).length + " FOOD" + ((s.sum || []).length === 1 ? "" : "S") + " IN FOOD SUMMARY",
       rcpPlaceholder: "e.g.\n2 tbsp olive oil\n1 onion, diced\n400g tinned tomatoes\n2 chicken breasts",
       // The button sits just below the centred search prompt — absolutely placed off the
       // viewport middle so it lands under the prompt whatever the landing row's transform is.
-      pasteBtnWrap: { position: "absolute", left: 0, right: 0, top: "calc(50% + 2.6rem)",
+      pasteBtnWrap: { position: "absolute", left: 0, right: 0, top: "calc(50% + 2.9rem)",
         display: "flex", justifyContent: "center", zIndex: 20, pointerEvents: "none" },
-      pasteBtn: { pointerEvents: "auto", display: "flex", alignItems: "center", gap: ".5rem",
-        padding: ".6rem 1.1rem", background: "transparent", border: "1px solid var(--line)",
-        color: "var(--muted)", cursor: "pointer", fontFamily: "var(--font-2)",
-        fontSize: ".8rem", letterSpacing: ".12em",
+      pasteBtn: { pointerEvents: "auto", display: "flex", alignItems: "center", gap: ".55rem",
+        padding: ".7rem 1.25rem", background: "rgba(var(--cyan-rgb),.08)", border: "1px solid var(--cyan)",
+        color: "var(--cyan)", cursor: "pointer", fontFamily: "var(--font-2)",
+        fontSize: ".9rem", letterSpacing: ".12em",
+        transition: "color 160ms ease, border-color 160ms ease, background 160ms ease" },
+      // In the search bar (desktop): pushed to the right of the input.
+      barPasteBtn: { marginLeft: "auto", flex: "none", display: "flex", alignItems: "center", gap: ".45rem",
+        padding: ".38rem .7rem", background: "transparent", border: "1px solid var(--line)",
+        color: "var(--ink-2)", cursor: "pointer", fontFamily: "var(--font-2)",
+        fontSize: ".72rem", letterSpacing: ".1em", whiteSpace: "nowrap",
         transition: "color 160ms ease, border-color 160ms ease" },
-      rcpScrim: { position: "fixed", inset: 0, background: "rgba(2,6,23,.72)", zIndex: 90 },
+      // Mobile: an icon-only button, since the row is tight.
+      mBarPasteBtn: { flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
+        width: "2rem", height: "100%", background: "transparent", border: 0, color: "var(--ink-2)",
+        cursor: "pointer" },
+      rcpScrim: { position: "fixed", inset: 0, background: "rgba(2,6,23,.78)", zIndex: 90 },
       rcpModal: { position: "fixed", zIndex: 91,
         left: "50%", top: "50%", transform: "translate(-50%,-50%)",
-        width: s.narrow ? "calc(100vw - 1.6rem)" : "min(38rem, calc(100vw - 3rem))",
-        maxHeight: "min(85vh, 46rem)", display: "flex", flexDirection: "column",
+        width: s.narrow ? "calc(100vw - 1.4rem)" : "min(54rem, calc(100vw - 3rem))",
+        maxHeight: "min(88vh, 48rem)", display: "flex", flexDirection: "column",
         background: "var(--panel)", border: "1px solid var(--line)",
-        boxShadow: "0 0 40px rgba(0,0,0,.5)" },
+        boxShadow: "0 0 44px rgba(0,0,0,.55)" },
       rcpHead: { flex: "none", display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 1rem", height: "3rem", borderBottom: "1px solid var(--line)" },
-      rcpTitle: { fontFamily: "var(--font-2)", fontSize: ".85rem", letterSpacing: ".14em",
-        color: "var(--body)" },
-      rcpClose: { display: "flex", background: "transparent", border: 0, color: "var(--muted)",
+        padding: "0 1.15rem", height: "3.3rem", borderBottom: "1px solid var(--line)" },
+      rcpTitle: { fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".14em",
+        color: "var(--text)" },
+      rcpClose: { display: "flex", background: "transparent", border: 0, color: "var(--ink-2)",
         cursor: "pointer", padding: ".2rem" },
       rcpBodyPad: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column",
-        gap: ".8rem", padding: "1rem" },
-      rcpStepLabel: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".9rem",
-        lineHeight: 1.5, color: "var(--ink-3)", textWrap: "pretty" },
-      rcpTextarea: { flex: 1, minHeight: "11rem", resize: "none", overflow: "auto",
-        background: "var(--bg)", border: "1px solid var(--line)", outline: "none",
-        padding: ".8rem", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1rem",
+        gap: "1rem", padding: "1.25rem" },
+      rcpStepLabel: { fontFamily: "var(--font-1)", fontWeight: 400, fontSize: "1.05rem",
+        lineHeight: 1.55, color: "var(--body)", textWrap: "pretty" },
+      rcpTextarea: { flex: 1, minHeight: "12rem", resize: "none", overflow: "auto",
+        background: "var(--bg)", border: "1px solid var(--ghost)", outline: "none",
+        padding: "1rem", fontFamily: "var(--font-1)", fontWeight: 400, fontSize: "1.1rem",
         lineHeight: 1.6, color: "var(--text)" },
       rcpPasteActs: { flex: "none", display: "flex", alignItems: "center",
         justifyContent: "space-between" },
-      rcpGhostBtn: { background: "transparent", border: 0, color: "var(--muted)",
-        fontFamily: "var(--font-2)", fontSize: ".78rem", letterSpacing: ".1em", cursor: "pointer" },
+      rcpGhostBtn: { background: "transparent", border: 0, color: "var(--ink-2)",
+        fontFamily: "var(--font-2)", fontSize: ".85rem", letterSpacing: ".1em", cursor: "pointer" },
       rcpPrimaryBtn: { background: "var(--cyan)", border: 0, color: "var(--bg)",
-        fontFamily: "var(--font-2)", fontSize: ".8rem", letterSpacing: ".1em", cursor: "pointer",
-        padding: ".65rem 1.3rem" },
+        fontFamily: "var(--font-2)", fontSize: ".9rem", letterSpacing: ".1em", cursor: "pointer",
+        padding: ".75rem 1.5rem" },
       rcpVerifyWrap: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column",
-        padding: "1rem", gap: ".7rem" },
-      rcpTableHead: { flex: "none", display: "flex", alignItems: "center", gap: ".6rem",
-        padding: "0 0 .4rem", borderBottom: "1px solid var(--line)",
-        fontFamily: "var(--font-2)", fontSize: ".64rem", letterSpacing: ".1em", color: "var(--muted)" },
+        padding: "1.25rem", gap: ".9rem" },
+      rcpTableHead: { flex: "none", display: "flex", alignItems: "center", gap: ".8rem",
+        padding: "0 0 .5rem", borderBottom: "1px solid var(--line)",
+        fontFamily: "var(--font-2)", fontSize: ".72rem", letterSpacing: ".1em", color: "var(--ink-2)" },
       rcpThName: { flex: 1, minWidth: 0 },
-      rcpThGrams: { flex: "none", width: "4.6rem", textAlign: "right" },
-      rcpThKcal: { flex: "none", width: "4rem", textAlign: "right" },
-      rcpThAct: { flex: "none", width: "1.6rem" },
-      rcpTableBody: { flex: 1, minHeight: "5rem", overflowY: "auto" },
+      rcpThServ: { flex: "none", width: s.narrow ? "5rem" : "8rem", textAlign: "left" },
+      rcpThGrams: { flex: "none", width: "5.4rem", textAlign: "left" },
+      rcpThKcal: { flex: "none", width: "3.6rem", textAlign: "right" },
+      rcpThAct: { flex: "none", width: "1.8rem" },
+      rcpTableBody: { flex: 1, minHeight: "6rem", overflowY: "auto" },
       rcpVerifyActs: { flex: "none", display: "flex", alignItems: "center",
-        justifyContent: "space-between", gap: ".5rem", paddingTop: ".2rem" },
-      rcpVerifyRight: { display: "flex", alignItems: "center", gap: ".5rem" },
-      rcpAddBtn: { background: "rgba(var(--cyan-rgb),.14)", border: "1px solid var(--cyan)",
-        color: "var(--cyan)", fontFamily: "var(--font-2)", fontSize: ".76rem", letterSpacing: ".08em",
-        cursor: "pointer", padding: ".6rem .9rem" },
-      rcpReplaceBtn: { background: "transparent", border: "1px solid var(--line)",
-        color: "var(--muted)", fontFamily: "var(--font-2)", fontSize: ".76rem", letterSpacing: ".08em",
-        cursor: "pointer", padding: ".6rem .9rem" },
+        justifyContent: "space-between", gap: ".6rem", paddingTop: ".3rem" },
+      rcpVerifyRight: { display: "flex", alignItems: "center", gap: ".6rem", flexWrap: "wrap", justifyContent: "flex-end" },
+      rcpAddBtn: { background: "rgba(var(--cyan-rgb),.16)", border: "1px solid var(--cyan)",
+        color: "var(--cyan)", fontFamily: "var(--font-2)", fontSize: ".85rem", letterSpacing: ".08em",
+        cursor: "pointer", padding: ".7rem 1.1rem", whiteSpace: "nowrap" },
+      rcpReplaceBtn: { background: "transparent", border: "1px solid var(--ghost)",
+        color: "var(--ink-2)", fontFamily: "var(--font-2)", fontSize: ".85rem", letterSpacing: ".08em",
+        cursor: "pointer", padding: ".7rem 1.1rem", whiteSpace: "nowrap" },
       rcpRows: (() => {
         const foods = this.foods();
+        const g1 = n => (Math.abs(n - Math.round(n)) < 0.05 ? String(Math.round(n)) : n.toFixed(1));
         return (s.recipe || []).map(r => {
           const fo = r.food ? foods.find(f => f.name === r.food) : null;
           const grams = r.grams || 0;
           const kcal = fo ? Math.round(fo.kcal * grams / 100) : 0;
           const isZero = r.kind === "zero";
           const isGhost = !fo && !isZero;
+          // The food's own household serving is the first choice; ounces are the fallback
+          // for a food USDA gave no picturable portion.
+          let servText = "—";
+          if (fo && fo.pg) servText = g1(grams / fo.pg) + " " + (fo.pn || "").toLowerCase();
+          else if (fo) servText = g1(grams / 28.35) + " oz";
           return {
             key: "rcp" + r.i,
             written: r.ing || "",
-            matched: isZero ? "(zero-calorie)" : (fo ? fo.name : "NO MATCH"),
+            matched: isZero ? "zero-calorie (water / seasoning)" : (fo ? fo.name : "no match — tap a food to set"),
+            servText,
             grams: String(Math.round(grams)),
             kcalText: isZero ? "0" : (fo ? String(kcal) : "—"),
             onGrams: e => this.setRecipeGrams(r.i, e.target.value),
             dropRow: () => this.dropRecipeRow(r.i),
-            rowStyle: { display: "flex", alignItems: "center", gap: ".6rem", minHeight: "3rem",
-              padding: ".35rem 0", borderBottom: "1px solid var(--line)" },
+            rowStyle: { display: "flex", alignItems: "center", gap: ".8rem", minHeight: "3.4rem",
+              padding: ".45rem 0", borderBottom: "1px solid var(--line)" },
             markStyle: { flex: "none", width: "3px", alignSelf: "stretch",
               background: isGhost ? "var(--fat)" : (r.review ? "rgba(var(--cyan-rgb),.6)" : "transparent") },
-            nameCell: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: ".1rem" },
-            writtenStyle: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".92rem",
-              color: "var(--body)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
-            matchedStyle: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".75rem",
-              color: isGhost ? "var(--fat-bright)" : "var(--muted)",
+            nameCell: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: ".15rem" },
+            writtenStyle: { fontFamily: "var(--font-1)", fontWeight: 400, fontSize: "1.02rem",
+              color: "var(--text)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
+            matchedStyle: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".85rem",
+              color: isGhost ? "var(--fat-bright)" : "var(--ink-2)",
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
-            gramsCell: { flex: "none", width: "4.6rem" },
-            gramsInput: { width: "100%", boxSizing: "border-box", textAlign: "right",
-              background: "var(--bg)", border: "1px solid var(--line)", color: "var(--body)",
-              fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".9rem", padding: ".3rem .4rem",
+            servCell: { flex: "none", width: s.narrow ? "5rem" : "8rem", fontFamily: "var(--font-1)",
+              fontWeight: 300, fontSize: ".92rem", color: "var(--ink-1)",
+              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
+            gramsCell: { flex: "none", width: "5.4rem", display: "flex", alignItems: "center", gap: ".25rem" },
+            gramsInput: { width: "3.4rem", boxSizing: "border-box", textAlign: "right",
+              background: "var(--bg)", border: "1px solid var(--ghost)", color: "var(--text)",
+              fontFamily: "var(--font-1)", fontWeight: 400, fontSize: "1rem", padding: ".35rem .4rem",
               fontVariantNumeric: "tabular-nums", outline: "none" },
-            kcalCell: { flex: "none", width: "4rem", textAlign: "right",
-              fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".85rem", color: "var(--body)",
+            gramsUnitS: { fontFamily: "var(--font-2)", fontSize: ".72rem", color: "var(--ink-3)" },
+            kcalCell: { flex: "none", width: "3.6rem", textAlign: "right",
+              fontFamily: "var(--font-1)", fontWeight: 400, fontSize: ".98rem", color: "var(--body)",
               fontVariantNumeric: "tabular-nums" },
-            actCell: { flex: "none", width: "1.6rem", display: "flex", justifyContent: "center" },
-            dropBtn: { display: "flex", background: "transparent", border: 0, color: "var(--muted)",
+            actCell: { flex: "none", width: "1.8rem", display: "flex", justifyContent: "center" },
+            dropBtn: { display: "flex", background: "transparent", border: 0, color: "var(--ink-2)",
               cursor: "pointer", padding: ".2rem" }
           };
         });
