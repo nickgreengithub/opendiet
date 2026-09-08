@@ -1073,6 +1073,59 @@ option{background:var(--panel);color:var(--body)}
     </div>
   </div>
   </sc-if>
+  <sc-if value="{{ isRecipe }}" hint-placeholder-val="{{ false }}">
+  <div style="{{ rcpWrap }}">
+    <sc-if value="{{ rComposing }}" hint-placeholder-val="{{ true }}">
+      <div style="{{ rcpBar }}">
+        <span style="{{ rcpBarLabel }}">PASTE A RECIPE</span>
+        <span style="{{ rcpServCell }}">
+          <button onClick="{{ rServDown }}" style="{{ rcpServBtn }}" style-hover="color:var(--cyan)">−</button>
+          <span style="{{ rcpServAmt }}">{{ rServings }} SERVES</span>
+          <button onClick="{{ rServUp }}" style="{{ rcpServBtn }}" style-hover="color:var(--cyan)">+</button>
+        </span>
+      </div>
+      <textarea data-search="c" data-compose placeholder="{{ rcpPlaceholder }}" value="{{ rText }}" onChange="{{ onRText }}" style="{{ rcpTextarea }}"></textarea>
+      <div style="{{ rcpActs }}">
+        <button onClick="{{ clearRecipeClick }}" style="{{ rcpClearBtn }}" style-hover="color:var(--body)">CLEAR</button>
+        <button onClick="{{ submitRecipeClick }}" style="{{ rcpSubmitBtn }}" style-hover="background:var(--cyan-bright)">SUBMIT</button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ rShowingResult }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ backToComposeClick }}" style="{{ rcpPeek }}" style-hover="color:var(--cyan)">
+        <span style="{{ rcpPeekTitle }}">{{ rcpPeekText }}</span>
+        <span style="{{ rcpPeekChev }}">EDIT</span>
+      </div>
+      <div data-plate style="{{ rcpPanel }}">
+        <div style="{{ rcpPanelHead }}">
+          <span style="{{ rcpPanelTitle }}">MY RECIPE</span>
+          <sc-if value="{{ rReviewOn }}" hint-placeholder-val="{{ false }}"><span style="{{ rcpReviewBadge }}">{{ rReviewCount }} TO CHECK</span></sc-if>
+        </div>
+        <div style="{{ rcpRowsWrap }}">
+          <sc-for list="{{ rRows }}" as="r" key="{{ r.key }}" hint-placeholder-count="6">
+            <div style="{{ r.rowStyle }}">
+              <span style="{{ r.markStyle }}"></span>
+              <span style="{{ r.nameCell }}">
+                <span style="{{ r.writtenStyle }}">{{ r.written }}</span>
+                <span style="{{ r.matchedStyle }}">{{ r.matched }}</span>
+              </span>
+              <span style="{{ r.qtyCell }}">
+                <span style="{{ r.gramsStyle }}">{{ r.gramsText }}</span>
+                <span style="{{ r.origStyle }}">{{ r.origText }}</span>
+              </span>
+              <span style="{{ r.kcalCell }}">{{ r.kcalText }}</span>
+              <button onClick="{{ r.dropRow }}" style="{{ r.dropBtnStyle }}" style-hover="color:var(--fat-bright)">✕</button>
+            </div>
+          </sc-for>
+        </div>
+        <div style="{{ rcpTotRow }}">
+          <span style="{{ rcpTotLabel }}">{{ rTotLabelText }}</span>
+          <button onClick="{{ togglePerServingClick }}" style="{{ rcpServToggle }}" style-hover="color:var(--cyan)">{{ rServToggleText }}</button>
+          <span style="{{ rcpTotVals }}"><span style="{{ rcpTotKcalS }}">{{ rTotKcal }} KCAL</span><span style="{{ rcpTotMacroS }}">P {{ rTotP }} · C {{ rTotC }} · F {{ rTotF }}</span></span>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+  </sc-if>
   <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
   <div style="max-width:460px">
     <a onClick="{{ goResults }}" style="font-family:var(--font-2);font-size:.78rem;letter-spacing:.16em;cursor:pointer">← RESULTS</a>
@@ -1143,6 +1196,7 @@ const GAME_ROUNDS = 6;
 const ICON_SEARCH = "M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5l-1.5 1.5l-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16A6.5 6.5 0 0 1 3 9.5A6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14S14 12 14 9.5S12 5 9.5 5";
 const ICON_GAME = "M12 3c-1.27 0-2.4.8-2.82 2H3v2h1.95L2 14c-.47 2 1 3 3.5 3s4.06-1 3.5-3L6.05 7h3.12c.33.85.98 1.5 1.83 1.83V20H2v2h20v-2h-9V8.82c.85-.32 1.5-.97 1.82-1.82h3.13L15 14c-.47 2 1 3 3.5 3s4.06-1 3.5-3l-2.95-7H21V5h-6.17C14.4 3.8 13.27 3 12 3m0 2a1 1 0 0 1 1 1a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1m-6.5 5.25L7 14H4zm13 0L20 14h-3z";
 const ICON_CALC = "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m0 16H5V5h14zM6.2 7.7h5v1.5h-5zm6.8 8.1h5v1.5h-5zm0-2.6h5v1.5h-5zM8 18h1.5v-2h2v-1.5h-2v-2H8v2H6V16h2zm6.1-7.1l1.4-1.4l1.4 1.4l1.1-1l-1.4-1.4L18 7.1L16.9 6l-1.4 1.4L14.1 6L13 7.1l1.4 1.4L13 9.9z";
+const ICON_RECIPE = "M8.1 13.34l2.83-2.83L3.91 3.5c-1.56 1.56-1.56 4.09 0 5.66l4.19 4.18zm6.78-1.81c1.53.71 3.68.21 5.27-1.38 1.91-1.91 2.28-4.65.81-6.12-1.46-1.46-4.2-1.1-6.12.81-1.59 1.59-2.09 3.74-1.38 5.27L3.7 19.87l1.41 1.41L12 14.41l6.88 6.88 1.41-1.41L13.41 13l1.47-1.47z";
 
 // Stretched from the ordinary school scale, which was too harsh here. Half is the
 // floor of a pass rather than a fail: the deck is built so that guessing scores
@@ -2272,6 +2326,57 @@ class Component extends DCLogic {
       })
       .catch(() => { delete cache[k]; this.setState({ loadErr: k }); });
   }
+  // Aliases and units are only fetched once RECIPE is actually opened — a recipe app nobody
+  // uses should cost nobody a request. Cached on the instance the same way a library is.
+  loadRecipeData() {
+    if (this._rcpData) return Promise.resolve(this._rcpData);
+    if (this._rcpDataPromise) return this._rcpDataPromise;
+    this._rcpDataPromise = Promise.all([
+      fetch(DATA + "aliases.json").then(r => r.json()),
+      fetch(DATA + "units.json").then(r => r.json())
+    ]).then(([aliases, units]) => (this._rcpData = { aliases, units }))
+      .catch(() => { this._rcpDataPromise = null; this.setState({ rDataErr: true }); throw new Error("recipe data"); });
+    return this._rcpDataPromise;
+  }
+  onRecipeText(e) { this.setState({ rText: e.target.value }); }
+  clearRecipe() { this.setState({ rText: "", recipe: null, rMode: "compose" }); }
+  backToCompose() { this.setState({ rMode: "compose" }); }
+  setServings(n) { this.setState({ rServings: Math.max(1, Math.min(50, (this.state.rServings || 4) + n)) }); }
+  togglePerServing() { this.setState({ rPerServing: !this.state.rPerServing }); }
+  dropRecipeRow(i) {
+    const rows = (this.state.recipe || []).map(r => r.i === i ? Object.assign({}, r, { off: true }) : r);
+    this.setState({ recipe: rows });
+  }
+  submitRecipe() {
+    const text = (this.state.rText || "").trim();
+    if (!text) return;
+    this.loadRecipeData().then(() => this.runRecipe()).catch(() => {});
+  }
+  // parse -> match -> grams, once, on submit — not on every keystroke, since matching a
+  // whole recipe against the library is not a per-character-cheap operation the way the
+  // plain word search is.
+  runRecipe() {
+    const text = this.state.rText || "";
+    const parsed = OD.parseRecipe(text);
+    const foods = this.foods();
+    const { aliases, units } = this._rcpData;
+    const rows = parsed
+      .filter(r => r.kind === "ing" || r.kind === "zero")
+      .map(r => {
+        if (r.kind === "zero") {
+          return Object.assign({}, r, { food: null, cands: [], conf: 1, review: false,
+            grams: 0, gramsHow: "none" });
+        }
+        const m = OD.matchLine(r, foods, aliases);
+        const fo = m.food ? foods.find(f => f.name === m.food) : null;
+        const g = OD.gramsFor(r, fo, units);
+        return Object.assign({}, r, m, { grams: g.g, gramsHow: g.how, gramsLabel: g.label,
+          review: m.review || !!g.review });
+      });
+    const servings = OD.recipeServings(parsed);
+    this.setState({ recipe: rows, rMode: "result",
+      rServings: this.state.rServings || servings || 4 });
+  }
   // The landing screen asks; it does not report. The count belongs on the docked bar.
   landingPrompt() { return "SEARCH FOODS"; }
   placeholderText() {
@@ -2814,7 +2919,10 @@ class Component extends DCLogic {
         card: "Which plate carries more?" },
       { k: "calc", label: "CALORIE CALC", icon: ICON_CALC,
         note: "What your body spends in a day, and what happens if you hold a number. Move the intake and the body answers \u2014 no goal to name, no target weight to type.",
-        card: "What you spend, and what holding a number does." }
+        card: "What you spend, and what holding a number does." },
+      { k: "recipe", label: "RECIPE", icon: ICON_RECIPE,
+        note: "Paste a recipe, and every ingredient is matched to the food library and costed out in calories and macros \u2014 whole, and per serving.",
+        card: "Cost a recipe in calories and macros." }
     ].filter(a => FULL_SITE || a.k === "search");
     // A phone opens on the launcher and picks an app; a desktop is wide enough to
     // open straight into the table with the others a tab away. With one app
@@ -2833,9 +2941,10 @@ class Component extends DCLogic {
         " 420ms cubic-bezier(.22,1,.36,1) " + ms + "ms both"
     });
     const appDef = APPS.find(a => a.k === app);
-    const live = k => k === "search" || k === "game" || k === "calc";
+    const live = k => k === "search" || k === "recipe";
     const setApp = k => () => {
       if (k === "game") this.loadDeck();
+      if (k === "recipe") this.loadRecipeData().catch(() => {});
       // Re-arm the mobile landing animation, which otherwise only ever plays on first load.
       if (k === "search" && !s.typed) this.setState({ tw: 0 });
       this.setState({ app: k, mOpen: null });
@@ -4870,6 +4979,135 @@ class Component extends DCLogic {
         fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1.06rem" : "1.05rem",
         lineHeight: 1.55, color: "var(--ink-3)", textWrap: "pretty" }, soonIn(220)),
       isResults: s.view === "results" && app === "search", isSettings: s.view === "settings", isSignin: s.view === "signin",
+      // ---- recipe ------------------------------------------------------------
+      isRecipe: app === "recipe",
+      rComposing: !s.recipe || s.rMode !== "result",
+      rShowingResult: !!s.recipe && s.rMode === "result",
+      rText: s.rText || "",
+      onRText: e => this.onRecipeText(e),
+      submitRecipeClick: () => this.submitRecipe(),
+      clearRecipeClick: () => this.clearRecipe(),
+      backToComposeClick: () => this.backToCompose(),
+      rServDown: () => this.setServings(-1),
+      rServUp: () => this.setServings(1),
+      rServings: Math.max(1, s.rServings || 4),
+      rPerServing: !!s.rPerServing,
+      togglePerServingClick: () => this.togglePerServing(),
+      rcpPlaceholder: "Paste a recipe here — one ingredient per line, e.g.\n2 tbsp olive oil\n1 onion, diced\n400g tinned tomatoes",
+      rcpPeekText: (() => {
+        const rows = (s.recipe || []).filter(r => !r.off);
+        const head = (s.recipe || []).find(r => r.kind === "head" && r.ing);
+        return (head ? head.ing.toUpperCase() : "RECIPE") + " · " + rows.length + " INGREDIENTS";
+      })(),
+      rcpWrap: { display: "flex", flexDirection: "column", flex: 1, minHeight: 0 },
+      rcpBar: { flex: "none", display: "flex", alignItems: "center", justifyContent: "space-between",
+        height: "2.9rem", padding: "0 .9rem", borderBottom: "1px solid var(--line)" },
+      rcpBarLabel: { fontFamily: "var(--font-2)", fontSize: ".8rem", letterSpacing: ".12em",
+        color: "var(--muted)" },
+      rcpServCell: { display: "flex", alignItems: "center", gap: ".5rem" },
+      rcpServBtn: { width: "1.7rem", height: "1.7rem", display: "flex", alignItems: "center",
+        justifyContent: "center", border: "1px solid var(--line)", background: "transparent",
+        color: "var(--body)", fontSize: "1.1rem", cursor: "pointer" },
+      rcpServAmt: { fontFamily: "var(--font-2)", fontSize: ".78rem", letterSpacing: ".08em",
+        color: "var(--body)", minWidth: "5.2rem", textAlign: "center" },
+      rcpTextarea: { flex: 1, minHeight: 0, resize: "none", overflow: "auto",
+        background: "transparent", border: 0, outline: "none", padding: ".9rem",
+        fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1rem", lineHeight: 1.6,
+        color: "var(--text)" },
+      rcpActs: { flex: "none", display: "flex", alignItems: "center", justifyContent: "space-between",
+        height: "3.3rem", padding: "0 .9rem", borderTop: "1px solid var(--line)" },
+      rcpClearBtn: { background: "transparent", border: 0, color: "var(--muted)",
+        fontFamily: "var(--font-2)", fontSize: ".78rem", letterSpacing: ".1em", cursor: "pointer" },
+      rcpSubmitBtn: { background: "var(--cyan)", border: 0, color: "var(--bg)",
+        fontFamily: "var(--font-2)", fontSize: ".8rem", letterSpacing: ".1em", cursor: "pointer",
+        padding: ".6rem 1.3rem" },
+      rcpPeek: { flex: "none", display: "flex", alignItems: "center", justifyContent: "space-between",
+        height: "2.6rem", padding: "0 .9rem", borderBottom: "1px solid var(--line)", cursor: "pointer" },
+      rcpPeekTitle: { fontFamily: "var(--font-2)", fontSize: ".76rem", letterSpacing: ".1em",
+        color: "var(--muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
+      rcpPeekChev: { fontFamily: "var(--font-2)", fontSize: ".74rem", letterSpacing: ".1em",
+        color: "var(--cyan)", flex: "none", marginLeft: ".7rem" },
+      rcpPanel: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column" },
+      rcpPanelHead: { flex: "none", display: "flex", alignItems: "center", justifyContent: "space-between",
+        height: "2.4rem", padding: "0 .9rem" },
+      rcpPanelTitle: { fontFamily: "var(--font-2)", fontSize: ".82rem", letterSpacing: ".12em",
+        color: "var(--body)" },
+      rcpReviewBadge: { fontFamily: "var(--font-2)", fontSize: ".68rem", letterSpacing: ".08em",
+        color: "var(--fat-bright)", border: "1px solid var(--fat)", padding: ".15rem .5rem" },
+      rcpRowsWrap: { flex: 1, minHeight: 0, overflowY: "auto", padding: "0 .9rem" },
+      rcpTotRow: { flex: "none", display: "flex", alignItems: "center", justifyContent: "space-between",
+        height: "3.4rem", padding: "0 .9rem", borderTop: "1px solid var(--line)",
+        background: "var(--plate)" },
+      rcpTotLabel: { fontFamily: "var(--font-2)", fontSize: ".76rem", letterSpacing: ".1em",
+        color: "var(--muted)" },
+      rcpServToggle: { background: "transparent", border: "1px solid var(--line)",
+        color: "var(--body)", fontFamily: "var(--font-2)", fontSize: ".7rem", letterSpacing: ".08em",
+        cursor: "pointer", padding: ".35rem .7rem" },
+      rcpTotVals: { display: "flex", alignItems: "baseline", gap: ".6rem",
+        fontFamily: "var(--font-1)", fontWeight: 300, color: "var(--body)" },
+      rcpTotKcalS: { fontSize: "1.15rem" },
+      rcpTotMacroS: { fontSize: ".78rem", color: "var(--muted)" },
+      ...(() => {
+        const rFoods = this.foods();
+        const rRowsRaw = (s.recipe || []).filter(r => !r.off);
+        const rServings = Math.max(1, s.rServings || 4);
+        const perServing = !!s.rPerServing;
+        let totKcal = 0, totP = 0, totC = 0, totF = 0;
+        const rRows = rRowsRaw.map(r => {
+          const fo = r.food ? rFoods.find(f => f.name === r.food) : null;
+          const grams = r.grams || 0;
+          const kcal = fo ? fo.kcal * grams / 100 : 0;
+          if (fo) { totKcal += kcal; totP += fo.p * grams / 100; totC += fo.c * grams / 100; totF += fo.f * grams / 100; }
+          const isZero = r.kind === "zero";
+          const isGhost = !fo && !isZero;
+          const origText = r.qtyText ? (r.qtyText + (r.unitText ? " " + r.unitText : ""))
+            : (r.flags && r.flags.taste ? "to taste" : "");
+          return {
+            key: "rr" + r.i,
+            written: r.ing || "",
+            matched: isZero ? "" : (fo ? fo.name : "NO MATCH · TAP TO SEARCH"),
+            gramsText: isZero ? "0 g" : (Math.round(grams) + " g"),
+            origText,
+            kcalText: isZero ? "0 kcal" : (fo ? Math.round(kcal) + " kcal" : "—"),
+            markStyle: { flex: "none", width: "3px", alignSelf: "stretch",
+              background: isGhost ? "var(--fat)" : (r.review ? "rgba(var(--cyan-rgb),.6)" : "transparent") },
+            rowStyle: {
+              display: "flex", alignItems: "center", gap: ".7rem", minHeight: "3.1rem",
+              padding: ".4rem 0", borderBottom: "1px solid var(--line)",
+              opacity: (r.flags && r.flags.opt) ? .7 : 1
+            },
+            nameCell: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: ".1rem" },
+            writtenStyle: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".95rem",
+              color: "var(--body)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
+            matchedStyle: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".78rem",
+              color: isGhost ? "var(--fat-bright)" : "var(--muted)",
+              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
+            qtyCell: { flex: "none", width: "5rem", display: "flex", flexDirection: "column",
+              alignItems: "flex-end", gap: ".1rem" },
+            gramsStyle: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".95rem",
+              color: "var(--body)", fontVariantNumeric: "tabular-nums" },
+            origStyle: { fontFamily: "var(--font-2)", fontSize: ".68rem", color: "var(--muted)" },
+            kcalCell: { flex: "none", width: "4.6rem", textAlign: "right",
+              fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".85rem",
+              color: "var(--body)", fontVariantNumeric: "tabular-nums" },
+            dropBtnStyle: { flex: "none", width: "1.6rem", height: "1.6rem", display: "flex",
+              alignItems: "center", justifyContent: "center", background: "transparent",
+              border: 0, color: "var(--muted)", cursor: "pointer", fontSize: "1rem" },
+            dropRow: () => this.dropRecipeRow(r.i)
+          };
+        });
+        const divisor = perServing ? rServings : 1;
+        const round1 = v => Math.round((v / divisor) * 10) / 10;
+        return {
+          rRows,
+          rReviewCount: rRowsRaw.filter(r => r.review).length,
+          rReviewOn: rRowsRaw.filter(r => r.review).length > 0,
+          rTotKcal: Math.round(totKcal / divisor),
+          rTotP: round1(totP), rTotC: round1(totC), rTotF: round1(totF),
+          rTotLabelText: perServing ? "PER SERVING" : "RECIPE TOTAL",
+          rServToggleText: perServing ? "WHOLE" : "PER SERVING",
+        };
+      })(),
       // ---- calorie game ----------------------------------------------------
       appCalc: app === "calc",
       // A way back to the first question without walking the chevron up seven

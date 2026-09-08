@@ -38,3 +38,9 @@ the title, and always send `msg`.
   `working` with what you are waiting on rather than leaving the row silent.
 - If the call fails, carry on: no retry, no mention.
 - Skip it for questions you answer without touching the repo.
+
+## App visibility
+
+Calorie Game and Calorie Calc are not live apps: keep their code in the file, but they must
+not be reachable — not in `live()`, not clickable, not shown as working tabs. If you add a
+new app to `live()`, only add that app; do not restore game/calc as a side effect.
