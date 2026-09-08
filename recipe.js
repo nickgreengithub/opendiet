@@ -190,14 +190,16 @@ function numVal(text) {
 }
 
 function takeQty(s) {
-  // range: "1-2" / "1 to 2"
-  let m = s.match(new RegExp(`^(${NUM_RE})\\s*(?:-|to)\\s*(${NUM_RE})\\b\\s*`, "i"));
+  // range: "1-2" / "1 to 2". Note: no \b after the second number — "1-2tbsp" (no space
+  // before the unit) is as common in pasted recipes as "400g" is, and a digit run followed
+  // directly by a letter is never a false split since NUM_RE already consumes every digit.
+  let m = s.match(new RegExp(`^(${NUM_RE})\\s*(?:-|to)\\s*(${NUM_RE})\\s*`, "i"));
   if (m) {
     const lo = numVal(m[1]), hi = numVal(m[2]);
     return { qty: (lo + hi) / 2, qtyLo: lo, qtyHi: hi, qtyText: m[0].trim(), rest: s.slice(m[0].length) };
   }
-  // plain number, possibly mixed fraction
-  m = s.match(new RegExp(`^(${NUM_RE})\\b\\s*`));
+  // plain number, possibly mixed fraction — same reasoning, no \b before the unit letters.
+  m = s.match(new RegExp(`^(${NUM_RE})\\s*`));
   if (m) {
     const v = numVal(m[1]);
     return { qty: v, qtyLo: v, qtyHi: v, qtyText: m[1], rest: s.slice(m[0].length) };
@@ -268,12 +270,12 @@ function takeUnit(s) {
 
 // "2x400g tins" / "2 x 400 g tins" -> a single mass-unit line, 800 g total
 function takeMultipack(s) {
-  const m = s.match(/^(\d+)\s*x\s*(\d+(?:\.\d+)?)\s*(g|gram|grams|kg|ml|l)\b\.?\s*(tins?|cans?)?\s*/i);
+  const m = s.match(/^((\d+)\s*x\s*(\d+(?:\.\d+)?)\s*(g|gram|grams|kg|ml|l))\b\.?\s*(tins?|cans?)?\s*/i);
   if (!m) return null;
-  const count = +m[1], each = +m[2];
-  const unit = UNIT_LOOKUP[m[3].toLowerCase()] || m[3].toLowerCase();
-  return { qty: count * each, qtyLo: count * each, qtyHi: count * each, qtyText: m[0].trim(),
-           unit, unitText: m[3], rest: s.slice(m[0].length) };
+  const count = +m[2], each = +m[3];
+  const unit = UNIT_LOOKUP[m[4].toLowerCase()] || m[4].toLowerCase();
+  return { qty: count * each, qtyLo: count * each, qtyHi: count * each, qtyText: m[1].trim(),
+           unit, unitText: m[4], rest: s.slice(m[0].length) };
 }
 
 // "1 onion (150g), diced" -> the parenthetical mass overrides the leading count
@@ -579,6 +581,83 @@ function matchLine(line, foods, aliases) {
   };
 }
 
+// ---- units (Phase 3) --------------------------------------------------------------------
+// gramsFor(line, fo, units) -> {g, how, label}. `units` is data/units.json, parsed.
+// Resolution order (first hit wins, `how` records it): mass unit; volume, preferring the
+// food's own per-portion weight (fo.pg/fo.pn) over a generic density table; count, same
+// preference; a bare quantity with no unit read as "each"; otherwise a default that keeps a
+// review-worthy row from vanishing (0 g for "to taste", 100 g otherwise).
+
+const RCP_MAX = 5000;
+
+function countWordKey(ing, table) {
+  const stemmed = stemJoin(ing);
+  let best = null, bestLen = 0;
+  for (const key in table || {}) {
+    const keyStemmed = stemJoin(key);
+    if (keyStemmed && stemmed.indexOf(keyStemmed) >= 0 && keyStemmed.length > bestLen) {
+      best = key; bestLen = keyStemmed.length;
+    }
+  }
+  return best;
+}
+
+function densityFor(fo, units) {
+  const words = (units.density && units.density.word) || [];
+  for (const [word, d] of words) if (fo.nl.indexOf(word) >= 0) return d;
+  const cat = units.density && units.density.cat && units.density.cat[fo.cat];
+  return cat != null ? cat : 1.0;
+}
+
+function countGrams(unit, ing, fo, units) {
+  const labelUnits = fo.pn && units.labels && units.labels[fo.pn];
+  if (labelUnits && labelUnits.indexOf(unit) >= 0 && fo.pg) return fo.pg;
+  const word = countWordKey(ing, units.count && units.count.word);
+  if (word && units.count.word[word][unit] != null) return units.count.word[word][unit];
+  if (units.count && units.count.default && units.count.default[unit] != null) return units.count.default[unit];
+  return null;
+}
+
+function labelText(line) {
+  const parts = [line.qtyText, line.unitText].filter(Boolean);
+  return parts.length ? parts.join(" ") : (line.qty != null ? String(line.qty) : "");
+}
+
+function gramsFor(line, fo, units) {
+  const label = labelText(line);
+  if (!fo) return { g: 0, how: "none", label };
+
+  const qty = line.qty != null ? line.qty : 1;
+  const unit = line.unit;
+
+  if (unit && units.mass && units.mass[unit] != null) {
+    return { g: Math.min(RCP_MAX, qty * units.mass[unit]), how: "mass", label };
+  }
+
+  if (unit && units.volume && units.volume[unit] != null) {
+    const labelUnits = fo.pn && units.labels && units.labels[fo.pn];
+    const anchor = labelUnits && labelUnits.find((u) => units.volume[u] != null);
+    if (anchor && fo.pg) {
+      const g = qty * fo.pg * (units.volume[unit] / units.volume[anchor]);
+      return { g: Math.min(RCP_MAX, g), how: "pg", label };
+    }
+    const density = densityFor(fo, units);
+    return { g: Math.min(RCP_MAX, qty * units.volume[unit] * density), how: "density", label };
+  }
+
+  if (unit) {
+    const g = countGrams(unit, line.ing || "", fo, units);
+    if (g != null) return { g: Math.min(RCP_MAX, qty * g), how: "count", label };
+  }
+
+  if (!unit && line.qty != null) {
+    const g = countGrams("each", line.ing || "", fo, units);
+    if (g != null) return { g: Math.min(RCP_MAX, qty * g), how: "count", label };
+  }
+
+  return { g: line.flags && line.flags.taste ? 0 : 100, how: "none", label, review: true };
+}
+
 // ---- exports --------------------------------------------------------------------------
 
 const OD = root.OD || {};
@@ -588,6 +667,7 @@ OD.rankFoods = rankFoods;
 OD.parseRecipe = parseRecipe;
 OD.recipeServings = recipeServings;
 OD.matchLine = matchLine;
+OD.gramsFor = gramsFor;
 root.OD = OD;
 
 if (typeof module !== "undefined" && module.exports) module.exports = OD;

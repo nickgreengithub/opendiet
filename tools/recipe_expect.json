@@ -11,6 +11,10 @@
       "Nuts, cashew butter, plain, without salt added",
       "Seeds, sunflower seed butter, without salt",
       "Squash, winter, butternut, cooked, baked, without salt"
+    ],
+    "g": [
+      168,
+      282
     ]
   },
   {
@@ -19,6 +23,10 @@
     "cands": [
       "Sugars, granulated",
       "Sweeteners, sugar substitute, granulated, brown"
+    ],
+    "g": [
+      168,
+      282
     ]
   },
   {
@@ -29,6 +37,10 @@
       "Egg, duck, whole, fresh, raw",
       "Egg, goose, whole, fresh, raw",
       "Egg, quail, whole, fresh, raw"
+    ],
+    "g": [
+      150,
+      250
     ]
   },
   {
@@ -36,6 +48,10 @@
     "food": "Wheat flour, white, all-purpose, self-rising, enriched",
     "cands": [
       "Wheat flour, white, all-purpose, self-rising, enriched"
+    ],
+    "g": [
+      168,
+      282
     ]
   },
   {
@@ -45,6 +61,10 @@
       "Leavening agents, baking powder, double-acting · avg",
       "Leavening agents, baking powder, double-acting, straight phosphate",
       "Leavening agents, baking powder, double-acting, sodium aluminum sulfate"
+    ],
+    "g": [
+      3,
+      6
     ]
   },
   {
@@ -53,6 +73,10 @@
     "cands": [
       "Vanilla extract",
       "Vanilla extract, imitation, no alcohol"
+    ],
+    "g": [
+      3,
+      6
     ]
   },
   {
@@ -62,6 +86,10 @@
       "Milk, whole, 3.25% milkfat · avg",
       "Milk, whole, 3.25% milkfat, with added vitamin D",
       "Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D"
+    ],
+    "g": [
+      22,
+      38
     ]
   },
   {
@@ -69,6 +97,10 @@
     "food": "Sugars, powdered",
     "cands": [
       "Sugars, powdered"
+    ],
+    "g": [
+      75,
+      125
     ]
   },
   {
@@ -83,6 +115,10 @@
       "Cheese, cottage, creamed, large or small curd",
       "Frostings, cream cheese-flavor, ready-to-eat",
       "Cheese, cottage, creamed, with fruit"
+    ],
+    "g": [
+      37,
+      63
     ]
   },
   {
@@ -90,6 +126,10 @@
     "food": "Lemon juice, raw",
     "cands": [
       "Lemon juice, raw"
+    ],
+    "g": [
+      11,
+      20
     ]
   },
   {
@@ -97,6 +137,10 @@
     "food": "Oil, vegetable, soybean, refined",
     "cands": [
       "Oil, vegetable, soybean, refined"
+    ],
+    "g": [
+      20,
+      34
     ]
   },
   {
@@ -107,6 +151,10 @@
       "Onions, sweet, raw",
       "Onions, welsh, raw",
       "Onions, spring or scallions (includes tops and bulb), raw"
+    ],
+    "g": [
+      82,
+      138
     ]
   },
   {
@@ -114,6 +162,10 @@
     "food": "Garlic, raw",
     "cands": [
       "Garlic, raw"
+    ],
+    "g": [
+      6,
+      12
     ]
   },
   {
@@ -121,6 +173,10 @@
     "food": "Ginger root, raw",
     "cands": [
       "Ginger root, raw"
+    ],
+    "g": [
+      4,
+      8
     ]
   },
   {
@@ -128,6 +184,10 @@
     "food": "Spices, cumin seed",
     "cands": [
       "Spices, cumin seed"
+    ],
+    "g": [
+      3,
+      6
     ]
   },
   {
@@ -135,6 +195,10 @@
     "food": "Spices, coriander leaf, dried",
     "cands": [
       "Spices, coriander leaf, dried"
+    ],
+    "g": [
+      0,
+      3
     ]
   },
   {
@@ -142,6 +206,10 @@
     "food": "Spices, turmeric, ground",
     "cands": [
       "Spices, turmeric, ground"
+    ],
+    "g": [
+      2,
+      5
     ]
   },
   {
@@ -149,6 +217,10 @@
     "food": "Spices, chili powder",
     "cands": [
       "Spices, chili powder"
+    ],
+    "g": [
+      1,
+      4
     ]
   },
   {
@@ -156,6 +228,10 @@
     "food": "Chicken, broilers or fryers, dark meat, thigh, meat only, raw",
     "cands": [
       "Chicken, broilers or fryers, dark meat, thigh, meat only, raw"
+    ],
+    "g": [
+      450,
+      750
     ]
   },
   {
@@ -170,6 +246,10 @@
       "Tomato juice, canned · avg",
       "Tomato sauce, canned, no salt added",
       "Soup, tomato, canned, condensed"
+    ],
+    "g": [
+      300,
+      500
     ]
   },
   {
@@ -177,6 +257,10 @@
     "food": "Nuts, coconut milk, raw (liquid expressed from grated meat and water)",
     "cands": [
       "Nuts, coconut milk, raw (liquid expressed from grated meat and water)"
+    ],
+    "g": [
+      152,
+      254
     ]
   },
   {
@@ -184,6 +268,10 @@
     "food": "Tomatoes, red, ripe, raw, year round average",
     "cands": [
       "Tomatoes, red, ripe, raw, year round average"
+    ],
+    "g": [
+      184,
+      308
     ]
   },
   {
@@ -193,6 +281,10 @@
       "Cucumber, raw · avg",
       "Cucumber, with peel, raw",
       "Cucumber, peeled, raw"
+    ],
+    "g": [
+      75,
+      125
     ]
   },
   {
@@ -203,6 +295,10 @@
       "Onions, sweet, raw",
       "Onions, welsh, raw",
       "Onions, spring or scallions (includes tops and bulb), raw"
+    ],
+    "g": [
+      41,
+      69
     ]
   },
   {
@@ -211,18 +307,27 @@
     "cands": [
       "Peppers, sweet, red, raw",
       "Peppers, sweet, green, raw"
+    ],
+    "g": [
+      89,
+      149
     ]
   },
   {
     "raw": "100g feta cheese, crumbled",
     "food": null,
-    "cands": []
+    "cands": [],
+    "g": null
   },
   {
     "raw": "50g kalamata olives",
     "food": "Olives, pickled, canned or bottled, green",
     "cands": [
       "Olives, pickled, canned or bottled, green"
+    ],
+    "g": [
+      37,
+      63
     ]
   },
   {
@@ -232,6 +337,10 @@
       "Oil, olive, salad or cooking",
       "Oil, corn, peanut, and olive",
       "Mayonnaise, reduced fat, with olive oil"
+    ],
+    "g": [
+      20,
+      34
     ]
   },
   {
@@ -239,6 +348,10 @@
     "food": "Vinegar, red wine",
     "cands": [
       "Vinegar, red wine"
+    ],
+    "g": [
+      11,
+      19
     ]
   },
   {
@@ -246,6 +359,10 @@
     "food": "Spices, oregano, dried",
     "cands": [
       "Spices, oregano, dried"
+    ],
+    "g": [
+      0,
+      2
     ]
   }
 ]

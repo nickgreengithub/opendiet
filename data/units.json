@@ -1,0 +1,52 @@
+{
+  "mass": { "g": 1, "kg": 1000, "oz": 28.3495, "lb": 453.592 },
+  "volume": {
+    "ml": 1, "l": 1000,
+    "tsp": 4.92892, "tbsp": 14.7868, "cup": 236.588, "floz": 29.5735, "pint": 473.176,
+    "pinch": 0.3, "dash": 0.6, "splash": 5, "drizzle": 5, "sprinkle": 1
+  },
+  "density": {
+    "word": [
+      ["icing sugar", 0.56], ["powdered sugar", 0.56], ["brown sugar", 0.93],
+      ["sugar", 0.85], ["honey", 1.42], ["syrup", 1.37], ["flour", 0.53],
+      ["breadcrumbs", 0.43], ["rice", 0.75], ["oats", 0.41], ["oil", 0.92],
+      ["butter", 0.96], ["milk", 1.03], ["cream", 1.0], ["yogurt", 1.03],
+      ["water", 1.0], ["vinegar", 1.01], ["stock", 1.0], ["broth", 1.0],
+      ["salt", 1.2], ["cocoa", 0.41], ["chocolate chips", 0.83]
+    ],
+    "cat": {
+      "FATS": 0.92, "DAIRY": 1.03, "GRAINS": 0.55, "SWEETS": 0.9,
+      "DRINKS": 1.0, "VEGES": 0.4, "FRUIT": 0.5, "LEGUMES": 0.75, "SPICES": 0.5
+    }
+  },
+  "count": {
+    "default": {
+      "clove": 3, "slice": 25, "can": 400, "bunch": 100, "handful": 30,
+      "sprig": 2, "small": 70, "medium": 110, "large": 150, "each": 100,
+      "head": 40, "knob": 15, "pinch": 0.3, "dash": 0.6, "splash": 5
+    },
+    "word": {
+      "onion": { "small": 70, "medium": 110, "large": 150, "each": 110 },
+      "garlic": { "clove": 3, "head": 40, "each": 40 },
+      "egg": { "small": 38, "medium": 44, "large": 50, "each": 50 },
+      "lemon": { "each": 58 },
+      "lime": { "each": 44 },
+      "tomato": { "small": 90, "medium": 123, "large": 182, "each": 123 },
+      "potato": { "small": 170, "medium": 213, "large": 369, "each": 213 },
+      "carrot": { "small": 50, "medium": 61, "large": 72, "each": 61 },
+      "banana": { "small": 101, "medium": 118, "large": 136, "each": 118 },
+      "apple": { "small": 149, "medium": 182, "large": 223, "each": 182 },
+      "avocado": { "each": 150 },
+      "bell pepper": { "each": 119 },
+      "chicken breast": { "each": 174 },
+      "chicken thigh": { "each": 110 }
+    }
+  },
+  "labels": {
+    "CUP": ["cup"], "TABLESPOON": ["tbsp"], "TBSP": ["tbsp"], "TEASPOON": ["tsp"],
+    "TSP": ["tsp"], "MEDIUM": ["medium", "each"], "LARGE": ["large"], "SMALL": ["small"],
+    "SLICE": ["slice"], "CLOVE": ["clove"], "CAN": ["can"], "BUNCH": ["bunch"],
+    "EACH": ["each"], "HEAD": ["head"], "SPRIG": ["sprig"], "OUNCES": ["oz"],
+    "FLOZ": ["floz"], "PINT": ["pint"]
+  }
+}

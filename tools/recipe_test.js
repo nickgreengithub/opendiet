@@ -282,6 +282,95 @@ test("search extraction: same top-6 as before, on real data", () => {
   ]);
 });
 
+// ---- gramsFor (units) -----------------------------------------------------------------------
+const UNITS = JSON.parse(fs.readFileSync(path.join(ROOT, "data", "units.json"), "utf8"));
+
+function line(over) {
+  return Object.assign({ qty: 1, qtyText: "1", unit: null, unitText: null, ing: "", flags: {} }, over);
+}
+function food(over) {
+  return Object.assign({ name: "Test food", nl: "test food", cat: "SNACKS" }, over);
+}
+
+test("gramsFor: mass unit converts directly", () => {
+  const g = OD.gramsFor(line({ qty: 400, qtyText: "400", unit: "g", unitText: "g" }), food(), UNITS);
+  assert.strictEqual(g.g, 400);
+  assert.strictEqual(g.how, "mass");
+});
+
+test("gramsFor: mass unit handles kg", () => {
+  const g = OD.gramsFor(line({ qty: 1, unit: "kg", unitText: "kg" }), food(), UNITS);
+  assert.strictEqual(g.g, 1000);
+});
+
+test("gramsFor: volume prefers the food's own per-portion weight over density", () => {
+  const fo = food({ nl: "flour", cat: "GRAINS", pg: 125, pn: "CUP" });
+  const cup = OD.gramsFor(line({ qty: 1, unit: "cup", unitText: "cup" }), fo, UNITS);
+  assert.strictEqual(cup.g, 125);
+  assert.strictEqual(cup.how, "pg");
+  // 2 tbsp of the same food scales off its own cup weight, not the generic density table.
+  const tbsp = OD.gramsFor(line({ qty: 2, unit: "tbsp", unitText: "tbsp" }), fo, UNITS);
+  assert.strictEqual(tbsp.how, "pg");
+  assert.ok(Math.abs(tbsp.g - 2 * 125 * (14.7868 / 236.588)) < 0.01);
+});
+
+test("gramsFor: volume falls back to density when the food has no per-portion weight", () => {
+  const fo = food({ nl: "olive oil", cat: "FATS" });
+  const g = OD.gramsFor(line({ qty: 1, unit: "cup", unitText: "cup" }), fo, UNITS);
+  assert.strictEqual(g.how, "density");
+  // "oil" density word (0.92) wins over the FATS category density (0.92) — same value here,
+  // but the point is it used the word table at all, i.e. found a candidate g close to it.
+  assert.ok(Math.abs(g.g - 236.588 * 0.92) < 0.01);
+});
+
+test("gramsFor: count unit uses the food's own per-count weight when the label matches", () => {
+  const fo = food({ nl: "onions, raw", cat: "VEGES", pg: 110, pn: "MEDIUM" });
+  const g = OD.gramsFor(line({ qty: 2, unit: "medium", unitText: "medium", ing: "onion" }), fo, UNITS);
+  assert.strictEqual(g.g, 220);
+  assert.strictEqual(g.how, "count");
+});
+
+test("gramsFor: count unit falls back to the ingredient-specific word table", () => {
+  const fo = food({ nl: "eggs" });
+  const g = OD.gramsFor(line({ qty: 4, unit: "large", unitText: "large", ing: "eggs" }), fo, UNITS);
+  assert.strictEqual(g.g, 4 * 50); // count.word.egg.large
+});
+
+test("gramsFor: count unit falls back to the generic default", () => {
+  const fo = food({ nl: "garlic" });
+  const g = OD.gramsFor(line({ qty: 3, unit: "clove", unitText: "clove", ing: "peeled garlic" }), fo, UNITS);
+  assert.strictEqual(g.g, 3 * 3); // count.default.clove — no count.word entry for "peeled garlic"
+});
+
+test("gramsFor: a bare quantity with no unit is read as 'each'", () => {
+  const fo = food({ nl: "onions, raw" });
+  const g = OD.gramsFor(line({ qty: 2, unit: null, ing: "onion" }), fo, UNITS);
+  assert.strictEqual(g.g, 2 * 110); // count.word.onion.each
+  assert.strictEqual(g.how, "count");
+});
+
+test("gramsFor: nothing to go on falls back to a default and flags review", () => {
+  const toTaste = OD.gramsFor(line({ qty: null, unit: null, flags: { taste: true } }), food(), UNITS);
+  assert.strictEqual(toTaste.g, 0);
+  assert.strictEqual(toTaste.how, "none");
+  assert.strictEqual(toTaste.review, true);
+
+  const noInfo = OD.gramsFor(line({ qty: null, unit: null, flags: {} }), food(), UNITS);
+  assert.strictEqual(noInfo.g, 100);
+  assert.strictEqual(noInfo.review, true);
+});
+
+test("gramsFor: caps at RCP_MAX", () => {
+  const g = OD.gramsFor(line({ qty: 50, unit: "kg", unitText: "kg" }), food(), UNITS);
+  assert.strictEqual(g.g, 5000);
+});
+
+test("gramsFor: no food means no grams, not a guess", () => {
+  const g = OD.gramsFor(line({ qty: 400, unit: "g", unitText: "g" }), null, UNITS);
+  assert.strictEqual(g.g, 0);
+  assert.strictEqual(g.how, "none");
+});
+
 // ---- matcher hit rate on labelled real recipes --------------------------------------------
 // tools/recipes/*.txt + tools/recipe_expect.json, per RECIPE.md's pass bar: >=85% top-1,
 // >=95% top-8. The expect file was generated from a reviewed matchLine run (every line
@@ -301,18 +390,27 @@ test("matcher: hit rate on labelled recipes clears the pass bar", () => {
   assert.strictEqual(rows.length, expect.length,
     `tools/recipes/*.txt parses to ${rows.length} ingredient lines, expect file has ${expect.length} — regenerate recipe_expect.json`);
 
-  let top1 = 0, top8 = 0;
+  let top1 = 0, top8 = 0, gramsOk = 0, gramsChecked = 0;
   rows.forEach((row, i) => {
     const want = expect[i];
     assert.strictEqual(row.raw, want.raw, `line ${i}: recipe text and expect file are out of sync`);
     const m = OD.matchLine(row, foods, aliases);
     if (m.food === want.food) top1++;
     if (want.food === null || m.cands.includes(want.food)) top8++;
+    if (want.g) {
+      gramsChecked++;
+      const fo = foods.find((f) => f.name === want.food);
+      const g = OD.gramsFor(row, fo, UNITS);
+      if (g.g >= want.g[0] && g.g <= want.g[1]) gramsOk++;
+      else console.error(`  grams out of range: "${row.raw}" got ${g.g}, want ${want.g}`);
+    }
   });
-  const pct = (n) => Math.round((100 * n) / rows.length);
-  console.log(`  matcher: ${pct(top1)}% top-1, ${pct(top8)}% top-8 over ${rows.length} lines`);
-  assert.ok(pct(top1) >= 85, `top-1 hit rate ${pct(top1)}% is under the 85% bar`);
-  assert.ok(pct(top8) >= 95, `top-8 hit rate ${pct(top8)}% is under the 95% bar`);
+  const pct = (n, of) => Math.round((100 * n) / of);
+  console.log(`  matcher: ${pct(top1, rows.length)}% top-1, ${pct(top8, rows.length)}% top-8 over ${rows.length} lines`);
+  console.log(`  grams: ${gramsOk}/${gramsChecked} within range`);
+  assert.ok(pct(top1, rows.length) >= 85, `top-1 hit rate ${pct(top1, rows.length)}% is under the 85% bar`);
+  assert.ok(pct(top8, rows.length) >= 95, `top-8 hit rate ${pct(top8, rows.length)}% is under the 95% bar`);
+  assert.strictEqual(gramsOk, gramsChecked, "some lines resolved grams outside their expected range");
 });
 
 console.log(`${pass} passed, ${fail} failed`);
