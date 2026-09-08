@@ -338,6 +338,39 @@ def build_pools(foods):
     return pools
 
 
+def portion(rows, liquid):
+    """The serving a family is read in.
+
+    A pool used to take the conversion every time — 3.5 OUNCES, one CUP — on the grounds
+    that no household measure belongs to a family. But a family of eggs is read in eggs:
+    four of the seven whole eggs say LARGE and one says MEDIUM, and the row speaking for
+    all of them offered 3.5 OUNCES, which is not how anybody has served an egg. It was not
+    only the eggs. 817 pools whose members name one measure between them — every member,
+    the same measure — were offering the conversion too.
+
+    So the family is asked. More than half of it has to call the serving the same thing
+    before the pool is read in it, and then it is read at the mean of what those members
+    weigh, which is the mean the rest of the row already is. A member with no measure of
+    its own is not an abstention here the way an unmeasured nutrient is: the conversion is
+    what tools/add_portions.py writes when USDA published nothing you could picture, so it
+    says this food has no serving, and that is a vote against the family having one. It is
+    what keeps a whole turkey from being read in giblets on the strength of one member in
+    five. Where no measure holds a majority, the conversion is the honest thing to offer."""
+    # OUNCES is the conversion for a solid, CUP and TBSP for a liquid — never both, so a
+    # radish measured in cups is measured, and a juice measured in cups is only converted.
+    no_measure = {"CUP", "TBSP"} if liquid else {"OUNCES"}
+    votes = defaultdict(list)
+    for r in rows:
+        name = field(r, "pn")
+        if name and name not in no_measure:
+            votes[name].append(field(r, "pg"))
+    if votes:
+        name, grams = max(votes.items(), key=lambda kv: len(kv[1]))
+        if 2 * len(grams) > len(rows):
+            return round(sum(grams) / len(grams), 1), name
+    return (240, "CUP") if liquid else (28.35, "OUNCES")
+
+
 def pool_row(p, foods):
     members = sorted(p.members)
     rows = [foods[i] for i in members]
@@ -353,9 +386,7 @@ def pool_row(p, foods):
     liquid = 1 if field(rows[0], "ml") else 0
     out[IX["ml"]] = liquid
     out[IX["cm"]] = 0
-    # No household measure belongs to a family; the fallback conversion the data
-    # already uses for the rest — see tools/add_portions.py.
-    out[IX["pg"]], out[IX["pn"]] = (240, "CUP") if liquid else (28.35, "OUNCES")
+    out[IX["pg"]], out[IX["pn"]] = portion(rows, liquid)
     # Index 18 is trans fat in a food row, so the members come after it. Then the words
     # every member shares that the name does not show — "ham" under "Pork, cured" —
     # so a search for the word still finds the pool.

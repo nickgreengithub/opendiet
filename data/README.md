@@ -114,6 +114,14 @@ help nobody. Where two pools under one head come out with the same name as each 
 larger one keeps it and the rest are dropped for the same reason — a name that is not the
 name of one thing is not a name. Their entries stay in the library and stand on their own.
 
+A pool is read in the serving more than half its members call by the same name, at the mean
+of what those members weigh — `Egg, whole` is 1 LARGE of 55.5 g, off four members that say
+LARGE and one that says MEDIUM. A member carrying only the conversion (`OUNCES` for a solid,
+`CUP` or `TBSP` for a liquid) is one USDA published no picturable portion for, which is a
+vote against the family having a serving, not an abstention: it is what keeps a whole turkey
+from being read in giblets on the strength of one member in five. Where nothing holds a
+majority the pool takes the conversion, as every pool used to.
+
 Two things the numbers cannot say for themselves:
 
 A zero is not always a measurement — see [Missing figures](#missing-figures) below. An axis
