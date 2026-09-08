@@ -27,6 +27,25 @@ Two more, which need no counting:
   · and a food whose own figures contradict each other is not to be trusted either —
     tools/audit_data.py asks that, and what it finds goes out with the rest.
 
+The category rule reaches too far for a food that has no room left for the figure it is
+short of. A category vote is only a proxy for "does this kind of food usually carry the
+figure" — but a food that is almost nothing but sugar has no carbohydrate left over for
+fibre to hide in, whatever SWEETS or BAKED usually do, so a fibre zero there is read
+alongside the food's own sugar rather than its neighbours':
+
+  · **fibre zero is measured when sugar already accounts for the carbohydrate** — sugar at
+    or above 85% of carbohydrate leaves too little else for fibre to be a plausible gap.
+    Granulated, brown and powdered sugar (97-99.8% of their carb is reported as sugar),
+    maple syrup (90%) and vanilla extract (100%) clear this; cider vinegar (44%) and baking
+    powder (0%, its carbohydrate is starch and bicarbonate, not sugar) do not, because for
+    them the missing figure is not explained by sugar at all.
+  · **a keep-list for the handful the numbers cannot rule on**: cornstarch and baking
+    powder report zero sugar in categories (GRAINS, BAKED) where most foods carry some —
+    correctly, since neither is made of anything sugar comes from — and cider and balsamic
+    vinegar report zero fibre for the same reason vinegar has none to report. No rule drawn
+    from the file tells these apart from a food nobody measured; a name each, looked at once
+    and written here, does.
+
 The pools go too: they are indices into the list this rewrites, and tools/pool_foods.py
 rebuilds them afterwards. Once a library has been through this, every zero left in it is a
 figure somebody wrote down, which the file then says — "zeros": "measured" — and the
@@ -55,6 +74,19 @@ NORM = 0.6
 # The fat breakdown needs no category to judge it: a fat is made of fatty acids.
 FAT_PARTS = ("sf", "mo", "po", "tr")
 FAT_FLOOR = 1.0
+# Sugar at or above this share of carbohydrate leaves too little else for a fibre zero to
+# be a plausible gap; see the docstring.
+SUGAR_FRACTION = 0.85
+# Exact names the numbers cannot rule on either way — looked at once, kept regardless of
+# what the category vote or the sugar share says.
+KEEP = frozenset({
+    "Cornstarch",
+    "Leavening agents, baking powder, double-acting, sodium aluminum sulfate",
+    "Leavening agents, baking powder, double-acting, straight phosphate",
+    "Leavening agents, baking powder, low-sodium",
+    "Vinegar, balsamic",
+    "Vinegar, cider",
+})
 
 
 def expected(foods):
@@ -71,9 +103,16 @@ def expected(foods):
 
 def unmeasured(row, rule):
     """Why this row should go, or None."""
-    why = [k for k, parent in PARENT.items()
-           if get(row, parent) > FLOOR and get(row, k) == 0
-           and rule.get((k, get(row, "cat")))]
+    if get(row, "name") in KEEP:
+        return None
+    why = []
+    for k, parent in PARENT.items():
+        if get(row, parent) <= FLOOR or get(row, k) != 0:
+            continue
+        if k == "fb" and get(row, "sg") >= SUGAR_FRACTION * get(row, parent):
+            continue
+        if rule.get((k, get(row, "cat"))):
+            why.append(k)
     if get(row, "f") > FAT_FLOOR and not any(get(row, k) for k in FAT_PARTS):
         why.append("fat breakdown")
     return "no " + ", ".join(why) + " figure" if why else None

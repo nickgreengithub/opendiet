@@ -166,9 +166,17 @@ the parent figure report the figure itself, and where most of them do, a zero is
 one out. Four dairy foods in five carry carbohydrate and no fibre, so a zero there is a
 measurement and milk stays; nine vegetables in ten carry fibre, so a vegetable with
 carbohydrate and none is a vegetable nobody tested. Fat over a gram broken into four zeros
-needs no counting, and neither does a food that contradicts itself. SR Legacy lost 1,458 of
-7,756 foods that way, 15 of them meat and 7 fish; the libraries now say `"zeros":
-"measured"` and mean it.
+needs no counting, and neither does a food that contradicts itself.
+
+The category vote is a proxy, and it overreaches for a food with no room left for the
+figure it lacks: granulated, brown and powdered sugar, maple syrup and vanilla extract are
+almost nothing but sugar, so a fibre zero on them is read against their own carbohydrate
+rather than SWEETS' — sugar at 85% of carbohydrate or more stands in for a category vote.
+Cornstarch, baking powder, and cider and balsamic vinegar clear neither test — cornstarch
+and baking powder report no sugar in categories where most foods carry some, and the
+vinegars report no fibre — so those five names are kept outright, looked at once. SR Legacy
+lost 1,393 of 7,756 foods that way (65 fewer than before the exemption), 15 of them meat and
+7 fish; the libraries now say `"zeros": "measured"` and mean it.
 
 [`../tools/audit_data.py`](../tools/audit_data.py) checks a library for zeros the numbers
 themselves contradict, and exits non-zero on any: energy is a known function of the macros,
