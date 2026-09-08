@@ -744,7 +744,7 @@ option{background:var(--panel);color:var(--body)}
       <div style="{{ rcpVerifyWrap }}">
         <span style="{{ rcpStepLabel }}">2 · Check the matches and portions, then add them to your food summary.</span>
         <div style="{{ rcpTableHead }}">
-          <span style="{{ rcpThName }}">FOOD</span>
+          <span style="{{ rcpThName }}"></span>
           <span style="{{ rcpThGrams }}">GRAMS</span>
           <span style="{{ rcpThServ }}">SERVINGS</span>
           <span style="{{ rcpThAct }}"></span>
@@ -753,8 +753,8 @@ option{background:var(--panel);color:var(--body)}
           <sc-for list="{{ rcpRows }}" as="r" key="{{ r.key }}" hint-placeholder-count="6">
             <div style="{{ r.rowStyle }}">
               <span style="{{ r.nameCell }}">{{ r.matched }}</span>
-              <span style="{{ r.gramsCell }}"><input value="{{ r.grams }}" onChange="{{ r.onGrams }}" onClick="{{ stopProp }}" inputmode="numeric" style="{{ r.gramsInput }}"><span style="{{ r.unitS }}">g</span></span>
-              <span style="{{ r.servCell }}"><input value="{{ r.servings }}" onChange="{{ r.onServings }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ r.servInput }}"><span style="{{ r.servTypeS }}">{{ r.servType }}</span></span>
+              <span style="{{ r.gramsCell }}"><span style="{{ r.unitS }}">g</span><input value="{{ r.grams }}" onChange="{{ r.onGrams }}" onClick="{{ stopProp }}" inputmode="numeric" style="{{ r.gramsInput }}"></span>
+              <span style="{{ r.servCell }}"><span style="{{ r.servTypeS }}">{{ r.servType }}</span><input value="{{ r.servings }}" onChange="{{ r.onServings }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ r.servInput }}"></span>
               <span style="{{ r.actCell }}"><button onClick="{{ r.dropRow }}" style="{{ r.dropBtn }}" style-hover="color:var(--fat-bright)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:block"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></span>
             </div>
           </sc-for>
@@ -5095,7 +5095,7 @@ class Component extends DCLogic {
       // does not resize under you between the two. Enters with a fade-and-lift, not a snap.
       rcpModal: { position: "fixed", zIndex: 91,
         left: "50%", top: "50%", transform: "translate(-50%,-50%)",
-        width: s.narrow ? "calc(100vw - 1.2rem)" : "min(56rem, calc(100vw - 3rem))",
+        width: s.narrow ? "calc(100vw - 1.2rem)" : "min(64rem, calc(100vw - 3rem))",
         height: s.narrow ? "min(90vh, 40rem)" : "min(82vh, 40rem)",
         display: "flex", flexDirection: "column",
         background: "var(--panel)", border: "1px solid var(--line)",
@@ -5127,14 +5127,15 @@ class Component extends DCLogic {
         padding: "1.25rem", gap: ".85rem" },
       // The table keeps the food table's layout — a name column and right-aligned amount
       // columns — but carries only what the dialog is for: grams and servings, editable.
-      // The macros belong to the food table these land in, not here.
+      // The macros belong to the food table these land in, not here. The number cells wear
+      // their own boxes, so the only vertical rule is the one before the delete column.
       rcpTableHead: { flex: "none", display: "grid",
-        gridTemplateColumns: "minmax(0,1fr) 6.6rem 9rem 2rem",
+        gridTemplateColumns: "minmax(0,1fr) 7rem 12.5rem 2.2rem",
         alignItems: "end", minHeight: "2rem", borderBottom: "1px solid var(--line)",
         fontFamily: "var(--font-2)", fontSize: ".78rem", letterSpacing: ".08em", color: "var(--ink-2)" },
       rcpThName: { paddingLeft: ".55rem", paddingBottom: ".4rem" },
-      rcpThGrams: { textAlign: "right", padding: "0 .55rem .4rem 0", borderLeft: INNER },
-      rcpThServ: { textAlign: "left", padding: "0 .55rem .4rem .7rem", borderLeft: INNER },
+      rcpThGrams: { textAlign: "right", padding: "0 .6rem .4rem 0" },
+      rcpThServ: { textAlign: "right", padding: "0 .6rem .4rem .7rem" },
       rcpThAct: { borderLeft: INNER },
       rcpTableBody: { flex: 1, minHeight: 0, overflowY: "auto" },
       rcpVerifyActs: { flex: "none", display: "flex", alignItems: "center",
@@ -5148,12 +5149,14 @@ class Component extends DCLogic {
         cursor: "pointer", padding: ".75rem 1.15rem", whiteSpace: "nowrap" },
       rcpRows: (() => {
         const foods = this.foods();
-        const rcpCols = "minmax(0,1fr) 6.6rem 9rem 2rem";
+        const rcpCols = "minmax(0,1fr) 7rem 12.5rem 2.2rem";
         const g1 = n => (Math.abs(n - Math.round(n)) < 0.05 ? String(Math.round(n)) : n.toFixed(1));
         const numInput = { boxSizing: "border-box", textAlign: "right",
           background: "transparent", border: "1px solid var(--ghost)", color: "var(--text)",
           fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.05rem", padding: ".28rem .4rem",
           fontVariantNumeric: "tabular-nums", outline: "none" };
+        // Unit/serving-type sit as a prefix to the left of their number box; the boxes
+        // themselves are flush to the right of each column.
         const unitS = { fontFamily: "var(--font-2)", fontSize: ".82rem", color: "var(--muted)", flex: "none" };
         return (s.recipe || []).map(r => {
           const fo = r.food ? foods.find(f => f.name === r.food) : null;
@@ -5173,21 +5176,25 @@ class Component extends DCLogic {
             onGrams: e => this.setRecipeGrams(r.i, e.target.value),
             onServings: e => this.setRecipeServings(r.i, e.target.value),
             dropRow: () => this.dropRecipeRow(r.i),
+            // No coloured left rule — it read as ambiguous. Just the row separator.
             rowStyle: { display: "grid", gridTemplateColumns: rcpCols, alignItems: "stretch",
-              minHeight: "2.6rem", borderBottom: "1px solid var(--line)",
-              borderLeft: "2px solid " + (isGhost ? "var(--fat)" : (r.review ? "rgba(var(--cyan-rgb),.55)" : "transparent")) },
+              minHeight: "2.6rem", borderBottom: "1px solid var(--line)" },
             nameCell: { display: "flex", alignItems: "center", minWidth: 0, paddingLeft: ".55rem",
               fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.02rem",
               color: isGhost ? "var(--fat-bright)" : "var(--body)",
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
-            gramsCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".28rem",
-              paddingRight: ".55rem", borderLeft: INNER },
-            gramsInput: Object.assign({ width: "3.2rem" }, numInput),
-            servCell: { display: "flex", alignItems: "center", gap: ".4rem",
-              padding: "0 .55rem 0 .7rem", borderLeft: INNER },
-            servInput: Object.assign({ width: "3rem" }, numInput, fo ? null : { display: "none" }),
+            // Grams: "g" prefix, box flush right. No vertical rule.
+            gramsCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".3rem",
+              paddingRight: ".6rem" },
+            gramsInput: Object.assign({ width: "3.4rem" }, numInput),
+            // Servings: the serving type prefixed on the left (with the whole column's room,
+            // so long names like "thigh with skin" fit), box flush right. No vertical rule.
+            servCell: { display: "flex", alignItems: "center", gap: ".45rem",
+              padding: "0 .6rem 0 .7rem" },
+            servInput: Object.assign({ width: "3.2rem", flex: "none" }, numInput, fo ? null : { display: "none" }),
             unitS,
-            servTypeS: { fontFamily: "var(--font-2)", fontSize: ".84rem", color: "var(--ink-2)",
+            servTypeS: { flex: 1, minWidth: 0, textAlign: "left", fontFamily: "var(--font-2)",
+              fontSize: ".84rem", color: "var(--ink-2)",
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
             actCell: { display: "flex", alignItems: "center", justifyContent: "center", borderLeft: INNER },
             dropBtn: { display: "flex", background: "transparent", border: 0, color: "var(--ink-2)",
