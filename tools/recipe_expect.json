@@ -1,0 +1,251 @@
+[
+  {
+    "raw": "225g unsalted butter, softened",
+    "food": "Butter, without salt",
+    "cands": [
+      "Butter, without salt",
+      "Butter, light, stick, without salt",
+      "Peanut butter, chunk style, without salt",
+      "Peanut butter, smooth style, without salt",
+      "Nuts, almond butter, plain, without salt added",
+      "Nuts, cashew butter, plain, without salt added",
+      "Seeds, sunflower seed butter, without salt",
+      "Squash, winter, butternut, cooked, baked, without salt"
+    ]
+  },
+  {
+    "raw": "225g caster sugar",
+    "food": "Sugars, granulated",
+    "cands": [
+      "Sugars, granulated",
+      "Sweeteners, sugar substitute, granulated, brown"
+    ]
+  },
+  {
+    "raw": "4 large eggs",
+    "food": "Egg, whole, raw, fresh",
+    "cands": [
+      "Egg, whole, raw, fresh",
+      "Egg, duck, whole, fresh, raw",
+      "Egg, goose, whole, fresh, raw",
+      "Egg, quail, whole, fresh, raw"
+    ]
+  },
+  {
+    "raw": "225g self raising flour",
+    "food": "Wheat flour, white, all-purpose, self-rising, enriched",
+    "cands": [
+      "Wheat flour, white, all-purpose, self-rising, enriched"
+    ]
+  },
+  {
+    "raw": "1 tsp baking powder",
+    "food": "Leavening agents, baking powder, double-acting · avg",
+    "cands": [
+      "Leavening agents, baking powder, double-acting · avg",
+      "Leavening agents, baking powder, double-acting, straight phosphate",
+      "Leavening agents, baking powder, double-acting, sodium aluminum sulfate"
+    ]
+  },
+  {
+    "raw": "1 tsp vanilla extract",
+    "food": "Vanilla extract",
+    "cands": [
+      "Vanilla extract",
+      "Vanilla extract, imitation, no alcohol"
+    ]
+  },
+  {
+    "raw": "2 tbsp milk",
+    "food": "Milk, whole, 3.25% milkfat · avg",
+    "cands": [
+      "Milk, whole, 3.25% milkfat · avg",
+      "Milk, whole, 3.25% milkfat, with added vitamin D",
+      "Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D"
+    ]
+  },
+  {
+    "raw": "100g icing sugar",
+    "food": "Sugars, powdered",
+    "cands": [
+      "Sugars, powdered"
+    ]
+  },
+  {
+    "raw": "50g cream cheese",
+    "food": "Cheese, cream",
+    "cands": [
+      "Cheese, cream",
+      "Cheese, cream, low fat",
+      "Cheese, cream, fat free",
+      "Cheese, cottage, creamed · avg",
+      "Cheese spread, cream cheese base",
+      "Cheese, cottage, creamed, large or small curd",
+      "Frostings, cream cheese-flavor, ready-to-eat",
+      "Cheese, cottage, creamed, with fruit"
+    ]
+  },
+  {
+    "raw": "1 tbsp lemon juice",
+    "food": "Lemon juice, raw",
+    "cands": [
+      "Lemon juice, raw"
+    ]
+  },
+  {
+    "raw": "2 tbsp vegetable oil",
+    "food": "Oil, vegetable, soybean, refined",
+    "cands": [
+      "Oil, vegetable, soybean, refined"
+    ]
+  },
+  {
+    "raw": "1 onion, diced",
+    "food": "Onions, raw",
+    "cands": [
+      "Onions, raw",
+      "Onions, sweet, raw",
+      "Onions, welsh, raw",
+      "Onions, spring or scallions (includes tops and bulb), raw"
+    ]
+  },
+  {
+    "raw": "3 cloves garlic, crushed",
+    "food": "Garlic, raw",
+    "cands": [
+      "Garlic, raw"
+    ]
+  },
+  {
+    "raw": "1 tbsp fresh ginger, grated",
+    "food": "Ginger root, raw",
+    "cands": [
+      "Ginger root, raw"
+    ]
+  },
+  {
+    "raw": "2 tsp ground cumin",
+    "food": "Spices, cumin seed",
+    "cands": [
+      "Spices, cumin seed"
+    ]
+  },
+  {
+    "raw": "2 tsp ground coriander",
+    "food": "Spices, coriander leaf, dried",
+    "cands": [
+      "Spices, coriander leaf, dried"
+    ]
+  },
+  {
+    "raw": "1 tsp turmeric",
+    "food": "Spices, turmeric, ground",
+    "cands": [
+      "Spices, turmeric, ground"
+    ]
+  },
+  {
+    "raw": "1 tsp chili flakes (optional)",
+    "food": "Spices, chili powder",
+    "cands": [
+      "Spices, chili powder"
+    ]
+  },
+  {
+    "raw": "600g chicken thighs, diced",
+    "food": "Chicken, broilers or fryers, dark meat, thigh, meat only, raw",
+    "cands": [
+      "Chicken, broilers or fryers, dark meat, thigh, meat only, raw"
+    ]
+  },
+  {
+    "raw": "400g tinned tomatoes",
+    "food": "Tomato products, canned · avg",
+    "cands": [
+      "Tomato products, canned · avg",
+      "Tomato products, canned, sauce · avg",
+      "Tomatoes, crushed, canned",
+      "Tomato products, canned, sauce",
+      "Tomatoes, red, ripe, canned, stewed",
+      "Tomato juice, canned · avg",
+      "Tomato sauce, canned, no salt added",
+      "Soup, tomato, canned, condensed"
+    ]
+  },
+  {
+    "raw": "200ml coconut milk",
+    "food": "Nuts, coconut milk, raw (liquid expressed from grated meat and water)",
+    "cands": [
+      "Nuts, coconut milk, raw (liquid expressed from grated meat and water)"
+    ]
+  },
+  {
+    "raw": "2 tomatoes, chopped",
+    "food": "Tomatoes, red, ripe, raw, year round average",
+    "cands": [
+      "Tomatoes, red, ripe, raw, year round average"
+    ]
+  },
+  {
+    "raw": "1 cucumber, diced",
+    "food": "Cucumber, raw · avg",
+    "cands": [
+      "Cucumber, raw · avg",
+      "Cucumber, with peel, raw",
+      "Cucumber, peeled, raw"
+    ]
+  },
+  {
+    "raw": "1/2 red onion, thinly sliced",
+    "food": "Onions, raw",
+    "cands": [
+      "Onions, raw",
+      "Onions, sweet, raw",
+      "Onions, welsh, raw",
+      "Onions, spring or scallions (includes tops and bulb), raw"
+    ]
+  },
+  {
+    "raw": "1 bell pepper, sliced",
+    "food": "Peppers, sweet, red, raw",
+    "cands": [
+      "Peppers, sweet, red, raw",
+      "Peppers, sweet, green, raw"
+    ]
+  },
+  {
+    "raw": "100g feta cheese, crumbled",
+    "food": null,
+    "cands": []
+  },
+  {
+    "raw": "50g kalamata olives",
+    "food": "Olives, pickled, canned or bottled, green",
+    "cands": [
+      "Olives, pickled, canned or bottled, green"
+    ]
+  },
+  {
+    "raw": "2 tbsp olive oil",
+    "food": "Oil, olive, salad or cooking",
+    "cands": [
+      "Oil, olive, salad or cooking",
+      "Oil, corn, peanut, and olive",
+      "Mayonnaise, reduced fat, with olive oil"
+    ]
+  },
+  {
+    "raw": "1 tbsp red wine vinegar",
+    "food": "Vinegar, red wine",
+    "cands": [
+      "Vinegar, red wine"
+    ]
+  },
+  {
+    "raw": "1 tsp dried oregano",
+    "food": "Spices, oregano, dried",
+    "cands": [
+      "Spices, oregano, dried"
+    ]
+  }
+]

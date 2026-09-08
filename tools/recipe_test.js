@@ -282,5 +282,38 @@ test("search extraction: same top-6 as before, on real data", () => {
   ]);
 });
 
+// ---- matcher hit rate on labelled real recipes --------------------------------------------
+// tools/recipes/*.txt + tools/recipe_expect.json, per RECIPE.md's pass bar: >=85% top-1,
+// >=95% top-8. The expect file was generated from a reviewed matchLine run (every line
+// checked by hand against the actual food names — see the commit that added it), so this
+// test is a regression guard on that review, not a re-derivation of it.
+test("matcher: hit rate on labelled recipes clears the pass bar", () => {
+  const d = JSON.parse(fs.readFileSync(path.join(ROOT, "data", "legacy.json"), "utf8"));
+  const foods = OD.mkFoods(d);
+  const aliases = JSON.parse(fs.readFileSync(path.join(ROOT, "data", "aliases.json"), "utf8"));
+  const expect = JSON.parse(fs.readFileSync(path.join(ROOT, "tools", "recipe_expect.json"), "utf8"));
+
+  const rows = [];
+  for (const file of fs.readdirSync(path.join(ROOT, "tools", "recipes")).sort()) {
+    const text = fs.readFileSync(path.join(ROOT, "tools", "recipes", file), "utf8");
+    rows.push(...OD.parseRecipe(text).filter((r) => r.kind === "ing"));
+  }
+  assert.strictEqual(rows.length, expect.length,
+    `tools/recipes/*.txt parses to ${rows.length} ingredient lines, expect file has ${expect.length} — regenerate recipe_expect.json`);
+
+  let top1 = 0, top8 = 0;
+  rows.forEach((row, i) => {
+    const want = expect[i];
+    assert.strictEqual(row.raw, want.raw, `line ${i}: recipe text and expect file are out of sync`);
+    const m = OD.matchLine(row, foods, aliases);
+    if (m.food === want.food) top1++;
+    if (want.food === null || m.cands.includes(want.food)) top8++;
+  });
+  const pct = (n) => Math.round((100 * n) / rows.length);
+  console.log(`  matcher: ${pct(top1)}% top-1, ${pct(top8)}% top-8 over ${rows.length} lines`);
+  assert.ok(pct(top1) >= 85, `top-1 hit rate ${pct(top1)}% is under the 85% bar`);
+  assert.ok(pct(top8) >= 95, `top-8 hit rate ${pct(top8)}% is under the 95% bar`);
+});
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

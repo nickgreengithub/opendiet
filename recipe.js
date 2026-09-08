@@ -348,7 +348,12 @@ function splitIngredient(rest) {
 
 // ---- classify -----------------------------------------------------------------------------
 
-const NOTE_VERBS = /^(preheat|heat|bring|bake|boil|simmer|stir|mix|combine|whisk|fold|add|pour|season|serve|let|remove|place|cover|reduce|rest|cook|blend|drain|garnish|transfer|repeat|meanwhile|set|line|grease|chill|allow|toss)\b/i;
+const NOTE_VERBS = /^(preheat|heat|bring|bake|boil|simmer|stir|mix|combine|whisk|fold|add|pour|season|serve|let|remove|place|cover|reduce|rest|cook|blend|drain|garnish|transfer|repeat|meanwhile|set|line|grease|chill|allow|toss|divide|cream|sprinkle|spread|top|taste|adjust|discard|layer|arrange|increase|decrease|continue|return|sift|turn|flip|press|knead|roll|shape|dust|brush|squeeze|crack|separate|whip|enjoy|refrigerate|leave|use|check|slice|cut|arrange)\b/i;
+
+function leadsWithQty(s) {
+  return new RegExp(`^(${NUM_RE})\\b`).test(s) ||
+    new RegExp(`^(${Object.keys(NUM_WORDS).join("|")})\\b`, "i").test(s);
+}
 
 function classify(s) {
   if (!s) return "blank";
@@ -356,10 +361,12 @@ function classify(s) {
   const isAllCaps = letters.length >= 3 && letters === letters.toUpperCase();
   const isHeading = /^(for the|serves?|makes|yields?)\b/i.test(s) || /:$/.test(s) || isAllCaps;
   if (isHeading) return "head";
-  const leadsWithQty = new RegExp(`^(${NUM_RE})\\b`).test(s) ||
-    new RegExp(`^(${Object.keys(NUM_WORDS).join("|")})\\b`, "i").test(s);
+  const leads = leadsWithQty(s);
   const wordCount = s.split(/\s+/).filter(Boolean).length;
-  if (!leadsWithQty && (NOTE_VERBS.test(s) || wordCount > 12)) return "note";
+  // A method step reads as a sentence — it ends with a full stop or exclamation mark, which
+  // an ingredient line essentially never does — or opens with an imperative verb, or simply
+  // runs long. None of that applies to a line that leads with a quantity.
+  if (!leads && (NOTE_VERBS.test(s) || wordCount > 12 || /[.!]$/.test(s))) return "note";
   return "ing";
 }
 
@@ -374,7 +381,11 @@ function servingsFromHead(s) {
 
 function parseRecipe(text) {
   const lines = (text || "").split(/\r\n|\r|\n/);
+  // A single pasted line is someone testing an ingredient, not a titled recipe — the title
+  // override below only makes sense once there is a body for the title to sit in front of.
+  const hasBody = lines.filter((l) => normalise(l)).length > 1;
   const rows = [];
+  let seenContent = false;
   lines.forEach((raw, i) => {
     const norm = normalise(raw);
     const row = {
@@ -390,7 +401,13 @@ function parseRecipe(text) {
 
     if (!norm) { row.kind = "blank"; rows.push(row); return; }
 
-    const kind = classify(norm);
+    // The first non-blank line of a pasted recipe is its title more often than its first
+    // ingredient — "Chicken curry" is neither ALL CAPS nor "For the ..." nor a sentence, so
+    // classify() alone would call it an ingredient. Only overridden when it doesn't itself
+    // lead with a quantity, so a recipe pasted without a title still starts on its own row.
+    let kind = classify(norm);
+    if (hasBody && !seenContent && kind === "ing" && !leadsWithQty(norm)) kind = "head";
+    seenContent = true;
     row.kind = kind;
 
     if (kind === "head") {
@@ -448,6 +465,120 @@ function recipeServings(rows) {
   return 1;
 }
 
+// ---- matcher (Phase 2) ------------------------------------------------------------------
+// matchLine(line, foods, aliases) turns a parsed row's ingredient text into the food a
+// recipe means, re-weighting rankFoods' word-match score for what a recipe wants that a
+// plate search does not: raw over frozen, plain over branded, the alias's world knowledge
+// ("caster sugar" is sugar) over a string match that cannot have it.
+
+const ING_STOPWORDS = new Set(["fresh", "of", "good", "quality", "organic"]);
+
+// A recipe means the raw form unless it says otherwise, so anything that reads as prepared
+// costs a candidate unless the line (or the alias that found it) names that state.
+const PROCESS_WORDS = [
+  "frozen", "dehydrated", "dried", "canned", "cooked", "boiled", "baked", "fried",
+  "roasted", "juice", "babyfood", "restaurant", "fast foods", "shake", "mix", "powder",
+  "with salt", "smoked", "pickled", "sweetened", "instant",
+];
+
+function stemJoin(text) {
+  return (text || "").toLowerCase().split(/[^a-z0-9]+/).filter(Boolean).map(stemWord).join(" ");
+}
+
+// The alias whose phrase is the longest match against the ingredient text, stemmed both
+// sides so "caster sugars" still finds "caster sugar".
+function findAlias(ing, aliases) {
+  const ingStemmed = stemJoin(ing);
+  let best = null, bestLen = 0;
+  for (const alias of aliases || []) {
+    for (const phrase of alias.m || []) {
+      const phraseStemmed = stemJoin(phrase);
+      if (!phraseStemmed) continue;
+      const hit = ingStemmed === phraseStemmed
+        || ingStemmed.indexOf(" " + phraseStemmed + " ") >= 0
+        || ingStemmed.indexOf(phraseStemmed + " ") === 0
+        || ingStemmed.slice(-phraseStemmed.length - 1) === " " + phraseStemmed;
+      if (hit && phraseStemmed.length > bestLen) { best = alias; bestLen = phraseStemmed.length; }
+    }
+  }
+  return best;
+}
+
+function isPlain(fo) {
+  return !PROCESS_WORDS.some((w) => fo.nl.indexOf(w) >= 0);
+}
+
+// The recipe re-weighting rankFoods never does itself: raw/plain preferred, process words
+// penalised unless the line's own state calls for them, an alias pin placed first.
+function reweight(fo, pinName, lineState, aliasState) {
+  let score = fo._hit || 0;
+  if (isPlain(fo)) score += 8;
+  for (const w of PROCESS_WORDS) {
+    if (fo.nl.indexOf(w) < 0) continue;
+    const named = (lineState && w.indexOf(lineState) >= 0) || (aliasState && w.indexOf(aliasState) >= 0);
+    score += named ? 6 : -10;
+  }
+  if (pinName && fo.name === pinName) score += 40;
+  score -= 0.2 * fo.name.length;
+  return score;
+}
+
+function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+
+// rankFoods expects a plain lowercase, punctuation-free query, same as the search box hands
+// it — a pin name like "Sugars, granulated" has to be cleaned to "sugars granulated" first.
+function cleanQuery(text) {
+  return (text || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
+}
+
+const RCP_CANDS = 8;
+
+// matchLine(line, foods, aliases) -> {food, cands, conf, review}. `line` is a row from
+// parseRecipe (reads .ing/.state); `foods` is OD.mkFoods(json) output.
+function matchLine(line, foods, aliases) {
+  const ing = (line && line.ing) || "";
+  const alias = findAlias(ing, aliases);
+  const aliasHit = !!alias;
+  const query = cleanQuery(alias ? (alias.q || alias.pin || ing) : Array.from(
+    new Set(stemJoin(ing).split(" ").filter((w) => w && !ING_STOPWORDS.has(w)))
+  ).join(" ") || ing);
+  // Whole-word only: "salted" must not fire off the "unsalted" in "unsalted butter".
+  const ingWords = new Set(ing.toLowerCase().split(/[^a-z0-9%]+/).filter(Boolean));
+  const prepWords = new Set((line.prep || []).flatMap((p) => p.split(/[^a-z0-9%]+/).filter(Boolean)));
+  const keepWords = (alias && alias.keep || []).filter((w) => ingWords.has(w) || prepWords.has(w));
+  const fullQuery = keepWords.length ? query + " " + keepWords.join(" ") : query;
+
+  let weak = false;
+  let cands = rankFoods(foods.slice(), fullQuery);
+  if (!cands.length && keepWords.length) cands = rankFoods(foods.slice(), query);
+  if (!cands.length) {
+    weak = true;
+    const head = stemJoin(ing).split(" ")[0] || "";
+    cands = rankFoods(foods.slice(), head);
+  }
+
+  const pinName = alias && alias.pin;
+  const lineState = line && line.state;
+  const aliasState = alias && alias.state;
+  cands.forEach((fo) => { fo._rcp = reweight(fo, pinName, lineState, aliasState); });
+  cands.sort((a, b) => b._rcp - a._rcp);
+  cands = cands.slice(0, RCP_CANDS);
+
+  const top = cands[0] || null;
+  const h1 = top ? top._rcp : 0;
+  const h2 = cands[1] ? cands[1]._rcp : 0;
+  const conf = h1 > 0 ? clamp01((h1 - h2) / h1) * (aliasHit ? 1 : 0.7) : 0;
+  const review = !top || (!aliasHit && conf < 0.25) || weak || !!(top && top.br);
+
+  return {
+    food: top ? top.name : null,
+    cands: cands.map((fo) => fo.name),
+    conf,
+    review,
+    weak,
+  };
+}
+
 // ---- exports --------------------------------------------------------------------------
 
 const OD = root.OD || {};
@@ -456,6 +587,7 @@ OD.mkFoods = mkFoods;
 OD.rankFoods = rankFoods;
 OD.parseRecipe = parseRecipe;
 OD.recipeServings = recipeServings;
+OD.matchLine = matchLine;
 root.OD = OD;
 
 if (typeof module !== "undefined" && module.exports) module.exports = OD;
