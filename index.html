@@ -4562,6 +4562,9 @@ class Component extends DCLogic {
     const totExpand = { overflow: "hidden",
       height: totOpen ? totViz.vizH : "0px", opacity: totOpen ? 1 : 0,
       transition: "height 520ms cubic-bezier(.22,1,.36,1), opacity 320ms ease" };
+    // The phone's column of dialog buttons; the bindings below order their children into it.
+    const RCP_ACTS_M = { flex: "none", display: "flex", flexDirection: "column", alignItems: "stretch",
+      gap: ".55rem", paddingTop: ".2rem" };
     // The recipe summed the same way: every matched row's grams times its food per 100 g,
     // re-expressed per 100 g of the whole, so the drawing that explains one food explains
     // the recipe. Unmatched and seasoning rows carry nothing and add nothing.
@@ -5358,7 +5361,7 @@ class Component extends DCLogic {
       // On a phone the drawing steps out past the step's padding to the dialog's own edge:
       // it was drawn for the width of the screen, and the plate gives it that; a table
       // 46px narrower puts the expanders on top of the words.
-      rcpVizWrap: Object.assign({ flex: "none", width: "100%", background: "var(--sel)", boxSizing: "border-box" },
+      rcpVizWrap: Object.assign({ flex: "none", width: "100%", boxSizing: "border-box" },
         s.narrow ? null : { maxWidth: "27rem" }),
       rcpVizBox: { position: "relative", display: "flex", alignItems: "flex-start",
         gap: ".65rem", padding: "8px .2rem 10px .25rem",
@@ -5452,14 +5455,19 @@ class Component extends DCLogic {
       // Step 2: one block per ingredient, its raw text over three candidate chips.
       rcpMatchBody: { flex: 1, minHeight: 0, overflowY: "auto",
         display: "flex", flexDirection: "column", gap: "1rem", paddingRight: ".2rem" },
-      rcpPasteActs: { flex: "none", display: "flex", alignItems: "center",
-        justifyContent: "space-between" },
-      rcpGhostBtn: { background: "transparent", border: 0, color: "var(--ink-2)",
+      // A phone stacks a step's buttons in one column at one width, in the order they
+      // matter: the step's own action on top, a second action under it, and the way back
+      // last, as a line of text. A desktop has the width for one row, the way back on the
+      // left and the actions on the right.
+      rcpPasteActs: s.narrow ? RCP_ACTS_M
+        : { flex: "none", display: "flex", alignItems: "center", justifyContent: "space-between" },
+      rcpGhostBtn: Object.assign({ background: "transparent", border: 0, color: "var(--ink-2)",
         fontFamily: "var(--font-2)", fontSize: ".85rem", letterSpacing: ".1em", cursor: "pointer" },
-      rcpPrimaryBtn: { background: "var(--cyan)", border: 0, color: "var(--bg)",
+        s.narrow ? { order: 3, width: "100%", padding: ".7rem 0 .2rem", textAlign: "center" } : null),
+      rcpPrimaryBtn: Object.assign({ background: "var(--cyan)", border: 0, color: "var(--bg)",
         fontFamily: "var(--font-2)", fontSize: ".9rem", letterSpacing: ".1em", cursor: "pointer",
-        padding: s.narrow ? ".75rem 1rem" : ".75rem 1.5rem", whiteSpace: "nowrap",
-        flex: s.narrow ? "1 1 auto" : "none", marginLeft: s.narrow ? ".6rem" : 0 },
+        padding: s.narrow ? ".85rem 1rem" : ".75rem 1.5rem", whiteSpace: "nowrap" },
+        s.narrow ? { order: 1, width: "100%" } : null),
       rcpVerifyWrap: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column",
         padding: s.narrow ? ".85rem" : "1.25rem", gap: ".85rem" },
       // Head and body share one flush container, so the first row sits directly under the
@@ -5481,23 +5489,21 @@ class Component extends DCLogic {
       rcpThServ: { textAlign: "right", padding: "0 .6rem .4rem .7rem" },
       rcpThAct: { borderLeft: INNER },
       rcpTableBody: { flex: 1, minHeight: 0, overflowY: "auto" },
-      rcpVerifyActs: { flex: "none", display: "flex", alignItems: "center",
-        justifyContent: "space-between", gap: ".6rem", paddingTop: ".2rem" },
+      rcpVerifyActs: s.narrow ? RCP_ACTS_M
+        : { flex: "none", display: "flex", alignItems: "center", justifyContent: "space-between", gap: ".6rem", paddingTop: ".2rem" },
       // The last step's three buttons: on a desktop one row, BACK left and the rest right;
       // on a phone BACK shares a row with ADD and REPLACE takes a row of its own, since the
       // three do not fit on one line and a wrapped button is not a button anyone trusts.
-      rcpFinalActs: s.narrow
-        ? { flex: "none", display: "grid", gridTemplateColumns: "auto minmax(0,1fr)",
-            alignItems: "center", gap: ".6rem", padding: ".2rem .85rem 0" }
+      rcpFinalActs: s.narrow ? Object.assign({}, RCP_ACTS_M, { padding: ".2rem .85rem 0" })
         : { flex: "none", display: "flex", alignItems: "center", gap: ".6rem", paddingTop: ".2rem" },
-      rcpAddBtn: { background: "rgba(var(--cyan-rgb),.16)", border: "1px solid var(--cyan)",
+      rcpAddBtn: Object.assign({ background: "rgba(var(--cyan-rgb),.16)", border: "1px solid var(--cyan)",
         color: "var(--cyan)", fontFamily: "var(--font-2)", fontSize: ".88rem", letterSpacing: ".08em",
-        cursor: "pointer", padding: ".75rem 1.15rem", whiteSpace: "nowrap",
-        marginLeft: s.narrow ? 0 : "auto" },
-      rcpReplaceBtn: { background: "transparent", border: "1px solid var(--ghost)",
+        cursor: "pointer", padding: s.narrow ? ".85rem 1.15rem" : ".75rem 1.15rem", whiteSpace: "nowrap" },
+        s.narrow ? { order: 1, width: "100%" } : { marginLeft: "auto" }),
+      rcpReplaceBtn: Object.assign({ background: "transparent", border: "1px solid var(--ghost)",
         color: "var(--ink-2)", fontFamily: "var(--font-2)", fontSize: ".88rem", letterSpacing: ".08em",
-        cursor: "pointer", padding: ".75rem 1.15rem", whiteSpace: "nowrap",
-        gridColumn: s.narrow ? "1 / -1" : "auto" },
+        cursor: "pointer", padding: s.narrow ? ".85rem 1.15rem" : ".75rem 1.15rem", whiteSpace: "nowrap" },
+        s.narrow ? { order: 2, width: "100%" } : null),
       // Step 1: the live parse of the textarea — ingredient, measure, amount, unmatched.
       rParsedRows: (() => {
         if (s.rcpStep === "match" || s.rcpStep === "amount") return [];
