@@ -764,11 +764,25 @@ option{background:var(--panel);color:var(--body)}
         </div>
         <div style="{{ rcpTableBody }}">
           <sc-for list="{{ rcpRows }}" as="r" key="{{ r.key }}" hint-placeholder-count="6">
+            <div style="{{ r.wrapStyle }}">
             <div style="{{ r.rowStyle }}">
-              <span style="{{ r.nameCell }}">{{ r.matched }}</span>
+              <button onClick="{{ r.openEdit }}" style="{{ r.nameCell }}" style-hover="color:var(--cyan)"><span style="{{ r.nameText }}">{{ r.matched }}</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="{{ r.chevron }}"><path d="M6 9l6 6 6-6"></path></svg></button>
               <span style="{{ r.gramsCell }}"><input value="{{ r.grams }}" onChange="{{ r.onGrams }}" onClick="{{ stopProp }}" inputmode="numeric" style="{{ r.gramsInput }}"></span>
               <span style="{{ r.servCell }}"><span style="{{ r.servTypeS }}">{{ r.servType }}</span><input value="{{ r.servings }}" onChange="{{ r.onServings }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ r.servInput }}"></span>
               <span style="{{ r.actCell }}"><button onClick="{{ r.dropRow }}" style="{{ r.dropBtn }}" style-hover="color:var(--fat-bright)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:block"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></span>
+            </div>
+            <sc-if value="{{ r.editing }}" hint-placeholder-val="{{ false }}">
+              <div style="{{ r.editPanel }}">
+                <span style="{{ r.editHead }}">MATCH FOR “{{ r.written }}”</span>
+                <input value="{{ rcpEditQ }}" onChange="{{ onRowEditQ }}" onClick="{{ stopProp }}" placeholder="{{ rcpEditPlaceholder }}" style="{{ r.editInput }}">
+                <div style="{{ r.altList }}">
+                  <sc-for list="{{ r.alts }}" as="a" hint-placeholder-count="4">
+                    <button onClick="{{ a.onClick }}" style="{{ a.style }}" style-hover="background:rgba(var(--cyan-rgb),.14);color:var(--cyan)">{{ a.name }}</button>
+                  </sc-for>
+                  <sc-if value="{{ r.noAlts }}" hint-placeholder-val="{{ false }}"><span style="{{ r.noneStyle }}">No matches — try another word.</span></sc-if>
+                </div>
+              </div>
+            </sc-if>
             </div>
           </sc-for>
         </div>
@@ -2394,27 +2408,35 @@ class Component extends DCLogic {
       () => this.setState(Object.assign({ rcpOpen: false, rcpClosing: false }, patch || {})),
       190);
   }
-  onRecipeText(e) { this.setState({ rText: e.target.value }); }
+  onRecipeText(e) { this._rcpTypeFull = null; this.setState({ rText: e.target.value }); }
   // Type the example in rather than dropping it whole, so it reads as a recipe being
-  // entered. Ensures the caret is in the box and stops any run already going.
+  // entered. Each setState re-renders the whole background table, so this types in short
+  // runs rather than one character at a time — one-per-char is too many re-renders and the
+  // typing crawls. _rcpTypeFull lets INTERPRET finish the example if it is clicked early.
   useRecipeExample() {
     clearInterval(this._rcpTypeT);
     try { document.querySelector("[data-compose]").focus(); } catch (e) {}
     const full = RECIPE_EXAMPLE;
+    this._rcpTypeFull = full;
     let i = 0;
     this.setState({ rText: "" });
     this._rcpTypeT = setInterval(() => {
-      i += 1;
+      i = Math.min(full.length, i + 2);
       this.setState({ rText: full.slice(0, i) });
-      if (i >= full.length) clearInterval(this._rcpTypeT);
-    }, 14);
+      if (i >= full.length) { clearInterval(this._rcpTypeT); this._rcpTypeT = null; this._rcpTypeFull = null; }
+    }, 16);
   }
   clearRecipeText() { this.setState({ rText: "" }); }
   // parse -> match -> grams, once, on interpret — not per keystroke, since matching a whole
   // recipe against the library is not the per-character-cheap job the plain word search is.
   interpretRecipe() {
-    const text = (this.state.rText || "").trim();
+    // If the example is still typing, finish it so INTERPRET reads the whole recipe, not
+    // the few lines that have landed so far.
+    if (this._rcpTypeT) { clearInterval(this._rcpTypeT); this._rcpTypeT = null; }
+    const text = ((this._rcpTypeFull || this.state.rText) || "").trim();
+    this._rcpTypeFull = null;
     if (!text) return;
+    if (text !== (this.state.rText || "")) this.setState({ rText: text });
     this.loadRecipeData().then(() => {
       const foods = this.foods();
       const { aliases, units } = this._rcpData;
@@ -2441,6 +2463,25 @@ class Component extends DCLogic {
     const n = Math.max(0, Math.min(RCP_MAX, Math.round(+val || 0)));
     const rows = (this.state.recipe || []).map(r => r.i === i ? Object.assign({}, r, { grams: n }) : r);
     this.setState({ recipe: rows });
+  }
+  // Correcting a wrong match, in place: a row's name opens a panel of the nearest other
+  // matches (already computed) plus a field to search the whole library. Picking one
+  // reassigns the row and recomputes its grams for the line's own quantity.
+  toggleRowEdit(i) {
+    this.setState(st => ({ rcpEditRow: st.rcpEditRow === i ? null : i, rcpEditQ: "" }));
+  }
+  onRowEditQ(e) { this.setState({ rcpEditQ: e.target.value }); }
+  assignRowFood(i, name) {
+    const foods = this.foods();
+    const units = this._rcpData && this._rcpData.units;
+    const fo = foods.find(f => f.name === name) || null;
+    const rows = (this.state.recipe || []).map(r => {
+      if (r.i !== i) return r;
+      const g = (fo && units) ? OD.gramsFor(r, fo, units) : { g: r.grams, how: r.gramsHow };
+      const grams = Math.round(g.how === "none" && !(r.flags && r.flags.taste) ? 100 : (g.g || r.grams || 0));
+      return Object.assign({}, r, { food: name, grams, gramsHow: g.how, review: false });
+    });
+    this.setState({ recipe: rows, rcpEditRow: null, rcpEditQ: "" });
   }
   // Servings and grams are two readings of the same amount: editing servings sets the
   // grams off the food's own per-serving weight (or ounces, when it has no serving).
@@ -2906,7 +2947,10 @@ class Component extends DCLogic {
     // one of them into styles per keystroke is what makes the table feel dead.
     // An opened pool narrows the whole list to itself and its members: one family, and
     // nothing else to read past. A query then searches inside it rather than out of it.
-    let src = this.foods();
+    // While the recipe dialog is open it covers the table, so there is no point paying to
+    // build thousands of row objects behind the scrim — that cost is what made typing into
+    // the dialog crawl. Render an empty list until the dialog closes.
+    let src = s.rcpOpen ? [] : this.foods();
     if (s.poolScope) src = src.filter(fo =>
       fo.name === s.poolScope || (fo.ofPool && fo.ofPool.name === s.poolScope));
     const q = s.q.trim().toLowerCase();
@@ -5093,6 +5137,9 @@ class Component extends DCLogic {
       useExampleClick: () => this.useRecipeExample(),
       interpretClick: () => this.interpretRecipe(),
       backToPasteClick: () => this.backToPaste(),
+      onRowEditQ: e => this.onRowEditQ(e),
+      rcpEditQ: s.rcpEditQ || "",
+      rcpEditPlaceholder: "Search all foods for a better match…",
       addToSumClick: () => this.addRecipeToSum(false),
       replaceSumClick: () => this.addRecipeToSum(true),
       rcpOpen: !!s.rcpOpen,
@@ -5212,23 +5259,60 @@ class Component extends DCLogic {
           // when USDA gave it no picturable one.
           const denom = fo && fo.pg ? fo.pg : 28.35;
           const servType = fo ? (fo.pg ? (fo.pn || "serving").toLowerCase() : "oz") : "";
+          // Correction panel for this row: nearest other matches, or a live search of the
+          // whole library once the user types. Built only for the open row.
+          const editing = r.i === s.rcpEditRow;
+          let alts = [];
+          if (editing) {
+            const q = (s.rcpEditQ || "").trim().toLowerCase();
+            let names;
+            if (q) {
+              const ranked = OD.rankFoods(foods.slice(), q);
+              ranked.sort((a, b) => (b._hit - a._hit) || (a.name.length - b.name.length));
+              names = ranked.slice(0, 12).map(f => f.name);
+            } else {
+              names = (r.cands || []).filter(n => n !== r.food).slice(0, 8);
+            }
+            alts = names.map(name => ({
+              name,
+              onClick: () => this.assignRowFood(r.i, name),
+              style: { display: "block", width: "100%", textAlign: "left", padding: ".45rem .6rem",
+                background: "transparent", border: 0, cursor: "pointer",
+                fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".95rem", color: "var(--body)",
+                borderBottom: "1px solid var(--line)", whiteSpace: "nowrap", overflow: "hidden",
+                textOverflow: "ellipsis" }
+            }));
+          }
           return {
             key: "rcp" + r.i,
             matched: isZero ? "Water / seasoning" : (fo ? fo.name : (r.ing || "no match")),
+            written: r.ing || "",
+            editing,
+            alts,
+            noAlts: editing && alts.length === 0,
+            openEdit: () => { if (!isZero) this.toggleRowEdit(r.i); },
             grams: String(grams),
             servings: fo ? g1(grams / denom) : "—",
             servType,
             onGrams: e => this.setRecipeGrams(r.i, e.target.value),
             onServings: e => this.setRecipeServings(r.i, e.target.value),
             dropRow: () => this.dropRecipeRow(r.i),
-            // No coloured left rule — it read as ambiguous. Just the row separator.
+            wrapStyle: { borderBottom: "1px solid var(--line)",
+              background: editing ? "var(--tray)" : "transparent" },
+            // No coloured left rule — it read as ambiguous. Just the row separator (now on
+            // the wrapper, so the edit panel sits inside the same bordered block).
             rowStyle: { display: "grid", gridTemplateColumns: rcpCols, alignItems: "stretch",
-              minHeight: "2.6rem", borderBottom: "1px solid var(--line)" },
-            nameCell: { display: "flex", alignItems: "center", minWidth: 0, paddingLeft: ".55rem",
+              minHeight: "2.6rem" },
+            // The name is a button: click it to correct the match. A chevron marks it.
+            nameCell: { display: "flex", alignItems: "center", gap: ".35rem", minWidth: 0,
+              paddingLeft: ".55rem", background: "transparent", border: 0, textAlign: "left",
+              cursor: isZero ? "default" : "pointer",
               fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.02rem",
-              color: isGhost ? "var(--fat-bright)" : "var(--body)",
-              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
-            // Grams: "g" prefix, box flush right. No vertical rule.
+              color: isGhost ? "var(--fat-bright)" : "var(--body)" },
+            nameText: { minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
+            chevron: { flex: "none", display: isZero ? "none" : "block", color: "var(--dim-3)",
+              transform: editing ? "rotate(180deg)" : "none", transition: "transform 160ms ease" },
+            // Grams: box flush right. No vertical rule.
             gramsCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".3rem",
               paddingRight: ".6rem" },
             gramsInput: Object.assign({ width: "3.4rem" }, numInput),
@@ -5243,7 +5327,17 @@ class Component extends DCLogic {
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
             actCell: { display: "flex", alignItems: "center", justifyContent: "center", borderLeft: INNER },
             dropBtn: { display: "flex", background: "transparent", border: 0, color: "var(--ink-2)",
-              cursor: "pointer", padding: ".2rem" }
+              cursor: "pointer", padding: ".2rem" },
+            editPanel: { padding: ".2rem .55rem .7rem" },
+            editHead: { display: "block", padding: ".3rem .05rem .5rem", fontFamily: "var(--font-2)",
+              fontSize: ".72rem", letterSpacing: ".06em", color: "var(--muted)" },
+            editInput: { width: "100%", boxSizing: "border-box", background: "var(--bg)",
+              border: "1px solid var(--ghost)", outline: "none", padding: ".5rem .6rem", marginBottom: ".4rem",
+              fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".95rem", color: "var(--text)" },
+            altList: { maxHeight: "12rem", overflowY: "auto", border: "1px solid var(--line)",
+              background: "var(--panel-2)" },
+            noneStyle: { padding: ".55rem .6rem", fontFamily: "var(--font-1)", fontWeight: 300,
+              fontSize: ".9rem", color: "var(--muted)" }
           };
         });
       })(),
