@@ -861,9 +861,9 @@ option{background:var(--panel);color:var(--body)}
         <span style="{{ rcpSumLabel }}">{{ rcpLbl4 }}</span>
         <div style="{{ rcpSumScroll }}">
           <div style="{{ rcpSumHead }}">
-            <span style="{{ rcpSumKcal }}">{{ rKcal }}<span style="{{ unitSuffix }}">kcal</span></span>
-            <span style="{{ rcpSumQty }}">{{ rQty }}<span style="{{ sizeSuffix }}">g</span></span>
-            <sc-if value="{{ rServesOn }}" hint-placeholder-val="{{ false }}"><span style="{{ rcpSumServes }}">{{ rServesText }}</span></sc-if>
+            <sc-for list="{{ rStats }}" as="st" hint-placeholder-count="4">
+              <span style="{{ rcpStat }}"><span style="{{ st.vS }}">{{ st.v }}<span style="{{ unitSuffix }}">{{ st.u }}</span></span><span style="{{ rcpStatLbl }}">{{ st.l }}</span></span>
+            </sc-for>
           </div>
           <div onClick="{{ rcpVizTap }}" style="{{ rcpVizWrap }}">
         <span style="{{ rcpVizBox }}">
@@ -5336,9 +5336,23 @@ class Component extends DCLogic {
       // The summary step: the recipe's figures, then the drawing. On a desktop the drawing
       // keeps the phone's size and sits centred — it was drawn for a phone and reads best
       // at that size; a wider one would be a bigger version of the same thing.
-      rQty: String(rQty), rKcal: String(rKcal),
-      rServesOn: rServings > 1 && rQty > 0,
-      rServesText: "SERVES " + rServings + " · " + Math.round(rKcal / (rServings || 1)) + " KCAL EACH",
+      // The figures as a strip of stats, one column each, the value over its label on one
+      // baseline: the recipe's calories, then per serving where the text said how many it
+      // serves, its weight, and the servings. The same structure in every column is what
+      // makes the row read as one thing.
+      rStats: [
+        { v: String(rKcal), u: "kcal", l: "RECIPE", hi: true },
+        rServings > 1 ? { v: String(Math.round(rKcal / rServings)), u: "kcal", l: "PER SERVING" } : null,
+        { v: String(rQty), u: "g", l: "WEIGHT" },
+        rServings > 1 ? { v: String(rServings), u: "", l: "SERVES" } : null,
+      ].filter(Boolean).map(st => Object.assign(st, {
+        vS: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: s.narrow ? "1.4rem" : "1.45rem",
+          lineHeight: 1, color: st.hi ? "var(--cyan)" : "var(--body)",
+          fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }
+      })),
+      rcpStat: { flex: "none", display: "flex", flexDirection: "column", gap: ".35rem", minWidth: 0 },
+      rcpStatLbl: { fontFamily: "var(--font-2)", fontSize: ".64rem", letterSpacing: ".12em",
+        color: "var(--muted)", whiteSpace: "nowrap" },
       rcpViz, rcpVizTap,
       // The drawing lays itself out for the width of a phone's column, in pixels — that is
       // what the plate gives it — so on a phone this step's padding sits on the words and
@@ -5349,19 +5363,16 @@ class Component extends DCLogic {
         lineHeight: 1.55, color: "var(--body)", textWrap: "pretty", padding: s.narrow ? "0 .85rem" : 0 },
       rcpSumScroll: { flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column",
         alignItems: s.narrow ? "stretch" : "center", gap: ".2rem" },
-      rcpSumHead: { flex: "none", display: "flex", alignItems: "baseline", flexWrap: "wrap",
-        gap: ".35rem 1rem", padding: s.narrow ? ".1rem 1.1rem .3rem" : ".2rem 0 .5rem",
+      // Each column is as wide as its own figure and the row spreads them out, so a wide
+      // figure never runs into its neighbour and a narrow one never sits in a field.
+      rcpSumHead: { flex: "none", display: "flex", justifyContent: "space-between", columnGap: ".8rem",
+        padding: s.narrow ? ".35rem 1.1rem .95rem" : ".3rem .2rem .9rem",
+        borderBottom: "1px solid var(--line)",
         width: "100%", maxWidth: s.narrow ? "none" : "27rem", boxSizing: "border-box" },
-      rcpSumKcal: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.9rem", color: "var(--cyan)",
-        fontVariantNumeric: "tabular-nums", lineHeight: 1 },
-      rcpSumQty: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.35rem", color: "var(--body)",
-        fontVariantNumeric: "tabular-nums", lineHeight: 1 },
-      rcpSumServes: { marginLeft: "auto", fontFamily: "var(--font-2)", fontSize: ".78rem", letterSpacing: ".1em",
-        color: "var(--muted)", whiteSpace: "nowrap" },
       // On a phone the drawing steps out past the step's padding to the dialog's own edge:
       // it was drawn for the width of the screen, and the plate gives it that; a table
       // 46px narrower puts the expanders on top of the words.
-      rcpVizWrap: Object.assign({ flex: "none", width: "100%", boxSizing: "border-box" },
+      rcpVizWrap: Object.assign({ flex: "none", width: "100%", boxSizing: "border-box", paddingTop: ".5rem" },
         s.narrow ? null : { maxWidth: "27rem" }),
       rcpVizBox: { position: "relative", display: "flex", alignItems: "flex-start",
         gap: ".65rem", padding: "8px .2rem 10px .25rem",
