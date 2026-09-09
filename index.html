@@ -5365,14 +5365,16 @@ class Component extends DCLogic {
         alignItems: s.narrow ? "stretch" : "center", gap: ".2rem" },
       // Each column is as wide as its own figure and the row spreads them out, so a wide
       // figure never runs into its neighbour and a narrow one never sits in a field.
+      // Room above the strip parts it from the step's sentence; nothing is drawn under it —
+      // the drawing that follows is its own shape and needs no rule to be told from the
+      // figures.
       rcpSumHead: { flex: "none", display: "flex", justifyContent: "space-between", columnGap: ".8rem",
-        padding: s.narrow ? ".35rem 1.1rem .95rem" : ".3rem .2rem .9rem",
-        borderBottom: "1px solid var(--line)",
+        padding: s.narrow ? "1.1rem 1.1rem .7rem" : "1rem .2rem .6rem",
         width: "100%", maxWidth: s.narrow ? "none" : "27rem", boxSizing: "border-box" },
       // On a phone the drawing steps out past the step's padding to the dialog's own edge:
       // it was drawn for the width of the screen, and the plate gives it that; a table
       // 46px narrower puts the expanders on top of the words.
-      rcpVizWrap: Object.assign({ flex: "none", width: "100%", boxSizing: "border-box", paddingTop: ".5rem" },
+      rcpVizWrap: Object.assign({ flex: "none", width: "100%", boxSizing: "border-box", paddingTop: ".25rem" },
         s.narrow ? null : { maxWidth: "27rem" }),
       rcpVizBox: { position: "relative", display: "flex", alignItems: "flex-start",
         gap: ".65rem", padding: "8px .2rem 10px .25rem",
