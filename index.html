@@ -850,8 +850,65 @@ option{background:var(--panel);color:var(--body)}
           </sc-for>
         </div>
         </div>
-        <div style="{{ rcpFinalActs }}">
+        <div style="{{ rcpVerifyActs }}">
           <button onClick="{{ backToMatchClick }}" style="{{ rcpGhostBtn }}" style-hover="color:var(--cyan)">← BACK</button>
+          <button onClick="{{ toSummaryClick }}" style="{{ rcpPrimaryBtn }}" style-hover="background:var(--cyan-bright)">{{ amountNextLabel }}</button>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ rcpStep4 }}" hint-placeholder-val="{{ false }}">
+      <div style="{{ rcpSumWrap }}">
+        <span style="{{ rcpSumLabel }}">{{ rcpLbl4 }}</span>
+        <div style="{{ rcpSumScroll }}">
+          <div style="{{ rcpSumHead }}">
+            <span style="{{ rcpSumKcal }}">{{ rKcal }}<span style="{{ unitSuffix }}">kcal</span></span>
+            <span style="{{ rcpSumQty }}">{{ rQty }}<span style="{{ sizeSuffix }}">g</span></span>
+            <sc-if value="{{ rServesOn }}" hint-placeholder-val="{{ false }}"><span style="{{ rcpSumServes }}">{{ rServesText }}</span></sc-if>
+          </div>
+          <div onClick="{{ rcpVizTap }}" style="{{ rcpVizWrap }}">
+        <span style="{{ rcpVizBox }}">
+              <span style="{{ rcpViz.bF }}"></span>
+              <span style="{{ rcpViz.bC }}"></span>
+              <span style="{{ vLeft }}">
+              <span style="{{ vRing }}">
+                <svg width="164" height="164" viewBox="0 0 164 164" style="{{ vSvg }}">
+                  <path d="{{ rcpViz.s0.d }}" style="{{ rcpViz.s0.st }}" fill="none" stroke-width="21"></path>
+                  <path d="{{ rcpViz.s1.d }}" style="{{ rcpViz.s1.st }}" fill="none" stroke-width="21"></path>
+                  <path d="{{ rcpViz.s2.d }}" style="{{ rcpViz.s2.st }}" fill="none" stroke-width="21"></path>
+                  <path d="{{ rcpViz.s3.d }}" style="{{ rcpViz.s3.st }}" fill="none" stroke-width="21"></path>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ rcpViz.o0.st }}" fill="none" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ rcpViz.o1.st }}" fill="none" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ rcpViz.o2.st }}" fill="none" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ rcpViz.f0.st }}" fill="none" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ rcpViz.f1.st }}" fill="none" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ rcpViz.f2.st }}" fill="none" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ rcpViz.f3.st }}" fill="none" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ rcpViz.f4.st }}" fill="none" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ rcpViz.c0.st }}" fill="none" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ rcpViz.c1.st }}" fill="none" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ rcpViz.c2.st }}" fill="none" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ rcpViz.swF }}" fill="none" stroke-width="21"></circle>
+                  <circle cx="82" cy="82" r="70" pathLength="100" style="{{ rcpViz.swC }}" fill="none" stroke-width="21"></circle>
+                </svg>
+                <span style="{{ rcpViz.holeSplitS }}"><span style="{{ rcpViz.holeAS }}">{{ rcpViz.holeA }}</span><span style="{{ vHoleSep }}">/</span><span style="{{ rcpViz.holeBS }}">{{ rcpViz.holeB }}</span></span><span style="{{ rcpViz.holeZFS }}">{{ rcpViz.holeZF }}<span style="{{ vHoleUnit }}">{{ vzUnit }}</span></span><span style="{{ rcpViz.holeZCS }}">{{ rcpViz.holeZC }}<span style="{{ vHoleUnit }}">{{ vzUnit }}</span></span>
+              </span>
+
+              </span>
+              <span style="{{ vTable }}">
+                <sc-for list="{{ rcpViz.rows }}" as="vr" hint-placeholder-count="7">
+                  <span onClick="{{ vr.tap }}" style="{{ vr.row }}">
+                    <span style="{{ vr.dot }}"></span>
+                    <span style="{{ vr.tagS }}">{{ vr.tag }}</span>
+                    <span onClick="{{ vr.chevTap }}" style="{{ vr.chevBox }}"><span style="{{ vr.chev }}"></span></span>
+                    <span style="{{ vr.valS }}"><span style="{{ vr.valIn }}">{{ vr.val }}<span style="{{ unitSuffix }}">{{ vzUnit }}</span></span></span>
+                  </span>
+                </sc-for>
+              </span>
+            </span>
+      </div>
+        </div>
+        <div style="{{ rcpFinalActs }}">
+          <button onClick="{{ backToAmountClick }}" style="{{ rcpGhostBtn }}" style-hover="color:var(--cyan)">← BACK</button>
           <button onClick="{{ addToSumClick }}" style="{{ rcpAddBtn }}" style-hover="background:rgba(var(--cyan-rgb),.26)">{{ rcpAddLabel }}</button>
           <sc-if value="{{ rcpHasSum }}" hint-placeholder-val="{{ false }}"><button onClick="{{ replaceSumClick }}" style="{{ rcpReplaceBtn }}" style-hover="border-color:var(--cyan);color:var(--cyan)">{{ rcpReplaceLabel }}</button></sc-if>
         </div>
@@ -2548,6 +2605,9 @@ class Component extends DCLogic {
     this.setState({ recipe: rows, rcpStep: "amount" });
   }
   backToParse() { this.setState({ rcpStep: "parse" }); }
+  // Step 3 -> 4: the recipe as one food. The drawing's zoom and pick start closed.
+  goToSummary() { this.setState({ rcpStep: "summary", rVizMacro: null, rVizPick: null, rVizWind: false }); }
+  backToAmount() { this.setState({ rcpStep: "amount" }); }
   backFromMatch() { this.setState({ rcpStep: this.state.narrow ? "read" : "parse" }); }
   backToMatch() { this.setState({ rcpStep: "match" }); }
   setRecipeGrams(i, val) {
@@ -4502,6 +4562,40 @@ class Component extends DCLogic {
     const totExpand = { overflow: "hidden",
       height: totOpen ? totViz.vizH : "0px", opacity: totOpen ? 1 : 0,
       transition: "height 520ms cubic-bezier(.22,1,.36,1), opacity 320ms ease" };
+    // The recipe summed the same way: every matched row's grams times its food per 100 g,
+    // re-expressed per 100 g of the whole, so the drawing that explains one food explains
+    // the recipe. Unmatched and seasoning rows carry nothing and add nothing.
+    const rcpRowsFo = (s.recipe || []).map(r => {
+      const fo = r.food ? this.foods().find(f => f.name === r.food) : null;
+      return fo ? { fo, g: Math.round(r.grams || 0) } : null;
+    }).filter(Boolean);
+    const rQty = rcpRowsFo.reduce((a, x) => a + x.g, 0);
+    const rAgg = k => rcpRowsFo.reduce((a, x) => a + (x.fo[k] || 0) * x.g / 100, 0);
+    const rKcal = rcpRowsFo.reduce((a, x) => a + Math.round(kcalOf(x.fo) * x.g / 100), 0);
+    const foRcp = rQty > 0 ? { name: "__RCP__",
+      p: rAgg("p") / rQty * 100, c: rAgg("c") / rQty * 100, f: rAgg("f") / rQty * 100,
+      wa: rAgg("wa") / rQty * 100, ah: rAgg("ah") / rQty * 100, al: rAgg("al") / rQty * 100,
+      sg: rAgg("sg") / rQty * 100, fb: rAgg("fb") / rQty * 100, sf: rAgg("sf") / rQty * 100,
+      mo: rAgg("mo") / rQty * 100, po: rAgg("po") / rQty * 100, tr: rAgg("tr") / rQty * 100 } : null;
+    const rcpSumOn = s.rcpOpen && s.rcpStep === "summary" && !!foRcp;
+    const rcpViz = rcpSumOn ? vizFor(foRcp, rQty, s.rVizMacro || null,
+      m => this.setState({ rVizMacro: m, rVizPick: null }),
+      s.rVizPick,
+      (p2, coll) => this.setState(st => coll
+        ? { rVizMacro: null, rVizPick: p2, rVizWind: false }
+        : { rVizPick: st.rVizPick === p2 ? null : p2 }),
+      s.rVizWind) : NO_VIZ;
+    const rcpVizTap = () => {
+      if (s.rVizPick) this.setState({ rVizPick: null });
+      else if (s.rVizMacro) {
+        this.setState({ rVizMacro: null, rVizWind: true });
+        clearTimeout(this._rVizWindT);
+        this._rVizWindT = setTimeout(() => this.setState({ rVizWind: false }), 700);
+      }
+    };
+    // "Serves 2" rides on a heading line, and headings do not reach the match step — so
+    // the servings are read off the text itself.
+    const rServings = OD.recipeServings ? OD.recipeServings(OD.parseRecipe(s.rText || "")) : 0;
     const totVizTap = () => {
       if (s.vizPick) this.setState({ vizPick: null });
       else if (totZm) {
@@ -5214,10 +5308,11 @@ class Component extends DCLogic {
       addToSumClick: () => this.addRecipeToSum(false),
       replaceSumClick: () => this.addRecipeToSum(true),
       rcpOpen: !!s.rcpOpen,
-      rcpStep1: s.rcpStep !== "read" && s.rcpStep !== "match" && s.rcpStep !== "amount",
+      rcpStep1: s.rcpStep !== "read" && s.rcpStep !== "match" && s.rcpStep !== "amount" && s.rcpStep !== "summary",
       rcpStepRead: s.rcpStep === "read",
       rcpStep2: s.rcpStep === "match",
       rcpStep3: s.rcpStep === "amount",
+      rcpStep4: s.rcpStep === "summary",
       // Desktop shows the parse beside the textarea, so it is three steps; a phone has no
       // room beside anything, so the parse is a step and it is four. The numbers say which.
       rcpSplitOn: !s.narrow,
@@ -5225,12 +5320,49 @@ class Component extends DCLogic {
         : "1 · Paste your recipe. Each line is read into an ingredient, its measure and its amount.",
       rcpLblRead: "2 · Each line is read into an ingredient, its measure and its amount. Check it reads right.",
       rcpLbl2: (s.narrow ? "3" : "2") + " · Choose the library food for each ingredient. The closest match is picked — tap another to change it.",
-      rcpLbl3: (s.narrow ? "4" : "3") + " · Set how much of each food, then add it to your food summary.",
+      rcpLbl3: (s.narrow ? "4" : "3") + " · Set how much of each food.",
+      rcpLbl4: (s.narrow ? "5" : "4") + " · The whole recipe as one food. Add it to your food summary, or replace what is there.",
+      amountNextLabel: s.narrow ? "SUMMARY →" : "NEXT · SUMMARY →",
+      toSummaryClick: () => this.goToSummary(),
+      backToAmountClick: () => this.backToAmount(),
       step1NextClick: s.narrow ? () => this.goToRead() : () => this.goToMatch(),
       step1NextLabel: s.narrow ? "NEXT →" : "NEXT · MATCH FOODS →",
       readNextLabel: "MATCH FOODS →",
       matchNextLabel: s.narrow ? "QUANTITIES →" : "NEXT · QUANTITIES →",
       backFromMatchClick: () => this.backFromMatch(),
+      // The summary step: the recipe's figures, then the drawing. On a desktop the drawing
+      // keeps the phone's size and sits centred — it was drawn for a phone and reads best
+      // at that size; a wider one would be a bigger version of the same thing.
+      rQty: String(rQty), rKcal: String(rKcal),
+      rServesOn: rServings > 1 && rQty > 0,
+      rServesText: "SERVES " + rServings + " · " + Math.round(rKcal / (rServings || 1)) + " KCAL EACH",
+      rcpViz, rcpVizTap,
+      // The drawing lays itself out for the width of a phone's column, in pixels — that is
+      // what the plate gives it — so on a phone this step's padding sits on the words and
+      // the drawing has the sheet from edge to edge.
+      rcpSumWrap: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column",
+        padding: s.narrow ? ".85rem 0" : "1.25rem", gap: ".85rem" },
+      rcpSumLabel: { flex: "none", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.05rem",
+        lineHeight: 1.55, color: "var(--body)", textWrap: "pretty", padding: s.narrow ? "0 .85rem" : 0 },
+      rcpSumScroll: { flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column",
+        alignItems: s.narrow ? "stretch" : "center", gap: ".2rem" },
+      rcpSumHead: { flex: "none", display: "flex", alignItems: "baseline", flexWrap: "wrap",
+        gap: ".35rem 1rem", padding: s.narrow ? ".1rem 1.1rem .3rem" : ".2rem 0 .5rem",
+        width: "100%", maxWidth: s.narrow ? "none" : "27rem", boxSizing: "border-box" },
+      rcpSumKcal: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.9rem", color: "var(--cyan)",
+        fontVariantNumeric: "tabular-nums", lineHeight: 1 },
+      rcpSumQty: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.35rem", color: "var(--body)",
+        fontVariantNumeric: "tabular-nums", lineHeight: 1 },
+      rcpSumServes: { marginLeft: "auto", fontFamily: "var(--font-2)", fontSize: ".78rem", letterSpacing: ".1em",
+        color: "var(--muted)", whiteSpace: "nowrap" },
+      // On a phone the drawing steps out past the step's padding to the dialog's own edge:
+      // it was drawn for the width of the screen, and the plate gives it that; a table
+      // 46px narrower puts the expanders on top of the words.
+      rcpVizWrap: Object.assign({ flex: "none", width: "100%", background: "var(--sel)", boxSizing: "border-box" },
+        s.narrow ? null : { maxWidth: "27rem" }),
+      rcpVizBox: { position: "relative", display: "flex", alignItems: "flex-start",
+        gap: ".65rem", padding: "8px .2rem 10px .25rem",
+        cursor: s.rVizMacro || s.rVizPick ? "pointer" : "default" },
       rcpHasSum: (s.sum || []).length > 0,
       rcpAddLabel: s.narrow ? "ADD TO SUMMARY" : "ADD TO FOOD SUMMARY",
       rcpReplaceLabel: s.narrow
@@ -5280,8 +5412,8 @@ class Component extends DCLogic {
         display: "flex", flexDirection: "column",
         background: "var(--panel)", border: "1px solid var(--line)",
         boxShadow: "0 0 44px rgba(0,0,0,.55)" }, s.narrow
-        ? { left: ".6rem", right: ".6rem", top: ".6rem",
-            height: s.vvh ? "calc(" + s.vvh + "px - 1.2rem)" : "calc(100vh - 1.2rem)",
+        ? { left: "-1px", right: "-1px", top: ".6rem",
+            height: s.vvh ? "calc(" + s.vvh + "px - .6rem + 1px)" : "calc(100vh - .6rem + 1px)",
             transition: "height 240ms cubic-bezier(.22,1,.36,1)",
             animation: (s.rcpClosing ? "od-rcp-out-m 190ms ease forwards" : "od-rcp-in-m 460ms cubic-bezier(.22,1,.36,1)") }
         : { left: "50%", top: "50%", transform: "translate(-50%,-50%)",
@@ -5356,7 +5488,7 @@ class Component extends DCLogic {
       // three do not fit on one line and a wrapped button is not a button anyone trusts.
       rcpFinalActs: s.narrow
         ? { flex: "none", display: "grid", gridTemplateColumns: "auto minmax(0,1fr)",
-            alignItems: "center", gap: ".6rem", paddingTop: ".2rem" }
+            alignItems: "center", gap: ".6rem", padding: ".2rem .85rem 0" }
         : { flex: "none", display: "flex", alignItems: "center", gap: ".6rem", paddingTop: ".2rem" },
       rcpAddBtn: { background: "rgba(var(--cyan-rgb),.16)", border: "1px solid var(--cyan)",
         color: "var(--cyan)", fontFamily: "var(--font-2)", fontSize: ".88rem", letterSpacing: ".08em",
