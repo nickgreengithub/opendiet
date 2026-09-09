@@ -5374,7 +5374,10 @@ class Component extends DCLogic {
       // On a phone the drawing steps out past the step's padding to the dialog's own edge:
       // it was drawn for the width of the screen, and the plate gives it that; a table
       // 46px narrower puts the expanders on top of the words.
-      rcpVizWrap: Object.assign({ flex: "none", width: "100%", boxSizing: "border-box", paddingTop: ".25rem" },
+      // The drawing takes what is left under the figures and sits in the middle of it,
+      // rather than pressed up under them with the rest of the step empty beneath.
+      rcpVizWrap: Object.assign({ flex: "1 1 auto", minHeight: 0, width: "100%", boxSizing: "border-box",
+        display: "flex", flexDirection: "column", justifyContent: "center" },
         s.narrow ? null : { maxWidth: "27rem" }),
       rcpVizBox: { position: "relative", display: "flex", alignItems: "flex-start",
         gap: ".65rem", padding: "8px .2rem 10px .25rem",
