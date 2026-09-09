@@ -824,8 +824,27 @@ option{background:var(--panel);color:var(--body)}
           <sc-for list="{{ rcpRows }}" as="r" key="{{ r.key }}" hint-placeholder-count="6">
             <div style="{{ r.rowStyle }}">
               <span style="{{ r.nameCellPlain }}">{{ r.matched }}</span>
-              <span style="{{ r.gramsCell }}"><input value="{{ r.grams }}" onChange="{{ r.onGrams }}" onClick="{{ stopProp }}" inputmode="numeric" style="{{ r.gramsInput }}"><span style="{{ r.gramsUnitS }}">{{ r.gramsUnit }}</span><span style="{{ r.eqS }}">=</span></span>
+              <sc-if value="{{ r.typeOn }}" hint-placeholder-val="{{ true }}">
+              <span style="{{ r.gramsCell }}"><input value="{{ r.grams }}" onChange="{{ r.onGrams }}" onClick="{{ stopProp }}" inputmode="numeric" style="{{ r.gramsInput }}"></span>
               <span style="{{ r.servCell }}"><input value="{{ r.servings }}" onChange="{{ r.onServings }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ r.servInput }}"><span style="{{ r.servTypeS }}">{{ r.servType }}</span></span>
+              </sc-if>
+              <sc-if value="{{ r.stepOn }}" hint-placeholder-val="{{ false }}">
+              <span style="{{ r.ctlRow }}">
+                <span onClick="{{ r.ctl.pickG }}" style="{{ r.ctl.gCell }}">
+                  <button data-step="l" onClick="{{ r.ctl.gDown }}" style="{{ r.ctl.gStepL }}" style-hover="color:var(--cyan)">−</button>
+                  <span style="{{ r.ctl.gAmt }}">{{ r.ctl.gQty }}<span style="{{ sizeSuffix }}">{{ r.ctl.gUnit }}</span></span>
+                  <button data-step="r" onClick="{{ r.ctl.gUp }}" style="{{ r.ctl.gStepR }}" style-hover="color:var(--cyan)">+</button>
+                </span>
+                <sc-if value="{{ r.ctl.hasServing }}" hint-placeholder-val="{{ true }}">
+                  <span style="{{ mEquals }}">=</span>
+                  <span onClick="{{ r.ctl.pickS }}" style="{{ r.ctl.sCell }}">
+                    <button data-step="l" onClick="{{ r.ctl.sDown }}" style="{{ r.ctl.sStepL }}" style-hover="color:var(--cyan)">−</button>
+                    <span style="{{ r.ctl.sAmt }}">{{ r.ctl.servQty }}<span style="{{ r.ctl.servStyle }}">{{ r.ctl.servName }}</span></span>
+                    <button data-step="r" onClick="{{ r.ctl.sUp }}" style="{{ r.ctl.sStepR }}" style-hover="color:var(--cyan)">+</button>
+                  </span>
+                </sc-if>
+              </span>
+              </sc-if>
               <span style="{{ r.actCell }}"><button onClick="{{ r.dropRow }}" style="{{ r.dropBtn }}" style-hover="color:var(--fat-bright)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:block"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></span>
             </div>
           </sc-for>
@@ -5428,40 +5447,45 @@ class Component extends DCLogic {
             onGrams: e => this.setRecipeGrams(r.i, e.target.value),
             onServings: e => this.setRecipeServings(r.i, e.target.value),
             dropRow: () => this.dropRecipeRow(r.i),
-            // A phone's row is two lines: the name across the top, the amounts beneath it
-            // reading "300 g = 0.8 fillet", and the delete column standing beside both. A
-            // desktop keeps the one-line table under its GRAMS / SERVINGS heads.
+            // A phone's row is two lines: the name across the top with the delete beside
+            // it, and beneath, the same stepper pair the food table uses to set an amount —
+            // "− 300 g +  =  − 0.8 fillet +" — so there is nothing to type. A desktop keeps
+            // the one-line table of typed boxes under its GRAMS / SERVINGS heads.
             rowStyle: s.narrow
-              ? { display: "grid", gridTemplateColumns: "auto auto minmax(0,1fr) 2.2rem",
-                  gridTemplateAreas: '"name name name act" "grams serv . act"',
-                  alignItems: "center", rowGap: ".4rem", padding: ".5rem 0 .55rem",
+              ? { display: "grid", gridTemplateColumns: "minmax(0,1fr) 2.2rem",
+                  gridTemplateAreas: '"name act" "ctl ctl"',
+                  alignItems: "center", rowGap: fo ? ".15rem" : 0, padding: ".55rem 0 .4rem",
                   borderBottom: "1px solid var(--line)" }
               : { display: "grid", gridTemplateColumns: rcpCols, alignItems: "stretch",
                   minHeight: "2.6rem", borderBottom: "1px solid var(--line)" },
+            typeOn: !s.narrow,
+            stepOn: s.narrow && !!fo,
+            ctl: s.narrow && fo
+              ? amountCtl(fo, grams, g => this.setRecipeGrams(r.i, g),
+                  s.rGMode === "s" ? "s" : "g", m => this.setState({ rGMode: m }))
+              : null,
+            ctlRow: { gridArea: "ctl", display: "flex", alignItems: "center", gap: ".6rem",
+              height: "3rem", padding: "0 .3rem 0 .55rem" },
             nameCellPlain: Object.assign({ gridArea: s.narrow ? "name" : "auto", minWidth: 0, paddingLeft: ".55rem",
               fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.02rem",
               color: isGhost ? "var(--fat-bright)" : "var(--body)", overflow: "hidden" }, s.narrow
               ? { display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
                   lineHeight: 1.3, paddingRight: ".5rem" }
               : { display: "flex", alignItems: "center", whiteSpace: "nowrap", textOverflow: "ellipsis" }),
-            gramsCell: { gridArea: s.narrow ? "grams" : "auto", display: "flex", alignItems: "center", justifyContent: "flex-end",
-              gap: ".35rem", padding: s.narrow ? "0 0 0 .55rem" : "0 .6rem 0 0" },
+            gramsCell: { display: "flex", alignItems: "center", justifyContent: "flex-end",
+              gap: ".35rem", padding: "0 .6rem 0 0" },
             gramsInput: Object.assign({ width: "3.4rem" }, numInput),
-            gramsUnit: fo && fo.mu === "ml" ? "ml" : "g",
-            gramsUnitS: Object.assign({}, unitS, { display: s.narrow ? "inline" : "none" }),
-            eqS: { display: s.narrow && fo ? "inline" : "none", margin: "0 .15rem 0 .35rem",
-              fontFamily: "var(--font-2)", fontSize: ".9rem", color: "var(--dim-3)" },
-            servCell: { gridArea: s.narrow ? "serv" : "auto", display: "flex", alignItems: "center", gap: ".45rem",
-              justifyContent: s.narrow ? "flex-start" : "flex-end",
-              padding: s.narrow ? "0" : "0 .6rem 0 .7rem" },
+            servCell: { display: "flex", alignItems: "center", gap: ".45rem",
+              justifyContent: "flex-end", padding: "0 .6rem 0 .7rem" },
             servInput: Object.assign({ width: "3.2rem", flex: "none" }, numInput, fo ? null : { display: "none" }),
             unitS,
             // On a desktop the label is a fixed track, so the number boxes above one another
             // make a column whatever the label says — "fillet" or "tablespoon".
-            servTypeS: { flex: "none", minWidth: 0, width: s.narrow ? "auto" : "5.4rem",
+            servTypeS: { flex: "none", minWidth: 0, width: "5.4rem",
               fontFamily: "var(--font-2)", fontSize: ".84rem", color: "var(--ink-2)",
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
-            actCell: { gridArea: s.narrow ? "act" : "auto", display: "flex", alignItems: "center", justifyContent: "center", borderLeft: INNER },
+            actCell: { gridArea: s.narrow ? "act" : "auto", display: "flex", alignItems: "center", justifyContent: "center",
+              borderLeft: s.narrow ? 0 : INNER },
             dropBtn: { display: "flex", background: "transparent", border: 0, color: "var(--ink-2)",
               cursor: "pointer", padding: ".2rem" }
           };
