@@ -5621,8 +5621,16 @@ class Component extends DCLogic {
             typeOn: !s.narrow,
             stepOn: s.narrow && !!fo,
             ctl: s.narrow && fo
-              ? amountCtl(fo, grams, g => this.setRecipeGrams(r.i, g),
-                  s.rGMode === "s" ? "s" : "g", m => this.setState({ rGMode: m }))
+              ? (() => {
+                  const c = amountCtl(fo, grams, g => this.setRecipeGrams(r.i, g),
+                    s.rGMode === "s" ? "s" : "g", m => this.setState({ rGMode: m }));
+                  // The plate opens one row at a time, and gives a long serving name a wider
+                  // half. Here the rows are a list, and a list wants every "=" on one line:
+                  // the two halves are equal in every row, whatever the serving is called.
+                  c.gCell = Object.assign({}, c.gCell, { flex: "1 1 0", minWidth: 0 });
+                  c.sCell = Object.assign({}, c.sCell, { flex: "1 1 0", minWidth: 0 });
+                  return c;
+                })()
               : null,
             ctlRow: { gridArea: "ctl", display: "flex", alignItems: "center", gap: ".6rem",
               height: "3rem", padding: "0 .3rem 0 .55rem" },
