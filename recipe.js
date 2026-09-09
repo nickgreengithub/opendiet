@@ -278,14 +278,39 @@ function takeMultipack(s) {
            unit, unitText: m[4], rest: s.slice(m[0].length) };
 }
 
-// "1 onion (150g), diced" -> the parenthetical mass overrides the leading count
-function massOverride(rest) {
-  const m = rest.match(/\((\d+(?:\.\d+)?)\s*(g|gram|grams|kg|ml|l)\)/i);
+// The spellings of the units a bracketed size can be given in — mass and liquid measure,
+// longest first so "fl oz" is read before "oz".
+const SIZE_UNIT_RE = ["g", "kg", "oz", "lb", "ml", "l", "floz"]
+  .flatMap((k) => UNIT_TABLE[k])
+  .sort((a, b) => b.length - a.length)
+  .map((sp) => sp.replace(/\s+/, "\\s+"))
+  .join("|");
+const PACK_WORDS = "cans?|tins?|packages?|pkgs?|packets?|jars?|bottles?|bags?|boxe?s?|cartons?|containers?|pouch(?:es)?|tubs?";
+
+// "1 (10.5 ounce) can condensed soup", "2 (14 oz) cans tomatoes": a size in brackets straight
+// after the count is the size of each container, so the line is count × size of the food in
+// that unit, and the container word that follows names the measure rather than the food.
+// Without this the bracket was read as the start of the notes and the ingredient was empty.
+function takePackSize(s) {
+  const m = s.match(new RegExp("^\\((" + NUM_RE + ")\\s*(" + SIZE_UNIT_RE + ")\\.?\\)\\s*(?:(" + PACK_WORDS + ")\\b\\.?\\s*)?(?:of\\s+)?", "i"));
   if (!m) return null;
+  const unit = UNIT_LOOKUP[m[2].toLowerCase().replace(/\s+/, " ")];
+  if (!unit) return null;
+  return { size: numVal(m[1]), unit,
+           unitText: m[1] + " " + unit + (m[3] ? " " + m[3].toLowerCase() : ""),
+           rest: s.slice(m[0].length) };
+}
+
+// "1 onion (150g), diced", "2 onions (300 g)": a size in brackets after the food is the whole
+// amount, and overrides the leading count.
+function massOverride(rest) {
+  const m = rest.match(new RegExp("\\((\\d+(?:\\.\\d+)?)\\s*(" + SIZE_UNIT_RE + ")\\.?\\)", "i"));
+  if (!m) return null;
+  const unit = UNIT_LOOKUP[m[2].toLowerCase().replace(/\s+/, " ")];
+  if (!unit) return null;
   return {
     qty: +m[1], qtyLo: +m[1], qtyHi: +m[1],
-    unit: UNIT_LOOKUP[m[2].toLowerCase()] || m[2].toLowerCase(),
-    unitText: m[0],
+    unit, unitText: m[0],
     rest: rest.slice(0, m.index) + rest.slice(m.index + m[0].length),
   };
 }
@@ -436,6 +461,14 @@ function parseRecipe(text) {
       }
     }
 
+    if (row.unit === null && taken && taken.unit == null) {
+      const ps = takePackSize(rest);
+      if (ps) {
+        row.qty = row.qty * ps.size; row.qtyLo = row.qty; row.qtyHi = row.qty;
+        row.unit = ps.unit; row.unitText = ps.unitText;
+        rest = ps.rest.replace(/^\s+/, "");
+      }
+    }
     if (row.unit === null) {
       // indefinite unit words used bare, e.g. "a knob of butter"
       const un = takeUnit(rest);

@@ -29,6 +29,38 @@ function row1(text) {
 
 // ---- quantity forms ---------------------------------------------------------------------
 
+test("bracketed pack size after the count: count × size, in that unit", () => {
+  const r = row1("1 (10.5 ounce) can condensed cream of mushroom soup");
+  assert.strictEqual(r.kind, "ing");
+  assert.strictEqual(r.qty, 10.5);
+  assert.strictEqual(r.unit, "oz");
+  assert.strictEqual(r.qtyText, "1");
+  assert.strictEqual(r.unitText, "10.5 oz can");
+  assert.strictEqual(r.ing, "condensed cream of mushroom soup");
+});
+
+test("two cans of a bracketed size", () => {
+  const r = row1("2 (14 oz) cans chopped tomatoes");
+  assert.strictEqual(r.qty, 28);
+  assert.strictEqual(r.unit, "oz");
+  assert.strictEqual(r.ing, "chopped tomatoes");
+});
+
+test("bracketed pack size before a package, notes after the food", () => {
+  const r = row1("1 (28 ounce) package frozen cooked meatballs, thawed");
+  assert.strictEqual(r.qty, 28);
+  assert.strictEqual(r.unit, "oz");
+  assert.strictEqual(r.ing, "frozen cooked meatballs");
+  assert.ok(r.prep.includes("thawed"));
+});
+
+test("bracketed size after the food is the whole amount, in ounces too", () => {
+  const r = row1("2 onions (10 oz), diced");
+  assert.strictEqual(r.qty, 10);
+  assert.strictEqual(r.unit, "oz");
+  assert.strictEqual(r.ing, "onions");
+});
+
 test("plain integer", () => {
   const r = row1("2 tbsp olive oil, extra virgin");
   assert.strictEqual(r.kind, "ing");
