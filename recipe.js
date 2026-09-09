@@ -165,6 +165,8 @@ function normalise(line) {
   let s = line;
   for (const ch in FRACTION_CHARS) s = s.split(ch).join(" " + FRACTION_CHARS[ch]);
   s = s.normalize("NFKC");
+  s = s.replace(/[–—−]/g, "-");                 // every dash is the one dash
+  s = s.replace(/^\s*#+\s+/, "");               // markdown heading marks
   s = s.replace(/^[\s]*[-*•·‣]\s+/, "");        // leading bullet
   s = s.replace(/^[\s]*\d+[.)]\s+/, "");        // leading numbering ("1. ", "1) ")
   s = s.replace(/\s+/g, " ").trim();
@@ -176,6 +178,7 @@ function normalise(line) {
 const NUM_WORDS = {
   a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7,
   eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, half: 0.5, couple: 2, dozen: 12,
+  few: 3, several: 3,
 };
 
 // "1", "1.5", "1/2", "1 1/2" (leading whole + fraction)
@@ -203,6 +206,12 @@ function takeQty(s) {
   if (m) {
     const v = numVal(m[1]);
     return { qty: v, qtyLo: v, qtyHi: v, qtyText: m[1], rest: s.slice(m[0].length) };
+  }
+  // "a few sprigs", "a couple of cloves", "several leaves"
+  m = s.match(/^(?:a\s+)?(few|couple|several)\b(?:\s+of)?\s*/i);
+  if (m) {
+    const v = NUM_WORDS[m[1].toLowerCase()];
+    return { qty: v, qtyLo: v, qtyHi: v, qtyText: m[0].trim(), rest: s.slice(m[0].length) };
   }
   // number word ("two eggs", "a pinch")
   m = s.match(/^([a-zA-Z]+)\b\s*/);
@@ -251,6 +260,17 @@ const UNIT_LOOKUP = {};
 for (const key in UNIT_TABLE) for (const spelling of UNIT_TABLE[key]) UNIT_LOOKUP[spelling] = key;
 // longest spelling first so "fl oz" beats "fl"
 const UNIT_SPELLINGS = Object.keys(UNIT_LOOKUP).sort((a, b) => b.length - a.length);
+const UNIT_ALT_RE = UNIT_SPELLINGS.map((sp) => sp.replace(/\s+/, "\\s+")).join("|");
+// Units a container word can follow: "400g can", "250g pack", "1 litre carton".
+const MEASURE_UNITS = new Set(["g", "kg", "oz", "lb", "ml", "l", "floz"]);
+// Words that sit between a count and its measure and say how full it is.
+const FILLER_RE = /^(heaped|heaping|level|scant|rounded|generous|large|small|big)\s+(?=(?:tsp|tsps|teaspoons?|tbsp|tbsps|tbs|tablespoons?|cups?|handfuls?|bunch(?:es)?|pinch(?:es)?|knobs?|splash(?:es)?|dash(?:es)?|sprigs?)\b)/i;
+// Adjectives that come in pairs before the food: "boneless, skinless chicken thighs" is
+// one food with two adjectives, and the comma between them is not the end of its name.
+const PAIR_ADJ = "boneless|skinless|bone-in|skin-on|lean|extra-lean|fresh|dried|ripe|firm|whole|ground|raw|cooked|large|small|medium|thick|thin|hot|mild|sweet|smoked|unsalted|salted|light|dark|plain|self-raising|all-purpose|unsweetened|sweetened|frozen|canned|tinned|peeled|deveined|trimmed";
+const PAIR_ADJ_RE = new RegExp("^(" + PAIR_ADJ + "),\\s+(?=(?:" + PAIR_ADJ + ")\\b)", "i");
+// A count unit written after the food: "2 garlic cloves", "3 mint sprigs".
+const TAIL_UNITS = new Set(["clove", "sprig", "slice", "bunch", "head", "stalk"]);
 
 function takeUnit(s) {
   for (const spelling of UNIT_SPELLINGS) {
@@ -285,7 +305,7 @@ const SIZE_UNIT_RE = ["g", "kg", "oz", "lb", "ml", "l", "floz"]
   .sort((a, b) => b.length - a.length)
   .map((sp) => sp.replace(/\s+/, "\\s+"))
   .join("|");
-const PACK_WORDS = "cans?|tins?|packages?|pkgs?|packets?|jars?|bottles?|bags?|boxe?s?|cartons?|containers?|pouch(?:es)?|tubs?";
+const PACK_WORDS = "cans?|tins?|packages?|packs?|pkgs?|packets?|jars?|bottles?|bags?|boxe?s?|cartons?|containers?|pouch(?:es)?|tubs?|pots?";
 
 // "1 (10.5 ounce) can condensed soup", "2 (14 oz) cans tomatoes": a size in brackets straight
 // after the count is the size of each container, so the line is count × size of the food in
@@ -304,7 +324,7 @@ function takePackSize(s) {
 // "1 onion (150g), diced", "2 onions (300 g)": a size in brackets after the food is the whole
 // amount, and overrides the leading count.
 function massOverride(rest) {
-  const m = rest.match(new RegExp("\\((\\d+(?:\\.\\d+)?)\\s*(" + SIZE_UNIT_RE + ")\\.?\\)", "i"));
+  const m = rest.match(new RegExp("\\(\\s*(?:about|approx\\.?|approximately|around|roughly|~)?\\s*(\\d+(?:\\.\\d+)?)\\s*(" + SIZE_UNIT_RE + ")\\.?\\s*\\)", "i"));
   if (!m) return null;
   const unit = UNIT_LOOKUP[m[2].toLowerCase().replace(/\s+/, " ")];
   if (!unit) return null;
@@ -315,14 +335,15 @@ function massOverride(rest) {
   };
 }
 
-// "juice of 1 lemon" -> qty/unit come from the noun's count, ingredient becomes "lemon juice"
+// "juice of 1 lemon", "zest of 1 orange" -> the count is the noun's, and the ingredient is
+// "lemon juice", "orange zest"
 function takeJuiceOf(s) {
-  const m = s.match(/^juice of\s+(.+)$/i);
+  const m = s.match(/^(juice|zest) of\s+(.+)$/i);
   if (!m) return null;
-  const q = takeQty(m[1]) || { qty: 1, qtyLo: 1, qtyHi: 1, qtyText: "", rest: m[1] };
+  const q = takeQty(m[2]) || { qty: 1, qtyLo: 1, qtyHi: 1, qtyText: "", rest: m[2] };
   const noun = q.rest.trim();
   return { qty: q.qty, qtyLo: q.qtyLo, qtyHi: q.qtyHi, qtyText: m[0],
-           unit: null, unitText: null, rest: (noun ? noun + " " : "") + "juice" };
+           unit: null, unitText: null, rest: (noun ? noun + " " : "") + m[1].toLowerCase() };
 }
 
 // ---- prep / state / flags ----------------------------------------------------------------
@@ -349,6 +370,9 @@ function splitIngredient(rest) {
   const flags = { opt: false, taste: false };
   if (/\boptional\b/i.test(rest)) flags.opt = true;
   if (/\bto taste\b/i.test(rest)) flags.taste = true;
+  // "to serve" is a garnish: counted, but marked as the line's choice.
+  if (/\bto serve\b/i.test(rest)) flags.opt = true;
+  ing = ing.replace(/\s*,?\s*(?:to taste|to serve|for seasoning|as needed)\s*$/i, "").trim();
 
   const prep = [];
   let state = null;
@@ -395,7 +419,11 @@ function classify(s) {
   if (!s) return "blank";
   const letters = s.replace(/[^a-zA-Z]/g, "");
   const isAllCaps = letters.length >= 3 && letters === letters.toUpperCase();
-  const isHeading = /^(for the|serves?|makes|yields?)\b/i.test(s) || /:$/.test(s) || isAllCaps;
+  const isHeading = /^(for the|serves?|makes|yields?)\b/i.test(s) || /:$/.test(s) || isAllCaps
+    // the name of a section, a numbered step, or a line of the recipe's particulars
+    || /^(ingredients?|directions?|method|instructions?|steps?|notes?|equipment|nutrition(?:al)?(?: information| facts)?|tips?|preparation|garnish|to serve)\s*:?\s*$/i.test(s)
+    || /^step\s*\d+\b/i.test(s)
+    || /\b(prep time|cook time|cooking time|total time|ready in|servings?\s*:|serves\s*:|yields?\s*:|calories\s*:|difficulty\s*:|author\s*:|course\s*:|cuisine\s*:)/i.test(s);
   if (isHeading) return "head";
   const leads = leadsWithQty(s);
   const wordCount = s.split(/\s+/).filter(Boolean).length;
@@ -406,10 +434,10 @@ function classify(s) {
   return "ing";
 }
 
-const ZERO_ING_RE = /^(salt(\s*(and|&)\s*pepper)?|(black\s+)?pepper|water)\.?$/i;
+const ZERO_ING_RE = /^((?:sea |kosher |table |flaky sea |flaked sea |fine sea |rock )?salt(\s*(?:and|&)\s*(?:freshly\s+)?(?:ground\s+)?(?:black\s+|white\s+)?pepper)?|(?:freshly\s+)?(?:ground\s+)?(?:black\s+|white\s+)?pepper|(?:cold |warm |hot |boiling |tap )?water|ice(?: cubes?)?)\.?$/i;
 
 function servingsFromHead(s) {
-  const m = s.match(/\b(?:serves?|makes|yields?)\s+(\d+)/i);
+  const m = s.match(/\b(?:serves?|makes|yields?|servings?)\s*:?\s*(\d+)/i);
   return m ? +m[1] : null;
 }
 
@@ -478,12 +506,32 @@ function parseRecipe(text) {
         rest = ps.rest.replace(/^\s+/, "");
       }
     }
+    // "1 heaped tsp", "small bunch coriander": how full the measure is, not what it is.
+    const filler = rest.match(FILLER_RE);
+    if (filler) rest = rest.slice(filler[0].length);
     if (row.unit === null) {
       // indefinite unit words used bare, e.g. "a knob of butter"
       const un = takeUnit(rest);
       if (un) { row.unit = un.unit; row.unitText = un.unitText; rest = un.rest.replace(/^\s+/, ""); }
     }
     rest = rest.replace(/^of\s+/i, "");
+    // "75g/2¾oz feta": the measure given again in the other system says nothing new.
+    rest = rest.replace(new RegExp("^\\/\\s*(?:" + NUM_RE + ")\\s*(?:" + UNIT_ALT_RE + ")\\b\\.?\\s*", "i"), "");
+    // "400g can chopped tomatoes", "250g pack halloumi": after a measure, the container is
+    // what the measure came in, not the food.
+    if (row.unit && MEASURE_UNITS.has(row.unit)) {
+      rest = rest.replace(new RegExp("^(?:" + PACK_WORDS + ")\\b\\.?\\s*(?:of\\s+)?", "i"), "");
+    }
+    // "½ cup (1 stick) butter": a bracket straight after the measure restates it.
+    const leadNotes = [];
+    for (;;) {
+      const br = rest.match(/^\(([^)]*)\)\s*/);
+      if (!br) break;
+      leadNotes.push(br[1]); rest = rest.slice(br[0].length);
+    }
+    // "boneless, skinless chicken thighs": two adjectives on one food, not a food and a note.
+    for (let n = 0; n < 3; n++) rest = rest.replace(PAIR_ADJ_RE, "$1 ");
+    if (filler) leadNotes.push(filler[0].trim());
 
     const mo = massOverride(rest);
     if (mo) {
@@ -494,9 +542,15 @@ function parseRecipe(text) {
 
     const split = splitIngredient(rest);
     row.ing = split.ing;
-    row.prep = split.prep;
+    row.prep = split.prep.concat(leadNotes.flatMap((n) => n.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean)));
     row.state = split.state;
     row.flags = split.flags;
+    // "2 garlic cloves": the count unit written after the food.
+    if (row.unit === null) {
+      const ws = row.ing.split(/\s+/);
+      const last = ws.length > 1 ? stemWord(ws[ws.length - 1].toLowerCase()) : "";
+      if (TAIL_UNITS.has(last)) { row.unit = last; row.unitText = ws[ws.length - 1]; row.ing = ws.slice(0, -1).join(" "); }
+    }
 
     if (ZERO_ING_RE.test(row.ing.trim())) row.kind = "zero";
     rows.push(row);

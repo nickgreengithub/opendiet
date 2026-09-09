@@ -70,6 +70,22 @@ test("a leading state word is read as the state, and stays in the ingredient", (
   assert.strictEqual(g.ing, "ground black pepper");
 });
 
+// ---- whole recipes in the shapes they are pasted in -------------------------------------
+// tools/recipes/formats/*.txt are five recipes as sites lay them out — a US site with its
+// prep-time line and "1 (14.5 ounce) can", a UK one with "400g can" and "STEP 1", a
+// markdown export, ranges and dual measures, tab-separated columns. recipe_formats.json is
+// every ingredient line read out of them, checked by eye; a change that reads any line
+// differently has to say why here.
+test("five pasted formats read as they did", () => {
+  const want = JSON.parse(fs.readFileSync(path.join(__dirname, "recipe_formats.json"), "utf8"));
+  for (const f of Object.keys(want)) {
+    const rows = OD.parseRecipe(fs.readFileSync(path.join(__dirname, "recipe_formats", f), "utf8"))
+      .filter((r) => r.kind === "ing" || r.kind === "zero")
+      .map((r) => [r.kind, r.qty == null ? null : +r.qty.toFixed(3), r.unit, r.ing]);
+    assert.deepStrictEqual(rows, want[f], f);
+  }
+});
+
 test("plain integer", () => {
   const r = row1("2 tbsp olive oil, extra virgin");
   assert.strictEqual(r.kind, "ing");

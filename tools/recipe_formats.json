@@ -1,0 +1,312 @@
+{
+ "1_allrecipes.txt": [
+  [
+   "ing",
+   2,
+   "tbsp",
+   "olive oil"
+  ],
+  [
+   "ing",
+   2,
+   "lb",
+   "boneless skinless chicken thighs"
+  ],
+  [
+   "ing",
+   14.5,
+   "oz",
+   "diced tomatoes"
+  ],
+  [
+   "ing",
+   8,
+   "oz",
+   "sliced fresh mushrooms"
+  ],
+  [
+   "ing",
+   0.5,
+   "cup",
+   "dry red wine"
+  ],
+  [
+   "ing",
+   0.25,
+   "cup",
+   "chopped fresh parsley"
+  ],
+  [
+   "ing",
+   2,
+   "clove",
+   "garlic"
+  ],
+  [
+   "ing",
+   1,
+   "tsp",
+   "dried oregano"
+  ],
+  [
+   "zero",
+   null,
+   null,
+   "Salt and freshly ground black pepper"
+  ]
+ ],
+ "2_bbcgoodfood.txt": [
+  [
+   "ing",
+   1,
+   "tbsp",
+   "olive oil"
+  ],
+  [
+   "ing",
+   1,
+   "large",
+   "onion"
+  ],
+  [
+   "ing",
+   1,
+   null,
+   "red pepper"
+  ],
+  [
+   "ing",
+   2,
+   "clove",
+   "garlic"
+  ],
+  [
+   "ing",
+   500,
+   "g",
+   "lean beef mince"
+  ],
+  [
+   "ing",
+   1,
+   "tsp",
+   "ground cumin"
+  ],
+  [
+   "ing",
+   1,
+   "tsp",
+   "hot chilli powder"
+  ],
+  [
+   "ing",
+   400,
+   "g",
+   "chopped tomatoes"
+  ],
+  [
+   "ing",
+   400,
+   "g",
+   "red kidney beans"
+  ],
+  [
+   "ing",
+   1,
+   null,
+   "beef stock cube"
+  ],
+  [
+   "ing",
+   null,
+   "bunch",
+   "coriander"
+  ],
+  [
+   "ing",
+   null,
+   null,
+   "soured cream"
+  ]
+ ],
+ "3_markdown.txt": [
+  [
+   "ing",
+   2.25,
+   "cup",
+   "all-purpose flour"
+  ],
+  [
+   "ing",
+   1,
+   "tsp",
+   "baking soda"
+  ],
+  [
+   "ing",
+   0.5,
+   "cup",
+   "unsalted butter"
+  ],
+  [
+   "ing",
+   0.75,
+   "cup",
+   "packed brown sugar"
+  ],
+  [
+   "ing",
+   1,
+   "large",
+   "egg"
+  ],
+  [
+   "ing",
+   2,
+   "tsp",
+   "vanilla extract"
+  ],
+  [
+   "ing",
+   1,
+   "cup",
+   "semisweet chocolate chips"
+  ],
+  [
+   "zero",
+   null,
+   null,
+   "flaky sea salt"
+  ]
+ ],
+ "4_uk_ranges.txt": [
+  [
+   "ing",
+   1200,
+   "g",
+   "chickpeas"
+  ],
+  [
+   "ing",
+   1.5,
+   "clove",
+   "garlic"
+  ],
+  [
+   "ing",
+   100,
+   "ml",
+   "double cream"
+  ],
+  [
+   "zero",
+   1.5,
+   "tsp",
+   "salt"
+  ],
+  [
+   "ing",
+   0.5,
+   null,
+   "lemon juice"
+  ],
+  [
+   "ing",
+   1,
+   null,
+   "orange zest"
+  ],
+  [
+   "ing",
+   1,
+   "handful",
+   "rocket"
+  ],
+  [
+   "ing",
+   2.5,
+   "tbsp",
+   "tahini"
+  ],
+  [
+   "ing",
+   75,
+   "g",
+   "feta"
+  ],
+  [
+   "ing",
+   250,
+   "g",
+   "halloumi"
+  ],
+  [
+   "ing",
+   3,
+   "sprig",
+   "mint"
+  ]
+ ],
+ "5_plain_tabs.txt": [
+  [
+   "ing",
+   2,
+   "cup",
+   "whole milk"
+  ],
+  [
+   "ing",
+   0.5,
+   "cup",
+   "arborio rice"
+  ],
+  [
+   "ing",
+   70,
+   "g",
+   "sugar"
+  ],
+  [
+   "ing",
+   2,
+   null,
+   "eggs"
+  ],
+  [
+   "ing",
+   1,
+   "pinch",
+   "nutmeg"
+  ],
+  [
+   "ing",
+   1,
+   null,
+   "vanilla pod"
+  ],
+  [
+   "ing",
+   1,
+   null,
+   "lemon zest"
+  ],
+  [
+   "zero",
+   null,
+   null,
+   "Salt"
+  ],
+  [
+   "zero",
+   null,
+   null,
+   "Water"
+  ],
+  [
+   "ing",
+   1,
+   "tbsp",
+   "butter"
+  ]
+ ]
+}
