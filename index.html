@@ -745,7 +745,7 @@ option{background:var(--panel);color:var(--body)}
     <sc-if value="{{ rcpStepPaste }}" hint-placeholder-val="{{ true }}">
       <div style="{{ rcpBodyPad }}">
         <span style="{{ rcpStepLabel }}">1 · Paste your recipe below, and every ingredient is matched to the food library.</span>
-        <textarea data-search="c" placeholder="{{ rcpPlaceholder }}" value="{{ rText }}" onChange="{{ onRText }}" style="{{ rcpTextarea }}"></textarea>
+        <textarea data-search="c" data-compose placeholder="{{ rcpPlaceholder }}" value="{{ rText }}" onChange="{{ onRText }}" style="{{ rcpTextarea }}"></textarea>
         <div style="{{ rcpPasteActs }}">
           <button onClick="{{ useExampleClick }}" style="{{ rcpGhostBtn }}" style-hover="color:var(--cyan)">USE AN EXAMPLE</button>
           <button onClick="{{ interpretClick }}" style="{{ rcpPrimaryBtn }}" style-hover="background:var(--cyan-bright)">INTERPRET →</button>
@@ -755,6 +755,7 @@ option{background:var(--panel);color:var(--body)}
     <sc-if value="{{ rcpStepVerify }}" hint-placeholder-val="{{ false }}">
       <div style="{{ rcpVerifyWrap }}">
         <span style="{{ rcpStepLabel }}">2 · Check the matches and portions, then add them to your food summary.</span>
+        <div style="{{ rcpTable }}">
         <div style="{{ rcpTableHead }}">
           <span style="{{ rcpThName }}"></span>
           <span style="{{ rcpThGrams }}">GRAMS</span>
@@ -765,11 +766,12 @@ option{background:var(--panel);color:var(--body)}
           <sc-for list="{{ rcpRows }}" as="r" key="{{ r.key }}" hint-placeholder-count="6">
             <div style="{{ r.rowStyle }}">
               <span style="{{ r.nameCell }}">{{ r.matched }}</span>
-              <span style="{{ r.gramsCell }}"><span style="{{ r.unitS }}">g</span><input value="{{ r.grams }}" onChange="{{ r.onGrams }}" onClick="{{ stopProp }}" inputmode="numeric" style="{{ r.gramsInput }}"></span>
+              <span style="{{ r.gramsCell }}"><input value="{{ r.grams }}" onChange="{{ r.onGrams }}" onClick="{{ stopProp }}" inputmode="numeric" style="{{ r.gramsInput }}"></span>
               <span style="{{ r.servCell }}"><span style="{{ r.servTypeS }}">{{ r.servType }}</span><input value="{{ r.servings }}" onChange="{{ r.onServings }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ r.servInput }}"></span>
               <span style="{{ r.actCell }}"><button onClick="{{ r.dropRow }}" style="{{ r.dropBtn }}" style-hover="color:var(--fat-bright)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:block"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></span>
             </div>
           </sc-for>
+        </div>
         </div>
         <div style="{{ rcpVerifyActs }}">
           <button onClick="{{ backToPasteClick }}" style="{{ rcpGhostBtn }}" style-hover="color:var(--cyan)">← EDIT</button>
@@ -2377,11 +2379,15 @@ class Component extends DCLogic {
   openRecipe() {
     this.loadRecipeData().catch(() => {});
     this.setState({ rcpOpen: true, rcpStep: "paste" });
+    // Put the caret in the paste box the moment it is there, so a pasted recipe just lands.
+    // 90ms clears the modal's entrance so focus does not fight the animation.
+    setTimeout(() => { try { document.querySelector("[data-compose]").focus(); } catch (e) {} }, 90);
   }
   closeRecipe() { this.animateCloseThen(); }
   // Play the fade-out, then apply the final state — so closing (and landing in the food
   // table after ADD/REPLACE) reads as a transition rather than an instant flash.
   animateCloseThen(patch) {
+    clearInterval(this._rcpTypeT);
     this.setState({ rcpClosing: true });
     clearTimeout(this._rcpCloseT);
     this._rcpCloseT = setTimeout(
@@ -2389,7 +2395,20 @@ class Component extends DCLogic {
       190);
   }
   onRecipeText(e) { this.setState({ rText: e.target.value }); }
-  useRecipeExample() { this.setState({ rText: RECIPE_EXAMPLE }); }
+  // Type the example in rather than dropping it whole, so it reads as a recipe being
+  // entered. Ensures the caret is in the box and stops any run already going.
+  useRecipeExample() {
+    clearInterval(this._rcpTypeT);
+    try { document.querySelector("[data-compose]").focus(); } catch (e) {}
+    const full = RECIPE_EXAMPLE;
+    let i = 0;
+    this.setState({ rText: "" });
+    this._rcpTypeT = setInterval(() => {
+      i += 1;
+      this.setState({ rText: full.slice(0, i) });
+      if (i >= full.length) clearInterval(this._rcpTypeT);
+    }, 14);
+  }
   clearRecipeText() { this.setState({ rText: "" }); }
   // parse -> match -> grams, once, on interpret — not per keystroke, since matching a whole
   // recipe against the library is not the per-character-cheap job the plain word search is.
@@ -4650,16 +4669,21 @@ class Component extends DCLogic {
       // one of them does nothing.
       dMeasToggle: () => this.setState(st => ({
         unit: (st.unit || "100G") === "OZ" ? "100G" : "OZ", qtyOzRaw: {} })),
+      // The selected measure carries a cyan underline as well as the cyan type — the glow
+      // alone is invisible on the light theme, where cyan on a pale bar is too quiet to read
+      // as "chosen"; the underline says it in both themes.
       dMeas100S: {
         display: "flex", alignItems: "center", height: "1.9rem", cursor: "pointer", whiteSpace: "nowrap",
-        transition: "color 160ms ease, text-shadow 160ms ease",
+        transition: "color 160ms ease, text-shadow 160ms ease, border-color 160ms ease",
         color: unit.k === "100G" ? "var(--cyan)" : "var(--dim-3)",
+        borderBottom: "2px solid " + (unit.k === "100G" ? "var(--cyan)" : "transparent"),
         textShadow: unit.k === "100G" ? "var(--lit)" : "none"
       },
       dMeasOzS: {
         display: "flex", alignItems: "center", height: "1.9rem", cursor: "pointer", whiteSpace: "nowrap",
-        transition: "color 160ms ease, text-shadow 160ms ease",
+        transition: "color 160ms ease, text-shadow 160ms ease, border-color 160ms ease",
         color: unit.k === "OZ" ? "var(--cyan)" : "var(--dim-3)",
+        borderBottom: "2px solid " + (unit.k === "OZ" ? "var(--cyan)" : "transparent"),
         textShadow: unit.k === "OZ" ? "var(--lit)" : "none"
       },
       // ABOUT holds the corner whether or not the measure pair is on screen.
@@ -5090,24 +5114,24 @@ class Component extends DCLogic {
       // flexes to push the measure/ABOUT controls to the right.
       navSearchCell: { flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: ".55rem",
         height: "100%", marginRight: "1.4rem" },
-      // Same size as the 100 G / OZ / ABOUT nav items (tabBar is .94rem / .14em).
+      // Same size and colour as the 100 G / OZ / ABOUT nav items (tabBar is .94rem / .14em;
+      // the items sit at --dim-3), so the whole top bar reads as one row of type. Typed
+      // text brightens to --body so a query is legible.
       navSearchInput: { flex: 1, minWidth: 0, background: "transparent", border: 0, padding: 0,
-        color: "var(--text)", fontFamily: "var(--font-2)", textOverflow: "ellipsis",
+        color: "var(--body)", fontFamily: "var(--font-2)", textOverflow: "ellipsis",
         height: "1.9rem", fontSize: ".94rem", letterSpacing: ".14em", outline: "none" },
-      // In the search bar (desktop): an underlined text link to the right of the input, no
-      // box — it is an action on the bar, not a second control competing with it.
+      // A plain nav item, same colour/size as ABOUT — no underline, no box.
       barPasteBtn: { marginLeft: "auto", flex: "none", display: "flex", alignItems: "center", gap: ".45rem",
         padding: "0 .2rem", background: "transparent", border: 0,
-        color: "var(--ink-2)", cursor: "pointer", fontFamily: "var(--font-2)",
+        color: "var(--dim-3)", cursor: "pointer", fontFamily: "var(--font-2)",
         fontSize: ".94rem", letterSpacing: ".14em", whiteSpace: "nowrap",
-        textDecoration: "underline", textUnderlineOffset: "3px",
         transition: "color 160ms ease" },
       // Mobile: an icon-only button, since the row is tight.
       mBarPasteBtn: { flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
         width: "2rem", height: "100%", background: "transparent", border: 0, color: "var(--ink-2)",
         cursor: "pointer" },
       rcpScrim: { position: "fixed", inset: 0, background: "rgba(2,6,23,.78)", zIndex: 90,
-        animation: (s.rcpClosing ? "od-rcp-scrim-out 190ms ease forwards" : "od-rcp-scrim 200ms ease") },
+        animation: (s.rcpClosing ? "od-rcp-scrim-out 190ms ease forwards" : "od-rcp-scrim 320ms ease") },
       // Fixed height so the paste step and the verify step are the same box — the dialog
       // does not resize under you between the two. Enters with a fade-and-lift, not a snap.
       rcpModal: { position: "fixed", zIndex: 91,
@@ -5117,7 +5141,7 @@ class Component extends DCLogic {
         display: "flex", flexDirection: "column",
         background: "var(--panel)", border: "1px solid var(--line)",
         boxShadow: "0 0 44px rgba(0,0,0,.55)",
-        animation: (s.rcpClosing ? "od-rcp-out 190ms ease forwards" : "od-rcp-in 240ms cubic-bezier(.22,1,.36,1)") },
+        animation: (s.rcpClosing ? "od-rcp-out 190ms ease forwards" : "od-rcp-in 460ms cubic-bezier(.22,1,.36,1)") },
       rcpHead: { flex: "none", display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "0 1.15rem", height: "3.2rem", borderBottom: "1px solid var(--line)" },
       rcpTitle: { fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".14em",
@@ -5142,6 +5166,10 @@ class Component extends DCLogic {
         padding: ".75rem 1.5rem" },
       rcpVerifyWrap: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column",
         padding: "1.25rem", gap: ".85rem" },
+      // Head and body share one flush container, so the first row sits directly under the
+      // header rule — the verify wrap's gap separates the step label and the actions, not
+      // the header from its rows.
+      rcpTable: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column" },
       // The table keeps the food table's layout — a name column and right-aligned amount
       // columns — but carries only what the dialog is for: grams and servings, editable.
       // The macros belong to the food table these land in, not here. The number cells wear
