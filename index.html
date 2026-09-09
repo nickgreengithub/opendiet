@@ -247,6 +247,8 @@ input[data-navsearch]:focus{background:transparent!important;box-shadow:none;car
 @keyframes od-rcp-scrim-out{from{opacity:1}to{opacity:0}}
 @keyframes od-rcp-in{from{opacity:0;transform:translate(-50%,-46%) scale(.985)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 @keyframes od-rcp-out{from{opacity:1;transform:translate(-50%,-50%) scale(1)}to{opacity:0;transform:translate(-50%,-48%) scale(.99)}}
+@keyframes od-rcp-in-m{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes od-rcp-out-m{from{opacity:1;transform:none}to{opacity:0;transform:translateY(6px) scale(.99)}}
 @media (prefers-reduced-motion:reduce){
   [data-demo] *{animation:none !important}
 }
@@ -727,14 +729,6 @@ option{background:var(--panel);color:var(--body)}
     </span>
   </div>
   </sc-if>
-  <sc-if value="{{ showPasteBtn }}" hint-placeholder-val="{{ false }}">
-  <div style="{{ pasteBtnWrap }}">
-    <button onClick="{{ openRecipeClick }}" style="{{ pasteBtn }}" style-hover="border-color:var(--cyan);color:var(--cyan)">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="{{ recipeIcon }}"></path></svg>
-      <span>PASTE A RECIPE</span>
-    </button>
-  </div>
-  </sc-if>
   <sc-if value="{{ rcpOpen }}" hint-placeholder-val="{{ false }}">
   <div onClick="{{ closeRecipeClick }}" style="{{ rcpScrim }}"></div>
   <div style="{{ rcpModal }}">
@@ -744,9 +738,10 @@ option{background:var(--panel);color:var(--body)}
     </div>
     <sc-if value="{{ rcpStep1 }}" hint-placeholder-val="{{ true }}">
       <div style="{{ rcpVerifyWrap }}">
-        <span style="{{ rcpStepLabel }}">1 · Paste your recipe. Each line is read into an ingredient, its measure and its amount.</span>
+        <span style="{{ rcpStepLabel }}">{{ rcpLbl1 }}</span>
         <div style="{{ rcpSplit }}">
           <textarea data-search="c" data-compose placeholder="{{ rcpPlaceholder }}" value="{{ rText }}" onChange="{{ onRText }}" style="{{ rcpTextarea }}"></textarea>
+          <sc-if value="{{ rcpSplitOn }}" hint-placeholder-val="{{ true }}">
           <div style="{{ rcpParseTable }}">
             <div style="{{ rcpParseHead }}">
               <span style="{{ rcpPhName }}">INGREDIENT</span>
@@ -760,16 +755,39 @@ option{background:var(--panel);color:var(--body)}
               <sc-if value="{{ rParseEmpty }}" hint-placeholder-val="{{ true }}"><span style="{{ rcpParseEmpty }}">Lines appear here as you type.</span></sc-if>
             </div>
           </div>
+          </sc-if>
         </div>
         <div style="{{ rcpPasteActs }}">
           <button onClick="{{ useExampleClick }}" style="{{ rcpGhostBtn }}" style-hover="color:var(--cyan)">USE AN EXAMPLE</button>
-          <button onClick="{{ toMatchClick }}" style="{{ rcpPrimaryBtn }}" style-hover="background:var(--cyan-bright)">NEXT · MATCH FOODS →</button>
+          <button onClick="{{ step1NextClick }}" style="{{ rcpPrimaryBtn }}" style-hover="background:var(--cyan-bright)">{{ step1NextLabel }}</button>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ rcpStepRead }}" hint-placeholder-val="{{ false }}">
+      <div style="{{ rcpVerifyWrap }}">
+        <span style="{{ rcpStepLabel }}">{{ rcpLblRead }}</span>
+        <div style="{{ rcpParseTable }}">
+          <div style="{{ rcpParseHead }}">
+            <span style="{{ rcpPhName }}">INGREDIENT</span>
+            <span style="{{ rcpPhMeasure }}">MEASURE</span>
+            <span style="{{ rcpPhNum }}">AMOUNT</span>
+          </div>
+          <div style="{{ rcpParseBody }}">
+            <sc-for list="{{ rParsedRows }}" as="p" key="{{ p.key }}" hint-placeholder-count="4">
+              <div style="{{ p.row }}"><span style="{{ p.nameS }}">{{ p.name }}</span><span style="{{ p.measureS }}">{{ p.measure }}</span><span style="{{ p.numS }}">{{ p.number }}</span></div>
+            </sc-for>
+            <sc-if value="{{ rParseEmpty }}" hint-placeholder-val="{{ true }}"><span style="{{ rcpParseEmpty }}">Nothing read as an ingredient.</span></sc-if>
+          </div>
+        </div>
+        <div style="{{ rcpVerifyActs }}">
+          <button onClick="{{ backToParseClick }}" style="{{ rcpGhostBtn }}" style-hover="color:var(--cyan)">← BACK</button>
+          <button onClick="{{ toMatchClick }}" style="{{ rcpPrimaryBtn }}" style-hover="background:var(--cyan-bright)">{{ readNextLabel }}</button>
         </div>
       </div>
     </sc-if>
     <sc-if value="{{ rcpStep2 }}" hint-placeholder-val="{{ false }}">
       <div style="{{ rcpVerifyWrap }}">
-        <span style="{{ rcpStepLabel }}">2 · Choose the library food for each ingredient. The closest match is picked — tap another to change it.</span>
+        <span style="{{ rcpStepLabel }}">{{ rcpLbl2 }}</span>
         <div style="{{ rcpMatchBody }}">
           <sc-for list="{{ rMatchRows }}" as="m" key="{{ m.key }}" hint-placeholder-count="4">
             <div style="{{ m.wrap }}">
@@ -787,14 +805,14 @@ option{background:var(--panel);color:var(--body)}
           </sc-for>
         </div>
         <div style="{{ rcpVerifyActs }}">
-          <button onClick="{{ backToParseClick }}" style="{{ rcpGhostBtn }}" style-hover="color:var(--cyan)">← BACK</button>
-          <button onClick="{{ toAmountClick }}" style="{{ rcpPrimaryBtn }}" style-hover="background:var(--cyan-bright)">NEXT · QUANTITIES →</button>
+          <button onClick="{{ backFromMatchClick }}" style="{{ rcpGhostBtn }}" style-hover="color:var(--cyan)">← BACK</button>
+          <button onClick="{{ toAmountClick }}" style="{{ rcpPrimaryBtn }}" style-hover="background:var(--cyan-bright)">{{ matchNextLabel }}</button>
         </div>
       </div>
     </sc-if>
     <sc-if value="{{ rcpStep3 }}" hint-placeholder-val="{{ false }}">
       <div style="{{ rcpVerifyWrap }}">
-        <span style="{{ rcpStepLabel }}">3 · Set how much of each food, then add it to your food summary.</span>
+        <span style="{{ rcpStepLabel }}">{{ rcpLbl3 }}</span>
         <div style="{{ rcpTable }}">
         <div style="{{ rcpTableHead }}">
           <span style="{{ rcpThName }}"></span>
@@ -806,19 +824,17 @@ option{background:var(--panel);color:var(--body)}
           <sc-for list="{{ rcpRows }}" as="r" key="{{ r.key }}" hint-placeholder-count="6">
             <div style="{{ r.rowStyle }}">
               <span style="{{ r.nameCellPlain }}">{{ r.matched }}</span>
-              <span style="{{ r.gramsCell }}"><input value="{{ r.grams }}" onChange="{{ r.onGrams }}" onClick="{{ stopProp }}" inputmode="numeric" style="{{ r.gramsInput }}"></span>
-              <span style="{{ r.servCell }}"><span style="{{ r.servTypeS }}">{{ r.servType }}</span><input value="{{ r.servings }}" onChange="{{ r.onServings }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ r.servInput }}"></span>
+              <span style="{{ r.gramsCell }}"><input value="{{ r.grams }}" onChange="{{ r.onGrams }}" onClick="{{ stopProp }}" inputmode="numeric" style="{{ r.gramsInput }}"><span style="{{ r.gramsUnitS }}">{{ r.gramsUnit }}</span><span style="{{ r.eqS }}">=</span></span>
+              <span style="{{ r.servCell }}"><input value="{{ r.servings }}" onChange="{{ r.onServings }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ r.servInput }}"><span style="{{ r.servTypeS }}">{{ r.servType }}</span></span>
               <span style="{{ r.actCell }}"><button onClick="{{ r.dropRow }}" style="{{ r.dropBtn }}" style-hover="color:var(--fat-bright)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:block"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></span>
             </div>
           </sc-for>
         </div>
         </div>
-        <div style="{{ rcpVerifyActs }}">
+        <div style="{{ rcpFinalActs }}">
           <button onClick="{{ backToMatchClick }}" style="{{ rcpGhostBtn }}" style-hover="color:var(--cyan)">← BACK</button>
-          <span style="{{ rcpVerifyRight }}">
-            <button onClick="{{ addToSumClick }}" style="{{ rcpAddBtn }}" style-hover="background:rgba(var(--cyan-rgb),.26)">ADD TO FOOD SUMMARY</button>
-            <sc-if value="{{ rcpHasSum }}" hint-placeholder-val="{{ false }}"><button onClick="{{ replaceSumClick }}" style="{{ rcpReplaceBtn }}" style-hover="border-color:var(--cyan);color:var(--cyan)">{{ rcpReplaceLabel }}</button></sc-if>
-          </span>
+          <button onClick="{{ addToSumClick }}" style="{{ rcpAddBtn }}" style-hover="background:rgba(var(--cyan-rgb),.26)">{{ rcpAddLabel }}</button>
+          <sc-if value="{{ rcpHasSum }}" hint-placeholder-val="{{ false }}"><button onClick="{{ replaceSumClick }}" style="{{ rcpReplaceBtn }}" style-hover="border-color:var(--cyan);color:var(--cyan)">{{ rcpReplaceLabel }}</button></sc-if>
         </div>
       </div>
     </sc-if>
@@ -967,6 +983,14 @@ option{background:var(--panel);color:var(--body)}
       <input data-search="m" placeholder="{{ searchPlaceholder }}" value="{{ q }}" onChange="{{ onQ }}" style="{{ mSearchInput }}">
       <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearQ }}" style="{{ mClearBtn }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></sc-if><sc-if value="{{ barPasteOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ openRecipeClick }}" style="{{ mBarPasteBtn }}" style-hover="color:var(--cyan)"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="flex:none;display:block"><path d="{{ recipeIcon }}"></path></svg></button></sc-if><span data-pop onClick="{{ mColToggle }}" style="{{ mHeadOne }}"><sc-if value="{{ ozOn }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" style="flex:none;opacity:.85"><path d="M5.7 3.4v18" stroke="currentColor" stroke-width="1.5" fill="none"></path><rect x="5.7" y="4.6" width="13.6" height="9.2" fill="none" stroke="currentColor" stroke-width="1.3"></rect><rect x="5.7" y="4.6" width="6.2" height="4.6" fill="currentColor" stroke="none"></rect><path d="M11.9 7h7.4M5.7 11.2h13.6" stroke="currentColor" stroke-width="1.1" fill="none"></path></svg></sc-if><span>{{ measureLabel }}</span><span style="{{ mHeadDot }}">·</span><span style="{{ mHeadCol }}">{{ mColLabel }}</span><span style="{{ mHeadUnit }}">{{ mColUnit }}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex:none"><path d="M5 9l7 7 7-7"></path></svg><sc-if value="{{ mColOpen }}" hint-placeholder-val="{{ false }}"><span style="{{ mPop }}"><span style="{{ mPopInner }}"><span style="{{ mPopHead }}">MEASURE</span><span style="display:grid;grid-template-columns:1fr 1fr"><sc-for list="{{ unitOpts }}" as="u" hint-placeholder-count="2"><button onClick="{{ u.onClick }}" style="{{ u.style }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span>{{ u.label }}</span><span style="{{ u.gStyle }}">{{ u.grams }}</span></button></sc-for></span><span style="{{ mPopHead }}">COLUMN</span><span style="display:grid;grid-template-columns:1fr 1fr"><sc-for list="{{ mColOpts }}" as="o" hint-placeholder-count="9"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span>{{ o.label }}</span><span style="{{ o.unitStyle }}">{{ o.unit }}</span></button></sc-for></span><span style="{{ mPopHead }}">SORT</span><span style="display:grid;grid-template-columns:1fr 1fr"><button onClick="{{ mSortRel }}" style="{{ mSortRelS }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span>RELEVANCE</span></button><button onClick="{{ mSortCol }}" style="{{ mSortColS }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span>{{ mColLabel }}</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="{{ mSortIcon }}"></path></svg></button></span><button onClick="{{ toggleTef }}" style="{{ tefStyle }}" style-hover="background:rgba(var(--cyan-rgb),.18)"><span style="{{ tefBox }}">{{ tefMark }}</span><span style="text-align:left">DEDUCT THERMIC EFFECT</span></button><span style="{{ mPopNote }}">Digestion costs 25% of protein calories, 8% of carbohydrate and 2% of fat. Applied to calories.</span></span></span></sc-if></span>
     </div>
+    <sc-if value="{{ showPasteBtn }}" hint-placeholder-val="{{ false }}">
+    <div style="{{ pasteBtnWrap }}">
+      <button onClick="{{ openRecipeClick }}" style="{{ pasteBtn }}" style-hover="border-color:var(--cyan);color:var(--cyan)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="{{ recipeIcon }}"></path></svg>
+        <span>PASTE A RECIPE</span>
+      </button>
+    </div>
+    </sc-if>
     <div style="{{ mBody }}">
     <div data-scroll="rows" data-anim="{{ listAnim }}" style="{{ mListStyle }}">
       <sc-for list="{{ rows }}" as="r" key="{{ r.key }}" hint-placeholder-count="10">
@@ -2456,12 +2480,22 @@ class Component extends DCLogic {
   // Step 1 -> 2. Parse the text and match each ingredient to the library, keeping the top
   // candidates for the match step; grams are not computed yet — that is step 3, once the
   // food is settled. Finishes the example first if it is still typing.
-  goToMatch() {
+  // The recipe as it stands once typing (a person's or the example's) is finished.
+  settledRecipeText() {
     if (this._rcpTypeT) { clearInterval(this._rcpTypeT); this._rcpTypeT = null; }
     const text = ((this._rcpTypeFull || this.state.rText) || "").trim();
     this._rcpTypeFull = null;
+    if (text && text !== (this.state.rText || "")) this.setState({ rText: text });
+    return text;
+  }
+  // Phone only: the parse table cannot sit beside the textarea, so it is a step of its own.
+  goToRead() {
+    if (!this.settledRecipeText()) return;
+    this.setState({ rcpStep: "read" });
+  }
+  goToMatch() {
+    const text = this.settledRecipeText();
     if (!text) return;
-    if (text !== (this.state.rText || "")) this.setState({ rText: text });
     this.loadRecipeData().then(() => {
       const foods = this.foods();
       const { aliases } = this._rcpData;
@@ -2495,6 +2529,7 @@ class Component extends DCLogic {
     this.setState({ recipe: rows, rcpStep: "amount" });
   }
   backToParse() { this.setState({ rcpStep: "parse" }); }
+  backFromMatch() { this.setState({ rcpStep: this.state.narrow ? "read" : "parse" }); }
   backToMatch() { this.setState({ rcpStep: "match" }); }
   setRecipeGrams(i, val) {
     const n = Math.max(0, Math.min(RCP_MAX, Math.round(+val || 0)));
@@ -5160,16 +5195,36 @@ class Component extends DCLogic {
       addToSumClick: () => this.addRecipeToSum(false),
       replaceSumClick: () => this.addRecipeToSum(true),
       rcpOpen: !!s.rcpOpen,
-      rcpStep1: s.rcpStep !== "match" && s.rcpStep !== "amount",
+      rcpStep1: s.rcpStep !== "read" && s.rcpStep !== "match" && s.rcpStep !== "amount",
+      rcpStepRead: s.rcpStep === "read",
       rcpStep2: s.rcpStep === "match",
       rcpStep3: s.rcpStep === "amount",
+      // Desktop shows the parse beside the textarea, so it is three steps; a phone has no
+      // room beside anything, so the parse is a step and it is four. The numbers say which.
+      rcpSplitOn: !s.narrow,
+      rcpLbl1: s.narrow ? "1 · Paste your recipe."
+        : "1 · Paste your recipe. Each line is read into an ingredient, its measure and its amount.",
+      rcpLblRead: "2 · Each line is read into an ingredient, its measure and its amount. Check it reads right.",
+      rcpLbl2: (s.narrow ? "3" : "2") + " · Choose the library food for each ingredient. The closest match is picked — tap another to change it.",
+      rcpLbl3: (s.narrow ? "4" : "3") + " · Set how much of each food, then add it to your food summary.",
+      step1NextClick: s.narrow ? () => this.goToRead() : () => this.goToMatch(),
+      step1NextLabel: s.narrow ? "NEXT →" : "NEXT · MATCH FOODS →",
+      readNextLabel: "MATCH FOODS →",
+      matchNextLabel: s.narrow ? "QUANTITIES →" : "NEXT · QUANTITIES →",
+      backFromMatchClick: () => this.backFromMatch(),
       rcpHasSum: (s.sum || []).length > 0,
-      rcpReplaceLabel: "REPLACE THE " + (s.sum || []).length + " FOOD" + ((s.sum || []).length === 1 ? "" : "S") + " IN FOOD SUMMARY",
+      rcpAddLabel: s.narrow ? "ADD TO SUMMARY" : "ADD TO FOOD SUMMARY",
+      rcpReplaceLabel: s.narrow
+        ? "REPLACE " + (s.sum || []).length + " IN SUMMARY"
+        : "REPLACE THE " + (s.sum || []).length + " FOOD" + ((s.sum || []).length === 1 ? "" : "S") + " IN FOOD SUMMARY",
       rcpPlaceholder: "e.g.\n2 tbsp olive oil\n1 onion, diced\n400g tinned tomatoes\n2 chicken breasts",
-      // The button sits just below the centred search prompt — absolutely placed off the
-      // viewport middle so it lands under the prompt whatever the landing row's transform is.
-      pasteBtnWrap: { position: "absolute", left: 0, right: 0, top: "calc(50% + 2.9rem)",
-        display: "flex", justifyContent: "center", zIndex: 20, pointerEvents: "none" },
+      // The button sits under the search prompt and moves as the prompt moves: it is the
+      // next thing in the landing's column and carries the row's own transform, so wherever
+      // the row lands for this screen's height, the button lands under it. Placing it off
+      // the viewport middle instead put it on top of the prompt.
+      pasteBtnWrap: { flex: "none", display: "flex", justifyContent: "center", paddingTop: ".9rem",
+        transform: "translateY(" + landingDrop + "px)",
+        transition: "transform 620ms cubic-bezier(.22,1,.36,1)", pointerEvents: "none" },
       pasteBtn: { pointerEvents: "auto", display: "flex", alignItems: "center", gap: ".55rem",
         padding: ".7rem 1.25rem", background: "rgba(var(--cyan-rgb),.08)", border: "1px solid var(--cyan)",
         color: "var(--cyan)", cursor: "pointer", fontFamily: "var(--font-2)",
@@ -5199,16 +5254,22 @@ class Component extends DCLogic {
         animation: (s.rcpClosing ? "od-rcp-scrim-out 190ms ease forwards" : "od-rcp-scrim 320ms ease") },
       // Fixed height so the paste step and the verify step are the same box — the dialog
       // does not resize under you between the two. Enters with a fade-and-lift, not a snap.
-      rcpModal: { position: "fixed", zIndex: 91,
-        left: "50%", top: "50%", transform: "translate(-50%,-50%)",
-        width: s.narrow ? "calc(100vw - 1.2rem)" : "min(64rem, calc(100vw - 3rem))",
-        height: s.narrow ? "min(90vh, 40rem)" : "min(82vh, 40rem)",
+      // A phone's dialog is pinned to the top and sized from the visual viewport, the way
+      // the shell is: centred in the layout viewport it sat half under the keyboard the
+      // moment the textarea took focus, which is the first thing it does.
+      rcpModal: Object.assign({ position: "fixed", zIndex: 91,
         display: "flex", flexDirection: "column",
         background: "var(--panel)", border: "1px solid var(--line)",
-        boxShadow: "0 0 44px rgba(0,0,0,.55)",
-        animation: (s.rcpClosing ? "od-rcp-out 190ms ease forwards" : "od-rcp-in 460ms cubic-bezier(.22,1,.36,1)") },
+        boxShadow: "0 0 44px rgba(0,0,0,.55)" }, s.narrow
+        ? { left: ".6rem", right: ".6rem", top: ".6rem",
+            height: s.vvh ? "calc(" + s.vvh + "px - 1.2rem)" : "calc(100vh - 1.2rem)",
+            transition: "height 240ms cubic-bezier(.22,1,.36,1)",
+            animation: (s.rcpClosing ? "od-rcp-out-m 190ms ease forwards" : "od-rcp-in-m 460ms cubic-bezier(.22,1,.36,1)") }
+        : { left: "50%", top: "50%", transform: "translate(-50%,-50%)",
+            width: "min(64rem, calc(100vw - 3rem))", height: "min(82vh, 40rem)",
+            animation: (s.rcpClosing ? "od-rcp-out 190ms ease forwards" : "od-rcp-in 460ms cubic-bezier(.22,1,.36,1)") }),
       rcpHead: { flex: "none", display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 1.15rem", height: "3.2rem", borderBottom: "1px solid var(--line)" },
+        padding: s.narrow ? "0 .85rem" : "0 1.15rem", height: "3.2rem", borderBottom: "1px solid var(--line)" },
       rcpTitle: { fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".14em",
         color: "var(--text)" },
       rcpClose: { display: "flex", background: "transparent", border: 0, color: "var(--ink-2)",
@@ -5227,12 +5288,12 @@ class Component extends DCLogic {
       rcpSplit: { flex: 1, minHeight: 0, display: "flex", gap: "1rem" },
       rcpParseTable: { flex: "1 1 0", minWidth: 0, display: "flex", flexDirection: "column",
         border: "1px solid var(--line)", background: "var(--bg)" },
-      rcpParseHead: { flex: "none", display: "grid", gridTemplateColumns: "minmax(0,1fr) 6rem 5rem",
+      rcpParseHead: { flex: "none", display: "grid", gridTemplateColumns: s.narrow ? "minmax(0,1fr) 4.6rem 3.6rem" : "minmax(0,1fr) 6rem 5rem",
         alignItems: "end", padding: "0 .6rem .4rem", minHeight: "2rem",
         borderBottom: "1px solid var(--line)", fontFamily: "var(--font-2)", fontSize: ".72rem",
         letterSpacing: ".08em", color: "var(--ink-2)" },
       rcpPhName: { paddingBottom: ".1rem" },
-      rcpPhMeasure: { textAlign: "right", paddingBottom: ".1rem" },
+      rcpPhMeasure: { textAlign: "right", paddingBottom: ".1rem", paddingRight: ".6rem" },
       rcpPhNum: { textAlign: "right", paddingBottom: ".1rem" },
       rcpParseBody: { flex: 1, minHeight: 0, overflowY: "auto" },
       rcpParseEmpty: { display: "block", padding: ".7rem .6rem", fontFamily: "var(--font-1)",
@@ -5246,9 +5307,10 @@ class Component extends DCLogic {
         fontFamily: "var(--font-2)", fontSize: ".85rem", letterSpacing: ".1em", cursor: "pointer" },
       rcpPrimaryBtn: { background: "var(--cyan)", border: 0, color: "var(--bg)",
         fontFamily: "var(--font-2)", fontSize: ".9rem", letterSpacing: ".1em", cursor: "pointer",
-        padding: ".75rem 1.5rem" },
+        padding: s.narrow ? ".75rem 1rem" : ".75rem 1.5rem", whiteSpace: "nowrap",
+        flex: s.narrow ? "1 1 auto" : "none", marginLeft: s.narrow ? ".6rem" : 0 },
       rcpVerifyWrap: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column",
-        padding: "1.25rem", gap: ".85rem" },
+        padding: s.narrow ? ".85rem" : "1.25rem", gap: ".85rem" },
       // Head and body share one flush container, so the first row sits directly under the
       // header rule — the verify wrap's gap separates the step label and the actions, not
       // the header from its rows.
@@ -5257,7 +5319,9 @@ class Component extends DCLogic {
       // columns — but carries only what the dialog is for: grams and servings, editable.
       // The macros belong to the food table these land in, not here. The number cells wear
       // their own boxes, so the only vertical rule is the one before the delete column.
-      rcpTableHead: { flex: "none", display: "grid",
+      // The head names two columns the phone does not have: its rows stack the amounts
+      // under the name and say their units inline — "300 g = 0.8 fillet".
+      rcpTableHead: { flex: "none", display: s.narrow ? "none" : "grid",
         gridTemplateColumns: "minmax(0,1fr) 7rem 12.5rem 2.2rem",
         alignItems: "end", minHeight: "2rem", borderBottom: "1px solid var(--line)",
         fontFamily: "var(--font-2)", fontSize: ".78rem", letterSpacing: ".08em", color: "var(--ink-2)" },
@@ -5268,13 +5332,21 @@ class Component extends DCLogic {
       rcpTableBody: { flex: 1, minHeight: 0, overflowY: "auto" },
       rcpVerifyActs: { flex: "none", display: "flex", alignItems: "center",
         justifyContent: "space-between", gap: ".6rem", paddingTop: ".2rem" },
-      rcpVerifyRight: { display: "flex", alignItems: "center", gap: ".6rem", flexWrap: "wrap", justifyContent: "flex-end" },
+      // The last step's three buttons: on a desktop one row, BACK left and the rest right;
+      // on a phone BACK shares a row with ADD and REPLACE takes a row of its own, since the
+      // three do not fit on one line and a wrapped button is not a button anyone trusts.
+      rcpFinalActs: s.narrow
+        ? { flex: "none", display: "grid", gridTemplateColumns: "auto minmax(0,1fr)",
+            alignItems: "center", gap: ".6rem", paddingTop: ".2rem" }
+        : { flex: "none", display: "flex", alignItems: "center", gap: ".6rem", paddingTop: ".2rem" },
       rcpAddBtn: { background: "rgba(var(--cyan-rgb),.16)", border: "1px solid var(--cyan)",
         color: "var(--cyan)", fontFamily: "var(--font-2)", fontSize: ".88rem", letterSpacing: ".08em",
-        cursor: "pointer", padding: ".75rem 1.15rem", whiteSpace: "nowrap" },
+        cursor: "pointer", padding: ".75rem 1.15rem", whiteSpace: "nowrap",
+        marginLeft: s.narrow ? 0 : "auto" },
       rcpReplaceBtn: { background: "transparent", border: "1px solid var(--ghost)",
         color: "var(--ink-2)", fontFamily: "var(--font-2)", fontSize: ".88rem", letterSpacing: ".08em",
-        cursor: "pointer", padding: ".75rem 1.15rem", whiteSpace: "nowrap" },
+        cursor: "pointer", padding: ".75rem 1.15rem", whiteSpace: "nowrap",
+        gridColumn: s.narrow ? "1 / -1" : "auto" },
       // Step 1: the live parse of the textarea — ingredient, measure, amount, unmatched.
       rParsedRows: (() => {
         if (s.rcpStep === "match" || s.rcpStep === "amount") return [];
@@ -5285,11 +5357,11 @@ class Component extends DCLogic {
             name: r.ing || "",
             measure: r.unitText || (r.flags && r.flags.taste ? "to taste" : ""),
             number: r.qtyText || "",
-            row: { display: "grid", gridTemplateColumns: "minmax(0,1fr) 6rem 5rem", alignItems: "center",
+            row: { display: "grid", gridTemplateColumns: s.narrow ? "minmax(0,1fr) 4.6rem 3.6rem" : "minmax(0,1fr) 6rem 5rem", alignItems: "center",
               minHeight: "2.2rem", padding: "0 .6rem", borderBottom: "1px solid var(--line)",
               fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".95rem", color: "var(--body)" },
             nameS: { minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
-            measureS: { textAlign: "right", color: "var(--ink-2)", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
+            measureS: { textAlign: "right", color: "var(--ink-2)", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", paddingRight: ".6rem" },
             numS: { textAlign: "right", color: "var(--ink-2)", fontVariantNumeric: "tabular-nums" }
           }));
       })(),
@@ -5303,7 +5375,7 @@ class Component extends DCLogic {
           const candOpts = (r.cands || []).slice(0, 3).map(name => {
             const sel = name === r.food;
             return { name, onClick: () => this.selectMatch(r.i, name),
-              style: { flex: "1 1 0", minWidth: 0, textAlign: "left", padding: ".55rem .7rem", cursor: "pointer",
+              style: { flex: s.narrow ? "none" : "1 1 0", minWidth: 0, textAlign: "left", padding: ".55rem .7rem", cursor: "pointer",
                 background: sel ? "rgba(var(--cyan-rgb),.14)" : "transparent",
                 border: "1px solid " + (sel ? "var(--cyan)" : "var(--line)"),
                 color: sel ? "var(--cyan)" : "var(--body)",
@@ -5321,7 +5393,7 @@ class Component extends DCLogic {
             wrap: { display: "flex", flexDirection: "column", gap: ".5rem" },
             rawS: { fontFamily: "var(--font-1)", fontWeight: 400, fontSize: "1.02rem", color: "var(--text)",
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
-            candWrap: { display: "flex", gap: ".5rem", alignItems: "stretch" },
+            candWrap: { display: "flex", flexDirection: s.narrow ? "column" : "row", gap: ".5rem", alignItems: "stretch" },
             zeroS: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".9rem", color: "var(--muted)" }
           };
         });
@@ -5356,23 +5428,40 @@ class Component extends DCLogic {
             onGrams: e => this.setRecipeGrams(r.i, e.target.value),
             onServings: e => this.setRecipeServings(r.i, e.target.value),
             dropRow: () => this.dropRecipeRow(r.i),
-            rowStyle: { display: "grid", gridTemplateColumns: rcpCols, alignItems: "stretch",
-              minHeight: "2.6rem", borderBottom: "1px solid var(--line)" },
-            nameCellPlain: { display: "flex", alignItems: "center", minWidth: 0, paddingLeft: ".55rem",
+            // A phone's row is two lines: the name across the top, the amounts beneath it
+            // reading "300 g = 0.8 fillet", and the delete column standing beside both. A
+            // desktop keeps the one-line table under its GRAMS / SERVINGS heads.
+            rowStyle: s.narrow
+              ? { display: "grid", gridTemplateColumns: "auto auto minmax(0,1fr) 2.2rem",
+                  gridTemplateAreas: '"name name name act" "grams serv . act"',
+                  alignItems: "center", rowGap: ".4rem", padding: ".5rem 0 .55rem",
+                  borderBottom: "1px solid var(--line)" }
+              : { display: "grid", gridTemplateColumns: rcpCols, alignItems: "stretch",
+                  minHeight: "2.6rem", borderBottom: "1px solid var(--line)" },
+            nameCellPlain: Object.assign({ gridArea: s.narrow ? "name" : "auto", minWidth: 0, paddingLeft: ".55rem",
               fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.02rem",
-              color: isGhost ? "var(--fat-bright)" : "var(--body)",
-              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
-            gramsCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".3rem",
-              paddingRight: ".6rem" },
+              color: isGhost ? "var(--fat-bright)" : "var(--body)", overflow: "hidden" }, s.narrow
+              ? { display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
+                  lineHeight: 1.3, paddingRight: ".5rem" }
+              : { display: "flex", alignItems: "center", whiteSpace: "nowrap", textOverflow: "ellipsis" }),
+            gramsCell: { gridArea: s.narrow ? "grams" : "auto", display: "flex", alignItems: "center", justifyContent: "flex-end",
+              gap: ".35rem", padding: s.narrow ? "0 0 0 .55rem" : "0 .6rem 0 0" },
             gramsInput: Object.assign({ width: "3.4rem" }, numInput),
-            servCell: { display: "flex", alignItems: "center", gap: ".45rem",
-              padding: "0 .6rem 0 .7rem" },
+            gramsUnit: fo && fo.mu === "ml" ? "ml" : "g",
+            gramsUnitS: Object.assign({}, unitS, { display: s.narrow ? "inline" : "none" }),
+            eqS: { display: s.narrow && fo ? "inline" : "none", margin: "0 .15rem 0 .35rem",
+              fontFamily: "var(--font-2)", fontSize: ".9rem", color: "var(--dim-3)" },
+            servCell: { gridArea: s.narrow ? "serv" : "auto", display: "flex", alignItems: "center", gap: ".45rem",
+              justifyContent: s.narrow ? "flex-start" : "flex-end",
+              padding: s.narrow ? "0" : "0 .6rem 0 .7rem" },
             servInput: Object.assign({ width: "3.2rem", flex: "none" }, numInput, fo ? null : { display: "none" }),
             unitS,
-            servTypeS: { flex: 1, minWidth: 0, textAlign: "left", fontFamily: "var(--font-2)",
-              fontSize: ".84rem", color: "var(--ink-2)",
+            // On a desktop the label is a fixed track, so the number boxes above one another
+            // make a column whatever the label says — "fillet" or "tablespoon".
+            servTypeS: { flex: "none", minWidth: 0, width: s.narrow ? "auto" : "5.4rem",
+              fontFamily: "var(--font-2)", fontSize: ".84rem", color: "var(--ink-2)",
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
-            actCell: { display: "flex", alignItems: "center", justifyContent: "center", borderLeft: INNER },
+            actCell: { gridArea: s.narrow ? "act" : "auto", display: "flex", alignItems: "center", justifyContent: "center", borderLeft: INNER },
             dropBtn: { display: "flex", background: "transparent", border: 0, color: "var(--ink-2)",
               cursor: "pointer", padding: ".2rem" }
           };
