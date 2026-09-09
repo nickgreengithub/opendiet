@@ -742,19 +742,59 @@ option{background:var(--panel);color:var(--body)}
       <span style="{{ rcpTitle }}">PASTE A RECIPE</span>
       <button onClick="{{ closeRecipeClick }}" style="{{ rcpClose }}" style-hover="color:var(--body)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:block"><path d="M18 6L6 18M6 6l12 12"></path></svg></button>
     </div>
-    <sc-if value="{{ rcpStepPaste }}" hint-placeholder-val="{{ true }}">
-      <div style="{{ rcpBodyPad }}">
-        <span style="{{ rcpStepLabel }}">1 · Paste your recipe below, and every ingredient is matched to the food library.</span>
-        <textarea data-search="c" data-compose placeholder="{{ rcpPlaceholder }}" value="{{ rText }}" onChange="{{ onRText }}" style="{{ rcpTextarea }}"></textarea>
+    <sc-if value="{{ rcpStep1 }}" hint-placeholder-val="{{ true }}">
+      <div style="{{ rcpVerifyWrap }}">
+        <span style="{{ rcpStepLabel }}">1 · Paste your recipe. Each line is read into an ingredient, its measure and its amount.</span>
+        <div style="{{ rcpSplit }}">
+          <textarea data-search="c" data-compose placeholder="{{ rcpPlaceholder }}" value="{{ rText }}" onChange="{{ onRText }}" style="{{ rcpTextarea }}"></textarea>
+          <div style="{{ rcpParseTable }}">
+            <div style="{{ rcpParseHead }}">
+              <span style="{{ rcpPhName }}">INGREDIENT</span>
+              <span style="{{ rcpPhMeasure }}">MEASURE</span>
+              <span style="{{ rcpPhNum }}">AMOUNT</span>
+            </div>
+            <div style="{{ rcpParseBody }}">
+              <sc-for list="{{ rParsedRows }}" as="p" key="{{ p.key }}" hint-placeholder-count="4">
+                <div style="{{ p.row }}"><span style="{{ p.nameS }}">{{ p.name }}</span><span style="{{ p.measureS }}">{{ p.measure }}</span><span style="{{ p.numS }}">{{ p.number }}</span></div>
+              </sc-for>
+              <sc-if value="{{ rParseEmpty }}" hint-placeholder-val="{{ true }}"><span style="{{ rcpParseEmpty }}">Lines appear here as you type.</span></sc-if>
+            </div>
+          </div>
+        </div>
         <div style="{{ rcpPasteActs }}">
           <button onClick="{{ useExampleClick }}" style="{{ rcpGhostBtn }}" style-hover="color:var(--cyan)">USE AN EXAMPLE</button>
-          <button onClick="{{ interpretClick }}" style="{{ rcpPrimaryBtn }}" style-hover="background:var(--cyan-bright)">INTERPRET →</button>
+          <button onClick="{{ toMatchClick }}" style="{{ rcpPrimaryBtn }}" style-hover="background:var(--cyan-bright)">NEXT · MATCH FOODS →</button>
         </div>
       </div>
     </sc-if>
-    <sc-if value="{{ rcpStepVerify }}" hint-placeholder-val="{{ false }}">
+    <sc-if value="{{ rcpStep2 }}" hint-placeholder-val="{{ false }}">
       <div style="{{ rcpVerifyWrap }}">
-        <span style="{{ rcpStepLabel }}">2 · Check the matches and portions, then add them to your food summary.</span>
+        <span style="{{ rcpStepLabel }}">2 · Choose the library food for each ingredient. The closest match is picked — tap another to change it.</span>
+        <div style="{{ rcpMatchBody }}">
+          <sc-for list="{{ rMatchRows }}" as="m" key="{{ m.key }}" hint-placeholder-count="4">
+            <div style="{{ m.wrap }}">
+              <span style="{{ m.rawS }}">{{ m.raw }}</span>
+              <sc-if value="{{ m.hasCands }}" hint-placeholder-val="{{ true }}">
+                <div style="{{ m.candWrap }}">
+                  <sc-for list="{{ m.cands }}" as="c" hint-placeholder-count="3">
+                    <button onClick="{{ c.onClick }}" style="{{ c.style }}" style-hover="border-color:var(--cyan)">{{ c.name }}</button>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ m.zero }}" hint-placeholder-val="{{ false }}"><span style="{{ m.zeroS }}">No food needed — counts as 0 kcal.</span></sc-if>
+              <sc-if value="{{ m.none }}" hint-placeholder-val="{{ false }}"><span style="{{ m.zeroS }}">No match found — this line will be skipped.</span></sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <div style="{{ rcpVerifyActs }}">
+          <button onClick="{{ backToParseClick }}" style="{{ rcpGhostBtn }}" style-hover="color:var(--cyan)">← BACK</button>
+          <button onClick="{{ toAmountClick }}" style="{{ rcpPrimaryBtn }}" style-hover="background:var(--cyan-bright)">NEXT · QUANTITIES →</button>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ rcpStep3 }}" hint-placeholder-val="{{ false }}">
+      <div style="{{ rcpVerifyWrap }}">
+        <span style="{{ rcpStepLabel }}">3 · Set how much of each food, then add it to your food summary.</span>
         <div style="{{ rcpTable }}">
         <div style="{{ rcpTableHead }}">
           <span style="{{ rcpThName }}"></span>
@@ -764,31 +804,17 @@ option{background:var(--panel);color:var(--body)}
         </div>
         <div style="{{ rcpTableBody }}">
           <sc-for list="{{ rcpRows }}" as="r" key="{{ r.key }}" hint-placeholder-count="6">
-            <div style="{{ r.wrapStyle }}">
             <div style="{{ r.rowStyle }}">
-              <button onClick="{{ r.openEdit }}" style="{{ r.nameCell }}" style-hover="color:var(--cyan)"><span style="{{ r.nameText }}">{{ r.matched }}</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="{{ r.chevron }}"><path d="M6 9l6 6 6-6"></path></svg></button>
+              <span style="{{ r.nameCellPlain }}">{{ r.matched }}</span>
               <span style="{{ r.gramsCell }}"><input value="{{ r.grams }}" onChange="{{ r.onGrams }}" onClick="{{ stopProp }}" inputmode="numeric" style="{{ r.gramsInput }}"></span>
               <span style="{{ r.servCell }}"><span style="{{ r.servTypeS }}">{{ r.servType }}</span><input value="{{ r.servings }}" onChange="{{ r.onServings }}" onClick="{{ stopProp }}" inputmode="decimal" style="{{ r.servInput }}"></span>
               <span style="{{ r.actCell }}"><button onClick="{{ r.dropRow }}" style="{{ r.dropBtn }}" style-hover="color:var(--fat-bright)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:block"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></span>
-            </div>
-            <sc-if value="{{ r.editing }}" hint-placeholder-val="{{ false }}">
-              <div style="{{ r.editPanel }}">
-                <span style="{{ r.editHead }}">MATCH FOR “{{ r.written }}”</span>
-                <input value="{{ rcpEditQ }}" onChange="{{ onRowEditQ }}" onClick="{{ stopProp }}" placeholder="{{ rcpEditPlaceholder }}" style="{{ r.editInput }}">
-                <div style="{{ r.altList }}">
-                  <sc-for list="{{ r.alts }}" as="a" hint-placeholder-count="4">
-                    <button onClick="{{ a.onClick }}" style="{{ a.style }}" style-hover="background:rgba(var(--cyan-rgb),.14);color:var(--cyan)">{{ a.name }}</button>
-                  </sc-for>
-                  <sc-if value="{{ r.noAlts }}" hint-placeholder-val="{{ false }}"><span style="{{ r.noneStyle }}">No matches — try another word.</span></sc-if>
-                </div>
-              </div>
-            </sc-if>
             </div>
           </sc-for>
         </div>
         </div>
         <div style="{{ rcpVerifyActs }}">
-          <button onClick="{{ backToPasteClick }}" style="{{ rcpGhostBtn }}" style-hover="color:var(--cyan)">← EDIT</button>
+          <button onClick="{{ backToMatchClick }}" style="{{ rcpGhostBtn }}" style-hover="color:var(--cyan)">← BACK</button>
           <span style="{{ rcpVerifyRight }}">
             <button onClick="{{ addToSumClick }}" style="{{ rcpAddBtn }}" style-hover="background:rgba(var(--cyan-rgb),.26)">ADD TO FOOD SUMMARY</button>
             <sc-if value="{{ rcpHasSum }}" hint-placeholder-val="{{ false }}"><button onClick="{{ replaceSumClick }}" style="{{ rcpReplaceBtn }}" style-hover="border-color:var(--cyan);color:var(--cyan)">{{ rcpReplaceLabel }}</button></sc-if>
@@ -2392,7 +2418,7 @@ class Component extends DCLogic {
   }
   openRecipe() {
     this.loadRecipeData().catch(() => {});
-    this.setState({ rcpOpen: true, rcpStep: "paste" });
+    this.setState({ rcpOpen: true, rcpStep: "parse" });
     // Put the caret in the paste box the moment it is there, so a pasted recipe just lands.
     // 90ms clears the modal's entrance so focus does not fight the animation.
     setTimeout(() => { try { document.querySelector("[data-compose]").focus(); } catch (e) {} }, 90);
@@ -2427,11 +2453,10 @@ class Component extends DCLogic {
     }, 16);
   }
   clearRecipeText() { this.setState({ rText: "" }); }
-  // parse -> match -> grams, once, on interpret — not per keystroke, since matching a whole
-  // recipe against the library is not the per-character-cheap job the plain word search is.
-  interpretRecipe() {
-    // If the example is still typing, finish it so INTERPRET reads the whole recipe, not
-    // the few lines that have landed so far.
+  // Step 1 -> 2. Parse the text and match each ingredient to the library, keeping the top
+  // candidates for the match step; grams are not computed yet — that is step 3, once the
+  // food is settled. Finishes the example first if it is still typing.
+  goToMatch() {
     if (this._rcpTypeT) { clearInterval(this._rcpTypeT); this._rcpTypeT = null; }
     const text = ((this._rcpTypeFull || this.state.rText) || "").trim();
     this._rcpTypeFull = null;
@@ -2439,49 +2464,42 @@ class Component extends DCLogic {
     if (text !== (this.state.rText || "")) this.setState({ rText: text });
     this.loadRecipeData().then(() => {
       const foods = this.foods();
-      const { aliases, units } = this._rcpData;
+      const { aliases } = this._rcpData;
       const rows = OD.parseRecipe(text)
         .filter(r => r.kind === "ing" || r.kind === "zero")
         .map(r => {
-          if (r.kind === "zero") {
-            return Object.assign({}, r, { food: null, grams: 0, gramsHow: "none", review: false });
-          }
+          if (r.kind === "zero") return Object.assign({}, r, { food: null, cands: [] });
           const m = OD.matchLine(r, foods, aliases);
-          const fo = m.food ? foods.find(f => f.name === m.food) : null;
-          const g = OD.gramsFor(r, fo, units);
-          // No portion in the paste and no per-count default the food can answer: fall back
-          // to one 100 g serving rather than leaving the row without an amount. Grams are
-          // whole numbers everywhere — never a 5.1666.
-          const grams = Math.round(g.how === "none" && !r.flags.taste ? 100 : g.g);
-          return Object.assign({}, r, m, { grams, gramsHow: g.how, review: m.review || !!g.review });
+          return Object.assign({}, r, m, { food: m.food });
         });
-      this.setState({ recipe: rows, rcpStep: "verify" });
+      this.setState({ recipe: rows, rcpStep: "match" });
     }).catch(() => {});
   }
-  backToPaste() { this.setState({ rcpStep: "paste" }); }
+  // Step 2: pick which library food a raw ingredient is.
+  selectMatch(i, name) {
+    const rows = (this.state.recipe || []).map(r => r.i === i ? Object.assign({}, r, { food: name }) : r);
+    this.setState({ recipe: rows });
+  }
+  // Step 2 -> 3. Now the foods are settled, work out each one's grams for the line's own
+  // quantity (a household default where the paste gave no portion).
+  goToAmount() {
+    const foods = this.foods();
+    const units = this._rcpData && this._rcpData.units;
+    const rows = (this.state.recipe || []).map(r => {
+      if (r.kind === "zero") return Object.assign({}, r, { grams: 0, gramsHow: "none" });
+      const fo = r.food ? foods.find(f => f.name === r.food) : null;
+      const g = (fo && units) ? OD.gramsFor(r, fo, units) : { g: 100, how: "none" };
+      const grams = Math.round(g.how === "none" && !(r.flags && r.flags.taste) ? 100 : (g.g || 0));
+      return Object.assign({}, r, { grams, gramsHow: g.how });
+    });
+    this.setState({ recipe: rows, rcpStep: "amount" });
+  }
+  backToParse() { this.setState({ rcpStep: "parse" }); }
+  backToMatch() { this.setState({ rcpStep: "match" }); }
   setRecipeGrams(i, val) {
     const n = Math.max(0, Math.min(RCP_MAX, Math.round(+val || 0)));
     const rows = (this.state.recipe || []).map(r => r.i === i ? Object.assign({}, r, { grams: n }) : r);
     this.setState({ recipe: rows });
-  }
-  // Correcting a wrong match, in place: a row's name opens a panel of the nearest other
-  // matches (already computed) plus a field to search the whole library. Picking one
-  // reassigns the row and recomputes its grams for the line's own quantity.
-  toggleRowEdit(i) {
-    this.setState(st => ({ rcpEditRow: st.rcpEditRow === i ? null : i, rcpEditQ: "" }));
-  }
-  onRowEditQ(e) { this.setState({ rcpEditQ: e.target.value }); }
-  assignRowFood(i, name) {
-    const foods = this.foods();
-    const units = this._rcpData && this._rcpData.units;
-    const fo = foods.find(f => f.name === name) || null;
-    const rows = (this.state.recipe || []).map(r => {
-      if (r.i !== i) return r;
-      const g = (fo && units) ? OD.gramsFor(r, fo, units) : { g: r.grams, how: r.gramsHow };
-      const grams = Math.round(g.how === "none" && !(r.flags && r.flags.taste) ? 100 : (g.g || r.grams || 0));
-      return Object.assign({}, r, { food: name, grams, gramsHow: g.how, review: false });
-    });
-    this.setState({ recipe: rows, rcpEditRow: null, rcpEditQ: "" });
   }
   // Servings and grams are two readings of the same amount: editing servings sets the
   // grams off the food's own per-serving weight (or ounces, when it has no serving).
@@ -5135,16 +5153,16 @@ class Component extends DCLogic {
       onRText: e => this.onRecipeText(e),
       rText: s.rText || "",
       useExampleClick: () => this.useRecipeExample(),
-      interpretClick: () => this.interpretRecipe(),
-      backToPasteClick: () => this.backToPaste(),
-      onRowEditQ: e => this.onRowEditQ(e),
-      rcpEditQ: s.rcpEditQ || "",
-      rcpEditPlaceholder: "Search all foods for a better match…",
+      toMatchClick: () => this.goToMatch(),
+      toAmountClick: () => this.goToAmount(),
+      backToParseClick: () => this.backToParse(),
+      backToMatchClick: () => this.backToMatch(),
       addToSumClick: () => this.addRecipeToSum(false),
       replaceSumClick: () => this.addRecipeToSum(true),
       rcpOpen: !!s.rcpOpen,
-      rcpStepPaste: s.rcpStep !== "verify",
-      rcpStepVerify: s.rcpStep === "verify",
+      rcpStep1: s.rcpStep !== "match" && s.rcpStep !== "amount",
+      rcpStep2: s.rcpStep === "match",
+      rcpStep3: s.rcpStep === "amount",
       rcpHasSum: (s.sum || []).length > 0,
       rcpReplaceLabel: "REPLACE THE " + (s.sum || []).length + " FOOD" + ((s.sum || []).length === 1 ? "" : "S") + " IN FOOD SUMMARY",
       rcpPlaceholder: "e.g.\n2 tbsp olive oil\n1 onion, diced\n400g tinned tomatoes\n2 chicken breasts",
@@ -5204,6 +5222,24 @@ class Component extends DCLogic {
         background: "var(--bg)", border: "1px solid var(--ghost)", outline: "none",
         padding: "1rem", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.1rem",
         lineHeight: 1.6, color: "var(--text)" },
+      // Step 1: textarea on the left, the live parse (ingredient / measure / amount) on the
+      // right, so you see the parser read each line as you type.
+      rcpSplit: { flex: 1, minHeight: 0, display: "flex", gap: "1rem" },
+      rcpParseTable: { flex: "1 1 0", minWidth: 0, display: "flex", flexDirection: "column",
+        border: "1px solid var(--line)", background: "var(--bg)" },
+      rcpParseHead: { flex: "none", display: "grid", gridTemplateColumns: "minmax(0,1fr) 6rem 5rem",
+        alignItems: "end", padding: "0 .6rem .4rem", minHeight: "2rem",
+        borderBottom: "1px solid var(--line)", fontFamily: "var(--font-2)", fontSize: ".72rem",
+        letterSpacing: ".08em", color: "var(--ink-2)" },
+      rcpPhName: { paddingBottom: ".1rem" },
+      rcpPhMeasure: { textAlign: "right", paddingBottom: ".1rem" },
+      rcpPhNum: { textAlign: "right", paddingBottom: ".1rem" },
+      rcpParseBody: { flex: 1, minHeight: 0, overflowY: "auto" },
+      rcpParseEmpty: { display: "block", padding: ".7rem .6rem", fontFamily: "var(--font-1)",
+        fontWeight: 300, fontSize: ".92rem", color: "var(--muted)" },
+      // Step 2: one block per ingredient, its raw text over three candidate chips.
+      rcpMatchBody: { flex: 1, minHeight: 0, overflowY: "auto",
+        display: "flex", flexDirection: "column", gap: "1rem", paddingRight: ".2rem" },
       rcpPasteActs: { flex: "none", display: "flex", alignItems: "center",
         justifyContent: "space-between" },
       rcpGhostBtn: { background: "transparent", border: 0, color: "var(--ink-2)",
@@ -5239,6 +5275,57 @@ class Component extends DCLogic {
       rcpReplaceBtn: { background: "transparent", border: "1px solid var(--ghost)",
         color: "var(--ink-2)", fontFamily: "var(--font-2)", fontSize: ".88rem", letterSpacing: ".08em",
         cursor: "pointer", padding: ".75rem 1.15rem", whiteSpace: "nowrap" },
+      // Step 1: the live parse of the textarea — ingredient, measure, amount, unmatched.
+      rParsedRows: (() => {
+        if (s.rcpStep === "match" || s.rcpStep === "amount") return [];
+        return OD.parseRecipe(s.rText || "")
+          .filter(r => r.kind === "ing" || r.kind === "zero")
+          .map(r => ({
+            key: "pp" + r.i,
+            name: r.ing || "",
+            measure: r.unitText || (r.flags && r.flags.taste ? "to taste" : ""),
+            number: r.qtyText || "",
+            row: { display: "grid", gridTemplateColumns: "minmax(0,1fr) 6rem 5rem", alignItems: "center",
+              minHeight: "2.2rem", padding: "0 .6rem", borderBottom: "1px solid var(--line)",
+              fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".95rem", color: "var(--body)" },
+            nameS: { minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
+            measureS: { textAlign: "right", color: "var(--ink-2)", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" },
+            numS: { textAlign: "right", color: "var(--ink-2)", fontVariantNumeric: "tabular-nums" }
+          }));
+      })(),
+      rParseEmpty: (s.rcpStep !== "match" && s.rcpStep !== "amount") &&
+        OD.parseRecipe(s.rText || "").filter(r => r.kind === "ing" || r.kind === "zero").length === 0,
+      // Step 2: per ingredient, its raw text and up to three candidate foods to choose from.
+      rMatchRows: (() => {
+        if (s.rcpStep !== "match") return [];
+        return (s.recipe || []).map(r => {
+          const isZero = r.kind === "zero";
+          const candOpts = (r.cands || []).slice(0, 3).map(name => {
+            const sel = name === r.food;
+            return { name, onClick: () => this.selectMatch(r.i, name),
+              style: { flex: "1 1 0", minWidth: 0, textAlign: "left", padding: ".55rem .7rem", cursor: "pointer",
+                background: sel ? "rgba(var(--cyan-rgb),.14)" : "transparent",
+                border: "1px solid " + (sel ? "var(--cyan)" : "var(--line)"),
+                color: sel ? "var(--cyan)" : "var(--body)",
+                fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".92rem",
+                whiteSpace: "normal", overflow: "hidden", textOverflow: "ellipsis", lineHeight: 1.35,
+                transition: "border-color 140ms ease, color 140ms ease, background 140ms ease" } };
+          });
+          return {
+            key: "mm" + r.i,
+            raw: r.ing || "",
+            hasCands: !isZero && candOpts.length > 0,
+            zero: isZero,
+            none: !isZero && candOpts.length === 0,
+            cands: candOpts,
+            wrap: { display: "flex", flexDirection: "column", gap: ".5rem" },
+            rawS: { fontFamily: "var(--font-1)", fontWeight: 400, fontSize: "1.02rem", color: "var(--text)",
+              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
+            candWrap: { display: "flex", gap: ".5rem", alignItems: "stretch" },
+            zeroS: { fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".9rem", color: "var(--muted)" }
+          };
+        });
+      })(),
       rcpRows: (() => {
         const foods = this.foods();
         const rcpCols = "minmax(0,1fr) 7rem 12.5rem 2.2rem";
@@ -5259,65 +5346,25 @@ class Component extends DCLogic {
           // when USDA gave it no picturable one.
           const denom = fo && fo.pg ? fo.pg : 28.35;
           const servType = fo ? (fo.pg ? (fo.pn || "serving").toLowerCase() : "oz") : "";
-          // Correction panel for this row: nearest other matches, or a live search of the
-          // whole library once the user types. Built only for the open row.
-          const editing = r.i === s.rcpEditRow;
-          let alts = [];
-          if (editing) {
-            const q = (s.rcpEditQ || "").trim().toLowerCase();
-            let names;
-            if (q) {
-              const ranked = OD.rankFoods(foods.slice(), q);
-              ranked.sort((a, b) => (b._hit - a._hit) || (a.name.length - b.name.length));
-              names = ranked.slice(0, 12).map(f => f.name);
-            } else {
-              names = (r.cands || []).filter(n => n !== r.food).slice(0, 8);
-            }
-            alts = names.map(name => ({
-              name,
-              onClick: () => this.assignRowFood(r.i, name),
-              style: { display: "block", width: "100%", textAlign: "left", padding: ".45rem .6rem",
-                background: "transparent", border: 0, cursor: "pointer",
-                fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".95rem", color: "var(--body)",
-                borderBottom: "1px solid var(--line)", whiteSpace: "nowrap", overflow: "hidden",
-                textOverflow: "ellipsis" }
-            }));
-          }
           return {
             key: "rcp" + r.i,
+            // Step 3 shows the settled food name plainly — the matching is done in step 2.
             matched: isZero ? "Water / seasoning" : (fo ? fo.name : (r.ing || "no match")),
-            written: r.ing || "",
-            editing,
-            alts,
-            noAlts: editing && alts.length === 0,
-            openEdit: () => { if (!isZero) this.toggleRowEdit(r.i); },
             grams: String(grams),
             servings: fo ? g1(grams / denom) : "—",
             servType,
             onGrams: e => this.setRecipeGrams(r.i, e.target.value),
             onServings: e => this.setRecipeServings(r.i, e.target.value),
             dropRow: () => this.dropRecipeRow(r.i),
-            wrapStyle: { borderBottom: "1px solid var(--line)",
-              background: editing ? "var(--tray)" : "transparent" },
-            // No coloured left rule — it read as ambiguous. Just the row separator (now on
-            // the wrapper, so the edit panel sits inside the same bordered block).
             rowStyle: { display: "grid", gridTemplateColumns: rcpCols, alignItems: "stretch",
-              minHeight: "2.6rem" },
-            // The name is a button: click it to correct the match. A chevron marks it.
-            nameCell: { display: "flex", alignItems: "center", gap: ".35rem", minWidth: 0,
-              paddingLeft: ".55rem", background: "transparent", border: 0, textAlign: "left",
-              cursor: isZero ? "default" : "pointer",
+              minHeight: "2.6rem", borderBottom: "1px solid var(--line)" },
+            nameCellPlain: { display: "flex", alignItems: "center", minWidth: 0, paddingLeft: ".55rem",
               fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.02rem",
-              color: isGhost ? "var(--fat-bright)" : "var(--body)" },
-            nameText: { minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
-            chevron: { flex: "none", display: isZero ? "none" : "block", color: "var(--dim-3)",
-              transform: editing ? "rotate(180deg)" : "none", transition: "transform 160ms ease" },
-            // Grams: box flush right. No vertical rule.
+              color: isGhost ? "var(--fat-bright)" : "var(--body)",
+              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
             gramsCell: { display: "flex", alignItems: "center", justifyContent: "flex-end", gap: ".3rem",
               paddingRight: ".6rem" },
             gramsInput: Object.assign({ width: "3.4rem" }, numInput),
-            // Servings: the serving type prefixed on the left (with the whole column's room,
-            // so long names like "thigh with skin" fit), box flush right. No vertical rule.
             servCell: { display: "flex", alignItems: "center", gap: ".45rem",
               padding: "0 .6rem 0 .7rem" },
             servInput: Object.assign({ width: "3.2rem", flex: "none" }, numInput, fo ? null : { display: "none" }),
@@ -5327,17 +5374,7 @@ class Component extends DCLogic {
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
             actCell: { display: "flex", alignItems: "center", justifyContent: "center", borderLeft: INNER },
             dropBtn: { display: "flex", background: "transparent", border: 0, color: "var(--ink-2)",
-              cursor: "pointer", padding: ".2rem" },
-            editPanel: { padding: ".2rem .55rem .7rem" },
-            editHead: { display: "block", padding: ".3rem .05rem .5rem", fontFamily: "var(--font-2)",
-              fontSize: ".72rem", letterSpacing: ".06em", color: "var(--muted)" },
-            editInput: { width: "100%", boxSizing: "border-box", background: "var(--bg)",
-              border: "1px solid var(--ghost)", outline: "none", padding: ".5rem .6rem", marginBottom: ".4rem",
-              fontFamily: "var(--font-1)", fontWeight: 300, fontSize: ".95rem", color: "var(--text)" },
-            altList: { maxHeight: "12rem", overflowY: "auto", border: "1px solid var(--line)",
-              background: "var(--panel-2)" },
-            noneStyle: { padding: ".55rem .6rem", fontFamily: "var(--font-1)", fontWeight: 300,
-              fontSize: ".9rem", color: "var(--muted)" }
+              cursor: "pointer", padding: ".2rem" }
           };
         });
       })(),
