@@ -51,6 +51,7 @@ test("bracketed pack size before a package, notes after the food", () => {
   assert.strictEqual(r.qty, 28);
   assert.strictEqual(r.unit, "oz");
   assert.strictEqual(r.ing, "frozen cooked meatballs");
+  assert.strictEqual(r.state, "frozen");
   assert.ok(r.prep.includes("thawed"));
 });
 
@@ -59,6 +60,14 @@ test("bracketed size after the food is the whole amount, in ounces too", () => {
   assert.strictEqual(r.qty, 10);
   assert.strictEqual(r.unit, "oz");
   assert.strictEqual(r.ing, "onions");
+});
+
+test("a leading state word is read as the state, and stays in the ingredient", () => {
+  const r = row1("400g tinned tomatoes");
+  assert.strictEqual(r.ing, "tinned tomatoes");
+  assert.strictEqual(r.state, "canned");
+  const g = row1("1/2 teaspoon ground black pepper");
+  assert.strictEqual(g.ing, "ground black pepper");
 });
 
 test("plain integer", () => {

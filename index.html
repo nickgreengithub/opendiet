@@ -791,7 +791,7 @@ option{background:var(--panel);color:var(--body)}
         <div style="{{ rcpMatchBody }}">
           <sc-for list="{{ rMatchRows }}" as="m" key="{{ m.key }}" hint-placeholder-count="4">
             <div style="{{ m.wrap }}">
-              <span style="{{ m.rawS }}">{{ m.raw }}</span>
+              <span style="{{ m.rawRow }}"><span style="{{ m.rawS }}">{{ m.raw }}</span><sc-if value="{{ m.weak }}" hint-placeholder-val="{{ false }}"><span style="{{ m.weakS }}">CLOSEST GUESS</span></sc-if></span>
               <sc-if value="{{ m.hasCands }}" hint-placeholder-val="{{ true }}">
                 <div style="{{ m.candWrap }}">
                   <sc-for list="{{ m.cands }}" as="c" hint-placeholder-count="3">
@@ -5548,6 +5548,12 @@ class Component extends DCLogic {
             none: !isZero && candOpts.length === 0,
             cands: candOpts,
             wrap: { display: "flex", flexDirection: "column", gap: ".5rem" },
+            // The library had nothing carrying every word of the line, and what is offered
+            // came from the food's head noun alone — so the line says so.
+            weak: !isZero && !!r.weak && candOpts.length > 0,
+            rawRow: { display: "flex", alignItems: "baseline", gap: ".6rem", minWidth: 0 },
+            weakS: { flex: "none", fontFamily: "var(--font-2)", fontSize: ".66rem", letterSpacing: ".12em",
+              color: "var(--muted)", border: "1px solid var(--line)", padding: ".1rem .4rem" },
             rawS: { fontFamily: "var(--font-1)", fontWeight: 400, fontSize: "1.02rem", color: "var(--text)",
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
             candWrap: { display: "flex", flexDirection: s.narrow ? "column" : "row", gap: ".5rem", alignItems: "stretch" },

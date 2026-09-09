@@ -352,6 +352,15 @@ function splitIngredient(rest) {
 
   const prep = [];
   let state = null;
+  // "frozen cooked meatballs", "tinned tomatoes": a state word leading the food says how
+  // it comes, and the matcher wants that. The word stays in the ingredient — "tinned
+  // tomatoes" is the phrase the alias table knows, and "ground" in "ground coriander" is
+  // what the food is, not what was done to it.
+  for (const w of ing.split(/\s+/).slice(0, -1)) {
+    const lw = w.toLowerCase().replace(/[^a-z]/g, "");
+    if (STATE_WORDS.has(lw)) { state = lw === "tinned" ? "canned" : lw; break; }
+    if (!PREP_WORDS.has(lw)) break;
+  }
   const phrases = tail
     .replace(/[(),;]/g, " ")
     .split(/[-\s]*\bto taste\b[-\s]*/i).join(" ")
@@ -529,9 +538,11 @@ function findAlias(ing, aliases) {
     for (const phrase of alias.m || []) {
       const phraseStemmed = stemJoin(phrase);
       if (!phraseStemmed) continue;
+      // An alias speaks for the ingredient only where its phrase is the ingredient, or
+      // ends it: English puts the head noun last, so "mushroom" ends "chestnut mushrooms"
+      // and names them, but sits in the middle of "cream of mushroom soup" and does not —
+      // that line is a soup, and the alias for a mushroom was turning it into one.
       const hit = ingStemmed === phraseStemmed
-        || ingStemmed.indexOf(" " + phraseStemmed + " ") >= 0
-        || ingStemmed.indexOf(phraseStemmed + " ") === 0
         || ingStemmed.slice(-phraseStemmed.length - 1) === " " + phraseStemmed;
       if (hit && phraseStemmed.length > bestLen) { best = alias; bestLen = phraseStemmed.length; }
     }
@@ -545,14 +556,27 @@ function isPlain(fo) {
 
 // The recipe re-weighting rankFoods never does itself: raw/plain preferred, process words
 // penalised unless the line's own state calls for them, an alias pin placed first.
-function reweight(fo, pinName, lineState, aliasState) {
+// A name that says the food is something else — meatless meatballs, imitation crab, a
+// reduced or fat-free version — is not what a recipe that just says the food means.
+const NEG_WORDS = [
+  "meatless", "vegetarian", "vegan", "imitation", "substitute", "meat-free", "fat-free",
+  "sugar-free", "nonfat", "non-fat", "reduced", "low sodium", "low fat", "lite", "diet",
+];
+
+function reweight(fo, pinName, lineState, aliasState, said) {
   let score = fo._hit || 0;
   if (isPlain(fo)) score += 8;
   for (const w of PROCESS_WORDS) {
     if (fo.nl.indexOf(w) < 0) continue;
     const named = (lineState && w.indexOf(lineState) >= 0) || (aliasState && w.indexOf(aliasState) >= 0);
-    score += named ? 6 : -10;
+    // A state the line names is the state it wants, and outranks a plain rival.
+    score += named ? 10 : -10;
   }
+  for (const w of NEG_WORDS) {
+    if (fo.nl.indexOf(w) >= 0 && !(said && said.indexOf(w) >= 0)) score -= 8;
+  }
+  // A brand is one maker's version; a recipe means the food.
+  if (fo.br) score -= 12;
   if (pinName && fo.name === pinName) score += 40;
   score -= 0.2 * fo.name.length;
   return score;
@@ -588,14 +612,23 @@ function matchLine(line, foods, aliases) {
   if (!cands.length && keepWords.length) cands = rankFoods(foods.slice(), query);
   if (!cands.length) {
     weak = true;
-    const head = stemJoin(ing).split(" ")[0] || "";
-    cands = rankFoods(foods.slice(), head);
+    // Nothing carries every word, so drop them from the front — the head noun is at the
+    // back: "frozen cooked meatballs" -> "cooked meatballs" -> "meatballs". Taking the first
+    // word instead read that line as "frozen" and found a frozen yogurt.
+    const ws = ing.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+    let k = 0;
+    while (k < ws.length - 1 && (STATE_WORDS.has(ws[k]) || PREP_WORDS.has(ws[k]))) {
+      k++;
+      cands = rankFoods(foods.slice(), ws.slice(k).map(stemWord).join(" "));
+      if (cands.length) break;
+    }
   }
 
   const pinName = alias && alias.pin;
   const lineState = line && line.state;
   const aliasState = alias && alias.state;
-  cands.forEach((fo) => { fo._rcp = reweight(fo, pinName, lineState, aliasState); });
+  const said = (ing + " " + (line.prep || []).join(" ")).toLowerCase();
+  cands.forEach((fo) => { fo._rcp = reweight(fo, pinName, lineState, aliasState, said); });
   cands.sort((a, b) => b._rcp - a._rcp);
   cands = cands.slice(0, RCP_CANDS);
 
