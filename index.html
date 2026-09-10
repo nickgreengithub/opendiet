@@ -251,8 +251,12 @@ input[data-navsearch]:focus{background:transparent!important;box-shadow:none;car
 /* A step of the recipe dialog arrives: it rises a little and fades in over the time the
    eye takes to move, so the change reads as the next page rather than a cut. Mounted
    fresh on every step, so the animation plays on each. */
-@keyframes od-rstep{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-[data-rstep]{animation:od-rstep 460ms cubic-bezier(.22,1,.36,1) both}
+@keyframes od-rstep-a{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes od-rstep-b{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* Two names for one motion: React keeps the wrapper element from one step to the next,
+   and an animation only restarts when its name changes, so consecutive steps alternate. */
+[data-rstep="a"]{animation:od-rstep-a 460ms cubic-bezier(.22,1,.36,1) both}
+[data-rstep="b"]{animation:od-rstep-b 460ms cubic-bezier(.22,1,.36,1) both}
 @media (prefers-reduced-motion:reduce){[data-rstep]{animation:none}}
 @keyframes od-rcp-out-m{from{opacity:1;transform:none}to{opacity:0;transform:translateY(6px) scale(.99)}}
 @media (prefers-reduced-motion:reduce){
@@ -743,7 +747,7 @@ option{background:var(--panel);color:var(--body)}
       <button onClick="{{ closeRecipeClick }}" style="{{ rcpClose }}" style-hover="color:var(--body)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:block"><path d="M18 6L6 18M6 6l12 12"></path></svg></button>
     </div>
     <sc-if value="{{ rcpStep1 }}" hint-placeholder-val="{{ true }}">
-      <div data-rstep style="{{ rcpVerifyWrap }}">
+      <div data-rstep="{{ rcpStepAnim }}" style="{{ rcpVerifyWrap }}">
         <div style="{{ rcpSplit }}">
           <textarea data-search="c" data-compose inputmode="{{ rcpInputMode }}" placeholder="{{ rcpPlaceholder }}" value="{{ rText }}" onChange="{{ onRText }}" style="{{ rcpTextarea }}"></textarea>
           <sc-if value="{{ rcpSplitOn }}" hint-placeholder-val="{{ true }}">
@@ -771,7 +775,7 @@ option{background:var(--panel);color:var(--body)}
       </div>
     </sc-if>
     <sc-if value="{{ rcpStepRead }}" hint-placeholder-val="{{ false }}">
-      <div data-rstep style="{{ rcpVerifyWrap }}">
+      <div data-rstep="{{ rcpStepAnim }}" style="{{ rcpVerifyWrap }}">
         <div style="{{ rcpParseTable }}">
           <div style="{{ rcpParseHead }}">
             <span style="{{ rcpPhName }}">INGREDIENT</span>
@@ -792,7 +796,7 @@ option{background:var(--panel);color:var(--body)}
       </div>
     </sc-if>
     <sc-if value="{{ rcpStep2 }}" hint-placeholder-val="{{ false }}">
-      <div data-rstep style="{{ rcpVerifyWrap }}">
+      <div data-rstep="{{ rcpStepAnim }}" style="{{ rcpVerifyWrap }}">
         <div style="{{ rcpMatchBody }}">
           <sc-for list="{{ rMatchRows }}" as="m" key="{{ m.key }}" hint-placeholder-count="4">
             <div style="{{ m.wrap }}">
@@ -816,7 +820,7 @@ option{background:var(--panel);color:var(--body)}
       </div>
     </sc-if>
     <sc-if value="{{ rcpStep3 }}" hint-placeholder-val="{{ false }}">
-      <div data-rstep style="{{ rcpVerifyWrap }}">
+      <div data-rstep="{{ rcpStepAnim }}" style="{{ rcpVerifyWrap }}">
         <div style="{{ rcpTable }}">
         <div style="{{ rcpTableHead }}">
           <span style="{{ rcpThName }}"></span>
@@ -861,7 +865,7 @@ option{background:var(--panel);color:var(--body)}
       </div>
     </sc-if>
     <sc-if value="{{ rcpStep4 }}" hint-placeholder-val="{{ false }}">
-      <div data-rstep style="{{ rcpSumWrap }}">
+      <div data-rstep="{{ rcpStepAnim }}" style="{{ rcpSumWrap }}">
         <div style="{{ rcpSumScroll }}">
           <div style="{{ rcpSumHead }}">
             <sc-for list="{{ rStats }}" as="st" hint-placeholder-count="4">
@@ -2493,7 +2497,10 @@ class Component extends DCLogic {
     const src = (this.libraries().find(l => l.k === k) || {}).file;
     if (!src) return;
     cache[k] = [];
-    fetch(src)
+    // The load is also a promise the recipe dialog can wait on: opened straight after the
+    // page, its match step ran against an empty library and found nothing for anything.
+    const libP = this._libP || (this._libP = {});
+    libP[k] = fetch(src)
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(d => {
         // stemWord/mkFood/the food-object shape live in recipe.js as OD.mkFoods, so a Node
@@ -2504,6 +2511,11 @@ class Component extends DCLogic {
         this.startTypewriter();
       })
       .catch(() => { delete cache[k]; this.setState({ loadErr: k }); });
+  }
+  // Resolves once the library is in, or at once if it already is.
+  libReady(k) {
+    const p = this._libP && this._libP[k];
+    return p || Promise.resolve();
   }
   // ---- recipe dialog ------------------------------------------------------------------
   // The recipe feature is a dialog over the search app, not an app of its own: a button on
@@ -2594,7 +2606,7 @@ class Component extends DCLogic {
   goToMatch() {
     const text = this.settledRecipeText();
     if (!text) return;
-    this.loadRecipeData().then(() => {
+    Promise.all([this.loadRecipeData(), this.libReady(this.state.lib || "LEGACY")]).then(() => {
       const foods = this.foods();
       const { aliases } = this._rcpData;
       const rows = OD.parseRecipe(text)
@@ -5355,6 +5367,7 @@ class Component extends DCLogic {
       // A phone never raises the keyboard for the recipe: inputmode none keeps it down,
       // and the text arrives by the PASTE button. Only when the clipboard cannot be read
       // does the box open to typing.
+      rcpStepAnim: ["parse", "read", "match", "amount", "summary"].indexOf(s.rcpStep || "parse") % 2 ? "b" : "a",
       rcpInputMode: s.narrow && !s.rTypeOn ? "none" : "text",
       rcpPasteOn: !!s.narrow,
       rcpPasteErr: !!s.rPasteErr,
