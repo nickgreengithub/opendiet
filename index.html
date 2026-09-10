@@ -733,14 +733,13 @@ option{background:var(--panel);color:var(--body)}
   <div onClick="{{ closeRecipeClick }}" style="{{ rcpScrim }}"></div>
   <div style="{{ rcpModal }}">
     <div style="{{ rcpHead }}">
-      <span style="{{ rcpTitle }}">PASTE A RECIPE</span>
+      <span style="{{ rcpTitle }}">{{ rcpHeadTitle }}</span>
       <button onClick="{{ closeRecipeClick }}" style="{{ rcpClose }}" style-hover="color:var(--body)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:block"><path d="M18 6L6 18M6 6l12 12"></path></svg></button>
     </div>
     <sc-if value="{{ rcpStep1 }}" hint-placeholder-val="{{ true }}">
       <div style="{{ rcpVerifyWrap }}">
-        <span style="{{ rcpStepLabel }}">{{ rcpLbl1 }}</span>
         <div style="{{ rcpSplit }}">
-          <textarea data-search="c" data-compose placeholder="{{ rcpPlaceholder }}" value="{{ rText }}" onChange="{{ onRText }}" style="{{ rcpTextarea }}"></textarea>
+          <textarea data-search="c" data-compose inputmode="{{ rcpInputMode }}" placeholder="{{ rcpPlaceholder }}" value="{{ rText }}" onChange="{{ onRText }}" style="{{ rcpTextarea }}"></textarea>
           <sc-if value="{{ rcpSplitOn }}" hint-placeholder-val="{{ true }}">
           <div style="{{ rcpParseTable }}">
             <div style="{{ rcpParseHead }}">
@@ -757,15 +756,16 @@ option{background:var(--panel);color:var(--body)}
           </div>
           </sc-if>
         </div>
+        <sc-if value="{{ rcpPasteErr }}" hint-placeholder-val="{{ false }}"><span style="{{ rcpParseEmpty }}">The clipboard could not be read — tap the box and type or dictate it.</span></sc-if>
         <div style="{{ rcpPasteActs }}">
           <button onClick="{{ useExampleClick }}" style="{{ rcpGhostBtn }}" style-hover="color:var(--cyan)">USE AN EXAMPLE</button>
-          <button onClick="{{ step1NextClick }}" style="{{ rcpPrimaryBtn }}" style-hover="background:var(--cyan-bright)">{{ step1NextLabel }}</button>
+          <sc-if value="{{ rcpPasteOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ pasteClipClick }}" style="{{ rcpPasteBtn }}" style-hover="border-color:var(--cyan)">{{ rcpPasteLabel }}</button></sc-if>
+          <sc-if value="{{ step1NextOn }}" hint-placeholder-val="{{ true }}"><button onClick="{{ step1NextClick }}" style="{{ rcpPrimaryBtn }}" style-hover="background:var(--cyan-bright)">{{ step1NextLabel }}</button></sc-if>
         </div>
       </div>
     </sc-if>
     <sc-if value="{{ rcpStepRead }}" hint-placeholder-val="{{ false }}">
       <div style="{{ rcpVerifyWrap }}">
-        <span style="{{ rcpStepLabel }}">{{ rcpLblRead }}</span>
         <div style="{{ rcpParseTable }}">
           <div style="{{ rcpParseHead }}">
             <span style="{{ rcpPhName }}">INGREDIENT</span>
@@ -787,7 +787,6 @@ option{background:var(--panel);color:var(--body)}
     </sc-if>
     <sc-if value="{{ rcpStep2 }}" hint-placeholder-val="{{ false }}">
       <div style="{{ rcpVerifyWrap }}">
-        <span style="{{ rcpStepLabel }}">{{ rcpLbl2 }}</span>
         <div style="{{ rcpMatchBody }}">
           <sc-for list="{{ rMatchRows }}" as="m" key="{{ m.key }}" hint-placeholder-count="4">
             <div style="{{ m.wrap }}">
@@ -812,7 +811,6 @@ option{background:var(--panel);color:var(--body)}
     </sc-if>
     <sc-if value="{{ rcpStep3 }}" hint-placeholder-val="{{ false }}">
       <div style="{{ rcpVerifyWrap }}">
-        <span style="{{ rcpStepLabel }}">{{ rcpLbl3 }}</span>
         <div style="{{ rcpTable }}">
         <div style="{{ rcpTableHead }}">
           <span style="{{ rcpThName }}"></span>
@@ -858,7 +856,6 @@ option{background:var(--panel);color:var(--body)}
     </sc-if>
     <sc-if value="{{ rcpStep4 }}" hint-placeholder-val="{{ false }}">
       <div style="{{ rcpSumWrap }}">
-        <span style="{{ rcpSumLabel }}">{{ rcpLbl4 }}</span>
         <div style="{{ rcpSumScroll }}">
           <div style="{{ rcpSumHead }}">
             <sc-for list="{{ rStats }}" as="st" hint-placeholder-count="4">
@@ -2518,10 +2515,29 @@ class Component extends DCLogic {
   }
   openRecipe() {
     this.loadRecipeData().catch(() => {});
-    this.setState({ rcpOpen: true, rcpStep: "parse" });
-    // Put the caret in the paste box the moment it is there, so a pasted recipe just lands.
-    // 90ms clears the modal's entrance so focus does not fight the animation.
-    setTimeout(() => { try { document.querySelector("[data-compose]").focus(); } catch (e) {} }, 90);
+    this.setState({ rcpOpen: true, rcpStep: "parse", rPasteErr: false, rTypeOn: false });
+    // On a desktop the caret goes into the paste box the moment it is there, so a pasted
+    // recipe just lands; 90ms clears the modal's entrance so focus does not fight it. A
+    // phone is not focused at all: focus is the keyboard, and the phone pastes by button.
+    if (!this.state.narrow) {
+      setTimeout(() => { try { document.querySelector("[data-compose]").focus(); } catch (e) {} }, 90);
+    }
+  }
+  // The phone's way in: read the clipboard on the tap. Where that is refused or missing,
+  // the box opens to typing and says so.
+  pasteFromClipboard() {
+    const fail = () => {
+      this.setState({ rPasteErr: true, rTypeOn: true });
+      setTimeout(() => { try { document.querySelector("[data-compose]").focus(); } catch (e) {} }, 60);
+    };
+    try {
+      if (!navigator.clipboard || !navigator.clipboard.readText) return fail();
+      navigator.clipboard.readText().then(text => {
+        if (!(text || "").trim()) return fail();
+        clearInterval(this._rcpTypeT); this._rcpTypeFull = null;
+        this.setState({ rText: text, rPasteErr: false });
+      }).catch(fail);
+    } catch (e) { fail(); }
   }
   closeRecipe() { this.animateCloseThen(); }
   // Play the fade-out, then apply the final state — so closing (and landing in the food
@@ -2541,7 +2557,7 @@ class Component extends DCLogic {
   // typing crawls. _rcpTypeFull lets INTERPRET finish the example if it is clicked early.
   useRecipeExample() {
     clearInterval(this._rcpTypeT);
-    try { document.querySelector("[data-compose]").focus(); } catch (e) {}
+    if (!this.state.narrow) { try { document.querySelector("[data-compose]").focus(); } catch (e) {} }
     const full = RECIPE_EXAMPLE;
     this._rcpTypeFull = full;
     let i = 0;
@@ -5319,12 +5335,35 @@ class Component extends DCLogic {
       // Desktop shows the parse beside the textarea, so it is three steps; a phone has no
       // room beside anything, so the parse is a step and it is four. The numbers say which.
       rcpSplitOn: !s.narrow,
-      rcpLbl1: s.narrow ? "1 · Paste your recipe."
-        : "1 · Paste your recipe. Each line is read into an ingredient, its measure and its amount.",
-      rcpLblRead: "2 · Each line is read into an ingredient, its measure and its amount. Check it reads right.",
-      rcpLbl2: (s.narrow ? "3" : "2") + " · Choose the library food for each ingredient. The closest match is picked — tap another to change it.",
-      rcpLbl3: (s.narrow ? "4" : "3") + " · Set how much of each food.",
-      rcpLbl4: (s.narrow ? "5" : "4") + " · The whole recipe as one food. Add it to your food summary, or replace what is there.",
+      // The header names the step, in words short enough never to wrap: the phone has
+      // five steps, the desktop four, and the numbers say which.
+      rcpHeadTitle: (() => {
+        const st = s.rcpStep;
+        const n = s.narrow;
+        if (st === "read") return "2 · HOW IT READS";
+        if (st === "match") return (n ? "3" : "2") + " · MATCH FOODS";
+        if (st === "amount") return (n ? "4" : "3") + " · AMOUNTS";
+        if (st === "summary") return (n ? "5" : "4") + " · SUMMARY";
+        return "1 · PASTE RECIPE";
+      })(),
+      // A phone never raises the keyboard for the recipe: inputmode none keeps it down,
+      // and the text arrives by the PASTE button. Only when the clipboard cannot be read
+      // does the box open to typing.
+      rcpInputMode: s.narrow && !s.rTypeOn ? "none" : "text",
+      rcpPasteOn: !!s.narrow,
+      rcpPasteErr: !!s.rPasteErr,
+      pasteClipClick: () => this.pasteFromClipboard(),
+      rcpPasteLabel: (s.rText || "").trim() ? "PASTE AGAIN" : "PASTE FROM CLIPBOARD",
+      // With nothing in the box the paste is the step's action and takes the top; with a
+      // recipe in it NEXT does, and the paste drops under it as the second action.
+      rcpPasteBtn: (s.rText || "").trim()
+        ? { order: 2, width: "100%", background: "transparent", border: "1px solid var(--ghost)",
+            color: "var(--ink-2)", fontFamily: "var(--font-2)", fontSize: ".88rem", letterSpacing: ".08em",
+            cursor: "pointer", padding: ".85rem 1.15rem", whiteSpace: "nowrap" }
+        : { order: 1, width: "100%", background: "var(--cyan)", border: 0, color: "var(--bg)",
+            fontFamily: "var(--font-2)", fontSize: ".9rem", letterSpacing: ".1em", cursor: "pointer",
+            padding: ".85rem 1rem", whiteSpace: "nowrap" },
+      step1NextOn: !s.narrow || !!(s.rText || "").trim(),
       amountNextLabel: s.narrow ? "SUMMARY →" : "NEXT · SUMMARY →",
       toSummaryClick: () => this.goToSummary(),
       backToAmountClick: () => this.backToAmount(),
@@ -5359,8 +5398,6 @@ class Component extends DCLogic {
       // the drawing has the sheet from edge to edge.
       rcpSumWrap: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column",
         padding: s.narrow ? ".85rem 0" : "1.25rem", gap: ".85rem" },
-      rcpSumLabel: { flex: "none", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.05rem",
-        lineHeight: 1.55, color: "var(--body)", textWrap: "pretty", padding: s.narrow ? "0 .85rem" : 0 },
       rcpSumScroll: { flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column",
         alignItems: s.narrow ? "stretch" : "center", gap: ".2rem" },
       // Each column is as wide as its own figure and the row spreads them out, so a wide
@@ -5387,7 +5424,9 @@ class Component extends DCLogic {
       rcpReplaceLabel: s.narrow
         ? "REPLACE " + (s.sum || []).length + " IN SUMMARY"
         : "REPLACE THE " + (s.sum || []).length + " FOOD" + ((s.sum || []).length === 1 ? "" : "S") + " IN FOOD SUMMARY",
-      rcpPlaceholder: "e.g.\n2 tbsp olive oil\n1 onion, diced\n400g tinned tomatoes\n2 chicken breasts",
+      rcpPlaceholder: s.narrow && !s.rTypeOn
+        ? "Copy a recipe's ingredients, then tap PASTE FROM CLIPBOARD.\n\ne.g.\n2 tbsp olive oil\n1 onion, diced\n400g tinned tomatoes"
+        : "e.g.\n2 tbsp olive oil\n1 onion, diced\n400g tinned tomatoes\n2 chicken breasts",
       // The button sits under the search prompt and moves as the prompt moves: it is the
       // next thing in the landing's column and carries the row's own transform, so wherever
       // the row lands for this screen's height, the button lands under it. Placing it off
@@ -5440,15 +5479,14 @@ class Component extends DCLogic {
             animation: (s.rcpClosing ? "od-rcp-out 190ms ease forwards" : "od-rcp-in 460ms cubic-bezier(.22,1,.36,1)") }),
       rcpHead: { flex: "none", display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: s.narrow ? "0 .85rem" : "0 1.15rem", height: "3.2rem", borderBottom: "1px solid var(--line)" },
-      rcpTitle: { fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".14em",
+      rcpTitle: { minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+        fontFamily: "var(--font-2)", fontSize: "1rem", letterSpacing: ".14em",
         color: "var(--text)" },
       rcpClose: { display: "flex", background: "transparent", border: 0, color: "var(--ink-2)",
         cursor: "pointer", padding: ".2rem" },
       rcpBodyPad: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column",
         gap: "1rem", padding: "1.25rem" },
       // Body copy: the same font and weight (300) every other reading line in the app uses.
-      rcpStepLabel: { flex: "none", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.05rem",
-        lineHeight: 1.55, color: "var(--body)", textWrap: "pretty" },
       rcpTextarea: { flex: 1, minHeight: 0, resize: "none", overflow: "auto",
         background: "var(--bg)", border: "1px solid var(--ghost)", outline: "none",
         padding: "1rem", fontFamily: "var(--font-1)", fontWeight: 300, fontSize: "1.1rem",
