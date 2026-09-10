@@ -245,20 +245,20 @@ input[data-navsearch]:focus{background:transparent!important;box-shadow:none;car
 /* The recipe dialog fades and lifts in rather than snapping on, and fades back out. */
 @keyframes od-rcp-scrim{from{opacity:0}to{opacity:1}}
 @keyframes od-rcp-scrim-out{from{opacity:1}to{opacity:0}}
-@keyframes od-rcp-in{from{opacity:0;transform:translate(-50%,-46%) scale(.985)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-@keyframes od-rcp-out{from{opacity:1;transform:translate(-50%,-50%) scale(1)}to{opacity:0;transform:translate(-50%,-48%) scale(.99)}}
-@keyframes od-rcp-in-m{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes od-rcp-in{from{opacity:0;transform:translate(-50%,-44%) scale(.96)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@keyframes od-rcp-out{from{opacity:1;transform:translate(-50%,-50%) scale(1)}to{opacity:0;transform:translate(-50%,-47%) scale(.98)}}
+@keyframes od-rcp-in-m{from{opacity:.4;transform:translateY(100%)}to{opacity:1;transform:none}}
 /* A step of the recipe dialog arrives: it rises a little and fades in over the time the
    eye takes to move, so the change reads as the next page rather than a cut. Mounted
    fresh on every step, so the animation plays on each. */
-@keyframes od-rstep-a{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@keyframes od-rstep-b{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes od-rstep-a{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+@keyframes od-rstep-b{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
 /* Two names for one motion: React keeps the wrapper element from one step to the next,
    and an animation only restarts when its name changes, so consecutive steps alternate. */
-[data-rstep="a"]{animation:od-rstep-a 460ms cubic-bezier(.22,1,.36,1) both}
-[data-rstep="b"]{animation:od-rstep-b 460ms cubic-bezier(.22,1,.36,1) both}
+[data-rstep="a"]{animation:od-rstep-a 620ms cubic-bezier(.16,1,.3,1) both}
+[data-rstep="b"]{animation:od-rstep-b 620ms cubic-bezier(.16,1,.3,1) both}
 @media (prefers-reduced-motion:reduce){[data-rstep]{animation:none}}
-@keyframes od-rcp-out-m{from{opacity:1;transform:none}to{opacity:0;transform:translateY(6px) scale(.99)}}
+@keyframes od-rcp-out-m{from{opacity:1;transform:none}to{opacity:.4;transform:translateY(100%)}}
 @media (prefers-reduced-motion:reduce){
   [data-demo] *{animation:none !important}
 }
@@ -2566,7 +2566,7 @@ class Component extends DCLogic {
     clearTimeout(this._rcpCloseT);
     this._rcpCloseT = setTimeout(
       () => this.setState(Object.assign({ rcpOpen: false, rcpClosing: false }, patch || {})),
-      190);
+      this.state.narrow ? 440 : 320);
   }
   onRecipeText(e) { this._rcpTypeFull = null; this.setState({ rText: e.target.value }); }
   // Type the example in rather than dropping it whole, so it reads as a recipe being
@@ -5479,7 +5479,7 @@ class Component extends DCLogic {
         width: "2rem", height: "100%", background: "transparent", border: 0, color: "var(--ink-2)",
         cursor: "pointer" },
       rcpScrim: { position: "fixed", inset: 0, background: "rgba(2,6,23,.78)", zIndex: 90,
-        animation: (s.rcpClosing ? "od-rcp-scrim-out 190ms ease forwards" : "od-rcp-scrim 320ms ease") },
+        animation: (s.rcpClosing ? "od-rcp-scrim-out 420ms ease forwards" : "od-rcp-scrim 520ms ease") },
       // Fixed height so the paste step and the verify step are the same box — the dialog
       // does not resize under you between the two. Enters with a fade-and-lift, not a snap.
       // A phone's dialog is pinned to the top and sized from the visual viewport, the way
@@ -5492,10 +5492,13 @@ class Component extends DCLogic {
         ? { left: "-1px", right: "-1px", top: ".6rem",
             height: s.vvh ? "calc(" + s.vvh + "px - .6rem + 1px)" : "calc(100vh - .6rem + 1px)",
             transition: "height 240ms cubic-bezier(.22,1,.36,1)",
-            animation: (s.rcpClosing ? "od-rcp-out-m 190ms ease forwards" : "od-rcp-in-m 460ms cubic-bezier(.22,1,.36,1)") }
+            // A sheet: up from the bottom of the screen over two thirds of a second, and
+            // back down to leave. Drawn to be seen — a 10px nudge over a third of a second
+            // read as a flicker, which is to say it did not read at all.
+            animation: (s.rcpClosing ? "od-rcp-out-m 440ms cubic-bezier(.4,0,.8,.6) forwards" : "od-rcp-in-m 680ms cubic-bezier(.16,1,.3,1)") }
         : { left: "50%", top: "50%", transform: "translate(-50%,-50%)",
             width: "min(64rem, calc(100vw - 3rem))", height: "min(82vh, 40rem)",
-            animation: (s.rcpClosing ? "od-rcp-out 190ms ease forwards" : "od-rcp-in 460ms cubic-bezier(.22,1,.36,1)") }),
+            animation: (s.rcpClosing ? "od-rcp-out 320ms ease forwards" : "od-rcp-in 600ms cubic-bezier(.16,1,.3,1)") }),
       rcpHead: { flex: "none", display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: s.narrow ? "0 .85rem" : "0 1.15rem", height: "3.2rem", borderBottom: "1px solid var(--line)" },
       rcpTitle: { minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
